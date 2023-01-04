@@ -1,0 +1,83 @@
+version: "3.9"
+
+services:
+  spring:
+    container_name: spring
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SERVER_MODE: local
+    platform: linux/x86_64
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - backbone
+
+  db:
+    container_name: db
+    image: mysql:8.0
+    platform: linux/x86_64
+    restart: always
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: Asdf1234!!
+      MYSQL_ROOT_PASSWORD: Asdf1234!!
+    volumes:
+      - ~/project-volume/db:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    networks:
+      - backbone
+
+  test-db:
+    container_name: test-db
+    image: mysql:8.0
+    platform: linux/x86_64
+    restart: always
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: test
+    volumes:
+      - ~/project-volume/test-db:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    networks:
+      - backbone
+
+  redis:
+    container_name: redis
+    image: redis
+    platform: linux/x86_64
+    restart: always
+    ports:
+      - "6380:6379"
+    networks:
+      - backbone
+
+  test-redis:
+    container_name: test-redis
+    image: redis
+    platform: linux/x86_64
+    restart: always
+    ports:
+      - "6381:6379"
+    networks:
+      - backbone
+
+networks:
+  backbone:
+    name: backbone
+    driver: bridge
