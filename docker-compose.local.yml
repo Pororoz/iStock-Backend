@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  spring:
+    container_name: spring
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SERVER_MODE: local
+    platform: linux/x86_64
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - local
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    platform: linux/x86_64
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: istock
+      MYSQL_USER: istock
+      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: 1234
+    volumes:
+      - ~/iStock/mysql:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    networks:
+      - local
+
+  redis:
+    container_name: redis
+    image: redis
+    platform: linux/x86_64
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - local
+
+networks:
+  local:
+    driver: bridge
