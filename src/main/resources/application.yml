@@ -1,0 +1,44 @@
+# default Profile
+spring:
+  profiles:
+    active: "build"
+---
+# build config
+spring:
+  config:
+    activate:
+      on-profile: "build"
+  datasource:
+    url: "jdbc:mysql://localhost:3306/istock?serverTimezone=Asia/Seoul"
+    username: istock
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+---
+# local config
+spring:
+  config:
+    activate:
+      on-profile: "local"
+  datasource:
+    url: "jdbc:mysql://mysql:3306/istock?serverTimezone=Asia/Seoul"
+    username: istock
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
+  data:
+    redis:
+      host: redis
+      port: 6379
