@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  spring1:
+    container_name: spring1
+    restart: always
+    image: ${{docker-image}}
+    environment:
+      SERVER_MODE: spring1
+    platform: linux/x86_64
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mysql
+
+  spring2:
+    container_name: spring2
+    restart: always
+    image: ${{docker-image}}
+    environment:
+      SERVER_MODE: spring2
+    platform: linux/x86_64
+    ports:
+      - "8082:8080"
+    depends_on:
+      - mysql
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    restart: always
+    ports:
+      - "80:80/tcp"
+      - "443:443"
+    volumes:
+      - ~/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ~/nginx/conf.d/application.conf:/etc/nginx/conf.d/application.conf
+      - ~/nginx/conf.d/service-url.inc:/etc/nginx/conf.d/service-url.inc
+    environment:
+      - TZ=Asia/Seoul
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    platform: linux/x86_64
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: istock
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ~/istock-volume/mysql:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+  redis:
+    container_name: redis
+    image: redis
+    platform: linux/x86_64
+    restart: always
+    ports:
+      - "6379:6379"
