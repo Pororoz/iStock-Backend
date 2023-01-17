@@ -15,7 +15,7 @@ jobs:
         ports:
           - 3399:3306
         env:
-          MYSQL_DATABASE: 'test'
+          MYSQL_DATABASE: 'istock'
           MYSQL_USER: 'test'
           MYSQL_PASSWORD: 1234
           MYSQL_ROOT_PASSWORD: 1234
