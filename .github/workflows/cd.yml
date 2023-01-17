@@ -106,4 +106,4 @@ jobs:
             cd ~/${{ env.REPOSITORY }}
             sudo chmod +x ./script/*.sh
             ./script/deploy.sh ${{ env.ORGANIZATION }} ${{ env.REPOSITORY }}
-#            ./script/health.sh ${{ env.ORGANIZATION }} ${{ env.REPOSITORY }}
+            ./script/health.sh ${{ env.ORGANIZATION }} ${{ env.REPOSITORY }}

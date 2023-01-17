@@ -4,9 +4,9 @@ ORGANIZATION=$1
 REPOSITORY=$2
 ABS_PATH=$(readlink -f "$0")
 ABS_DIR=$(dirname "$ABS_PATH")
-#source "$ABS_DIR"/profile.sh
+source "$ABS_DIR"/profile.sh
 
-IDLE_CONTAINER=spring1
+IDLE_CONTAINER=$(find_idle_profile)
 
 echo "> MySQL, Redis, Nginx container 실행"
 docker-compose -f docker-compose.prod.yml up mysql redis nginx -d --build
