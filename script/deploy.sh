@@ -22,8 +22,6 @@ fi
 
 if [[ "$(docker images -q ghcr.io/"$ORGANIZATION"/"$REPOSITORY":latest 2> /dev/null)" != "" ]]; then
   echo "> latest image tag를 old로 변경"
-  docker rmi ghcr.io/"$ORGANIZATION"/"$REPOSITORY":tmp
-  docker tag ghcr.io/"$ORGANIZATION"/"$REPOSITORY":old ghcr.io/"$ORGANIZATION"/"$REPOSITORY":tmp
   docker rmi ghcr.io/"$ORGANIZATION"/"$REPOSITORY":old
   docker tag ghcr.io/"$ORGANIZATION"/"$REPOSITORY":latest ghcr.io/"$ORGANIZATION"/"$REPOSITORY":old
   docker rmi ghcr.io/"$ORGANIZATION"/"$REPOSITORY":latest
