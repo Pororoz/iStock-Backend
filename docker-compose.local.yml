@@ -31,7 +31,7 @@ services:
       MYSQL_PASSWORD: 1234
       MYSQL_ROOT_PASSWORD: 1234
     volumes:
-      - ~/iStock/mysql:/var/lib/mysql
+      - ~/iStock-volume/mysql:/var/lib/mysql
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
