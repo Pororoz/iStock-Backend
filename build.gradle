@@ -26,9 +26,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.session:spring-session-data-redis'
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
     implementation 'org.springframework.session:spring-session-core'
     implementation 'org.hibernate.validator:hibernate-validator'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
     implementation 'com.google.guava:guava:31.1-jre'
 
     compileOnly 'org.projectlombok:lombok'
