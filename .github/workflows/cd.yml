@@ -7,7 +7,7 @@ on:
 
 env:
   REPOSITORY: istock-backend
-  ORGANIZATION: dohyeon-han
+  ORGANIZATION: pororoz
 
 jobs:
   push-docker-image:
@@ -68,6 +68,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Set up Docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Docker registry login
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ env.ORGANIZATION }}
+          password: ${{ secrets.ACCESS_TOKEN }}
 
       # env의 내용을 files에 복사
       - name: Set docker-compose.prod.yml
