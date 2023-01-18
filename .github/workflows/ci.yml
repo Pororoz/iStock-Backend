@@ -3,7 +3,9 @@ name: ci
 on:
   pull_request:
     branches:
-      - 'tmp'
+      - 'main'
+      - 'release'
+
 
 jobs:
   build:
