@@ -4,7 +4,7 @@ ABS_PATH=$(readlink -f "$0")
 ABS_DIR=$(dirname "$ABS_PATH")
 CLOSE=$1 # 어떤 인자라도 있으면 docker-compose down
 
-cd "$ABS_DIR"/../
+cd "$ABS_DIR"/../ || return
 
 docker-compose -f docker-compose.test.yml up -d --build
 

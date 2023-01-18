@@ -49,12 +49,12 @@ jobs:
       - name: Test
         run: chmod +x gradlew && ./gradlew clean test
 
-#      - name: Comment test coverage
-#        id: jacoco
-#        uses: madrapps/jacoco-report@v1.2
-#        with:
-#          title: 📝 테스트 커버리지 리포트입니다
-#          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          min-coverage-overall: 20
-#          min-coverage-changed-files: 20
+      - name: Comment test coverage
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.2
+        with:
+          title: 📝 테스트 커버리지 리포트입니다
+          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 80
+          min-coverage-changed-files: 50
