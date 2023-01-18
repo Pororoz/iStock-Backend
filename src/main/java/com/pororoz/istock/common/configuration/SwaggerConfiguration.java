@@ -21,17 +21,16 @@ public class SwaggerConfiguration {
                 .build();
     }
 
-
     @Bean
     public OpenAPI openAPI() {
         Info info = new Info()
-                .title("Spring application")
+                .title("iStock")
                 .version("v0.0.1")
                 .license(new License().name("Apache 2.0").url("http://springdoc.org"));
 
         ExternalDocumentation externalDocumentation = new ExternalDocumentation()
-                .description("SpringShop Wiki Documentation")
-                .url("https://springshop.wiki.github.org/docs");
+                .description("iStock Documentation")
+                .url("https://vigorous-mailbox-050.notion.site/iStock-0e74fa8144414d078810cb11bc08a7c3");
 
         return new OpenAPI().info(info).externalDocs(externalDocumentation);
     }
