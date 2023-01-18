@@ -18,6 +18,7 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: true
+    defer-datasource-initialization: true
   sql:
     init:
       mode: always
@@ -52,6 +53,7 @@ spring:
     hibernate:
       ddl-auto: update
     open-in-view: true
+    defer-datasource-initialization: true
   sql:
     init:
       mode: always
