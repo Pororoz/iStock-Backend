@@ -9,7 +9,16 @@ spring:
     hibernate:
       ddl-auto: create
     open-in-view: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
   data:
     redis:
       host: localhost
       port: 6399
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false

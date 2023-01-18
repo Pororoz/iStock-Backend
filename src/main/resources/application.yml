@@ -11,17 +11,32 @@ spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/istock?serverTimezone=Asia/Seoul"
     username: istock
-    password: 1234
+    password: Asdf1234!!
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
     open-in-view: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
   data:
     redis:
       host: localhost
       port: 6379
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+  api-docs:
+    path: /api-docs
+  default-consumes-media-type: application/json
 ---
 # local config
 spring:
@@ -31,14 +46,30 @@ spring:
   datasource:
     url: "jdbc:mysql://mysql:3306/istock?serverTimezone=Asia/Seoul"
     username: istock
-    password: 1234
+    password: Asdf1234!!
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
     open-in-view: true
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
   data:
     redis:
       host: redis
       port: 6379
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+  api-docs:
+    path: /api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
