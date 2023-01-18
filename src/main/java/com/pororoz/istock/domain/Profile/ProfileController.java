@@ -1,4 +1,4 @@
-package com.pororoz.istock.Profile;
+package com.pororoz.istock.domain.Profile;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;

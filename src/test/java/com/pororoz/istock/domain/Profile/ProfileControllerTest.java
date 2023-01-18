@@ -1,4 +1,4 @@
-package com.pororoz.istock.Profile;
+package com.pororoz.istock.domain.Profile;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
