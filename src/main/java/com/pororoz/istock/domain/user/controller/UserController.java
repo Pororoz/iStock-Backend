@@ -7,6 +7,7 @@ import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
 import com.pororoz.istock.domain.user.dto.response.SaveUserResponse;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,15 +15,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-@RequiredArgsConstructor
-@RequestMapping("/users")
 @Controller
+@RequestMapping("/v1/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/")
-    public ResponseEntity<ResultDTO<SaveUserResponse>> saveUser(@RequestBody SaveUserRequest saveUserRequest) {
+    @PostMapping
+    public ResponseEntity<ResultDTO<SaveUserResponse>> saveUser(@Valid @RequestBody SaveUserRequest saveUserRequest) {
         SaveUserServiceResponse response = userService.saveUser(saveUserRequest.toService());
         return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_USER, response.toResponse()));
     }
