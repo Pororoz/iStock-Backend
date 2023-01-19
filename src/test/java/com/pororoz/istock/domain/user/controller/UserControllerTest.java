@@ -4,7 +4,6 @@ import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
 import com.pororoz.istock.domain.user.dto.response.SaveUserResponse;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceResponse;
-import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -37,13 +36,13 @@ class UserControllerTest {
 
         private String username;
         private String password;
-        private Role role;
+        private String roleName;
 
         @BeforeEach
         void setup() {
             username = "test";
             password = "1234";
-            role = Role.builder().name("User").build();
+            roleName = "user";
         }
 
         @Nested
@@ -56,12 +55,12 @@ class UserControllerTest {
                 SaveUserRequest saveUserRequest = SaveUserRequest.builder()
                         .username(username)
                         .password(password)
-                        .role(role)
+                        .roleName(roleName)
                         .build();
                 SaveUserServiceResponse saveUserServiceResponse = SaveUserServiceResponse.builder()
                         .id(1L)
                         .username(username)
-                        .role(role)
+                        .roleName(roleName)
                         .build();
                 SaveUserResponse saveUserResponse = saveUserServiceResponse.toResponse();
 
