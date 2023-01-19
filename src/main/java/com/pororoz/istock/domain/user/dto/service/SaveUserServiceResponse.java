@@ -11,7 +11,7 @@ import lombok.Getter;
 public class SaveUserServiceResponse {
     private Long id;
     private String username;
-    private Role role;
+    private String roleName;
 
     @Override
     public boolean equals(Object obj) {
@@ -33,7 +33,7 @@ public class SaveUserServiceResponse {
         return SaveUserResponse.builder()
                 .id(id)
                 .username(username)
-                .role(role)
+                .roleName(roleName)
                 .build();
     }
 }

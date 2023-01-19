@@ -10,9 +10,9 @@ import lombok.Getter;
 public class SaveUserServiceRequest {
     private String username;
     private String password;
-    private Role role;
+    private String roleName;
 
-    public User toUser() {
+    public User toUser(Role role) {
         return User.builder()
                 .username(username)
                 .password(password)
