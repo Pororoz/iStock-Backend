@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.user.dto.service;
 
+import com.pororoz.istock.domain.user.dto.response.SaveUserResponse;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import lombok.Builder;
@@ -25,6 +26,14 @@ public class SaveUserServiceResponse {
                 .id(user.getId())
                 .username(user.getUsername())
                 .role(user.getRole())
+                .build();
+    }
+
+    public SaveUserResponse toResponse() {
+        return SaveUserResponse.builder()
+                .id(id)
+                .username(username)
+                .role(role)
                 .build();
     }
 }
