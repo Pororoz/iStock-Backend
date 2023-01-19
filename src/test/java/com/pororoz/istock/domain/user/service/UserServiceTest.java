@@ -52,7 +52,7 @@ class UserServiceTest {
                         .role(role)
                         .build();
 
-                User user = User.builder()
+                User resultUser = User.builder()
                         .id(id)
                         .username(username)
                         .password(password)
@@ -66,7 +66,7 @@ class UserServiceTest {
                         .build();
 
                 // when
-                when(userRepository.save(any())).thenReturn(user);
+                when(userRepository.save(any())).thenReturn(resultUser);
                 SaveUserServiceResponse result = userService.saveUser(saveUserServiceRequest);
 
                 // then
