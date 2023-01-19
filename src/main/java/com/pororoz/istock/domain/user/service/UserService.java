@@ -2,6 +2,7 @@ package com.pororoz.istock.domain.user.service;
 
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceResponse;
+import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
