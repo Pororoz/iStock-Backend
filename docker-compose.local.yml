@@ -28,8 +28,8 @@ services:
     environment:
       MYSQL_DATABASE: istock
       MYSQL_USER: istock
-      MYSQL_PASSWORD: 1234
-      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_PASSWORD: Asdf1234!!
+      MYSQL_ROOT_PASSWORD: Asdf1234!!
     volumes:
       - ~/istock-volume/mysql:/var/lib/mysql
     command:

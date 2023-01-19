@@ -12,6 +12,7 @@ services:
       - "8081:8080"
     depends_on:
       - mysql
+      - redis
 
   spring2:
     container_name: spring2
@@ -24,6 +25,7 @@ services:
       - "8082:8080"
     depends_on:
       - mysql
+      - redis
 
   nginx:
     container_name: nginx
@@ -38,8 +40,6 @@ services:
       - ~/nginx/conf.d/service-url.inc:/etc/nginx/conf.d/service-url.inc
     environment:
       - TZ=Asia/Seoul
-    depends_on:
-      - mysql
 
   mysql:
     container_name: mysql
