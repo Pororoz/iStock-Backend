@@ -1,9 +1,9 @@
 name: cd
 
 on:
-  pull_request:
+  push:
     branches:
-      - 'main'
+      - 'release'
 
 env:
   REPOSITORY: istock-backend
@@ -33,9 +33,7 @@ jobs:
           spring.datasource.password: ${{ secrets.MYSQL_PASSWORD }}
 
       - name: Extract version name from commit message
-        run: |
-          echo "${{ github.event.head_commit.message }}"
-          echo "##[set-output name=version;]$(echo '${{ github.event.head_commit.message }}' | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')"
+        run: echo "##[set-output name=version;]$(echo '${{ github.event.head_commit.message }}' | egrep -o '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')"
         id: extract_version_name
 
       - name: Set up Docker buildx
@@ -121,4 +119,3 @@ jobs:
         with:
           tag_name: ${{ steps.extract_version_name.outputs.version }}
           release_name: ${{ steps.extract_version_name.outputs.version }}
-

@@ -1,14 +1,11 @@
 name: ci
 
-#on:
-#  pull_request:
-#    branches:
-#      - 'main'
-#      - 'release'
 on:
   pull_request:
     branches:
-      - 'tmp'
+      - 'main'
+      - 'release'
+
 jobs:
   build:
     runs-on: ubuntu-latest
