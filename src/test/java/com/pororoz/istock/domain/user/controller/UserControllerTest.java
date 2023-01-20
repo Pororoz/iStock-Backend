@@ -65,7 +65,7 @@ class UserControllerTest {
                 UserResponse userResponse = userServiceResponse.toResponse();
 
                 // when
-                when(userService.saveUser(any())).thenReturn(userServiceResponse);
+                when(userService.saveUser(any())).thenReturn(userResponse);
                 ResponseEntity<ResultDTO<UserResponse>> response = userController.saveUser(saveUserRequest);
 
                 // then

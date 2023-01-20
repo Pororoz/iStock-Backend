@@ -138,13 +138,15 @@ class UserServiceTest {
                         .username(username)
                         .build();
 
+                UserResponse response = userServiceResponse.toResponse();
+
                 // when
                 when(userRepository.save(any())).thenReturn(resultUser);
                 when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
-                UserServiceResponse result = userService.saveUser(saveUserServiceRequest);
+                UserResponse result = userService.saveUser(saveUserServiceRequest);
 
                 // then
-                assertEquals(result, userServiceResponse);
+                assertEquals(result, response);
             }
         }
 
