@@ -4,9 +4,11 @@ services:
   spring1:
     container_name: spring1
     restart: always
-    image: ${{docker-image}}
+    image: docker-image
     environment:
       SERVER_MODE: spring1
+      MYSQL_USERNAME: "${MYSQL_USERNAME}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     platform: linux/x86_64
     ports:
       - "8081:8080"
@@ -17,9 +19,11 @@ services:
   spring2:
     container_name: spring2
     restart: always
-    image: ${{docker-image}}
+    image: docker-image
     environment:
       SERVER_MODE: spring2
+      MYSQL_USERNAME: "${MYSQL_USERNAME}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     platform: linux/x86_64
     ports:
       - "8082:8080"
@@ -50,9 +54,9 @@ services:
       - "3306:3306"
     environment:
       MYSQL_DATABASE: istock
-      MYSQL_USER: ${MYSQL_USERNAME}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: "${MYSQL_USERNAME}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
     volumes:
       - ~/istock-volume/mysql:/var/lib/mysql
     command:

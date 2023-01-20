@@ -9,6 +9,8 @@ services:
       dockerfile: Dockerfile
     environment:
       SERVER_MODE: local
+      MYSQL_USERNAME: "${MYSQL_USERNAME}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     platform: linux/x86_64
     ports:
       - "8080:8080"
@@ -27,9 +29,9 @@ services:
       - "3306:3306"
     environment:
       MYSQL_DATABASE: istock
-      MYSQL_USER: istock
-      MYSQL_PASSWORD: Asdf1234!!
-      MYSQL_ROOT_PASSWORD: Asdf1234!!
+      MYSQL_USER: "${MYSQL_USERNAME}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
     volumes:
       - ~/istock-volume/mysql:/var/lib/mysql
     command:
