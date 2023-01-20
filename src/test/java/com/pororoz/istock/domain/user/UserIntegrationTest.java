@@ -106,15 +106,56 @@ public class UserIntegrationTest {
         @Nested
         @DisplayName("실패 케이스")
         class FailCase {
-//            @Test
-//            @DisplayName("존재하지 않는 유저를 삭제하면 404 Error와 USER_NOT_FOUND error를 반환받는다.")
-//            void userNotFound() throws Exception {
-//                //given
-//
-//                //when
-//
-//                //then
-//            }
+            @Test
+            @DisplayName("존재하지 않는 유저를 삭제하면 404 Error와 USER_NOT_FOUND error를 반환받는다.")
+            void userNotFound() throws Exception {
+                //given
+
+                //when
+                ResultActions actions = mockMvc.perform(delete(url(id))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+                // then
+                actions.andExpect(status().isNotFound())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.status").value(ExceptionStatus.USER_NOT_FOUND))
+                        .andExpect(jsonPath("$.message").value(ExceptionMessage.USER_NOT_FOUND))
+                        .andDo(print());
+            }
+
+            @Test
+            @DisplayName("아이디 값이 음수 값이 들어오면 validation error를 뱉는다.")
+            void pathNegativeError() throws Exception {
+                //given
+
+                //when
+                ResultActions actions = mockMvc.perform(delete(url(-1L))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+                // then
+                actions.andExpect(status().isBadRequest())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+                        .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_PATH))
+                        .andDo(print());
+            }
+
+            @Test
+            @DisplayName("아이디 값이 문자열로 들어오면 validation error를 뱉는다.")
+            void pathStringError() throws Exception {
+                //given
+
+                //when
+                ResultActions actions = mockMvc.perform(delete("/v1/users/nothing")
+                        .contentType(MediaType.APPLICATION_JSON));
+
+                // then
+                actions.andExpect(status().isBadRequest())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+                        .andExpect(jsonPath("$.message").value(ExceptionMessage.TYPE_MISMATCH))
+                        .andDo(print());
+            }
         }
     }
 
