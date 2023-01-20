@@ -89,7 +89,19 @@ class UserServiceTest {
         @Nested
         @DisplayName("실패 케이스")
         class FailCase {
+            @Test
+            @DisplayName("없는 ID로 요청했을 때 ErrorResponse를 반환한다.")
+            void notExistedId() {
+                // given
+                DeleteUserServiceRequest deleteUserServiceRequest = DeleteUserServiceRequest.builder()
+                        .id(10000L)
+                        .build();
 
+                // when
+
+                // then
+                assertThrows(UserNotFoundException.class, () -> userService.deleteUser(deleteUserServiceRequest));
+            }
         }
     }
 
