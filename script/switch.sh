@@ -8,8 +8,8 @@ function switch_proxy(){
   IDLE_CONTAINER=$(find_idle_profile)
 
   echo "> 전환할 컨테이너: $IDLE_CONTAINER"
-  echo "set \$service_url http://$IDLE_CONTAINER:8080;" | sudo tee ~/nginx/conf.d/service-url.inc
+  docker exec nginx /bin/sh -c "echo set '\$service_url http://$IDLE_CONTAINER:8080;' | tee /etc/nginx/conf.d/service-url.inc"
 
   echo "Nginx container restart"
-  docker restart nginx
+  docker exec -it nginx nginx -s reload
 }

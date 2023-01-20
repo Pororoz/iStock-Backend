@@ -68,7 +68,7 @@ jobs:
           services.spring2.image: ghcr.io/${{ env.ORGANIZATION }}/${{ env.REPOSITORY }}:latest
 
       - name: Make .env
-        run: printf "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}\nMYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}\nMYSQL_ROOT_PASSWORD=${{ MYSQL_ROOT_PASSWORD }}" >> .env
+        run: printf "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}\nMYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}\nMYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
 
       # 파일을 ssh를 통해 서버로 복사
       - name: Copy docker compose & Scripts & Nginx
@@ -97,6 +97,11 @@ jobs:
             sudo chmod +x ./script/*.sh
             ./script/deploy.sh ${{ env.ORGANIZATION }} ${{ env.REPOSITORY }}
             ./script/health.sh ${{ env.ORGANIZATION }} ${{ env.REPOSITORY }}
+            # nginx 전환에 실패하면 workflow 종료
+            if [ "$?" -ge 1 ]
+            then
+              exit 1
+            fi
             docker logout https://ghcr.io
 
       - name: Extract version name from commit message
