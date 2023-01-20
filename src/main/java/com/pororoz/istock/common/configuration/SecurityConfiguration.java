@@ -42,12 +42,9 @@ public class SecurityConfiguration{
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable();
 
-        http.authorizeHttpRequests((authorize) -> authorize
-                .anyRequest().permitAll()
-        );
-//        http.authorizeHttpRequests()
-//                .requestMatchers("/login").permitAll()
-//                .requestMatchers("/user").hasRole("ADMIN");
+        http.authorizeHttpRequests()
+                .requestMatchers("/v1/auth/login").permitAll()
+                .requestMatchers("/v1/users").hasRole("ADMIN");
 
         return http.build();
     }
