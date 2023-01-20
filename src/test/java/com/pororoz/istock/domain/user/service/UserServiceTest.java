@@ -33,6 +33,65 @@ class UserServiceTest {
     RoleRepository roleRepository;
 
     @Nested
+    class DeleteUser {
+        private Long id;
+        private String username;
+        private String password;
+        private String roleName;
+        private Role role;
+
+        @BeforeEach
+        void setup() {
+            id = 1L;
+            username = "test";
+            password = "1234";
+            roleName = "admin";
+            role = Role.builder().name("admin").build();
+        }
+
+        @Nested
+        @DisplayName("성공 케이스")
+        class SuccessCase {
+            @Test
+            @DisplayName("존재하는 유저를 삭제한다.")
+            void saveUser(){
+                // given
+                DeleteUserServiceRequest deleteUserServiceRequest = DeleteUserServiceRequest.builder()
+                        .id(id)
+                        .build();
+
+                User resultUser = User.builder()
+                        .id(id)
+                        .username(username)
+                        .password(password)
+                        .role(role)
+                        .build();
+
+                DeleteUserServiceResponse deleteUserServiceResponse = DeleteUserServiceResponse.builder()
+                        .id(id)
+                        .roleName(roleName)
+                        .username(username)
+                        .build();
+
+                // when
+                when(userRepository.findById(id)).thenReturn(Optional.of(resultUser));
+                when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
+                DeleteUserServiceResponse result = userService.deleteUser(deleteUserServiceRequest);
+
+                // then
+                assertEquals(result, deleteUserServiceResponse);
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 케이스")
+        class FailCase {
+
+        }
+    }
+
+    @Nested
+    @DisplayName("유저 생성 API Test")
     class SaveUser{
 
         private Long id;
@@ -51,6 +110,7 @@ class UserServiceTest {
         }
 
         @Nested
+        @DisplayName("성공 케이스")
         class SuccessCase{
             @Test
             @DisplayName("유저를 생성한다.")
@@ -86,6 +146,7 @@ class UserServiceTest {
         }
 
         @Nested
+        @DisplayName("실패 케이스")
         class FailCase{
             @Test
             @DisplayName("잘못된 role name은 RoleNotFoundExceptin이 발생한다.")
