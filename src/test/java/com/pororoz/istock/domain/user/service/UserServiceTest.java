@@ -7,6 +7,7 @@ import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
+import com.pororoz.istock.domain.user.exception.UserNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -75,14 +76,14 @@ class UserServiceTest {
                         .roleName(roleName)
                         .username(username)
                         .build();
+                UserResponse response = userServiceResponse.toResponse();
 
                 // when
                 when(userRepository.findById(id)).thenReturn(Optional.of(resultUser));
-                when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
                 UserResponse result = userService.deleteUser(deleteUserServiceRequest);
 
                 // then
-                assertEquals(result, userServiceResponse);
+                assertEquals(result, response);
             }
         }
 
@@ -90,7 +91,7 @@ class UserServiceTest {
         @DisplayName("실패 케이스")
         class FailCase {
             @Test
-            @DisplayName("없는 ID로 요청했을 때 ErrorResponse를 반환한다.")
+            @DisplayName("없는 ID로 요청했을 때 UserNotFoundException을 반환한다.")
             void notExistedId() {
                 // given
                 DeleteUserServiceRequest deleteUserServiceRequest = DeleteUserServiceRequest.builder()
