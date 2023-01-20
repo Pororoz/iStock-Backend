@@ -117,6 +117,8 @@ class UserControllerTest {
 
                 // then
                 assertEquals(Objects.requireNonNull(response.getBody()).getData(), userResponse);
+                assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
+                assertEquals(Objects.requireNonNull(response.getBody()).getMessage(), ResponseMessage.SAVE_USER);
             }
         }
 

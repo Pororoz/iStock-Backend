@@ -6,6 +6,7 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
+import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.service.UserService;
 import com.pororoz.istock.domain.user.swagger.exception.RoleNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.response.SaveUserResponseSwagger;
@@ -18,10 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "User", description = "User API")
 @RestController
@@ -30,6 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ResultDTO<UserResponse>> deleteUser(@PathVariable Long id) {
+        UserResponse response = userService.deleteUser(DeleteUserServiceRequest.builder().id(id).build());
+        return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_USER, response));
+    }
 
     @Operation(summary = "save user", description = "유저 생성 API")
     @ApiResponses({
