@@ -15,6 +15,7 @@ services:
     depends_on:
       - mysql
       - redis
+      - nginx
 
   spring2:
     container_name: spring2
@@ -30,6 +31,7 @@ services:
     depends_on:
       - mysql
       - redis
+      - nginx
 
   nginx:
     container_name: nginx
