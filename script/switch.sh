@@ -11,5 +11,5 @@ function switch_proxy(){
   docker exec nginx /bin/sh -c "echo set '\$service_url http://$IDLE_CONTAINER:8080;' | tee /etc/nginx/conf.d/service-url.inc"
 
   echo "Nginx container restart"
-  docker exec -it nginx nginx -s reload
+  docker exec -i nginx nginx -s reload
 }
