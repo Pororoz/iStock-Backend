@@ -9,6 +9,8 @@ import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.service.UserService;
 import com.pororoz.istock.domain.user.swagger.exception.RoleNotFoundExceptionSwagger;
+import com.pororoz.istock.domain.user.swagger.exception.UserNotFoundExceptionSwagger;
+import com.pororoz.istock.domain.user.swagger.response.DeleteUserResponseSwagger;
 import com.pororoz.istock.domain.user.swagger.response.SaveUserResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,6 +31,13 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "delete user", description = "유저 삭제 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_USER,
+                    content = {@Content(schema = @Schema(implementation = DeleteUserResponseSwagger.class))}),
+            @ApiResponse(responseCode = "404", description = ExceptionMessage.ROLE_NOT_FOUND,
+                    content = {@Content(schema = @Schema(implementation = UserNotFoundExceptionSwagger.class))})
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<ResultDTO<UserResponse>> deleteUser(@PathVariable Long id) {
         UserResponse response = userService.deleteUser(DeleteUserServiceRequest.builder().id(id).build());
