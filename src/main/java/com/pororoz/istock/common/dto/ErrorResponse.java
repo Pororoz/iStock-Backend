@@ -1,5 +1,6 @@
 package com.pororoz.istock.common.dto;
 
+import com.pororoz.istock.common.exception.ErrorBinder;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
@@ -19,5 +20,5 @@ public class ErrorResponse {
     @NotBlank
     private final String message;
 
-    private List<String> errors;
+    private List<ErrorBinder> errors;
 }

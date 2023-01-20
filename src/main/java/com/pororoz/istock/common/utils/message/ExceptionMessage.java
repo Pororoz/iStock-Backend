@@ -10,5 +10,8 @@ public class ExceptionMessage {
 
     public static final String USER_NOT_FOUND = "해당 아이디에 맞는 유저를 찾을 수 없습니다.";
 
+    public static final  String INVALID_PATH = "형식에 맞지 않는 path입니다.";
+    public static final String TYPE_MISMATCH = "맞지 않는 타입입니다.";
+
     private ExceptionMessage() {}
 }

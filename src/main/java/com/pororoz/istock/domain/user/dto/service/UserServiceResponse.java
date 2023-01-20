@@ -12,14 +12,6 @@ public class UserServiceResponse {
     private String username;
     private String roleName;
 
-    @Override
-    public boolean equals(Object obj) {
-        UserServiceResponse response = (UserServiceResponse) obj;
-        return id.equals(response.getId()) &&
-                username.equals(response.getUsername()) &&
-                roleName.equals(response.getRoleName());
-    }
-
     public static UserServiceResponse of(User user) {
         return UserServiceResponse.builder()
                 .id(user.getId())
