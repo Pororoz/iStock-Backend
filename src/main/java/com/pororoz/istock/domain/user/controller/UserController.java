@@ -5,8 +5,8 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
-import com.pororoz.istock.domain.user.dto.response.SaveUserResponse;
-import com.pororoz.istock.domain.user.dto.service.SaveUserServiceResponse;
+import com.pororoz.istock.domain.user.dto.response.UserResponse;
+import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;
 import com.pororoz.istock.domain.user.swagger.exception.RoleNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.response.SaveUserResponseSwagger;
@@ -40,8 +40,8 @@ public class UserController {
                 content = {@Content(schema = @Schema(implementation = RoleNotFoundExceptionSwagger.class))})
     })
     @PostMapping
-    public ResponseEntity<ResultDTO<SaveUserResponse>> saveUser(@Valid @RequestBody SaveUserRequest saveUserRequest) {
-        SaveUserServiceResponse response = userService.saveUser(saveUserRequest.toService());
+    public ResponseEntity<ResultDTO<UserResponse>> saveUser(@Valid @RequestBody SaveUserRequest saveUserRequest) {
+        UserServiceResponse response = userService.saveUser(saveUserRequest.toService());
         return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_USER, response.toResponse()));
     }
 }

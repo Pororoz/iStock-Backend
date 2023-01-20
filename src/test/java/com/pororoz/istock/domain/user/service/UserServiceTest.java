@@ -1,7 +1,9 @@
 package com.pororoz.istock.domain.user.service;
 
+import com.pororoz.istock.domain.user.dto.response.UserResponse;
+import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
-import com.pororoz.istock.domain.user.dto.service.SaveUserServiceResponse;
+import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
@@ -33,6 +35,7 @@ class UserServiceTest {
     RoleRepository roleRepository;
 
     @Nested
+    @DisplayName("계정 삭제 API")
     class DeleteUser {
         private Long id;
         private String username;
@@ -54,7 +57,7 @@ class UserServiceTest {
         class SuccessCase {
             @Test
             @DisplayName("존재하는 유저를 삭제한다.")
-            void saveUser(){
+            void deleteUser(){
                 // given
                 DeleteUserServiceRequest deleteUserServiceRequest = DeleteUserServiceRequest.builder()
                         .id(id)
@@ -67,7 +70,7 @@ class UserServiceTest {
                         .role(role)
                         .build();
 
-                DeleteUserServiceResponse deleteUserServiceResponse = DeleteUserServiceResponse.builder()
+                UserServiceResponse userServiceResponse = UserServiceResponse.builder()
                         .id(id)
                         .roleName(roleName)
                         .username(username)
@@ -76,10 +79,10 @@ class UserServiceTest {
                 // when
                 when(userRepository.findById(id)).thenReturn(Optional.of(resultUser));
                 when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
-                DeleteUserServiceResponse result = userService.deleteUser(deleteUserServiceRequest);
+                UserResponse result = userService.deleteUser(deleteUserServiceRequest);
 
                 // then
-                assertEquals(result, deleteUserServiceResponse);
+                assertEquals(result, userServiceResponse);
             }
         }
 
@@ -129,7 +132,7 @@ class UserServiceTest {
                         .role(role)
                         .build();
 
-                SaveUserServiceResponse saveUserServiceResponse = SaveUserServiceResponse.builder()
+                UserServiceResponse userServiceResponse = UserServiceResponse.builder()
                         .id(id)
                         .roleName(roleName)
                         .username(username)
@@ -138,10 +141,10 @@ class UserServiceTest {
                 // when
                 when(userRepository.save(any())).thenReturn(resultUser);
                 when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
-                SaveUserServiceResponse result = userService.saveUser(saveUserServiceRequest);
+                UserServiceResponse result = userService.saveUser(saveUserServiceRequest);
 
                 // then
-                assertEquals(result, saveUserServiceResponse);
+                assertEquals(result, userServiceResponse);
             }
         }
 

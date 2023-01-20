@@ -2,7 +2,7 @@ package com.pororoz.istock.domain.user.swagger.response;
 
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
-import com.pororoz.istock.domain.user.dto.response.SaveUserResponse;
+import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,5 +18,5 @@ public class SaveUserResponseSwagger {
     @Schema(description = "Message", example = ResponseMessage.SAVE_USER)
     private String message;
 
-    private SaveUserResponse saveUserResponse;
+    private UserResponse userResponse;
 }

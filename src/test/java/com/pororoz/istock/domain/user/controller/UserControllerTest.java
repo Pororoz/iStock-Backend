@@ -2,8 +2,8 @@ package com.pororoz.istock.domain.user.controller;
 
 import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
-import com.pororoz.istock.domain.user.dto.response.SaveUserResponse;
-import com.pororoz.istock.domain.user.dto.service.SaveUserServiceResponse;
+import com.pororoz.istock.domain.user.dto.response.UserResponse;
+import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,19 +57,19 @@ class UserControllerTest {
                         .password(password)
                         .roleName(roleName)
                         .build();
-                SaveUserServiceResponse saveUserServiceResponse = SaveUserServiceResponse.builder()
+                UserServiceResponse userServiceResponse = UserServiceResponse.builder()
                         .id(1L)
                         .username(username)
                         .roleName(roleName)
                         .build();
-                SaveUserResponse saveUserResponse = saveUserServiceResponse.toResponse();
+                UserResponse userResponse = userServiceResponse.toResponse();
 
                 // when
-                when(userService.saveUser(any())).thenReturn(saveUserServiceResponse);
-                ResponseEntity<ResultDTO<SaveUserResponse>> response = userController.saveUser(saveUserRequest);
+                when(userService.saveUser(any())).thenReturn(userServiceResponse);
+                ResponseEntity<ResultDTO<UserResponse>> response = userController.saveUser(saveUserRequest);
 
                 // then
-                assertEquals(Objects.requireNonNull(response.getBody()).getData(), saveUserResponse);
+                assertEquals(Objects.requireNonNull(response.getBody()).getData(), userResponse);
             }
         }
 
