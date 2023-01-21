@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SaveUserResponse {
+public class UserResponse {
 
     @Schema(description = "사용자 아이디", example = "1")
     private Long id;
@@ -19,7 +19,7 @@ public class SaveUserResponse {
 
     @Override
     public boolean equals(Object obj){
-        SaveUserResponse response = (SaveUserResponse)obj;
+        UserResponse response = (UserResponse)obj;
         return id.equals(response.getId()) &&
                 username.equals(response.getUsername()) &&
                 roleName.equals(response.getRoleName());

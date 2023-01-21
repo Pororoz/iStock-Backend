@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class SaveUserResponseSwagger {
+public class DeleteUserResponseSwagger {
     @Schema(description = "Result Code", example = ResponseStatus.OK)
     private String status;
 
-    @Schema(description = "Message", example = ResponseMessage.SAVE_USER)
+    @Schema(description = "Message", example = ResponseMessage.DELETE_USER)
     private String message;
 
     private UserResponse userResponse;

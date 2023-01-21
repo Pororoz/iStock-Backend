@@ -1,9 +1,11 @@
 package com.pororoz.istock.domain.user.controller;
 
 import com.pororoz.istock.common.dto.ResultDTO;
+import com.pororoz.istock.common.utils.message.ResponseMessage;
+import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
-import com.pororoz.istock.domain.user.dto.response.SaveUserResponse;
-import com.pororoz.istock.domain.user.dto.service.SaveUserServiceResponse;
+import com.pororoz.istock.domain.user.dto.response.UserResponse;
+import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,6 +33,51 @@ class UserControllerTest {
     UserService userService;
 
     @Nested
+    @DisplayName("계정 삭제하기")
+    class deleteUser {
+        private Long id;
+        private String username;
+        private String roleName;
+
+        @BeforeEach
+        void setup() {
+            id = 1L;
+            username = "test";
+            roleName = "user";
+        }
+
+        @Nested
+        @DisplayName("성공 케이스")
+        class SuccessCase {
+            @Test
+            @DisplayName("존재하는 유저를 삭제하면 삭제된 유저를 반환한다.")
+            void saveUser(){
+                // given
+                UserServiceResponse userServiceResponse = UserServiceResponse.builder()
+                        .id(1L)
+                        .username(username)
+                        .roleName(roleName)
+                        .build();
+                UserResponse userResponse = userServiceResponse.toResponse();
+
+                // when
+                when(userService.deleteUser(any())).thenReturn(userResponse);
+                ResponseEntity<ResultDTO<UserResponse>> response = userController.deleteUser(id);
+
+                // then
+                assertEquals(Objects.requireNonNull(response.getBody()).getData(), userResponse);
+                assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
+                assertEquals(Objects.requireNonNull(response.getBody()).getMessage(), ResponseMessage.DELETE_USER);
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 케이스")
+        class FailCase {
+        }
+    }
+
+    @Nested
     @DisplayName("계정 생성하기")
     class SaveUser {
 
@@ -41,7 +88,7 @@ class UserControllerTest {
         @BeforeEach
         void setup() {
             username = "test";
-            password = "1234";
+            password = "1234ab";
             roleName = "user";
         }
 
@@ -57,19 +104,21 @@ class UserControllerTest {
                         .password(password)
                         .roleName(roleName)
                         .build();
-                SaveUserServiceResponse saveUserServiceResponse = SaveUserServiceResponse.builder()
+                UserServiceResponse userServiceResponse = UserServiceResponse.builder()
                         .id(1L)
                         .username(username)
                         .roleName(roleName)
                         .build();
-                SaveUserResponse saveUserResponse = saveUserServiceResponse.toResponse();
+                UserResponse userResponse = userServiceResponse.toResponse();
 
                 // when
-                when(userService.saveUser(any())).thenReturn(saveUserServiceResponse);
-                ResponseEntity<ResultDTO<SaveUserResponse>> response = userController.saveUser(saveUserRequest);
+                when(userService.saveUser(any())).thenReturn(userResponse);
+                ResponseEntity<ResultDTO<UserResponse>> response = userController.saveUser(saveUserRequest);
 
                 // then
-                assertEquals(Objects.requireNonNull(response.getBody()).getData(), saveUserResponse);
+                assertEquals(Objects.requireNonNull(response.getBody()).getData(), userResponse);
+                assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
+                assertEquals(Objects.requireNonNull(response.getBody()).getMessage(), ResponseMessage.SAVE_USER);
             }
         }
 
