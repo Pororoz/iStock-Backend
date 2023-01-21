@@ -4,6 +4,7 @@ import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
+import com.pororoz.istock.domain.user.dto.request.UpdateUserRequest;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;

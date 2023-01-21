@@ -5,6 +5,7 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
+import com.pororoz.istock.domain.user.dto.request.UpdateUserRequest;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.service.UserService;
@@ -35,6 +36,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+
+    @PutMapping
+    public ResponseEntity<ResultDTO<UserResponse>> updateUser(@RequestBody UpdateUserRequest updateUserRequest) {
+        UserResponse response = userService.updateUser(updateUserRequest.toService());
+        return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_USER, response));
+    }
 
     @Operation(summary = "delete user", description = "유저 삭제 API")
     @ApiResponses({
