@@ -84,14 +84,14 @@ public class UserIntegrationTest {
                 Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
                 User user = User.builder().username(username).password(password).role(role).build();
                 userRepository.save(user);
-                String request = objectMapper.writeValueAsString(UpdateUserRequest.builder()
+                UpdateUserRequest request = UpdateUserRequest.builder()
                         .id(id)
                         .password(newPassword)
-                        .roleName(newRoleName).build());
+                        .roleName(newRoleName).build();
 
                 // when
                 ResultActions actions = mockMvc.perform(put(url)
-                        .content(request)
+                        .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON));
 
                 // then
@@ -110,6 +110,98 @@ public class UserIntegrationTest {
         @DisplayName("실패 케이스")
         class FailCase {
 
+            @Test
+            @DisplayName("아이디 값이 음수 값이 들어오면 validation error가 발생하고 400 code를 반환한다.")
+            void pathNegativeError() throws Exception {
+                //given
+                UpdateUserRequest request = UpdateUserRequest.builder()
+                        .id(-1L)
+                        .password(newPassword)
+                        .roleName(newRoleName).build();
+
+                //when
+                ResultActions actions = mockMvc.perform(put(url)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+                // then
+                actions.andExpect(status().isBadRequest())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+                        .andDo(print());
+            }
+
+            @Test
+            @DisplayName("영어로만 이루어진 비밀번호는 에러가 발생하고 400 code를 반환한다.")
+            void onlyEnglish() throws Exception {
+                //given
+                Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+                User user = User.builder().username(username).password(password).role(role).build();
+                userRepository.save(user);
+                String onlyStr = "asdafw";
+                UpdateUserRequest request = UpdateUserRequest.builder()
+                        .id(id)
+                        .password(onlyStr)
+                        .roleName(newRoleName)
+                        .build();
+
+                //when
+                ResultActions actions = mockMvc.perform(put(url)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+                //then
+                actions.andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+                        .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_PASSWORD))
+                        .andDo(print());
+            }
+
+            @Test
+            @DisplayName("존재하지 않는 유저를 수정하면 404 Error와 USER_NOT_FOUND error를 반환받는다.")
+            void userNotFound() throws Exception {
+                //given
+                long notExistUserId = 10000L;
+                UpdateUserRequest request = UpdateUserRequest.builder()
+                        .id(notExistUserId)
+                        .password(newPassword)
+                        .roleName(newRoleName)
+                        .build();
+
+                //when
+                ResultActions actions = mockMvc.perform(put(url)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+                // then
+                actions.andExpect(status().isNotFound())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.status").value(ExceptionStatus.USER_NOT_FOUND))
+                        .andExpect(jsonPath("$.message").value(ExceptionMessage.USER_NOT_FOUND))
+                        .andDo(print());
+            }
+
+            @Test
+            @DisplayName("존재하지 않는 role name이 들어오면 Error가 발생하고 404 코드를 반환한다.")
+            void notFoundRoleName() throws Exception{
+                //given
+                UpdateUserRequest request= UpdateUserRequest.builder()
+                        .id(id)
+                        .roleName("nothing")
+                        .password(newPassword)
+                        .build();
+
+                //when
+                ResultActions actions = mockMvc.perform(put(url)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+                //then
+                actions.andExpect(status().isNotFound())
+                        .andExpect(jsonPath("$.status").value(ExceptionStatus.ROLE_NOT_FOUND))
+                        .andExpect(jsonPath("$.message").value(ExceptionMessage.ROLE_NOT_FOUND))
+                        .andDo(print());
+            }
         }
     }
 
