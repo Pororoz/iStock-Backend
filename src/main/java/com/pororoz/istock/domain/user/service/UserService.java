@@ -13,6 +13,7 @@ import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +21,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 
+    @Transactional
     public UserResponse updateUser(UpdateUserServiceRequest updateUserServiceRequest) {
         Role role = roleRepository.findByName(updateUserServiceRequest.getRoleName())
                 .orElseThrow(RoleNotFoundException::new);
-        userRepository.updateUser(updateUserServiceRequest.getPassword(), role, updateUserServiceRequest.getId());
-        User user = userRepository.findById(updateUserServiceRequest.getId())
+        User targetUser = userRepository.findById(updateUserServiceRequest.getId())
                 .orElseThrow(UserNotFoundException::new);
-        return UserServiceResponse.of(user).toResponse();
+        targetUser.setRole(role);
+        targetUser.setPassword(updateUserServiceRequest.getPassword());
+
+        User resultUser = userRepository.save(targetUser);
+        return UserServiceResponse.of(resultUser).toResponse();
     }
 
     public UserResponse deleteUser(DeleteUserServiceRequest deleteUserServiceRequest) {

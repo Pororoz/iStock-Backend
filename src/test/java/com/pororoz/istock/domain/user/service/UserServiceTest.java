@@ -44,7 +44,9 @@ class UserServiceTest {
         private String password;
         private String newPassword;
         private String roleName;
+        private String newRoleName;
         private Role role;
+        private Role newRole;
 
         @BeforeEach
         void setup() {
@@ -53,7 +55,9 @@ class UserServiceTest {
             password = "ab1234";
             newPassword = "abc123";
             roleName = "user";
+            newRoleName = "admin";
             role = Role.builder().name("user").build();
+            newRole = Role.builder().name("admin").build();
         }
 
         @Nested
@@ -65,27 +69,35 @@ class UserServiceTest {
                 // given
                 UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
                         .id(id)
-                        .roleName(roleName)
+                        .roleName(newRoleName)
                         .password(newPassword)
+                        .build();
+
+                User targetUser = User.builder()
+                        .id(id)
+                        .username(username)
+                        .password(password)
+                        .role(role)
                         .build();
 
                 User resultUser = User.builder()
                         .id(id)
                         .username(username)
                         .password(newPassword)
-                        .role(role)
+                        .role(newRole)
                         .build();
 
                 UserServiceResponse userServiceResponse = UserServiceResponse.builder()
                         .id(id)
-                        .roleName(roleName)
+                        .roleName(newRoleName)
                         .username(username)
                         .build();
                 UserResponse response = userServiceResponse.toResponse();
 
                 // when
                 when(roleRepository.findByName(any())).thenReturn(Optional.of(role));
-                when(userRepository.findById(any())).thenReturn(Optional.of(resultUser));
+                when(userRepository.findById(any())).thenReturn(Optional.of(targetUser));
+                when(userRepository.save(any())).thenReturn(resultUser);
                 UserResponse result = userService.updateUser(updateUserServiceRequest);
 
                 // then
