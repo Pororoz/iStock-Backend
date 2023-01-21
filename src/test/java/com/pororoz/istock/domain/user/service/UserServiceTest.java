@@ -36,6 +36,69 @@ class UserServiceTest {
     RoleRepository roleRepository;
 
     @Nested
+    @DisplayName("계정 수정 API")
+    class UpdateUser {
+        private Long id;
+        private String username;
+        private String password;
+        private String newPassword;
+        private String roleName;
+        private Role role;
+
+        @BeforeEach
+        void setup() {
+            id = 1L;
+            username = "test";
+            password = "ab1234";
+            newPassword = "abc123";
+            roleName = "user";
+            role = Role.builder().name("user").build();
+        }
+
+        @Nested
+        @DisplayName("성공 케이스")
+        class SuccessCase {
+            @Test
+            @DisplayName("존재하는 유저를 삭제한다.")
+            void deleteUser(){
+                // given
+                UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
+                        .id(id)
+                        .roleName(roleName)
+                        .password(newPassword)
+                        .build();
+
+                User resultUser = User.builder()
+                        .id(id)
+                        .username(username)
+                        .password(password)
+                        .role(role)
+                        .build();
+
+                UserServiceResponse userServiceResponse = UserServiceResponse.builder()
+                        .id(id)
+                        .roleName(roleName)
+                        .username(username)
+                        .build();
+                UserResponse response = userServiceResponse.toResponse();
+
+                // when
+                when(userRepository.findById(any())).thenReturn(Optional.of(resultUser));
+                UserResponse result = userService.updateUser(updateUserServiceRequest);
+
+                // then
+                assertEquals(result, response);
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 케이스")
+        class FailCase {
+
+        }
+    }
+
+    @Nested
     @DisplayName("계정 삭제 API")
     class DeleteUser {
         private Long id;
