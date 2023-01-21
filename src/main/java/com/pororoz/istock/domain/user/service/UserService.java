@@ -3,6 +3,7 @@ package com.pororoz.istock.domain.user.service;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
+import com.pororoz.istock.domain.user.dto.service.UpdateUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
@@ -18,6 +19,15 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+
+    public UserResponse updateUser(UpdateUserServiceRequest updateUserServiceRequest) {
+        Role role = roleRepository.findByName(updateUserServiceRequest.getRoleName())
+                .orElseThrow(RoleNotFoundException::new);
+        userRepository.updateUser(updateUserServiceRequest.getPassword(), role, updateUserServiceRequest.getId());
+        User user = userRepository.findById(updateUserServiceRequest.getId())
+                .orElseThrow(UserNotFoundException::new);
+        return UserServiceResponse.of(user).toResponse();
+    }
 
     public UserResponse deleteUser(DeleteUserServiceRequest deleteUserServiceRequest) {
         User user = userRepository.findById(deleteUserServiceRequest.getId())
