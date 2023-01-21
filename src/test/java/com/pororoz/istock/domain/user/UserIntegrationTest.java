@@ -128,6 +128,7 @@ public class UserIntegrationTest {
                 actions.andExpect(status().isBadRequest())
                         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                         .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+                        .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_ID))
                         .andDo(print());
             }
 
@@ -154,6 +155,31 @@ public class UserIntegrationTest {
                 actions.andExpect(status().isBadRequest())
                         .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
                         .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_PASSWORD))
+                        .andDo(print());
+            }
+
+            @Test
+            @DisplayName("role이 빈값이면 400code를 반환한다.")
+            void roleEmpty() throws Exception {
+                //given
+                Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+                User user = User.builder().username(username).password(password).role(role).build();
+                userRepository.save(user);
+                UpdateUserRequest request = UpdateUserRequest.builder()
+                        .id(id)
+                        .password(password)
+                        .roleName("")
+                        .build();
+
+                //when
+                ResultActions actions = mockMvc.perform(put(url)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON));
+
+                //then
+                actions.andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+                        .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_ROLENAME))
                         .andDo(print());
             }
 
