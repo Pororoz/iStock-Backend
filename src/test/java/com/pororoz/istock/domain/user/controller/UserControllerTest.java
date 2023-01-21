@@ -33,8 +33,61 @@ class UserControllerTest {
     UserService userService;
 
     @Nested
+    @DisplayName("계정 수정하기")
+    class UpdateUser {
+        private Long id;
+        private String username;
+        private String roleName;
+        private String password;
+
+        @BeforeEach
+        void setup() {
+            id = 1L;
+            username = "test";
+            password = "1234ab";
+            roleName = "user";
+        }
+
+        @Nested
+        @DisplayName("성공 케이스")
+        class SuccessCase {
+            @Test
+            @DisplayName("존재하는 유저의 update를 요청하면 수정된 유저의 정보를 받는다.")
+            void updateUser() {
+                // given
+                UpdateUserRequest updateUserRequest = UpdateUserRequest.builder()
+                        .id(id)
+                        .roleName(roleName)
+                        .password(password)
+                        .build();
+                UserServiceResponse userServiceResponse = UserServiceResponse.builder()
+                        .id(id)
+                        .username(username)
+                        .roleName(roleName)
+                        .build();
+                UserResponse userResponse = userServiceResponse.toResponse();
+
+                // when
+                when(userService.updateUser(any())).thenReturn(userResponse);
+                ResponseEntity<ResultDTO<UserResponse>> response = userController.updateUser(updateUserRequest);
+
+                // then
+                assertEquals(Objects.requireNonNull(response.getBody()).getData(), userResponse);
+                assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
+                assertEquals(Objects.requireNonNull(response.getBody()).getMessage(), ResponseMessage.UPDATE_USER);
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 케이스")
+        class FailCase {
+
+        }
+    }
+
+    @Nested
     @DisplayName("계정 삭제하기")
-    class deleteUser {
+    class DeleteUser {
         private Long id;
         private String username;
         private String roleName;
@@ -51,10 +104,10 @@ class UserControllerTest {
         class SuccessCase {
             @Test
             @DisplayName("존재하는 유저를 삭제하면 삭제된 유저를 반환한다.")
-            void saveUser(){
+            void deleteUser(){
                 // given
                 UserServiceResponse userServiceResponse = UserServiceResponse.builder()
-                        .id(1L)
+                        .id(id)
                         .username(username)
                         .roleName(roleName)
                         .build();
