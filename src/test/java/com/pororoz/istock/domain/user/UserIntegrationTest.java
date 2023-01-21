@@ -7,6 +7,7 @@ import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
+import com.pororoz.istock.domain.user.dto.request.UpdateUserRequest;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
@@ -23,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -47,8 +47,74 @@ public class UserIntegrationTest {
     @Autowired
     DatabaseCleanup databaseCleanup;
 
+    @AfterEach
+    public void afterEach() {
+        databaseCleanup.execute();
+    }
+
     @Nested
-    @DisplayName("DELETE /users/{id} 계정 삭제 API")
+    @DisplayName("PUT /v1/users 계정 수정 API")
+    @Transactional
+    class UpdateUser {
+        private final String url = "/v1/users";
+        private Long id;
+        private String username;
+        private String password;
+        private String newPassword;
+        private String roleName;
+        private String newRoleName;
+
+        @BeforeEach
+        public void beforeEach() {
+            id = 1L;
+            username = "test";
+            password = "1234a";
+            newPassword = "123asb";
+            roleName = "user";
+            newRoleName = "admin";
+        }
+
+        @Nested
+        @DisplayName("성공 케이스")
+        class SuccessCase {
+            @Test
+            @DisplayName("존재하는 유저를 수정하면 수정이 이행되고, 해당 유저의 정보를 받아볼 수 있다.")
+            void updateUser() throws Exception{
+                // given
+                Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+                User user = User.builder().username(username).password(password).role(role).build();
+                userRepository.save(user);
+                String request = objectMapper.writeValueAsString(UpdateUserRequest.builder()
+                        .id(id)
+                        .password(newPassword)
+                        .roleName(newRoleName).build());
+
+                // when
+                ResultActions actions = mockMvc.perform(put(url)
+                        .content(request)
+                        .contentType(MediaType.APPLICATION_JSON));
+
+                // then
+                actions.andExpect(status().isOk())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+                        .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_USER))
+                        .andExpect(jsonPath("$.data.id").value(id))
+                        .andExpect(jsonPath("$.data.username").value(username))
+                        .andExpect(jsonPath("$.data.roleName").value(newRoleName))
+                        .andDo(print());
+            }
+        }
+
+        @Nested
+        @DisplayName("실패 케이스")
+        class FailCase {
+
+        }
+    }
+
+    @Nested
+    @DisplayName("DELETE /v1/users/{id} 계정 삭제 API")
     @Transactional
     class DeleteUser {
         private String url(long id) {
@@ -69,11 +135,6 @@ public class UserIntegrationTest {
             password = "1234a";
             roleName = "user";
             params = new LinkedMultiValueMap<>();
-        }
-
-        @AfterEach
-        public void afterEach() {
-            databaseCleanup.execute();
         }
 
         @Nested
@@ -160,7 +221,7 @@ public class UserIntegrationTest {
     }
 
     @Nested
-    @DisplayName("POST /users 계정 생성 API")
+    @DisplayName("POST /v1/users 계정 생성 API")
     @Transactional
     class SaveUser {
         private final String url = "/v1/users";
@@ -174,11 +235,6 @@ public class UserIntegrationTest {
             username = "test";
             password = "1234a";
             roleName = "user";
-        }
-
-        @AfterEach
-        public void afterEach() {
-            databaseCleanup.execute();
         }
 
         @Nested
