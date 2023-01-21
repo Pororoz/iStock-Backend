@@ -38,7 +38,7 @@ public class UserController {
     private final UserService userService;
 
     @PutMapping
-    public ResponseEntity<ResultDTO<UserResponse>> updateUser(@RequestBody UpdateUserRequest updateUserRequest) {
+    public ResponseEntity<ResultDTO<UserResponse>> updateUser(@Valid @RequestBody UpdateUserRequest updateUserRequest) {
         UserResponse response = userService.updateUser(updateUserRequest.toService());
         return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_USER, response));
     }

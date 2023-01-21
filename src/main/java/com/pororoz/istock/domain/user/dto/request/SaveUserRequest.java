@@ -23,7 +23,7 @@ public class SaveUserRequest {
     private String password;
 
     @Schema(description = "권한", example = "user")
-    @NotEmpty
+    @NotEmpty(message = ExceptionMessage.INVALID_ROLENAME)
     private String roleName;
 
     public SaveUserServiceRequest toService() {
