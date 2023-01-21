@@ -14,6 +14,7 @@ import lombok.Getter;
 @Builder
 public class UpdateUserRequest {
 
+    @Schema(description = "사용자 아이디", example = "1")
     @NotNull
     @Positive(message = ExceptionMessage.INVALID_ID)
     private Long id;

@@ -9,6 +9,7 @@ import com.pororoz.istock.domain.user.dto.request.UpdateUserRequest;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.service.UserService;
+import com.pororoz.istock.domain.user.swagger.exception.InvalidIDExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.exception.InvalidPathExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.exception.RoleNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.exception.UserNotFoundExceptionSwagger;
@@ -37,6 +38,15 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "delete user", description = "유저 삭제 API")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_USER,
+                    content = {@Content(schema = @Schema(implementation = DeleteUserResponseSwagger.class))}),
+            @ApiResponse(responseCode = "400", description = ExceptionMessage.INVALID_PATH,
+                    content = {@Content(schema = @Schema(implementation = InvalidIDExceptionSwagger.class))}),
+            @ApiResponse(responseCode = "404", description = ExceptionMessage.ROLE_NOT_FOUND,
+                    content = {@Content(schema = @Schema(implementation = UserNotFoundExceptionSwagger.class))}),
+    })
     @PutMapping
     public ResponseEntity<ResultDTO<UserResponse>> updateUser(@Valid @RequestBody UpdateUserRequest updateUserRequest) {
         UserResponse response = userService.updateUser(updateUserRequest.toService());
