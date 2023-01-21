@@ -3,6 +3,7 @@ package com.pororoz.istock.domain.user.service;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
+import com.pororoz.istock.domain.user.dto.service.UpdateUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
@@ -59,8 +60,8 @@ class UserServiceTest {
         @DisplayName("성공 케이스")
         class SuccessCase {
             @Test
-            @DisplayName("존재하는 유저를 삭제한다.")
-            void deleteUser(){
+            @DisplayName("존재하는 유저를 업데이트한다.")
+            void updateUser(){
                 // given
                 UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
                         .id(id)
@@ -71,7 +72,7 @@ class UserServiceTest {
                 User resultUser = User.builder()
                         .id(id)
                         .username(username)
-                        .password(password)
+                        .password(newPassword)
                         .role(role)
                         .build();
 
@@ -83,6 +84,7 @@ class UserServiceTest {
                 UserResponse response = userServiceResponse.toResponse();
 
                 // when
+                when(roleRepository.findByName(any())).thenReturn(Optional.of(role));
                 when(userRepository.findById(any())).thenReturn(Optional.of(resultUser));
                 UserResponse result = userService.updateUser(updateUserServiceRequest);
 
@@ -94,7 +96,40 @@ class UserServiceTest {
         @Nested
         @DisplayName("실패 케이스")
         class FailCase {
+            @Test
+            @DisplayName("없는 ID로 요청했을 때 UserNotFoundException을 반환한다.")
+            void notExistedId() {
+                // given
+                long invalidId = 10000L;
+                UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
+                        .id(invalidId)
+                        .password(password)
+                        .roleName(roleName)
+                        .build();
 
+                // when
+                when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
+
+                // then
+                assertThrows(UserNotFoundException.class, () -> userService.updateUser(updateUserServiceRequest));
+            }
+
+            @Test
+            @DisplayName("잘못된 role name은 RoleNotFoundExceptin이 발생한다.")
+            void notFoundUser(){
+                //given
+                String invalidRole = "a";
+                UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
+                        .id(id)
+                        .password(password)
+                        .roleName(invalidRole)
+                        .build();
+
+                // when
+
+                //then
+                assertThrows(RoleNotFoundException.class, () -> userService.updateUser(updateUserServiceRequest));
+            }
         }
     }
 
@@ -157,8 +192,9 @@ class UserServiceTest {
             @DisplayName("없는 ID로 요청했을 때 UserNotFoundException을 반환한다.")
             void notExistedId() {
                 // given
+                long invalidId = 10000L;
                 DeleteUserServiceRequest deleteUserServiceRequest = DeleteUserServiceRequest.builder()
-                        .id(10000L)
+                        .id(invalidId)
                         .build();
 
                 // when
