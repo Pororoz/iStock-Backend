@@ -30,8 +30,7 @@ public class UserService {
         targetUser.setRole(role);
         targetUser.setPassword(updateUserServiceRequest.getPassword());
 
-        User resultUser = userRepository.save(targetUser);
-        return UserServiceResponse.of(resultUser).toResponse();
+        return UserServiceResponse.of(targetUser).toResponse();
     }
 
     public UserResponse deleteUser(DeleteUserServiceRequest deleteUserServiceRequest) {
