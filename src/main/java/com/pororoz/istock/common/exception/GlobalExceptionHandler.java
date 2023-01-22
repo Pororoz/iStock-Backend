@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    //
+    // ConstraintViolation
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleValidationBadPath(ConstraintViolationException e) {
         List<ErrorBinder> errors = new ArrayList<>();
