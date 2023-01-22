@@ -46,7 +46,6 @@ class UserServiceTest {
         private String roleName;
         private String newRoleName;
         private Role role;
-        private Role newRole;
 
         @BeforeEach
         void setup() {
@@ -57,7 +56,6 @@ class UserServiceTest {
             roleName = "user";
             newRoleName = "admin";
             role = Role.builder().name("user").build();
-            newRole = Role.builder().name("admin").build();
         }
 
         @Nested
@@ -80,24 +78,11 @@ class UserServiceTest {
                         .role(role)
                         .build();
 
-                User resultUser = User.builder()
-                        .id(id)
-                        .username(username)
-                        .password(newPassword)
-                        .role(newRole)
-                        .build();
-
-                UserServiceResponse userServiceResponse = UserServiceResponse.builder()
-                        .id(id)
-                        .roleName(newRoleName)
-                        .username(username)
-                        .build();
-                UserResponse response = userServiceResponse.toResponse();
+                UserResponse response = UserServiceResponse.of(targetUser).toResponse();
 
                 // when
                 when(roleRepository.findByName(any())).thenReturn(Optional.of(role));
                 when(userRepository.findById(any())).thenReturn(Optional.of(targetUser));
-                when(userRepository.save(any())).thenReturn(resultUser);
                 UserResponse result = userService.updateUser(updateUserServiceRequest);
 
                 // then
@@ -151,7 +136,6 @@ class UserServiceTest {
         private Long id;
         private String username;
         private String password;
-        private String roleName;
         private Role role;
 
         @BeforeEach
@@ -159,7 +143,6 @@ class UserServiceTest {
             id = 1L;
             username = "test";
             password = "1234";
-            roleName = "admin";
             role = Role.builder().name("admin").build();
         }
 
@@ -181,12 +164,7 @@ class UserServiceTest {
                         .role(role)
                         .build();
 
-                UserServiceResponse userServiceResponse = UserServiceResponse.builder()
-                        .id(id)
-                        .roleName(roleName)
-                        .username(username)
-                        .build();
-                UserResponse response = userServiceResponse.toResponse();
+                UserResponse response = UserServiceResponse.of(resultUser).toResponse();
 
                 // when
                 when(userRepository.findById(id)).thenReturn(Optional.of(resultUser));
@@ -256,13 +234,7 @@ class UserServiceTest {
                         .role(role)
                         .build();
 
-                UserServiceResponse userServiceResponse = UserServiceResponse.builder()
-                        .id(id)
-                        .roleName(roleName)
-                        .username(username)
-                        .build();
-
-                UserResponse response = userServiceResponse.toResponse();
+                UserResponse response = UserServiceResponse.of(resultUser).toResponse();
 
                 // when
                 when(userRepository.save(any())).thenReturn(resultUser);
