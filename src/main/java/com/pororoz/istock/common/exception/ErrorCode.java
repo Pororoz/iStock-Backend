@@ -14,6 +14,8 @@ public enum ErrorCode {
 
     ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.ROLE_NOT_FOUND, ExceptionMessage.ROLE_NOT_FOUND),
 
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.USER_NOT_FOUND, ExceptionMessage.USER_NOT_FOUND)
+
     ;
 
     private final HttpStatus statusCode;
