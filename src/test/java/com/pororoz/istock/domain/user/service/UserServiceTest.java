@@ -201,18 +201,21 @@ class UserServiceTest {
         PageRequest pageRequest = PageRequest.of(3, countPerPages);
         List<User> users = List.of(user1, user2);
         PageImpl<User> pages = new PageImpl<>(users, pageRequest, totalUsers);
+        List<UserServiceResponse> userServiceResponses = users.stream().map(
+            user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
+                .roleName(user.getRole().getName()).build()).toList();
 
         //when
         when(userRepository.findAll(any(PageRequest.class))).thenReturn(pages);
-        Page<User> result = userService.findUsers(pageRequest);
+        Page<UserServiceResponse> result = userService.findUsers(pageRequest);
 
         //then
         assertThat(result.getTotalElements(), equalTo(totalUsers));
         assertThat(result.getTotalPages(),
             equalTo((int) (totalUsers + countPerPages) / countPerPages));
         assertThat(result.getContent().size(), equalTo(2));
-        assertThat(result.getContent().get(0), equalTo(user1));
-        assertThat(result.getContent().get(1), equalTo(user2));
+        assertThat(result.getContent().get(0), equalTo(userServiceResponses.get(0)));
+        assertThat(result.getContent().get(1), equalTo(userServiceResponses.get(1)));
       }
     }
 

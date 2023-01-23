@@ -37,7 +37,7 @@ public class UserService {
     return UserServiceResponse.of(result).toResponse();
   }
 
-  public Page<User> findUsers(Pageable pageable) {
-    return userRepository.findAll(pageable);
+  public Page<UserServiceResponse> findUsers(Pageable pageable) {
+    return userRepository.findAll(pageable).map(UserServiceResponse::of);
   }
 }
