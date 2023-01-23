@@ -11,26 +11,33 @@ import com.pororoz.istock.domain.user.exception.UserNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
 
-    public UserResponse deleteUser(DeleteUserServiceRequest deleteUserServiceRequest) {
-        User user = userRepository.findById(deleteUserServiceRequest.getId())
-                .orElseThrow(UserNotFoundException::new);
-        userRepository.deleteById(deleteUserServiceRequest.getId());
-        return UserServiceResponse.of(user).toResponse();
-    }
+  private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
 
-    public UserResponse saveUser(SaveUserServiceRequest saveUserServiceRequest) {
-        Role role = roleRepository.findByName(saveUserServiceRequest.getRoleName())
-                .orElseThrow(RoleNotFoundException::new);
-        User user = saveUserServiceRequest.toUser(role);
-        User result = userRepository.save(user);
-        return UserServiceResponse.of(result).toResponse();
-    }
+  public UserResponse deleteUser(DeleteUserServiceRequest deleteUserServiceRequest) {
+    User user = userRepository.findById(deleteUserServiceRequest.getId())
+        .orElseThrow(UserNotFoundException::new);
+    userRepository.deleteById(deleteUserServiceRequest.getId());
+    return UserServiceResponse.of(user).toResponse();
+  }
+
+  public UserResponse saveUser(SaveUserServiceRequest saveUserServiceRequest) {
+    Role role = roleRepository.findByName(saveUserServiceRequest.getRoleName())
+        .orElseThrow(RoleNotFoundException::new);
+    User user = saveUserServiceRequest.toUser(role);
+    User result = userRepository.save(user);
+    return UserServiceResponse.of(result).toResponse();
+  }
+
+  public Page<User> findUsers(Pageable pageable) {
+    return userRepository.findAll(pageable);
+  }
 }
