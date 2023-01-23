@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - 'release'
-
+      - 'main'
 env:
   REPOSITORY: istock-backend
   ORGANIZATION: pororoz

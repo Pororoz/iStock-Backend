@@ -14,7 +14,7 @@ echo "> IDLE_CONTAINER: $IDLE_PORT"
 echo "> curl -s http://localhost:$IDLE_PORT/profile"
 sleep 10
 
-for RETRY_COUNT in {1..10}
+for RETRY_COUNT in $(seq 1 10)
 do
   RESPONSE=$(curl -s http://localhost:"$IDLE_PORT"/profile)
   UP_COUNT=$(echo "$RESPONSE" | grep -c "spring") # spring이 들어간 행의 개수
@@ -23,6 +23,10 @@ do
   then
     echo "> Health check 성공"
     switch_proxy
+    if [ "$?" -ge 1 ]
+    then
+      exit 1
+    fi
 
     echo "> Nginx에 연결되지 않은 container 삭제"
     IDLE_CONTAINER=$(find_idle_profile)

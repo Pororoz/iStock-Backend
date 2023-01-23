@@ -12,4 +12,20 @@ function switch_proxy(){
 
   echo "Nginx container restart"
   docker exec -i nginx nginx -s reload
+
+  for RETRY_COUNT in $(seq 1 5)
+  do
+    ACTIVE_CONTAINER=$(find_idle_profile)
+    if [ "$IDLE_CONTAINER" != "$ACTIVE_CONTAINER" ]
+    then
+      break
+    fi
+    echo "Switch delayed"
+    sleep 0.3
+    if [ "$RETRY_COUNT" -eq 5 ]
+    then
+      echo "Nginx 전환에 실패했습니다."
+      exit 1
+    fi
+  done
 }
