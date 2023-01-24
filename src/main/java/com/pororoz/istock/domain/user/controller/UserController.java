@@ -33,11 +33,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "User", description = "User API")
@@ -93,7 +93,7 @@ public class UserController {
   })
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<FindUserResponse>>> findUsers(
-      @Valid @RequestParam FindUserRequest request) {
+      @Valid @ModelAttribute("request") FindUserRequest request) {
     Page<FindUserResponse> userPage = userService.findUsers(request.toPageRequest()).map(
         UserServiceResponse::toFindResponse);
     PageResponse<FindUserResponse> response = new PageResponse<>(userPage);

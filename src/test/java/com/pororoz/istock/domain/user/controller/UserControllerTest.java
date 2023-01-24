@@ -184,6 +184,7 @@ class UserControllerTest {
         PageResponse<FindUserResponse> data = Objects.requireNonNull(response.getBody()).getData();
         assertEquals(data.getTotalPages(), (int) (totalUsers + countPerPages) / countPerPages);
         assertEquals(data.getTotalElements(), totalUsers);
+        assertEquals(data.getCurrentSize(), countPerPages);
         assertFalse(data.isFirst());
         assertFalse(data.isLast());
         assertIterableEquals(data.getContent(), findUserResponse);
