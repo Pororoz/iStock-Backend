@@ -26,6 +26,7 @@ class UserServiceResponseTest {
     assertEquals(response, responseShallowCopy);
     assertEquals(response, responseDeepCopy);
     assertNotEquals(response, otherResponse);
+    assertNotEquals(response, null);
     assertNotEquals(response, user);
   }
 
