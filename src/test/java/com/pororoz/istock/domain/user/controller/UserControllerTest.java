@@ -9,7 +9,7 @@ import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
-import com.pororoz.istock.domain.user.dto.response.UserFindResponse;
+import com.pororoz.istock.domain.user.dto.response.FindUserResponse;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;
@@ -165,12 +165,12 @@ class UserControllerTest {
         List<UserServiceResponse> userServiceResponses = List.of(response1, response2);
         PageImpl<UserServiceResponse> page = new PageImpl<>(userServiceResponses,
             pageRequest, totalUsers);
-        List<UserFindResponse> userFindResponses = List.of(response1.toFindResponse(),
+        List<FindUserResponse> findUserRespons = List.of(response1.toFindResponse(),
             response2.toFindResponse());
 
         //when
         when(userService.findUsers(any(PageRequest.class))).thenReturn(page);
-        ResponseEntity<ResultDTO<Page<UserFindResponse>>> response = userController.findUsers(
+        ResponseEntity<ResultDTO<Page<FindUserResponse>>> response = userController.findUsers(
             pageRequest);
 
         //then
@@ -179,7 +179,7 @@ class UserControllerTest {
         assertEquals(Objects.requireNonNull(response.getBody()).getMessage(),
             ResponseMessage.FIND_USER);
         assertIterableEquals(Objects.requireNonNull(response.getBody()).getData(),
-            userFindResponses);
+            findUserRespons);
       }
     }
   }

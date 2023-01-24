@@ -5,7 +5,7 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
-import com.pororoz.istock.domain.user.dto.response.UserFindResponse;
+import com.pororoz.istock.domain.user.dto.response.FindUserResponse;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
@@ -84,9 +84,9 @@ public class UserController {
   }
 
   @GetMapping
-  public ResponseEntity<ResultDTO<Page<UserFindResponse>>> findUsers(Pageable pageable) {
+  public ResponseEntity<ResultDTO<Page<FindUserResponse>>> findUsers(Pageable pageable) {
     Page<UserServiceResponse> responsePage = userService.findUsers(pageable);
-    Page<UserFindResponse> findResponsePage = responsePage.map(UserServiceResponse::toFindResponse);
+    Page<FindUserResponse> findResponsePage = responsePage.map(UserServiceResponse::toFindResponse);
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_USER, findResponsePage));
   }

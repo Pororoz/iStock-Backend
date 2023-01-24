@@ -6,7 +6,7 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class UserFindResponse extends UserResponse {
+public class FindUserResponse extends UserResponse {
 
   private String createdAt;
   private String updatedAt;
@@ -22,7 +22,7 @@ public class UserFindResponse extends UserResponse {
     if (!super.equals(o)) {
       return false;
     }
-    UserFindResponse that = (UserFindResponse) o;
+    FindUserResponse that = (FindUserResponse) o;
     return Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt,
         that.updatedAt);
   }
