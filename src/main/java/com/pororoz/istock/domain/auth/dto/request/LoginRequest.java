@@ -1,6 +1,5 @@
 package com.pororoz.istock.domain.auth.dto.request;
 
-import com.pororoz.istock.domain.auth.dto.service.LoginDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -21,10 +20,4 @@ public class LoginRequest {
     @NotBlank
     private String password;
 
-    public LoginDTO toLoginDto() {
-        return LoginDTO.builder()
-                .username(this.username)
-                .password(this.password)
-                .build();
-    }
 }
