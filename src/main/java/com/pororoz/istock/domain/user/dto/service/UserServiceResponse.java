@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.user.dto.service;
 
+import com.pororoz.istock.domain.user.dto.response.UserFindResponse;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.entity.User;
 import java.time.LocalDateTime;
@@ -25,6 +26,11 @@ public class UserServiceResponse {
 
   public UserResponse toResponse() {
     return UserResponse.builder().id(id).username(username).roleName(roleName).build();
+  }
+
+  public UserFindResponse toFindResponse() {
+    return UserFindResponse.builder().id(id).username(username).roleName(roleName)
+        .createdAt(createdAt.toString()).updatedAt(updatedAt.toString()).build();
   }
 
   @Override
