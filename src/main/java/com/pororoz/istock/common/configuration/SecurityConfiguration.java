@@ -13,12 +13,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
-public class SecurityConfiguration{
+public class SecurityConfiguration {
+
+
 
 
     @Bean
@@ -45,6 +49,7 @@ public class SecurityConfiguration{
         http.authorizeHttpRequests()
                 .requestMatchers("/v1/auth/login").permitAll()
                 .requestMatchers("/v1/users").hasRole("ADMIN");
+
 
         return http.build();
     }
