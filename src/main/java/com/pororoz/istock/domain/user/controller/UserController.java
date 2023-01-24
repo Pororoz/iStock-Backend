@@ -4,6 +4,7 @@ import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.user.dto.request.FindUserRequest;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
 import com.pororoz.istock.domain.user.dto.response.FindUserResponse;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
@@ -14,6 +15,7 @@ import com.pororoz.istock.domain.user.swagger.exception.InvalidPathExceptionSwag
 import com.pororoz.istock.domain.user.swagger.exception.RoleNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.exception.UserNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.response.DeleteUserResponseSwagger;
+import com.pororoz.istock.domain.user.swagger.response.FindUserResponseSwagger;
 import com.pororoz.istock.domain.user.swagger.response.SaveUserResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,7 +28,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "User", description = "User API")
@@ -83,9 +85,15 @@ public class UserController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_USER, response));
   }
 
+  @Operation(summary = "find users", description = "유저 조회 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.FIND_USER,
+          content = {@Content(schema = @Schema(implementation = FindUserResponseSwagger.class))})
+  })
   @GetMapping
-  public ResponseEntity<ResultDTO<Page<FindUserResponse>>> findUsers(Pageable pageable) {
-    Page<UserServiceResponse> responsePage = userService.findUsers(pageable);
+  public ResponseEntity<ResultDTO<Page<FindUserResponse>>> findUsers(
+      @Valid @RequestParam FindUserRequest request) {
+    Page<UserServiceResponse> responsePage = userService.findUsers(request.toPageRequest());
     Page<FindUserResponse> findResponsePage = responsePage.map(UserServiceResponse::toFindResponse);
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_USER, findResponsePage));

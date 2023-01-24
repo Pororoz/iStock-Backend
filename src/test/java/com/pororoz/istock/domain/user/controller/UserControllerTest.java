@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.user.dto.request.FindUserRequest;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
 import com.pororoz.istock.domain.user.dto.response.FindUserResponse;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
@@ -157,21 +158,21 @@ class UserControllerTest {
         //given
         long totalUsers = 11L;
         int countPerPages = 2;
-        PageRequest pageRequest = PageRequest.of(3, countPerPages);
+        FindUserRequest request = FindUserRequest.builder().page(3).size(countPerPages).build();
         UserServiceResponse response1 = UserServiceResponse.builder().id(1L).username("user1")
             .roleName("user").createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
         UserServiceResponse response2 = UserServiceResponse.builder().id(2L).username("user2")
             .roleName("user").createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
         List<UserServiceResponse> userServiceResponses = List.of(response1, response2);
         PageImpl<UserServiceResponse> page = new PageImpl<>(userServiceResponses,
-            pageRequest, totalUsers);
+            PageRequest.of(3, countPerPages), totalUsers);
         List<FindUserResponse> findUserRespons = List.of(response1.toFindResponse(),
             response2.toFindResponse());
 
         //when
         when(userService.findUsers(any(PageRequest.class))).thenReturn(page);
         ResponseEntity<ResultDTO<Page<FindUserResponse>>> response = userController.findUsers(
-            pageRequest);
+            request);
 
         //then
         assertEquals(response.getStatusCode(), HttpStatus.OK);
