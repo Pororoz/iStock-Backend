@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.user.controller;
 
+import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
@@ -91,11 +92,12 @@ public class UserController {
           content = {@Content(schema = @Schema(implementation = FindUserResponseSwagger.class))})
   })
   @GetMapping
-  public ResponseEntity<ResultDTO<Page<FindUserResponse>>> findUsers(
+  public ResponseEntity<ResultDTO<PageResponse<FindUserResponse>>> findUsers(
       @Valid @RequestParam FindUserRequest request) {
-    Page<UserServiceResponse> responsePage = userService.findUsers(request.toPageRequest());
-    Page<FindUserResponse> findResponsePage = responsePage.map(UserServiceResponse::toFindResponse);
+    Page<FindUserResponse> userPage = userService.findUsers(request.toPageRequest()).map(
+        UserServiceResponse::toFindResponse);
+    PageResponse<FindUserResponse> response = new PageResponse<>(userPage);
     return ResponseEntity.ok(
-        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_USER, findResponsePage));
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_USER, response));
   }
 }

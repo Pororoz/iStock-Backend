@@ -1,10 +1,12 @@
 package com.pororoz.istock.domain.user.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
@@ -164,14 +166,14 @@ class UserControllerTest {
         UserServiceResponse response2 = UserServiceResponse.builder().id(2L).username("user2")
             .roleName("user").createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
         List<UserServiceResponse> userServiceResponses = List.of(response1, response2);
-        PageImpl<UserServiceResponse> page = new PageImpl<>(userServiceResponses,
+        Page<UserServiceResponse> page = new PageImpl<>(userServiceResponses,
             PageRequest.of(3, countPerPages), totalUsers);
-        List<FindUserResponse> findUserRespons = List.of(response1.toFindResponse(),
+        List<FindUserResponse> findUserResponse = List.of(response1.toFindResponse(),
             response2.toFindResponse());
 
         //when
         when(userService.findUsers(any(PageRequest.class))).thenReturn(page);
-        ResponseEntity<ResultDTO<Page<FindUserResponse>>> response = userController.findUsers(
+        ResponseEntity<ResultDTO<PageResponse<FindUserResponse>>> response = userController.findUsers(
             request);
 
         //then
@@ -179,8 +181,12 @@ class UserControllerTest {
         assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
         assertEquals(Objects.requireNonNull(response.getBody()).getMessage(),
             ResponseMessage.FIND_USER);
-        assertIterableEquals(Objects.requireNonNull(response.getBody()).getData(),
-            findUserRespons);
+        PageResponse<FindUserResponse> data = Objects.requireNonNull(response.getBody()).getData();
+        assertEquals(data.getTotalPages(), (int) (totalUsers + countPerPages) / countPerPages);
+        assertEquals(data.getTotalElements(), totalUsers);
+        assertFalse(data.isFirst());
+        assertFalse(data.isLast());
+        assertIterableEquals(data.getContent(), findUserResponse);
       }
     }
   }
