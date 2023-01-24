@@ -14,6 +14,7 @@ import com.pororoz.istock.domain.user.dto.request.FindUserRequest;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
 import com.pororoz.istock.domain.user.dto.response.FindUserResponse;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
+import com.pororoz.istock.domain.user.dto.service.FindUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;
 import java.time.LocalDateTime;
@@ -172,7 +173,7 @@ class UserControllerTest {
             response2.toFindResponse());
 
         //when
-        when(userService.findUsers(any(PageRequest.class))).thenReturn(page);
+        when(userService.findUsers(any(FindUserServiceRequest.class))).thenReturn(page);
         ResponseEntity<ResultDTO<PageResponse<FindUserResponse>>> response = userController.findUsers(
             request);
 

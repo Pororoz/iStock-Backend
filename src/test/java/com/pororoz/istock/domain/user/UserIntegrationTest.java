@@ -349,24 +349,24 @@ public class UserIntegrationTest {
             .andDo(print());
       }
 
-//      @Test
-//      @DisplayName("파라미터가 없으면 전체를 조회한다.")
-//      void findAll() throws Exception {
-//        //when
-//        ResultActions actions = mockMvc.perform(get(url)
-//            .contentType(MediaType.APPLICATION_JSON));
-//
-//        //then
-//        actions.andExpect(status().isOk())
-//            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-//            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_USER))
-//            .andExpect(jsonPath("$.data.totalPages").value(1))
-//            .andExpect(jsonPath("$.data.totalElements").value(userCounts))
-//            .andExpect(jsonPath("$.data.first").value(true))
-//            .andExpect(jsonPath("$.data.last").value(true))
-//            .andExpect(jsonPath("$.data.currentSize").value(userCounts))
-//            .andDo(print());
-//      }
+      @Test
+      @DisplayName("파라미터가 없으면 전체를 조회한다.")
+      void findAll() throws Exception {
+        //when
+        ResultActions actions = mockMvc.perform(get(url)
+            .contentType(MediaType.APPLICATION_JSON));
+
+        //then
+        actions
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_USER))
+            .andExpect(jsonPath("$.data.totalPages").value(1))
+            .andExpect(jsonPath("$.data.totalElements").value(userCounts))
+            .andExpect(jsonPath("$.data.first").value(true))
+            .andExpect(jsonPath("$.data.last").value(true))
+            .andExpect(jsonPath("$.data.currentSize").value(userCounts))
+            .andDo(print());
+      }
     }
 
     @Nested

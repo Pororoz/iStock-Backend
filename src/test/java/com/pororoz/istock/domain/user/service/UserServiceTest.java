@@ -3,12 +3,16 @@ package com.pororoz.istock.domain.user.service;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
+import com.pororoz.istock.domain.user.dto.service.FindUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.entity.Role;
@@ -17,6 +21,7 @@ import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
 import com.pororoz.istock.domain.user.exception.UserNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -191,31 +196,135 @@ class UserServiceTest {
           .build();
       User user2 = User.builder().id(2L).username("user2").password("1q2w3e4r").role(userRole)
           .build();
+      List<User> users = List.of(user1, user2);
 
       @Test
       @DisplayName("두번째 계정 페이지를 조회한다.")
       void findUsers() {
         //given
         long totalUsers = 11L;
-        int countPerPages = 2;
-        PageRequest pageRequest = PageRequest.of(3, countPerPages);
-        List<User> users = List.of(user1, user2);
-        PageImpl<User> pages = new PageImpl<>(users, pageRequest, totalUsers);
+        int size = 2;
+        int page = 3;
+        FindUserServiceRequest request = FindUserServiceRequest.builder().page(page).size(size)
+            .build();
+        PageImpl<User> pages = new PageImpl<>(users, PageRequest.of(page, size), totalUsers);
         List<UserServiceResponse> userServiceResponses = users.stream().map(
             user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
                 .roleName(user.getRole().getName()).build()).toList();
 
         //when
         when(userRepository.findAll(any(PageRequest.class))).thenReturn(pages);
-        Page<UserServiceResponse> result = userService.findUsers(pageRequest);
+        Page<UserServiceResponse> result = userService.findUsers(request);
 
         //then
         assertThat(result.getTotalElements(), equalTo(totalUsers));
         assertThat(result.getTotalPages(),
-            equalTo((int) (totalUsers + countPerPages) / countPerPages));
+            equalTo((int) (totalUsers + size) / size));
         assertThat(result.getContent().size(), equalTo(2));
         assertThat(result.getContent().get(0), equalTo(userServiceResponses.get(0)));
         assertThat(result.getContent().get(1), equalTo(userServiceResponses.get(1)));
+      }
+
+      @Test
+      @DisplayName("page와 size가 null이면 전체를 조회한다.")
+      void findAll() {
+        //given
+        FindUserServiceRequest request = FindUserServiceRequest.builder().build();
+        List<UserServiceResponse> userServiceResponses = users.stream().map(
+            user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
+                .roleName(user.getRole().getName()).build()).toList();
+
+        //when
+        when(userRepository.findAll()).thenReturn(users);
+        Page<UserServiceResponse> result = userService.findUsers(request);
+
+        //then
+        assertIterableEquals(result.getContent(), userServiceResponses);
+        assertEquals(result.getTotalElements(), result.getNumberOfElements());
+        assertEquals(result.getTotalPages(), 1);
+      }
+
+      @Test
+      @DisplayName("DB에 유저가 없어도 정상적으로 조회한다.")
+      void findEmptyAll() {
+        //given
+        List<User> empty = List.of();
+        FindUserServiceRequest request = FindUserServiceRequest.builder().build();
+        List<UserServiceResponse> userServiceResponses = List.of();
+
+        //when
+        when(userRepository.findAll()).thenReturn(empty);
+        Page<UserServiceResponse> result = userService.findUsers(request);
+
+        //then
+        assertIterableEquals(result.getContent(), userServiceResponses);
+        assertEquals(result.getTotalElements(), 0);
+        assertEquals(result.getNumberOfElements(), 0);
+        assertEquals(result.getTotalPages(), 1);
+      }
+
+      @Test
+      @DisplayName("page만 null이면 default 값(첫 페이지)으로 조회한다.")
+      void pageNull() {
+        //given
+        long totalUsers = 11L;
+        int size = 2;
+        int defaultPage = FindUserServiceRequest.DEFAULT_PAGE;
+        FindUserServiceRequest request = FindUserServiceRequest.builder().size(size)
+            .build();
+        PageImpl<User> pages = new PageImpl<>(users, PageRequest.of(defaultPage, size), totalUsers);
+        List<UserServiceResponse> userServiceResponses = users.stream().map(
+            user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
+                .roleName(user.getRole().getName()).build()).toList();
+
+        //when
+        when(userRepository.findAll(any(PageRequest.class))).thenReturn(pages);
+        Page<UserServiceResponse> result = userService.findUsers(request);
+
+        //then
+        assertTrue(result.isFirst());
+        assertFalse(result.isLast());
+        assertThat(result.getTotalElements(), equalTo(totalUsers));
+        assertThat(result.getTotalPages(),
+            equalTo((int) (totalUsers + size) / size));
+        assertThat(result.getContent().size(), equalTo(2));
+        assertThat(result.getContent().get(0), equalTo(userServiceResponses.get(0)));
+        assertThat(result.getContent().get(1), equalTo(userServiceResponses.get(1)));
+      }
+
+      @Test
+      @DisplayName("size만 null이면 default 값으로 조회한다.")
+      void sizeNull() {
+        //given
+        long totalUsers = 45L;
+        int page = 1;
+        int defaultSize = FindUserServiceRequest.DEFAULT_SIZE;
+        List<User> findUsers = new ArrayList<>();
+        for (int i = 0; i < defaultSize; i++) {
+          findUsers.add(
+              User.builder().id((long) i).username("user" + i).password("1q2w3e4r").role(userRole)
+                  .build());
+        }
+        FindUserServiceRequest request = FindUserServiceRequest.builder().page(page)
+            .build();
+        PageImpl<User> pages = new PageImpl<>(findUsers, PageRequest.of(page, defaultSize),
+            totalUsers);
+        List<UserServiceResponse> userServiceResponses = findUsers.stream().map(
+            user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
+                .roleName(user.getRole().getName()).build()).toList();
+
+        //when
+        when(userRepository.findAll(any(PageRequest.class))).thenReturn(pages);
+        Page<UserServiceResponse> result = userService.findUsers(request);
+
+        //then
+        assertFalse(result.isFirst());
+        assertFalse(result.isLast());
+        assertThat(result.getTotalElements(), equalTo(totalUsers));
+        assertThat(result.getTotalPages(),
+            equalTo((int) (totalUsers + defaultSize) / defaultSize));
+        assertThat(result.getContent().size(), equalTo(defaultSize));
+        assertIterableEquals(result.getContent(), userServiceResponses);
       }
     }
 

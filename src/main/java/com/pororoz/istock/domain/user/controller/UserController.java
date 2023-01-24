@@ -94,7 +94,7 @@ public class UserController {
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<FindUserResponse>>> findUsers(
       @Valid @ModelAttribute("request") FindUserRequest request) {
-    Page<FindUserResponse> userPage = userService.findUsers(request.toPageRequest()).map(
+    Page<FindUserResponse> userPage = userService.findUsers(request.toService()).map(
         UserServiceResponse::toFindResponse);
     PageResponse<FindUserResponse> response = new PageResponse<>(userPage);
     return ResponseEntity.ok(
