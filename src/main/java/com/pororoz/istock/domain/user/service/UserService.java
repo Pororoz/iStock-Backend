@@ -1,6 +1,5 @@
 package com.pororoz.istock.domain.user.service;
 
-import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UpdateUserServiceRequest;
@@ -22,7 +21,7 @@ public class UserService {
     private final RoleRepository roleRepository;
 
     @Transactional
-    public UserResponse updateUser(UpdateUserServiceRequest updateUserServiceRequest) {
+    public UserServiceResponse updateUser(UpdateUserServiceRequest updateUserServiceRequest) {
         Role role = roleRepository.findByName(updateUserServiceRequest.getRoleName())
                 .orElseThrow(RoleNotFoundException::new);
         User targetUser = userRepository.findById(updateUserServiceRequest.getId())
@@ -30,21 +29,21 @@ public class UserService {
         targetUser.setRole(role);
         targetUser.setPassword(updateUserServiceRequest.getPassword());
 
-        return UserServiceResponse.of(targetUser).toResponse();
+        return UserServiceResponse.of(targetUser);
     }
 
-    public UserResponse deleteUser(DeleteUserServiceRequest deleteUserServiceRequest) {
+    public UserServiceResponse deleteUser(DeleteUserServiceRequest deleteUserServiceRequest) {
         User user = userRepository.findById(deleteUserServiceRequest.getId())
                 .orElseThrow(UserNotFoundException::new);
         userRepository.deleteById(deleteUserServiceRequest.getId());
-        return UserServiceResponse.of(user).toResponse();
+        return UserServiceResponse.of(user);
     }
 
-    public UserResponse saveUser(SaveUserServiceRequest saveUserServiceRequest) {
+    public UserServiceResponse saveUser(SaveUserServiceRequest saveUserServiceRequest) {
         Role role = roleRepository.findByName(saveUserServiceRequest.getRoleName())
                 .orElseThrow(RoleNotFoundException::new);
         User user = saveUserServiceRequest.toUser(role);
         User result = userRepository.save(user);
-        return UserServiceResponse.of(result).toResponse();
+        return UserServiceResponse.of(result);
     }
 }

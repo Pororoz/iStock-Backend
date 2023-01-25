@@ -8,6 +8,7 @@ import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
 import com.pororoz.istock.domain.user.dto.request.UpdateUserRequest;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
+import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;
 import com.pororoz.istock.domain.user.swagger.exception.InvalidIDExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.exception.InvalidPathExceptionSwagger;
@@ -49,7 +50,8 @@ public class UserController {
     })
     @PutMapping
     public ResponseEntity<ResultDTO<UserResponse>> updateUser(@Valid @RequestBody UpdateUserRequest updateUserRequest) {
-        UserResponse response = userService.updateUser(updateUserRequest.toService());
+        UserServiceResponse serviceDto = userService.updateUser(updateUserRequest.toService());
+        UserResponse response = serviceDto.toResponse();
         return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_USER, response));
     }
 
@@ -66,7 +68,8 @@ public class UserController {
     public ResponseEntity<ResultDTO<UserResponse>> deleteUser(
             @PathVariable("id") @NotNull(message = ExceptionMessage.INVALID_PATH)
             @Positive(message = ExceptionMessage.INVALID_PATH) Long id) {
-        UserResponse response = userService.deleteUser(DeleteUserServiceRequest.builder().id(id).build());
+        UserServiceResponse serviceDto = userService.deleteUser(DeleteUserServiceRequest.builder().id(id).build());
+        UserResponse response = serviceDto.toResponse();
         return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_USER, response));
     }
 
@@ -79,7 +82,8 @@ public class UserController {
     })
     @PostMapping
     public ResponseEntity<ResultDTO<UserResponse>> saveUser(@Valid @RequestBody SaveUserRequest saveUserRequest) {
-        UserResponse response = userService.saveUser(saveUserRequest.toService());
+        UserServiceResponse serviceDto = userService.saveUser(saveUserRequest.toService());
+        UserResponse response = serviceDto.toResponse();
         return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_USER, response));
     }
 }

@@ -1,6 +1,5 @@
 package com.pororoz.istock.domain.user.service;
 
-import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UpdateUserServiceRequest;
@@ -78,12 +77,16 @@ class UserServiceTest {
                         .role(role)
                         .build();
 
-                UserResponse response = UserServiceResponse.of(targetUser).toResponse();
+                UserServiceResponse response = UserServiceResponse.builder()
+                        .id(id)
+                        .username(username)
+                        .roleName(roleName)
+                        .build();
 
                 // when
                 when(roleRepository.findByName(any())).thenReturn(Optional.of(role));
                 when(userRepository.findById(any())).thenReturn(Optional.of(targetUser));
-                UserResponse result = userService.updateUser(updateUserServiceRequest);
+                UserServiceResponse result = userService.updateUser(updateUserServiceRequest);
 
                 // then
                 assertEquals(result, response);
@@ -137,6 +140,7 @@ class UserServiceTest {
         private String username;
         private String password;
         private Role role;
+        private String roleName;
 
         @BeforeEach
         void setup() {
@@ -144,6 +148,7 @@ class UserServiceTest {
             username = "test";
             password = "1234";
             role = Role.builder().name("admin").build();
+            roleName = "admin";
         }
 
         @Nested
@@ -164,11 +169,15 @@ class UserServiceTest {
                         .role(role)
                         .build();
 
-                UserResponse response = UserServiceResponse.of(resultUser).toResponse();
+                UserServiceResponse response = UserServiceResponse.builder()
+                    .id(id)
+                    .username(username)
+                    .roleName(roleName)
+                    .build();
 
                 // when
                 when(userRepository.findById(id)).thenReturn(Optional.of(resultUser));
-                UserResponse result = userService.deleteUser(deleteUserServiceRequest);
+                UserServiceResponse result = userService.deleteUser(deleteUserServiceRequest);
 
                 // then
                 assertEquals(result, response);
@@ -234,12 +243,16 @@ class UserServiceTest {
                         .role(role)
                         .build();
 
-                UserResponse response = UserServiceResponse.of(resultUser).toResponse();
+                UserServiceResponse response = UserServiceResponse.builder()
+                    .id(id)
+                    .username(username)
+                    .roleName(roleName)
+                    .build();
 
                 // when
                 when(userRepository.save(any())).thenReturn(resultUser);
                 when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
-                UserResponse result = userService.saveUser(saveUserServiceRequest);
+                UserServiceResponse result = userService.saveUser(saveUserServiceRequest);
 
                 // then
                 assertEquals(result, response);

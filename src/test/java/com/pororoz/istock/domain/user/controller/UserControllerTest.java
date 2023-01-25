@@ -66,10 +66,14 @@ class UserControllerTest {
                         .username(username)
                         .roleName(roleName)
                         .build();
-                UserResponse userResponse = userServiceResponse.toResponse();
+                UserResponse userResponse = UserResponse.builder()
+                        .id(id)
+                        .username(username)
+                        .roleName(roleName)
+                        .build();
 
                 // when
-                when(userService.updateUser(any())).thenReturn(userResponse);
+                when(userService.updateUser(any())).thenReturn(userServiceResponse);
                 ResponseEntity<ResultDTO<UserResponse>> response = userController.updateUser(updateUserRequest);
 
                 // then
@@ -112,10 +116,14 @@ class UserControllerTest {
                         .username(username)
                         .roleName(roleName)
                         .build();
-                UserResponse userResponse = userServiceResponse.toResponse();
+                UserResponse userResponse = UserResponse.builder()
+                        .id(id)
+                        .username(username)
+                        .roleName(roleName)
+                        .build();
 
                 // when
-                when(userService.deleteUser(any())).thenReturn(userResponse);
+                when(userService.deleteUser(any())).thenReturn(userServiceResponse);
                 ResponseEntity<ResultDTO<UserResponse>> response = userController.deleteUser(id);
 
                 // then
@@ -135,12 +143,14 @@ class UserControllerTest {
     @DisplayName("계정 생성하기")
     class SaveUser {
 
+        private Long id;
         private String username;
         private String password;
         private String roleName;
 
         @BeforeEach
         void setup() {
+            id = 1L;
             username = "test";
             password = "1234ab";
             roleName = "user";
@@ -159,14 +169,18 @@ class UserControllerTest {
                         .roleName(roleName)
                         .build();
                 UserServiceResponse userServiceResponse = UserServiceResponse.builder()
-                        .id(1L)
+                        .id(id)
                         .username(username)
                         .roleName(roleName)
                         .build();
-                UserResponse userResponse = userServiceResponse.toResponse();
+                UserResponse userResponse = UserResponse.builder()
+                        .id(id)
+                        .username(username)
+                        .roleName(roleName)
+                        .build();
 
                 // when
-                when(userService.saveUser(any())).thenReturn(userResponse);
+                when(userService.saveUser(any())).thenReturn(userServiceResponse);
                 ResponseEntity<ResultDTO<UserResponse>> response = userController.saveUser(saveUserRequest);
 
                 // then
