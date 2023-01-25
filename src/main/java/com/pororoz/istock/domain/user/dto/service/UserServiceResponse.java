@@ -27,4 +27,16 @@ public class UserServiceResponse {
                 .roleName(roleName)
                 .build();
     }
+
+    @Override
+    public boolean equals(Object obj){
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+
+        UserServiceResponse response = (UserServiceResponse) obj;
+        return id.equals(response.getId()) &&
+            username.equals(response.getUsername()) &&
+            roleName.equals(response.getRoleName());
+    }
 }
