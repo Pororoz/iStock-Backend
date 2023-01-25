@@ -46,7 +46,7 @@ class CustomUserDetailsServiceTest {
                 //given
                 String username = "test";
                 String password = "test1234";
-                Role roles = Role.builder().name("ADMIN").build(); // 권한 : ADMIN, USER
+                Role roles = Role.builder().name("ROLE_USER").build(); // 권한 : ROLE_ADMIN, ROLE_USER
                 User user = User.builder().id(1L).username(username).password(password).roles(List.of(roles)).build();
 
                 //when
@@ -56,7 +56,7 @@ class CustomUserDetailsServiceTest {
                 //then
                 assertThat(userDetails.getAuthorities())
                         .extracting(GrantedAuthority::getAuthority)
-                        .contains("ADMIN");
+                        .contains("ROLE_USER");
                 assertThat(userDetails.getUsername(), equalTo(username));
                 assertThat(userDetails.getPassword(), equalTo(password));
 
@@ -68,7 +68,7 @@ class CustomUserDetailsServiceTest {
         class FailCase {
 
             @Test
-            @DisplayName("유저 이름을 찾을 수 없다, UsernameNotFoundException을 반환한다.")
+            @DisplayName("유저 이름을 찾을 수 없다면, UsernameNotFoundException을 반환한다.")
             void usernameNotFoundException() {
 
                 //given
