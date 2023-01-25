@@ -18,5 +18,5 @@ public class SaveUserResponseSwagger {
     @Schema(description = "Message", example = ResponseMessage.SAVE_USER)
     private String message;
 
-    private UserResponse userResponse;
+    private UserResponse data;
 }

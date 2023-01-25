@@ -18,5 +18,5 @@ public class DeleteUserResponseSwagger {
     @Schema(description = "Message", example = ResponseMessage.DELETE_USER)
     private String message;
 
-    private UserResponse userResponse;
+    private UserResponse data;
 }
