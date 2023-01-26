@@ -208,9 +208,7 @@ class UserServiceTest {
         FindUserServiceRequest request = FindUserServiceRequest.builder().page(page).size(size)
             .build();
         PageImpl<User> pages = new PageImpl<>(users, PageRequest.of(page, size), totalUsers);
-        List<UserServiceResponse> userServiceResponses = users.stream().map(
-            user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
-                .roleName(user.getRole().getName()).build()).toList();
+        List<UserServiceResponse> userServiceResponses = getUserServiceResponses(users);
 
         //when
         when(userRepository.findAll(any(PageRequest.class))).thenReturn(pages);
@@ -230,9 +228,7 @@ class UserServiceTest {
       void findAll() {
         //given
         FindUserServiceRequest request = FindUserServiceRequest.builder().build();
-        List<UserServiceResponse> userServiceResponses = users.stream().map(
-            user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
-                .roleName(user.getRole().getName()).build()).toList();
+        List<UserServiceResponse> userServiceResponses = getUserServiceResponses(users);
 
         //when
         when(userRepository.findAll()).thenReturn(users);
@@ -273,9 +269,7 @@ class UserServiceTest {
         FindUserServiceRequest request = FindUserServiceRequest.builder().size(size)
             .build();
         PageImpl<User> pages = new PageImpl<>(users, PageRequest.of(defaultPage, size), totalUsers);
-        List<UserServiceResponse> userServiceResponses = users.stream().map(
-            user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
-                .roleName(user.getRole().getName()).build()).toList();
+        List<UserServiceResponse> userServiceResponses = getUserServiceResponses(users);
 
         //when
         when(userRepository.findAll(any(PageRequest.class))).thenReturn(pages);
@@ -309,9 +303,7 @@ class UserServiceTest {
             .build();
         PageImpl<User> pages = new PageImpl<>(findUsers, PageRequest.of(page, defaultSize),
             totalUsers);
-        List<UserServiceResponse> userServiceResponses = findUsers.stream().map(
-            user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
-                .roleName(user.getRole().getName()).build()).toList();
+        List<UserServiceResponse> userServiceResponses = getUserServiceResponses(findUsers);
 
         //when
         when(userRepository.findAll(any(PageRequest.class))).thenReturn(pages);
@@ -332,6 +324,12 @@ class UserServiceTest {
     @DisplayName("실패 케이스")
     class FailCase {
 
+    }
+
+    private List<UserServiceResponse> getUserServiceResponses(List<User> users) {
+      return users.stream().map(
+          user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
+              .roleName(user.getRole().getName()).build()).toList();
     }
   }
 }

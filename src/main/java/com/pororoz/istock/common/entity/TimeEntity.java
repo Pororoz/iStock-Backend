@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -20,4 +21,11 @@ public abstract class TimeEntity {
 
   @LastModifiedDate
   private LocalDateTime updatedAt;
+
+  public static String formatTime(LocalDateTime time) {
+    if (time == null) {
+      return null;
+    }
+    return time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+  }
 }

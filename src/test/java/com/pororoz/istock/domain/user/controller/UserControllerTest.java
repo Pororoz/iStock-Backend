@@ -18,6 +18,7 @@ import com.pororoz.istock.domain.user.dto.service.FindUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
@@ -161,11 +162,12 @@ class UserControllerTest {
         //given
         long totalUsers = 11L;
         int countPerPages = 2;
+        LocalDateTime today = LocalDateTime.now();
         FindUserRequest request = FindUserRequest.builder().page(3).size(countPerPages).build();
         UserServiceResponse response1 = UserServiceResponse.builder().id(1L).username("user1")
-            .roleName("user").createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
+            .roleName("user").createdAt(today).updatedAt(today).build();
         UserServiceResponse response2 = UserServiceResponse.builder().id(2L).username("user2")
-            .roleName("user").createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now()).build();
+            .roleName("user").createdAt(today).updatedAt(today).build();
         List<UserServiceResponse> userServiceResponses = List.of(response1, response2);
         Page<UserServiceResponse> page = new PageImpl<>(userServiceResponses,
             PageRequest.of(3, countPerPages), totalUsers);
@@ -182,6 +184,7 @@ class UserControllerTest {
         assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
         assertEquals(Objects.requireNonNull(response.getBody()).getMessage(),
             ResponseMessage.FIND_USER);
+
         PageResponse<FindUserResponse> data = Objects.requireNonNull(response.getBody()).getData();
         assertEquals(data.getTotalPages(), (int) (totalUsers + countPerPages) / countPerPages);
         assertEquals(data.getTotalElements(), totalUsers);
@@ -189,6 +192,11 @@ class UserControllerTest {
         assertFalse(data.isFirst());
         assertFalse(data.isLast());
         assertIterableEquals(data.getContent(), findUserResponse);
+
+        FindUserResponse first = data.getContent().get(0);
+        String format = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        assertEquals(first.getCreatedAt(), format);
+        assertEquals(first.getUpdatedAt(), format);
       }
     }
   }

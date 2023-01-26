@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.user.dto.service;
 
+import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.user.dto.response.FindUserResponse;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.entity.User;
@@ -30,7 +31,8 @@ public class UserServiceResponse {
 
   public FindUserResponse toFindResponse() {
     return FindUserResponse.builder().id(id).username(username).roleName(roleName)
-        .createdAt(createdAt.toString()).updatedAt(updatedAt.toString()).build();
+        .createdAt(TimeEntity.formatTime(createdAt))
+        .updatedAt(TimeEntity.formatTime(updatedAt)).build();
   }
 
   @Override
