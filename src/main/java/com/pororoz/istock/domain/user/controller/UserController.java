@@ -7,11 +7,13 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.user.dto.request.FindUserRequest;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
+import com.pororoz.istock.domain.user.dto.request.UpdateUserRequest;
 import com.pororoz.istock.domain.user.dto.response.FindUserResponse;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;
+import com.pororoz.istock.domain.user.swagger.exception.InvalidIDExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.exception.InvalidPathExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.exception.RoleNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.user.swagger.exception.UserNotFoundExceptionSwagger;
@@ -36,6 +38,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,6 +57,25 @@ public class UserController {
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_USER,
           content = {@Content(schema = @Schema(implementation = DeleteUserResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.INVALID_PATH,
+          content = {@Content(schema = @Schema(implementation = InvalidIDExceptionSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.ROLE_NOT_FOUND,
+          content = {
+              @Content(schema = @Schema(implementation = UserNotFoundExceptionSwagger.class))}),
+  })
+  @PutMapping
+  public ResponseEntity<ResultDTO<UserResponse>> updateUser(
+      @Valid @RequestBody UpdateUserRequest updateUserRequest) {
+    UserServiceResponse serviceDto = userService.updateUser(updateUserRequest.toService());
+    UserResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_USER, response));
+  }
+
+  @Operation(summary = "delete user", description = "유저 삭제 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_USER,
+          content = {@Content(schema = @Schema(implementation = DeleteUserResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.INVALID_PATH,
           content = {
               @Content(schema = @Schema(implementation = InvalidPathExceptionSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.ROLE_NOT_FOUND,
@@ -64,8 +86,9 @@ public class UserController {
   public ResponseEntity<ResultDTO<UserResponse>> deleteUser(
       @PathVariable("id") @NotNull(message = ExceptionMessage.INVALID_PATH)
       @Positive(message = ExceptionMessage.INVALID_PATH) Long id) {
-    UserResponse response = userService.deleteUser(
+    UserServiceResponse serviceDto = userService.deleteUser(
         DeleteUserServiceRequest.builder().id(id).build());
+    UserResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_USER, response));
   }
@@ -81,7 +104,8 @@ public class UserController {
   @PostMapping
   public ResponseEntity<ResultDTO<UserResponse>> saveUser(
       @Valid @RequestBody SaveUserRequest saveUserRequest) {
-    UserResponse response = userService.saveUser(saveUserRequest.toService());
+    UserServiceResponse serviceDto = userService.saveUser(saveUserRequest.toService());
+    UserResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_USER, response));
   }

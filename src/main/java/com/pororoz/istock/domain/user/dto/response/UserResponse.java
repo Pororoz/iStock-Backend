@@ -19,6 +19,10 @@ public class UserResponse {
 
   @Override
   public boolean equals(Object obj) {
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+
     UserResponse response = (UserResponse) obj;
     return id.equals(response.getId()) &&
         username.equals(response.getUsername()) &&
