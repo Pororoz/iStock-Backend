@@ -12,7 +12,7 @@ public class PageResponse<T> {
   boolean first;
   @Schema(description = "마지막 페이지인가?", example = "false")
   boolean last;
-  List<T> content;
+  List<T> contents;
   @Schema(description = "content에 담긴 내용의 개수", example = "1")
   int currentSize;
   @Schema(description = "전체 페이지", example = "10")
@@ -23,7 +23,7 @@ public class PageResponse<T> {
   public PageResponse(Page<T> page) {
     first = page.isFirst();
     last = page.isLast();
-    content = page.getContent();
+    contents = page.getContent();
     currentSize = page.getNumberOfElements();
     totalPages = page.getTotalPages();
     totalElements = page.getTotalElements();

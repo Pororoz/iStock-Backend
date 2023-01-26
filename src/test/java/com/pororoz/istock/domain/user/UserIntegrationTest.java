@@ -497,7 +497,7 @@ public class UserIntegrationTest {
             .andDo(print());
 
         for (int i = 0; i < size; i++) {
-          actions.andExpect(jsonPath("$.data.content[" + i + "].username").value("user" + i));
+          actions.andExpect(jsonPath("$.data.contents[" + i + "].username").value("user" + i));
         }
       }
 
@@ -523,7 +523,7 @@ public class UserIntegrationTest {
             .andExpect(jsonPath("$.data.first").value(false))
             .andExpect(jsonPath("$.data.last").value(true))
             .andExpect(jsonPath("$.data.currentSize").value(1))
-            .andExpect(jsonPath("$.data.content[0].username").value("user9"))
+            .andExpect(jsonPath("$.data.contents[0].username").value("user9"))
             .andDo(print());
       }
 

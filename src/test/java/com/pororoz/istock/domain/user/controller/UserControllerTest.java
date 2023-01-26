@@ -263,9 +263,9 @@ class UserControllerTest {
         assertEquals(data.getCurrentSize(), countPerPages);
         assertFalse(data.isFirst());
         assertFalse(data.isLast());
-        assertIterableEquals(data.getContent(), findUserResponse);
+        assertIterableEquals(data.getContents(), findUserResponse);
 
-        FindUserResponse first = data.getContent().get(0);
+        FindUserResponse first = data.getContents().get(0);
         String format = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         assertEquals(first.getCreatedAt(), format);
         assertEquals(first.getUpdatedAt(), format);
