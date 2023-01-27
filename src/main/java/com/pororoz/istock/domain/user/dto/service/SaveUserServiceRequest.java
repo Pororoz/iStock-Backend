@@ -12,7 +12,7 @@ public class SaveUserServiceRequest {
     private String password;
     private String roleName;
 
-    public User toUser(Role role) {
+    public User toUser(String password, Role role) {
         return User.builder()
                 .username(username)
                 .password(password)

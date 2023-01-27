@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.user.service;
 
+
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UpdateUserServiceRequest;
@@ -11,6 +12,7 @@ import com.pororoz.istock.domain.user.exception.UserNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public UserServiceResponse updateUser(UpdateUserServiceRequest updateUserServiceRequest) {
@@ -40,9 +43,10 @@ public class UserService {
     }
 
     public UserServiceResponse saveUser(SaveUserServiceRequest saveUserServiceRequest) {
+        String encodedPassword = passwordEncoder.encode(saveUserServiceRequest.getPassword());
         Role role = roleRepository.findByName(saveUserServiceRequest.getRoleName())
                 .orElseThrow(RoleNotFoundException::new);
-        User user = saveUserServiceRequest.toUser(role);
+        User user = saveUserServiceRequest.toUser(encodedPassword,role);
         User result = userRepository.save(user);
         return UserServiceResponse.of(result);
     }
