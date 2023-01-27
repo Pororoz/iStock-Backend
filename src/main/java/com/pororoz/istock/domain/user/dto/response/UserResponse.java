@@ -14,7 +14,7 @@ public class UserResponse {
     @Schema(description = "사용자 이름", example = "pororoz")
     private String username;
 
-    @Schema(description = "역할", example = "user")
+    @Schema(description = "역할", example = "ROLE_USER")
     private String roleName;
 
     @Override
