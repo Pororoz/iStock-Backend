@@ -24,7 +24,7 @@ private final AuthService authService;
     @PostMapping("/login")
     public void login() {}
 
-    @GetMapping("/admin")
+    @GetMapping("/admin") // 권한 확인용 api
     public String admin(){
         return "admin";
     }

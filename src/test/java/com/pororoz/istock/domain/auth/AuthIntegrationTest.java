@@ -117,7 +117,7 @@ public class AuthIntegrationTest {
             void loginSuccess() throws Exception {
                 // given
                 Role role = roleRepository.findById(1L).orElseThrow(() -> new RoleNotFoundException());
-                User user = User.builder().id(1L).username(username).password(password).roles(List.of(role)).build();
+                User user = User.builder().id(1L).username(username).password(password).role(role).build();
                 userRepository.save(user);
                 String requestPassword = "admin";
                 LoginRequest request = LoginRequest.builder().username(username).password(requestPassword).build();
@@ -141,7 +141,7 @@ public class AuthIntegrationTest {
             void loginFailByUsername() throws Exception {
                 // given
                 Role role = roleRepository.findById(1L).orElseThrow(() -> new RoleNotFoundException());
-                User user = User.builder().id(1L).username(username).password(password).roles(List.of(role)).build();
+                User user = User.builder().id(1L).username(username).password(password).role(role).build();
                 userRepository.save(user);
                 String requestUsername = "anonymous";
                 String requestPassword = "1234";
@@ -161,7 +161,7 @@ public class AuthIntegrationTest {
             void loginFailByPassword() throws Exception {
                 // given
                 Role role = roleRepository.findById(1L).orElseThrow(() -> new RoleNotFoundException());
-                User user = User.builder().id(1L).username(username).password(password).roles(List.of(role)).build();
+                User user = User.builder().id(1L).username(username).password(password).role(role).build();
                 userRepository.save(user);
                 String requestUsername = username;
                 String requestPassword = "123456";

@@ -3,6 +3,7 @@ package com.pororoz.istock.domain.auth.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pororoz.istock.domain.auth.dto.CustomUserDetailsDTO;
 import com.pororoz.istock.domain.auth.service.CustomUserDetailsService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,10 +13,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
+@Transactional(readOnly = true)
 public class CustomAuthenticationManager implements AuthenticationManager {
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;

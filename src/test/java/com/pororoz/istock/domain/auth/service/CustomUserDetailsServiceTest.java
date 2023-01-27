@@ -47,7 +47,7 @@ class CustomUserDetailsServiceTest {
                 String username = "test";
                 String password = "test1234";
                 Role roles = Role.builder().name("ROLE_USER").build(); // 권한 : ROLE_ADMIN, ROLE_USER
-                User user = User.builder().id(1L).username(username).password(password).roles(List.of(roles)).build();
+                User user = User.builder().id(1L).username(username).password(password).role(roles).build();
 
                 //when
                 when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
