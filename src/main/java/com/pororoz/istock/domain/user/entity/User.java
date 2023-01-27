@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 @Builder
 @AllArgsConstructor
@@ -23,7 +22,7 @@ public class User implements Serializable {
     private Long id;
 
     @NotNull
-    @Size(min = 1, max = 20)
+    @Size(min = 4, max = 20)
     @Column(length = 50, unique = true, nullable = false)
     private String username;
 
@@ -32,13 +31,7 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
-    )
-    private Collection<Role> roles;
-
-
+    @NotNull
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Role role;
 }
