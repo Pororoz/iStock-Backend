@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+      - 'release'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        ports:
+          - 3399:3306
+        env:
+          MYSQL_DATABASE: 'istock'
+          MYSQL_USER: 'test'
+          MYSQL_PASSWORD: 1234
+          MYSQL_ROOT_PASSWORD: 1234
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Redis
+        uses: supercharge/redis-github-action@1.4.0
+        with:
+          redis-port: 6399
+
+      - name: Setup Java17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Wait for MySQL
+        run: |
+          while ! mysqladmin ping --host=127.0.0.1 --port=3399 --password=1234 --silent; do
+            sleep 1
+          done
+
+      - name: Test
+        run: chmod +x gradlew && ./gradlew clean test
+
+      - name: Comment test coverage
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.2
+        with:
+          title: 📝 테스트 커버리지 리포트입니다
+          paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 80
+          min-coverage-changed-files: 50
