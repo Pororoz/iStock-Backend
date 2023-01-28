@@ -7,6 +7,7 @@ public class ExceptionStatus {
     public static final String PAGE_NOT_FOUND = "PAGE_NOT_FOUND";
     public static final String ROLE_NOT_FOUND = "ROLE_NOT_FOUND";
     public static final String USER_NOT_FOUND = "USER_NOT_FOUND";
+    public static final String CATEGORY_NOT_FOUND = "CATEGORY_NOT_FOUND";
 
     // Uncontrolled Range
     public static final  String RUNTIME_ERROR = "RUNTIME_ERROR";
