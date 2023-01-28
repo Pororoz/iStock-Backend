@@ -5,6 +5,7 @@ public class ResponseMessage {
     public static final String SAVE_USER = "권한 생성";
     public static final String DELETE_USER = "권한 삭제";
     public static final String UPDATE_USER = "권한 수정";
+    public static final String SAVE_CATEGORY = "카테고리 생성";
 
     private ResponseMessage() {}
 

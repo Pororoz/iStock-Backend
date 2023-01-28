@@ -1,0 +1,22 @@
+package com.pororoz.istock.domain.category.service;
+
+
+import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
+import com.pororoz.istock.domain.category.dto.service.SaveCategoryServiceRequest;
+import com.pororoz.istock.domain.category.entity.Category;
+import com.pororoz.istock.domain.category.repository.CategoryRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class CategoryService {
+
+    private final CategoryRepository categoryRepository;
+
+    public CategoryServiceResponse saveCategory(SaveCategoryServiceRequest saveCategoryServiceRequest) {
+        Category category = saveCategoryServiceRequest.toCategory(saveCategoryServiceRequest.getName());
+        Category result = categoryRepository.save(category);
+        return CategoryServiceResponse.of(result);
+    }
+}
