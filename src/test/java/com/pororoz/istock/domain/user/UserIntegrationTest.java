@@ -343,7 +343,7 @@ public class UserIntegrationTest {
     @Transactional
     class SaveUser {
         private final String url = "/v1/users";
-        
+
         private String username;
         private String password;
         private String roleName;
@@ -360,7 +360,7 @@ public class UserIntegrationTest {
         class SuccessCase {
             @Test
             @DisplayName("중복되지 않는 유저 정보를 건네주면 계정 생성에 성공한다.")
-            void saveUser() throws Exception{
+            void saveUser() throws Exception {
                 // given
                 String request = objectMapper.writeValueAsString(SaveUserRequest.builder()
                         .username(username)
@@ -411,9 +411,9 @@ public class UserIntegrationTest {
 
             @Test
             @DisplayName("존재하지 않는 role name이 들어오면 Error가 발생한다.")
-            void notFoundRoleName() throws Exception{
+            void notFoundRoleName() throws Exception {
                 //given
-                SaveUserRequest request= SaveUserRequest.builder().username("test")
+                SaveUserRequest request = SaveUserRequest.builder().username("test")
                         .roleName("nothing").password("1234abcd").build();
 
                 //when

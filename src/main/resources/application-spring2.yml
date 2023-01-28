@@ -1,0 +1,18 @@
+spring:
+  config:
+    activate:
+      on-profile: "spring2"
+  datasource:
+    url: jdbc:mysql://mysql:3306/istock?serverTimezone=Asia/Seoul
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: true
+  data:
+    redis:
+      host: redis
+      port: 6379
