@@ -52,9 +52,9 @@ class UserServiceTest {
             username = "test";
             password = "ab1234";
             newPassword = "abc123";
-            roleName = "user";
-            newRoleName = "admin";
-            role = Role.builder().name("user").build();
+            roleName = "ROLE_USER";
+            newRoleName = "ROLE_ADMIN";
+            role = Role.builder().name("ROLE_USER").build();
         }
 
         @Nested
@@ -147,8 +147,8 @@ class UserServiceTest {
             id = 1L;
             username = "test";
             password = "1234";
-            role = Role.builder().name("admin").build();
-            roleName = "admin";
+            role = Role.builder().name("ROLE_ADMIN").build();
+            roleName = "ROLE_ADMIN";
         }
 
         @Nested
@@ -219,8 +219,8 @@ class UserServiceTest {
             id = 1L;
             username = "test";
             password = "1234";
-            roleName = "admin";
-            role = Role.builder().name("admin").build();
+            roleName = "ROLE_ADMIN";
+            role = Role.builder().name("ROLE_ADMIN").build();
         }
 
         @Nested

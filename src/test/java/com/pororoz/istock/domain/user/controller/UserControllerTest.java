@@ -46,7 +46,7 @@ class UserControllerTest {
             id = 1L;
             username = "test";
             password = "1234ab";
-            roleName = "user";
+            roleName = "ROLE_USER";
         }
 
         @Nested
@@ -101,7 +101,7 @@ class UserControllerTest {
         void setup() {
             id = 1L;
             username = "test";
-            roleName = "user";
+            roleName = "ROLE_USER";
         }
 
         @Nested
@@ -153,7 +153,7 @@ class UserControllerTest {
             id = 1L;
             username = "test";
             password = "1234ab";
-            roleName = "user";
+            roleName = "ROLE_USER";
         }
 
         @Nested
