@@ -15,11 +15,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -42,4 +40,9 @@ public class User extends TimeEntity implements Serializable {
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Role role;
+
+  public void update(String password, Role role) {
+    this.password = password;
+    this.role = role;
+  }
 }

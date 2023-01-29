@@ -10,11 +10,11 @@ import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotEmpty;
 import java.util.Collection;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@Data
+@Getter
 @Entity
 public class Role {
 

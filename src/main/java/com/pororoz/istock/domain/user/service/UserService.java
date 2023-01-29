@@ -33,9 +33,8 @@ public class UserService {
         .orElseThrow(RoleNotFoundException::new);
     User targetUser = userRepository.findById(updateUserServiceRequest.getId())
         .orElseThrow(UserNotFoundException::new);
-    targetUser.setRole(role);
-    targetUser.setPassword(updateUserServiceRequest.getPassword());
-
+    String encodedPassword = passwordEncoder.encode(updateUserServiceRequest.getPassword());
+    targetUser.update(encodedPassword, role);
     return UserServiceResponse.of(targetUser);
   }
 
@@ -47,9 +46,9 @@ public class UserService {
   }
 
   public UserServiceResponse saveUser(SaveUserServiceRequest saveUserServiceRequest) {
-    String encodedPassword = passwordEncoder.encode(saveUserServiceRequest.getPassword());
     Role role = roleRepository.findByName(saveUserServiceRequest.getRoleName())
         .orElseThrow(RoleNotFoundException::new);
+    String encodedPassword = passwordEncoder.encode(saveUserServiceRequest.getPassword());
     User user = saveUserServiceRequest.toUser(encodedPassword, role);
     User result = userRepository.save(user);
     return UserServiceResponse.of(result);

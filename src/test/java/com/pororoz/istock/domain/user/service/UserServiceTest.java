@@ -35,6 +35,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -48,6 +49,9 @@ class UserServiceTest {
   @Mock
   RoleRepository roleRepository;
 
+  @Mock
+  PasswordEncoder passwordEncoder;
+
   @Nested
   @DisplayName("계정 수정 API")
   class UpdateUser {
@@ -58,7 +62,7 @@ class UserServiceTest {
     private String newPassword;
     private String roleName;
     private String newRoleName;
-    private Role role;
+    private final Role role = Role.builder().name("ROLE_USER").build();
 
     @BeforeEach
     void setup() {
@@ -68,7 +72,6 @@ class UserServiceTest {
       newPassword = "abc123";
       roleName = "ROLE_USER";
       newRoleName = "ROLE_ADMIN";
-      role = Role.builder().name("ROLE_USER").build();
     }
 
     @Nested
@@ -79,6 +82,7 @@ class UserServiceTest {
       @DisplayName("존재하는 유저를 업데이트한다.")
       void updateUser() {
         // given
+        String encodedPassword = "newEncoded0987";
         UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
             .id(id)
             .roleName(newRoleName)
@@ -99,8 +103,9 @@ class UserServiceTest {
             .build();
 
         // when
+        when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
         when(roleRepository.findByName(any())).thenReturn(Optional.of(role));
-        when(userRepository.findById(any())).thenReturn(Optional.of(targetUser));
+        when(userRepository.findById(id)).thenReturn(Optional.of(targetUser));
         UserServiceResponse result = userService.updateUser(updateUserServiceRequest);
 
         // then
@@ -232,16 +237,14 @@ class UserServiceTest {
     private Long id;
     private String username;
     private String password;
-    private String roleName;
-    private Role role;
+    private final String roleName = "ROLE_ADMIN";
+    private final Role role = Role.builder().name(roleName).build();
 
     @BeforeEach
     void setup() {
       id = 1L;
       username = "test";
       password = "1234";
-      roleName = "ROLE_ADMIN";
-      role = Role.builder().name("ROLE_ADMIN").build();
     }
 
     @Nested
@@ -252,6 +255,7 @@ class UserServiceTest {
       @DisplayName("유저를 생성한다.")
       void saveUser() {
         // given
+        String encodedPassword = "newEncode123PW";
         SaveUserServiceRequest saveUserServiceRequest = SaveUserServiceRequest.builder()
             .username(username).password(password).roleName(roleName).build();
 
@@ -269,6 +273,7 @@ class UserServiceTest {
             .build();
 
         // when
+        when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
         when(userRepository.save(any())).thenReturn(resultUser);
         when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
         UserServiceResponse result = userService.saveUser(saveUserServiceRequest);
