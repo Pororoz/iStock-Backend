@@ -5,6 +5,8 @@ spring:
     # build profile이 실행되면 secret도 함께 실행
     group:
       "build": "secret"
+  jackson:
+    default-property-inclusion: non_null
 ---
 # build config
 spring:
