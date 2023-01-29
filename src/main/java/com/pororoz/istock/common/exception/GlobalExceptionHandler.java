@@ -26,28 +26,24 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleRequestBodyValidationErrors(
       MethodArgumentNotValidException e) {
-    return getErrorResponseResponseEntity(e);
+    return getValidErrorResponseEntity(e);
   }
 
   // @ModelAttribute valid
   @ExceptionHandler(BindException.class)
   public ResponseEntity<ErrorResponse> handleModelAttributeValidationErrors(
       BindException e) {
-    return getErrorResponseResponseEntity(e);
+    return getValidErrorResponseEntity(e);
   }
 
-  private ResponseEntity<ErrorResponse> getErrorResponseResponseEntity(BindException e) {
+  private ResponseEntity<ErrorResponse> getValidErrorResponseEntity(BindException e) {
     List<ErrorBinder> errors = new ArrayList<>();
     for (FieldError error : e.getBindingResult().getFieldErrors()) {
       errors.add(new ErrorBinder(error.getField(), error.getDefaultMessage()));
     }
 
-    ErrorResponse response = ErrorResponse.builder()
-        .status(ExceptionStatus.BAD_REQUEST)
-        .message(errors.get(0).getMessage())
-        .errors(errors)
-        .build();
-    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    return getResponseEntity(ExceptionStatus.BAD_REQUEST, errors.get(0).getMessage(), errors,
+        HttpStatus.BAD_REQUEST);
   }
 
   // ConstraintViolation
@@ -57,64 +53,53 @@ public class GlobalExceptionHandler {
     for (ConstraintViolation error : e.getConstraintViolations()) {
       errors.add(new ErrorBinder(error.getPropertyPath().toString(), error.getMessage()));
     }
-    ErrorResponse response = ErrorResponse.builder()
-        .status(ExceptionStatus.BAD_REQUEST)
-        .message(errors.get(0).getMessage())
-        .errors(errors)
-        .build();
-    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    return getResponseEntity(ExceptionStatus.BAD_REQUEST, errors.get(0).getMessage(), errors,
+        HttpStatus.BAD_REQUEST);
   }
 
   // Type Mismatch Validation
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<ErrorResponse> handleValidationTypeMismatchErrors() {
-    ErrorResponse response = ErrorResponse.builder()
-        .status(ExceptionStatus.BAD_REQUEST)
-        .message(ExceptionMessage.TYPE_MISMATCH)
-        .errors(new ArrayList<>())
-        .build();
-    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    return getResponseEntity(ExceptionStatus.BAD_REQUEST, ExceptionMessage.TYPE_MISMATCH,
+        null, HttpStatus.BAD_REQUEST);
   }
 
   // Custom exception
   @ExceptionHandler(CustomException.class)
   public ResponseEntity<ErrorResponse> handleCustomErrors(final CustomException e) {
-    ErrorResponse response = ErrorResponse.builder()
-        .status(e.getStatus())
-        .message(e.getMessage())
-        .build();
-    return new ResponseEntity<>(response, e.getStatusCode());
+    return getResponseEntity(e.getStatus(), e.getMessage(), null, e.getStatusCode());
   }
 
   // 404
   @ExceptionHandler(NoHandlerFoundException.class)
   public ResponseEntity<ErrorResponse> handleNotFoundApi() {
-    ErrorResponse response = ErrorResponse.builder()
-        .status(ExceptionStatus.PAGE_NOT_FOUND)
-        .message(ExceptionMessage.PAGE_NOT_FOUND)
-        .build();
-    return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    return getResponseEntity(ExceptionStatus.PAGE_NOT_FOUND, ExceptionMessage.PAGE_NOT_FOUND,
+        null, HttpStatus.NOT_FOUND);
   }
 
   // Custom Exception 에서 처리되지 않은 400
   @ExceptionHandler(RuntimeException.class)
   public ResponseEntity<ErrorResponse> handleRuntimeError(final RuntimeException e) {
     log.error("Uncontrolled Exception", e);
-    ErrorResponse response = ErrorResponse.builder()
-        .status(ExceptionStatus.RUNTIME_ERROR)
-        .message(e.getMessage())
-        .build();
-    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    return getResponseEntity(ExceptionStatus.RUNTIME_ERROR, e.getMessage(), null,
+        HttpStatus.BAD_REQUEST);
   }
 
   // 500
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> unhandledException(final Exception e) {
     log.error("Uncontrolled Exception", e);
+    return getResponseEntity(ExceptionStatus.INTERNAL_SERVER_ERROR, e.getMessage(),
+        null, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  private ResponseEntity<ErrorResponse> getResponseEntity(String status, String message,
+      List<ErrorBinder> errors, HttpStatus httpStatus) {
     ErrorResponse response = ErrorResponse.builder()
-        .status(ExceptionStatus.INTERNAL_SERVER_ERROR)
-        .message(e.getMessage())
+        .status(status)
+        .message(message)
+        .errors(errors)
         .build();
-    return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    return new ResponseEntity<>(response, httpStatus);
   }
 }
