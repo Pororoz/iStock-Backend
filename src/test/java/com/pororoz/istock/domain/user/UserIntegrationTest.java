@@ -80,8 +80,8 @@ public class UserIntegrationTest {
       username = "test";
       password = "1234a";
       newPassword = "123asb";
-      roleName = "user";
-      newRoleName = "admin";
+      roleName = "ROLE_USER";
+      newRoleName = "ROLE_ADMIN";
     }
 
     @Nested
@@ -263,7 +263,7 @@ public class UserIntegrationTest {
       id = 1L;
       username = "test";
       password = "1234a";
-      roleName = "user";
+      roleName = "ROLE_USER";
       params = new LinkedMultiValueMap<>();
     }
 
@@ -367,7 +367,7 @@ public class UserIntegrationTest {
     public void beforeEach() {
       username = "test";
       password = "1234a";
-      roleName = "user";
+      roleName = "ROLE_USER";
     }
 
     @Nested
@@ -411,7 +411,7 @@ public class UserIntegrationTest {
         SaveUserRequest request = SaveUserRequest.builder()
             .username("agridjlid")
             .password("abcdefgh")
-            .roleName("admin")
+            .roleName("ROLE_ADMIN")
             .build();
 
         //when

@@ -15,6 +15,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
+  private final PasswordEncoder passwordEncoder;
 
   public UserServiceResponse updateUser(UpdateUserServiceRequest updateUserServiceRequest) {
     Role role = roleRepository.findByName(updateUserServiceRequest.getRoleName())
@@ -45,9 +47,10 @@ public class UserService {
   }
 
   public UserServiceResponse saveUser(SaveUserServiceRequest saveUserServiceRequest) {
+    String encodedPassword = passwordEncoder.encode(saveUserServiceRequest.getPassword());
     Role role = roleRepository.findByName(saveUserServiceRequest.getRoleName())
         .orElseThrow(RoleNotFoundException::new);
-    User user = saveUserServiceRequest.toUser(role);
+    User user = saveUserServiceRequest.toUser(encodedPassword, role);
     User result = userRepository.save(user);
     return UserServiceResponse.of(result);
   }

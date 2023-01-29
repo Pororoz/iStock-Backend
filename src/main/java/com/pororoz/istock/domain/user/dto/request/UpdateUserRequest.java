@@ -28,7 +28,7 @@ public class UpdateUserRequest {
       message = ExceptionMessage.INVALID_PASSWORD)
   private String password;
 
-  @Schema(description = "권한", example = "user")
+  @Schema(description = "권한", example = "ROLE_USER")
   @NotEmpty(message = ExceptionMessage.INVALID_ROLENAME)
   private String roleName;
 

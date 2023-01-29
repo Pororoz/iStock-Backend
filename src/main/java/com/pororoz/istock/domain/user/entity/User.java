@@ -30,16 +30,16 @@ public class User extends TimeEntity implements Serializable {
   private Long id;
 
   @NotNull
-  @Size(min = 4, max = 20)
+  @Size(min = 2, max = 20)
   @Column(length = 50, unique = true, nullable = false)
   private String username;
 
   @NotNull
-  @Size(min = 4, max = 100)
+  @Size(min = 2, max = 100)
   @Column(nullable = false)
   private String password;
 
   @NotNull
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   private Role role;
 }
