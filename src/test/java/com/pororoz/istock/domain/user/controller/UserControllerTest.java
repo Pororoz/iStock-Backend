@@ -237,9 +237,9 @@ class UserControllerTest {
         LocalDateTime today = LocalDateTime.now();
         FindUserRequest request = FindUserRequest.builder().page(3).size(countPerPages).build();
         UserServiceResponse response1 = UserServiceResponse.builder().id(1L).username("user1")
-            .roleName("user").createdAt(today).updatedAt(today).build();
+            .roleName("ROLE_USER").createdAt(today).updatedAt(today).build();
         UserServiceResponse response2 = UserServiceResponse.builder().id(2L).username("user2")
-            .roleName("user").createdAt(today).updatedAt(today).build();
+            .roleName("ROLE_USER").createdAt(today).updatedAt(today).build();
         List<UserServiceResponse> userServiceResponses = List.of(response1, response2);
         Page<UserServiceResponse> page = new PageImpl<>(userServiceResponses,
             PageRequest.of(3, countPerPages), totalUsers);

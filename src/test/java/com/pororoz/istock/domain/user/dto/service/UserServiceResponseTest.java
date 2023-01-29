@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Test;
 class UserServiceResponseTest {
 
   UserServiceResponse response = UserServiceResponse.builder().id(1L).username("abc")
-      .roleName("user").build();
+      .roleName("ROLE_USER").build();
   UserServiceResponse responseShallowCopy = response;
   UserServiceResponse responseDeepCopy = UserServiceResponse.builder().id(1L).username("abc")
-      .roleName("user").build();
+      .roleName("ROLE_USER").build();
   UserServiceResponse otherResponse = UserServiceResponse.builder().id(1L).username("abcd")
-      .roleName("user").build();
+      .roleName("ROLE_USER").build();
   User user = User.builder().id(1L).username(response.getUsername())
       .role(Role.builder().name(response.getRoleName()).build()).password("12345678").build();
 

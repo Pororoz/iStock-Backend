@@ -11,16 +11,18 @@ import org.junit.jupiter.api.Test;
 class FindUserResponseTest {
 
   FindUserResponse response = FindUserResponse.builder().id(1L).username("abc")
-      .roleName("user").createdAt("2023-01-01 00:00:00").updatedAt("2023-01-01 00:00:01").build();
+      .roleName("ROLE_USER").createdAt("2023-01-01 00:00:00").updatedAt("2023-01-01 00:00:01")
+      .build();
   FindUserResponse responseShallowCopy = response;
   FindUserResponse responseDeepCopy = FindUserResponse.builder().id(1L).username("abc")
-      .roleName("user").createdAt("2023-01-01 00:00:00").updatedAt("2023-01-01 00:00:01").build();
+      .roleName("ROLE_USER").createdAt("2023-01-01 00:00:00").updatedAt("2023-01-01 00:00:01")
+      .build();
   FindUserResponse otherResponse1 = FindUserResponse.builder().id(1L).username("abc")
-      .roleName("user").createdAt("").updatedAt("2023-01-01 00:00:01").build();
+      .roleName("ROLE_USER").createdAt("").updatedAt("2023-01-01 00:00:01").build();
   FindUserResponse otherResponse2 = FindUserResponse.builder().id(1L).username("abc")
-      .roleName("user").createdAt("2023-01-01 00:00:00").updatedAt("").build();
+      .roleName("ROLE_USER").createdAt("2023-01-01 00:00:00").updatedAt("").build();
   FindUserResponse otherResponse3 = FindUserResponse.builder().id(2L).username("abc")
-      .roleName("user").createdAt("2023-01-01 00:00:00").updatedAt("").build();
+      .roleName("ROLE_USER").createdAt("2023-01-01 00:00:00").updatedAt("").build();
   User user = User.builder().id(1L).username(response.getUsername())
       .role(Role.builder().name(response.getRoleName()).build()).password("12345678").build();
 

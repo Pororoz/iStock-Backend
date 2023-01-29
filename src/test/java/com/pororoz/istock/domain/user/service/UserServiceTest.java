@@ -302,7 +302,7 @@ class UserServiceTest {
   @DisplayName("유저 조회 API Test")
   class FindUser {
 
-    Role userRole = Role.builder().name("user").build();
+    Role userRole = Role.builder().name("ROLE_USER").build();
 
     @Nested
     @DisplayName("성공 케이스")
@@ -412,7 +412,8 @@ class UserServiceTest {
         List<User> findUsers = new ArrayList<>();
         for (int i = 0; i < defaultSize; i++) {
           findUsers.add(
-              User.builder().id((long) i).username("user" + i).password("1q2w3e4r").role(userRole)
+              User.builder().id((long) i).username("ROLE_USER" + i).password("1q2w3e4r")
+                  .role(userRole)
                   .build());
         }
         FindUserServiceRequest request = FindUserServiceRequest.builder().page(page)

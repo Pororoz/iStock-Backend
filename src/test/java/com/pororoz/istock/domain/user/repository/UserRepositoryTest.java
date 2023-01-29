@@ -29,14 +29,14 @@ class UserRepositoryTest {
 
 
   @Nested
-  @DisplayName("Commit time 테스트")
+  @DisplayName("Commit time 확인")
   class TestEntitySaveTime {
 
     User user;
 
     @BeforeEach
     void setUp() {
-      Role role = roleRepository.findByName("user").orElseThrow();
+      Role role = roleRepository.findByName("ROLE_USER").orElseThrow();
       user = User.builder().username("user1").password("12345678").role(role).build();
     }
 
@@ -61,7 +61,7 @@ class UserRepositoryTest {
     void updatedAt() {
       //given
       User save = userRepository.save(user);
-
+      System.out.println(save.getCreatedAt());
       //when
       save.setUsername("aaaaaaa");
       em.flush();

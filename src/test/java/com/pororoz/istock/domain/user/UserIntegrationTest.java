@@ -405,12 +405,12 @@ public class UserIntegrationTest {
     class FailCase {
 
       @Test
-      @DisplayName("영어로만 이루어진 비밀번호는 에러가 발생한다")
+      @DisplayName("1자리 비밀번호는 에러가 발생한다")
       void onlyEnglish() throws Exception {
         //given
         SaveUserRequest request = SaveUserRequest.builder()
             .username("agridjlid")
-            .password("abcdefgh")
+            .password("1")
             .roleName("ROLE_ADMIN")
             .build();
 
@@ -466,8 +466,9 @@ public class UserIntegrationTest {
       @BeforeEach
       void setUp() {
         for (int i = 0; i < userCounts; i++) {
-          Role role = roleRepository.findByName("user").orElseThrow();
-          User user = User.builder().username("user" + i).role(role).password("12345678").build();
+          Role role = roleRepository.findByName("ROLE_USER").orElseThrow();
+          User user = User.builder().username("ROLE_USER" + i).role(role).password("12345678")
+              .build();
           userRepository.save(user);
         }
       }
@@ -497,7 +498,7 @@ public class UserIntegrationTest {
             .andDo(print());
 
         for (int i = 0; i < size; i++) {
-          actions.andExpect(jsonPath("$.data.contents[" + i + "].username").value("user" + i));
+          actions.andExpect(jsonPath("$.data.contents[" + i + "].username").value("ROLE_USER" + i));
         }
       }
 
@@ -523,7 +524,7 @@ public class UserIntegrationTest {
             .andExpect(jsonPath("$.data.first").value(false))
             .andExpect(jsonPath("$.data.last").value(true))
             .andExpect(jsonPath("$.data.currentSize").value(1))
-            .andExpect(jsonPath("$.data.contents[0].username").value("user9"))
+            .andExpect(jsonPath("$.data.contents[0].username").value("ROLE_USER9"))
             .andDo(print());
       }
 

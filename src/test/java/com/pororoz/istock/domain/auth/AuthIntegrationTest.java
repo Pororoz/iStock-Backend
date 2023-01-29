@@ -73,7 +73,7 @@ public class AuthIntegrationTest {
         //given
         role = "ADMIN";
         //when
-        ResultActions actions = mockMvc.perform(get(url).with(user("user").roles(role)));
+        ResultActions actions = mockMvc.perform(get(url).with(user("ROLE_USER").roles(role)));
         //then
         actions.andExpect(status().isOk());
       }
@@ -107,8 +107,8 @@ public class AuthIntegrationTest {
 
     @BeforeEach
     void setUp() {
-      username = "admin";
-      password = passwordEncoder.encode("admin");
+      username = "ROLE_ADMIN";
+      password = passwordEncoder.encode("ROLE_ADMIN");
     }
 
 
@@ -120,10 +120,10 @@ public class AuthIntegrationTest {
       @DisplayName("등록된 유저의 로그인 요청이 들어오면 200 코드 유저 정보를 반환한다.")
       void loginSuccess() throws Exception {
         // given
-        Role role = roleRepository.findById(1L).orElseThrow(() -> new RoleNotFoundException());
+        Role role = roleRepository.findById(1L).orElseThrow(RoleNotFoundException::new);
         User user = User.builder().id(1L).username(username).password(password).role(role).build();
         userRepository.save(user);
-        String requestPassword = "admin";
+        String requestPassword = "ROLE_ADMIN";
         LoginRequest request = LoginRequest.builder().username(username).password(requestPassword)
             .build();
 
@@ -145,7 +145,7 @@ public class AuthIntegrationTest {
       @DisplayName("아이디가 존재하지 않는다면 로그인에 실패한다.")
       void loginFailByUsername() throws Exception {
         // given
-        Role role = roleRepository.findById(1L).orElseThrow(() -> new RoleNotFoundException());
+        Role role = roleRepository.findById(1L).orElseThrow(RoleNotFoundException::new);
         User user = User.builder().id(1L).username(username).password(password).role(role).build();
         userRepository.save(user);
         String requestUsername = "anonymous";
@@ -166,7 +166,7 @@ public class AuthIntegrationTest {
       @DisplayName("패스워드가 틀린다면 로그인에 실패한다.")
       void loginFailByPassword() throws Exception {
         // given
-        Role role = roleRepository.findById(1L).orElseThrow(() -> new RoleNotFoundException());
+        Role role = roleRepository.findById(1L).orElseThrow(RoleNotFoundException::new);
         User user = User.builder().id(1L).username(username).password(password).role(role).build();
         userRepository.save(user);
         String requestUsername = username;
