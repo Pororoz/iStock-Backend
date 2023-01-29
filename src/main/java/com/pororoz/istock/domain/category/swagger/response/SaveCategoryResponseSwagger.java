@@ -12,11 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 public class SaveCategoryResponseSwagger {
-    @Schema(description = "Result Code", example = ResponseStatus.OK)
-    private String status;
 
-    @Schema(description = "Message", example = ResponseMessage.SAVE_CATEGORY)
-    private String message;
+  @Schema(description = "Result Code", example = ResponseStatus.OK)
+  private String status;
 
-    private CategoryResponse data;
+  @Schema(description = "Message", example = ResponseMessage.SAVE_CATEGORY)
+  private String message;
+
+  private CategoryResponse data;
 }

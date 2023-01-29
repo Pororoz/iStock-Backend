@@ -8,10 +8,10 @@ import lombok.Getter;
 @Builder
 public class CategoryResponse {
 
-    @Schema(description = "카테고리 아이디", example = "1")
-    private Long id;
+  @Schema(description = "카테고리 아이디", example = "1")
+  private Long id;
 
-    @Schema(description = "카테고리 이름", example = "착화기")
-    private String name;
+  @Schema(description = "카테고리 이름", example = "착화기")
+  private String name;
 
 }

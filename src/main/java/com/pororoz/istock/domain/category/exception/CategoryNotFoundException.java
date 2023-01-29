@@ -5,5 +5,7 @@ import com.pororoz.istock.common.exception.ErrorCode;
 
 public class CategoryNotFoundException extends CustomException {
 
-    public CategoryNotFoundException() { super(ErrorCode.CATEGORY_NOT_FOUND);}
+  public CategoryNotFoundException() {
+    super(ErrorCode.CATEGORY_NOT_FOUND);
+  }
 }

@@ -9,21 +9,22 @@ import lombok.Getter;
 @Builder
 public class CategoryServiceResponse {
 
-    private Long id;
+  private Long id;
 
-    private String name;
+  private String name;
 
-    public static CategoryServiceResponse of(Category category) {
-        return CategoryServiceResponse.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .build();
-    }
-    public CategoryResponse toResponse() {
-        return CategoryResponse.builder()
-                .id(id)
-                .name(name)
-                .build();
-    }
+  public static CategoryServiceResponse of(Category category) {
+    return CategoryServiceResponse.builder()
+        .id(category.getId())
+        .name(category.getName())
+        .build();
+  }
+
+  public CategoryResponse toResponse() {
+    return CategoryResponse.builder()
+        .id(id)
+        .name(name)
+        .build();
+  }
 
 }

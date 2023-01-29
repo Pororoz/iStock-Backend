@@ -15,14 +15,14 @@ import lombok.NoArgsConstructor;
 @Entity
 public class Category {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @NotNull
-    @Size(max = 15)
-    @Column(unique = true, nullable = false)
-    private String name;
+  @NotNull
+  @Size(max = 15)
+  @Column(unique = true, nullable = false)
+  private String name;
 
 
 }

@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeleteCategoryServiceRequest {
-    private Long id;
+
+  private Long id;
 }

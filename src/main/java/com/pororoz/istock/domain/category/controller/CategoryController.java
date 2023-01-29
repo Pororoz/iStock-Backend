@@ -34,35 +34,44 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class CategoryController {
 
-    private final CategoryService categoryService;
+  private final CategoryService categoryService;
 
-    @Operation(summary = "save category", description = "카테고리 생성 API")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_CATEGORY,
-                    content = {@Content(schema = @Schema(implementation = SaveCategoryResponseSwagger.class))}),
-            @ApiResponse(responseCode = "400", description = ExceptionMessage.INTERTNAL_SERVER_ERROR,
-                    content = {@Content(schema = @Schema(implementation = InternalServerErrorExceptionSwagger.class))})
-    })
-    @PostMapping
-    public ResponseEntity<ResultDTO<CategoryResponse>> saveCategory(@Valid @RequestBody SaveCategoryRequest saveCategoryRequest){
-        CategoryServiceResponse serviceDto = categoryService.saveCategory(saveCategoryRequest.toService());
-        CategoryResponse response = serviceDto.toResponse();
-        return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_CATEGORY, response));
-    }
+  @Operation(summary = "save category", description = "카테고리 생성 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_CATEGORY,
+          content = {
+              @Content(schema = @Schema(implementation = SaveCategoryResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.INTERTNAL_SERVER_ERROR,
+          content = {
+              @Content(schema = @Schema(implementation = InternalServerErrorExceptionSwagger.class))})
+  })
+  @PostMapping
+  public ResponseEntity<ResultDTO<CategoryResponse>> saveCategory(
+      @Valid @RequestBody SaveCategoryRequest saveCategoryRequest) {
+    CategoryServiceResponse serviceDto = categoryService.saveCategory(
+        saveCategoryRequest.toService());
+    CategoryResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_CATEGORY, response));
+  }
 
-    @Operation(summary = "delete category", description = "카테고리 삭제 API")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_CATEGORY,
-                    content = {@Content(schema = @Schema(implementation = DeleteCategoryResponseSwagger.class))}),
-            @ApiResponse(responseCode = "400", description = ExceptionMessage.INVALID_PATH,
-                    content = {@Content(schema = @Schema(implementation = InvalidPathExceptionSwagger.class))}),
-    })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ResultDTO<CategoryResponse>> deleteCategory(
-            @PathVariable("id") @NotNull(message = ExceptionMessage.INVALID_PATH)
-            @Positive(message = ExceptionMessage.INVALID_PATH) Long id) {
-        CategoryServiceResponse serviceDto = categoryService.deleteCategory(DeleteCategoryServiceRequest.builder().id(id).build());
-        CategoryResponse response = serviceDto.toResponse();
-        return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_CATEGORY, response));
-    }
+  @Operation(summary = "delete category", description = "카테고리 삭제 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_CATEGORY,
+          content = {
+              @Content(schema = @Schema(implementation = DeleteCategoryResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.INVALID_PATH,
+          content = {
+              @Content(schema = @Schema(implementation = InvalidPathExceptionSwagger.class))}),
+  })
+  @DeleteMapping("/{id}")
+  public ResponseEntity<ResultDTO<CategoryResponse>> deleteCategory(
+      @PathVariable("id") @NotNull(message = ExceptionMessage.INVALID_PATH)
+      @Positive(message = ExceptionMessage.INVALID_PATH) Long id) {
+    CategoryServiceResponse serviceDto = categoryService.deleteCategory(
+        DeleteCategoryServiceRequest.builder().id(id).build());
+    CategoryResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_CATEGORY, response));
+  }
 }

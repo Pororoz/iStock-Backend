@@ -14,18 +14,20 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CategoryService {
 
-    private final CategoryRepository categoryRepository;
+  private final CategoryRepository categoryRepository;
 
-    public CategoryServiceResponse saveCategory(SaveCategoryServiceRequest saveCategoryServiceRequest) {
-        Category category = saveCategoryServiceRequest.toCategory(saveCategoryServiceRequest.getName());
-        Category result = categoryRepository.save(category);
-        return CategoryServiceResponse.of(result);
-    }
+  public CategoryServiceResponse saveCategory(
+      SaveCategoryServiceRequest saveCategoryServiceRequest) {
+    Category category = saveCategoryServiceRequest.toCategory(saveCategoryServiceRequest.getName());
+    Category result = categoryRepository.save(category);
+    return CategoryServiceResponse.of(result);
+  }
 
-    public CategoryServiceResponse deleteCategory(DeleteCategoryServiceRequest deleteCategoryServiceRequest){
-        Category category = categoryRepository.findById(deleteCategoryServiceRequest.getId())
-                .orElseThrow(CategoryNotFoundException::new);
-        categoryRepository.deleteById(deleteCategoryServiceRequest.getId());
-        return CategoryServiceResponse.of(category);
-    }
+  public CategoryServiceResponse deleteCategory(
+      DeleteCategoryServiceRequest deleteCategoryServiceRequest) {
+    Category category = categoryRepository.findById(deleteCategoryServiceRequest.getId())
+        .orElseThrow(CategoryNotFoundException::new);
+    categoryRepository.deleteById(deleteCategoryServiceRequest.getId());
+    return CategoryServiceResponse.of(category);
+  }
 }

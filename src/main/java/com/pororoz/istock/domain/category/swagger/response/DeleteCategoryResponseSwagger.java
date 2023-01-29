@@ -14,11 +14,11 @@ import lombok.NoArgsConstructor;
 @Data
 public class DeleteCategoryResponseSwagger {
 
-    @Schema(description = "Result Code", example = ResponseStatus.OK)
-    private String status;
+  @Schema(description = "Result Code", example = ResponseStatus.OK)
+  private String status;
 
-    @Schema(description = "Message", example = ResponseMessage.DELETE_CATEGORY)
-    private String message;
+  @Schema(description = "Message", example = ResponseMessage.DELETE_CATEGORY)
+  private String message;
 
-    private CategoryResponse data;
+  private CategoryResponse data;
 }

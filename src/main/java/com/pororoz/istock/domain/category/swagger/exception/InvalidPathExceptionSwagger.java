@@ -12,9 +12,9 @@ import lombok.NoArgsConstructor;
 @Data
 public class InvalidPathExceptionSwagger {
 
-    @Schema(description = "에러 명칭", example = ExceptionStatus.BAD_REQUEST)
-    private String status;
+  @Schema(description = "에러 명칭", example = ExceptionStatus.BAD_REQUEST)
+  private String status;
 
-    @Schema(description = "상세 메시지", example = ExceptionMessage.INVALID_PATH)
-    private String message;
+  @Schema(description = "상세 메시지", example = ExceptionMessage.INVALID_PATH)
+  private String message;
 }

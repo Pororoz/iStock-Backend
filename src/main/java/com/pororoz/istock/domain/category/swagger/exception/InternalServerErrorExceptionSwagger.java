@@ -11,9 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class InternalServerErrorExceptionSwagger {
-    @Schema(description = "에러 명칭", example = ExceptionStatus.INTERNAL_SERVER_ERROR)
-    private String status;
 
-    @Schema(description = "상세 메시지", example = ExceptionMessage.INTERTNAL_SERVER_ERROR)
-    private String message;
+  @Schema(description = "에러 명칭", example = ExceptionStatus.INTERNAL_SERVER_ERROR)
+  private String status;
+
+  @Schema(description = "상세 메시지", example = ExceptionMessage.INTERTNAL_SERVER_ERROR)
+  private String message;
 }
