@@ -8,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class GetCategoryServiceResponse {
+public class FindCategoryServiceResponse {
 
   private Long id;
 
@@ -18,8 +18,8 @@ public class GetCategoryServiceResponse {
 
   private LocalDateTime updatedAt;
 
-  public static GetCategoryServiceResponse of(Category category) {
-    return GetCategoryServiceResponse.builder().id(category.getId()).name(category.getName())
+  public static FindCategoryServiceResponse of(Category category) {
+    return FindCategoryServiceResponse.builder().id(category.getId()).name(category.getName())
         .createdAt(category.getCreatedAt()).updatedAt(category.getUpdatedAt()).build();
   }
 
@@ -31,7 +31,7 @@ public class GetCategoryServiceResponse {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    GetCategoryServiceResponse that = (GetCategoryServiceResponse) obj;
+    FindCategoryServiceResponse that = (FindCategoryServiceResponse) obj;
     return Objects.equals(id, that.id) && Objects.equals(name, that.name)
         && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt,
         that.updatedAt);

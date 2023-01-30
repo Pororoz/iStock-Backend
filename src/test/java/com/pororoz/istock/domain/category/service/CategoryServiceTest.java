@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.pororoz.istock.domain.category.dto.service.GetCategoryServiceRequest;
-import com.pororoz.istock.domain.category.dto.service.GetCategoryServiceResponse;
+import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
+import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceResponse;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import java.time.LocalDateTime;
@@ -77,19 +77,19 @@ class CategoryServiceTest {
         int page = 3;
         String name = "item";
 
-        GetCategoryServiceRequest getCategoryServiceRequest = GetCategoryServiceRequest.builder()
+        FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
             .name(name)
             .page(page)
             .size(size)
             .build();
         PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(page, size),
             totalCategories);
-        List<GetCategoryServiceResponse> getCategoryServiceResponses = makeCategoryServiceResponses(
+        List<FindCategoryServiceResponse> findCategoryServiceRespons = makeCategoryServiceResponses(
             categories);
 
         // when
         when(categoryRepository.findAllByNameContaining(any(), any())).thenReturn(pages);
-        Page<GetCategoryServiceResponse> result = categoryService.findCategories(
+        Page<FindCategoryServiceResponse> result = categoryService.findCategories(
             getCategoryServiceRequest);
 
         // then
@@ -97,8 +97,8 @@ class CategoryServiceTest {
         assertThat(result.getTotalPages(),
             equalTo((int) (totalCategories + size) / size));
         assertThat(result.getContent().size(), equalTo(size));
-        assertThat(result.getContent().get(0), equalTo(getCategoryServiceResponses.get(0)));
-        assertThat(result.getContent().get(1), equalTo(getCategoryServiceResponses.get(1)));
+        assertThat(result.getContent().get(0), equalTo(findCategoryServiceRespons.get(0)));
+        assertThat(result.getContent().get(1), equalTo(findCategoryServiceRespons.get(1)));
       }
 
       @Test
@@ -109,19 +109,19 @@ class CategoryServiceTest {
         int size = 2;
         int page = 3;
 
-        GetCategoryServiceRequest getCategoryServiceRequest = GetCategoryServiceRequest.builder()
+        FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
             .name(null)
             .page(page)
             .size(size)
             .build();
         PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(page, size),
             totalCategories);
-        List<GetCategoryServiceResponse> getCategoryServiceResponses = makeCategoryServiceResponses(
+        List<FindCategoryServiceResponse> findCategoryServiceRespons = makeCategoryServiceResponses(
             categories);
 
         // when
         when(categoryRepository.findAllByNameContaining(any(Pageable.class))).thenReturn(pages);
-        Page<GetCategoryServiceResponse> result = categoryService.findCategories(
+        Page<FindCategoryServiceResponse> result = categoryService.findCategories(
             getCategoryServiceRequest);
 
         // then
@@ -129,8 +129,8 @@ class CategoryServiceTest {
         assertThat(result.getTotalPages(),
             equalTo((int) (totalCategories + size) / size));
         assertThat(result.getContent().size(), equalTo(size));
-        assertThat(result.getContent().get(0), equalTo(getCategoryServiceResponses.get(0)));
-        assertThat(result.getContent().get(1), equalTo(getCategoryServiceResponses.get(1)));
+        assertThat(result.getContent().get(0), equalTo(findCategoryServiceRespons.get(0)));
+        assertThat(result.getContent().get(1), equalTo(findCategoryServiceRespons.get(1)));
       }
 
       @Test
@@ -139,21 +139,21 @@ class CategoryServiceTest {
         // given
         String name = "item";
 
-        GetCategoryServiceRequest getCategoryServiceRequest = GetCategoryServiceRequest.builder()
+        FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
             .name(name)
             .page(null)
             .size(null)
             .build();
-        List<GetCategoryServiceResponse> getCategoryServiceResponses = makeCategoryServiceResponses(
+        List<FindCategoryServiceResponse> findCategoryServiceRespons = makeCategoryServiceResponses(
             categories);
 
         // when
         when(categoryRepository.findAllByNameContaining(any(String.class))).thenReturn(categories);
-        Page<GetCategoryServiceResponse> result = categoryService.findCategories(
+        Page<FindCategoryServiceResponse> result = categoryService.findCategories(
             getCategoryServiceRequest);
 
         // then
-        assertIterableEquals(result.getContent(), getCategoryServiceResponses);
+        assertIterableEquals(result.getContent(), findCategoryServiceRespons);
         assertEquals(result.getTotalElements(), result.getNumberOfElements());
         assertEquals(result.getTotalPages(), 1);
       }
@@ -162,21 +162,21 @@ class CategoryServiceTest {
       @DisplayName("page와 size가 null이면 전체를 조회한다.")
       void getCategoryWithNull() {
         // given
-        GetCategoryServiceRequest getCategoryServiceRequest = GetCategoryServiceRequest.builder()
+        FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
             .name(null)
             .page(null)
             .size(null)
             .build();
-        List<GetCategoryServiceResponse> getCategoryServiceResponses = makeCategoryServiceResponses(
+        List<FindCategoryServiceResponse> findCategoryServiceRespons = makeCategoryServiceResponses(
             categories);
 
         // when
         when(categoryRepository.findAll()).thenReturn(categories);
-        Page<GetCategoryServiceResponse> result = categoryService.findCategories(
+        Page<FindCategoryServiceResponse> result = categoryService.findCategories(
             getCategoryServiceRequest);
 
         // then
-        assertIterableEquals(result.getContent(), getCategoryServiceResponses);
+        assertIterableEquals(result.getContent(), findCategoryServiceRespons);
         assertEquals(result.getTotalElements(), result.getNumberOfElements());
         assertEquals(result.getTotalPages(), 1);
       }
@@ -188,10 +188,10 @@ class CategoryServiceTest {
 
     }
 
-    private List<GetCategoryServiceResponse> makeCategoryServiceResponses(
+    private List<FindCategoryServiceResponse> makeCategoryServiceResponses(
         List<Category> categories) {
       return categories.stream().map(
-              category -> GetCategoryServiceResponse.builder().id(category.getId())
+              category -> FindCategoryServiceResponse.builder().id(category.getId())
                   .name(category.getName())
                   .createdAt(category.getCreatedAt()).updatedAt(category.getUpdatedAt()).build())
           .toList();

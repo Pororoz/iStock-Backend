@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 
 @Getter
 @Builder
-public class GetCategoryServiceRequest {
+public class FindCategoryServiceRequest {
 
   public static final int DEFAULT_PAGE = 0;
   public static final int DEFAULT_SIZE = 20;
