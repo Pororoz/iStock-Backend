@@ -5,6 +5,7 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.dto.request.SaveCategoryRequest;
+import com.pororoz.istock.domain.category.dto.request.UpdateCategoryRequest;
 import com.pororoz.istock.domain.category.dto.response.CategoryResponse;
 import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
 import com.pororoz.istock.domain.category.dto.service.DeleteCategoryServiceRequest;
@@ -25,7 +26,13 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Category", description = "Category API")
 @RestController
@@ -38,18 +45,14 @@ public class CategoryController {
 
   @Operation(summary = "save category", description = "카테고리 생성 API")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_CATEGORY,
-          content = {
-              @Content(schema = @Schema(implementation = SaveCategoryResponseSwagger.class))}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.INTERTNAL_SERVER_ERROR,
-          content = {
-              @Content(schema = @Schema(implementation = InternalServerErrorExceptionSwagger.class))})
-  })
+      @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_CATEGORY, content = {
+          @Content(schema = @Schema(implementation = SaveCategoryResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.INTERTNAL_SERVER_ERROR, content = {
+          @Content(schema = @Schema(implementation = InternalServerErrorExceptionSwagger.class))})})
   @PostMapping
   public ResponseEntity<ResultDTO<CategoryResponse>> saveCategory(
-      @Valid @RequestBody SaveCategoryRequest saveCategoryRequest) {
-    CategoryServiceResponse serviceDto = categoryService.saveCategory(
-        saveCategoryRequest.toService());
+      @Valid @RequestBody SaveCategoryRequest request) {
+    CategoryServiceResponse serviceDto = categoryService.saveCategory(request.toService());
     CategoryResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_CATEGORY, response));
@@ -57,21 +60,25 @@ public class CategoryController {
 
   @Operation(summary = "delete category", description = "카테고리 삭제 API")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_CATEGORY,
-          content = {
-              @Content(schema = @Schema(implementation = DeleteCategoryResponseSwagger.class))}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.INVALID_PATH,
-          content = {
-              @Content(schema = @Schema(implementation = InvalidPathExceptionSwagger.class))}),
-  })
+      @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_CATEGORY, content = {
+          @Content(schema = @Schema(implementation = DeleteCategoryResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.INVALID_PATH, content = {
+          @Content(schema = @Schema(implementation = InvalidPathExceptionSwagger.class))}),})
   @DeleteMapping("/{id}")
   public ResponseEntity<ResultDTO<CategoryResponse>> deleteCategory(
-      @PathVariable("id") @NotNull(message = ExceptionMessage.INVALID_PATH)
-      @Positive(message = ExceptionMessage.INVALID_PATH) Long id) {
+      @PathVariable("id") @NotNull(message = ExceptionMessage.INVALID_PATH) @Positive(message = ExceptionMessage.INVALID_PATH) Long id) {
     CategoryServiceResponse serviceDto = categoryService.deleteCategory(
         DeleteCategoryServiceRequest.builder().id(id).build());
     CategoryResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_CATEGORY, response));
+  }
+
+  @PutMapping
+  public ResponseEntity<ResultDTO<CategoryResponse>> updateCategory(UpdateCategoryRequest request) {
+    CategoryServiceResponse serviceDto = categoryService.updateCategory(request.toService());
+    CategoryResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_CATEGORY, response));
   }
 }
