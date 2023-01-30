@@ -1,5 +1,11 @@
 package com.pororoz.istock.common.exception;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
@@ -14,73 +20,70 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 class GlobalExceptionHandlerIntegrationTest {
-    @Autowired
-    MockMvc mockMvc;
 
-    @Autowired
-    ObjectMapper objectMapper;
+  @Autowired
+  MockMvc mockMvc;
 
-    @Nested
-    @DisplayName("Exception Handling")
-    @Transactional
-    class ErrorHandling {
+  @Autowired
+  ObjectMapper objectMapper;
 
-        @Test
-        @DisplayName("404 페이지")
-        void updateUser() throws Exception{
-            // given
+  @Nested
+  @DisplayName("Exception Handling")
+  @Transactional
+  class ErrorHandling {
 
-            // when
-            ResultActions actions = mockMvc.perform(get("/sjkfjeiowniognw")
-                    .contentType(MediaType.APPLICATION_JSON));
+    @Test
+    @DisplayName("404 페이지")
+    void updateUser() throws Exception {
+      // given
 
-            // then
-            actions.andExpect(status().isNotFound())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.status").value(ExceptionStatus.PAGE_NOT_FOUND))
-                    .andExpect(jsonPath("$.message").value(ExceptionMessage.PAGE_NOT_FOUND))
-                    .andDo(print());
-        }
+      // when
+      ResultActions actions = mockMvc.perform(get("/sjkfjeiowniognw")
+          .contentType(MediaType.APPLICATION_JSON));
 
-        @Test
-        @DisplayName("test-runtime-error")
-        void testRuntimeError() throws Exception{
-            // given
-            String url = "/v1/test/test-runtime-error";
-
-            // when
-            ResultActions actions = mockMvc.perform(get(url)
-                    .contentType(MediaType.APPLICATION_JSON));
-
-            // then
-            actions.andExpect(status().isBadRequest())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.status").value(ExceptionStatus.RUNTIME_ERROR))
-                    .andDo(print());
-        }
-
-        @Test
-        @DisplayName("test-internal-server-error")
-        void testInternalServerError() throws Exception{
-            // given
-            String url = "/v1/test/test-internal-server-error";
-
-            // when
-            ResultActions actions = mockMvc.perform(get(url)
-                    .contentType(MediaType.APPLICATION_JSON));
-
-            // then
-            actions.andExpect(status().isInternalServerError())
-                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.status").value(ExceptionStatus.INTERNAL_SERVER_ERROR))
-                    .andDo(print());
-        }
+      // then
+      actions.andExpect(status().isNotFound())
+          .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.PAGE_NOT_FOUND))
+          .andExpect(jsonPath("$.message").value(ExceptionMessage.PAGE_NOT_FOUND))
+          .andDo(print());
     }
+
+    @Test
+    @DisplayName("test-runtime-error")
+    void testRuntimeError() throws Exception {
+      // given
+      String url = "/v1/test/test-runtime-error";
+
+      // when
+      ResultActions actions = mockMvc.perform(get(url)
+          .contentType(MediaType.APPLICATION_JSON));
+
+      // then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.RUNTIME_ERROR))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("test-internal-server-error")
+    void testInternalServerError() throws Exception {
+      // given
+      String url = "/v1/test/test-internal-server-error";
+
+      // when
+      ResultActions actions = mockMvc.perform(get(url)
+          .contentType(MediaType.APPLICATION_JSON));
+
+      // then
+      actions.andExpect(status().isInternalServerError())
+          .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.INTERNAL_SERVER_ERROR))
+          .andDo(print());
+    }
+  }
 }

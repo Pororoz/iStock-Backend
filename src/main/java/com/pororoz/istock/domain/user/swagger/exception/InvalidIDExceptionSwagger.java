@@ -11,9 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class InvalidIDExceptionSwagger {
-    @Schema(description = "에러 명칭", example = ExceptionStatus.BAD_REQUEST)
-    private String status;
 
-    @Schema(description = "상세 메시지", example = ExceptionMessage.INVALID_ID)
-    private String message;
+  @Schema(description = "에러 명칭", example = ExceptionStatus.BAD_REQUEST)
+  private String status;
+
+  @Schema(description = "상세 메시지", example = ExceptionMessage.INVALID_ID)
+  private String message;
 }
