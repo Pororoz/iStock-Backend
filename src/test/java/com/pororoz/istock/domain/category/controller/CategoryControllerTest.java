@@ -66,7 +66,7 @@ class CategoryControllerTest {
         int pages = 2;
         int countPerPages = 2;
         LocalDateTime today = LocalDateTime.now();
-        FindCategoryRequest request = FindCategoryRequest.builder().name(name)
+        FindCategoryRequest request = FindCategoryRequest.builder().query(name)
             .page(pages).size(countPerPages).build();
 
         Page<FindCategoryServiceResponse> responsePage = new PageImpl<>(findCategoryServiceResponses,

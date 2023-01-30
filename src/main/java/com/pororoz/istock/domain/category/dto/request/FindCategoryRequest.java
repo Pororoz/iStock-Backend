@@ -13,7 +13,7 @@ import lombok.Getter;
 public class FindCategoryRequest {
 
   @Nullable
-  private String name;
+  private String query;
 
   @Nullable
   @PositiveOrZero(message = ExceptionMessage.INVALID_PAGE_REQUEST)
@@ -24,6 +24,6 @@ public class FindCategoryRequest {
   private Integer size;
 
   public FindCategoryServiceRequest toService() {
-    return FindCategoryServiceRequest.builder().name(name).page(page).size(size).build();
+    return FindCategoryServiceRequest.builder().name(query).page(page).size(size).build();
   }
 }

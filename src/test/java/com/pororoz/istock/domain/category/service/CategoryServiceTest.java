@@ -43,6 +43,7 @@ class CategoryServiceTest {
     @DisplayName("성공 케이스")
     class SuccessCase {
 
+      Long totalCategories;
       LocalDateTime create;
       LocalDateTime update;
       Category category1;
@@ -51,6 +52,7 @@ class CategoryServiceTest {
 
       @BeforeEach
       void setup() {
+        totalCategories = 11L;
         create = LocalDateTime.now();
         update = LocalDateTime.now();
         category1 = Category.builder()
@@ -72,7 +74,6 @@ class CategoryServiceTest {
       @DisplayName("카테고리 이름을 검색해 조회하면 페이지네이션을 한다.")
       void getCategoryWithNameAndPageAndSize() {
         // given
-        long totalCategories = 11L;
         int size = 2;
         int page = 3;
         String name = "item";
@@ -105,32 +106,32 @@ class CategoryServiceTest {
       @DisplayName("검색 없이 조회하면 전체를 대상으로 페이지네이션을 한다.")
       void getCategoryWithOnlyPage() {
         // given
-        long totalCategories = 11L;
+        totalCategories = 2L;
         int size = 2;
-        int page = 3;
+        int page = 0;
 
         FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
             .name(null)
             .page(page)
             .size(size)
             .build();
-        PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(page, size),
+        List<FindCategoryServiceResponse> findCategoryServiceResponses
+            = makeCategoryServiceResponses(categories);
+        PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(0, 20),
             totalCategories);
-        List<FindCategoryServiceResponse> findCategoryServiceRespons = makeCategoryServiceResponses(
-            categories);
 
         // when
-        when(categoryRepository.findAllByNameContaining(any(Pageable.class))).thenReturn(pages);
+        when(categoryRepository.findAll(any(Pageable.class))).thenReturn(pages);
         Page<FindCategoryServiceResponse> result = categoryService.findCategories(
             getCategoryServiceRequest);
 
         // then
         assertThat(result.getTotalElements(), equalTo(totalCategories));
         assertThat(result.getTotalPages(),
-            equalTo((int) (totalCategories + size) / size));
+            equalTo((int) (totalCategories / size)));
         assertThat(result.getContent().size(), equalTo(size));
-        assertThat(result.getContent().get(0), equalTo(findCategoryServiceRespons.get(0)));
-        assertThat(result.getContent().get(1), equalTo(findCategoryServiceRespons.get(1)));
+        assertThat(result.getContent().get(0), equalTo(findCategoryServiceResponses.get(0)));
+        assertThat(result.getContent().get(1), equalTo(findCategoryServiceResponses.get(1)));
       }
 
       @Test
@@ -144,22 +145,25 @@ class CategoryServiceTest {
             .page(null)
             .size(null)
             .build();
-        List<FindCategoryServiceResponse> findCategoryServiceRespons = makeCategoryServiceResponses(
-            categories);
+        List<FindCategoryServiceResponse> findCategoryServiceResponses
+            = makeCategoryServiceResponses(categories);
+        PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(0, 20),
+            totalCategories);
 
         // when
-        when(categoryRepository.findAllByNameContaining(any(String.class))).thenReturn(categories);
+        when(categoryRepository.findAllByNameContaining(
+            any(String.class), any(Pageable.class))).thenReturn(pages);
         Page<FindCategoryServiceResponse> result = categoryService.findCategories(
             getCategoryServiceRequest);
 
         // then
-        assertIterableEquals(result.getContent(), findCategoryServiceRespons);
+        assertIterableEquals(result.getContent(), findCategoryServiceResponses);
         assertEquals(result.getTotalElements(), result.getNumberOfElements());
         assertEquals(result.getTotalPages(), 1);
       }
 
       @Test
-      @DisplayName("page와 size가 null이면 전체를 조회한다.")
+      @DisplayName("page와 size가 null이면 default page설정(page=0, size=20)으로 전체를 조회한다.")
       void getCategoryWithNull() {
         // given
         FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
@@ -167,16 +171,19 @@ class CategoryServiceTest {
             .page(null)
             .size(null)
             .build();
-        List<FindCategoryServiceResponse> findCategoryServiceRespons = makeCategoryServiceResponses(
-            categories);
+        List<FindCategoryServiceResponse> findCategoryServiceResponses
+            = makeCategoryServiceResponses(categories);
+        PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(0, 20),
+            totalCategories);
+
 
         // when
-        when(categoryRepository.findAll()).thenReturn(categories);
+        when(categoryRepository.findAll(any(Pageable.class))).thenReturn(pages);
         Page<FindCategoryServiceResponse> result = categoryService.findCategories(
             getCategoryServiceRequest);
 
         // then
-        assertIterableEquals(result.getContent(), findCategoryServiceRespons);
+        assertIterableEquals(result.getContent(), findCategoryServiceResponses);
         assertEquals(result.getTotalElements(), result.getNumberOfElements());
         assertEquals(result.getTotalPages(), 1);
       }

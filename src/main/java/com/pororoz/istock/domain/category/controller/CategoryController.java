@@ -56,7 +56,7 @@ public class CategoryController {
         FindCategoryServiceResponse::toResponse);
     PageResponse<FindCategoryResponse> response = new PageResponse<>(categoryPage);
     return ResponseEntity.ok(
-        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_USER, response));
+        new ResultDTO<>(ResponseStatus.OK, "", response));
   }
 
   @Operation(summary = "save category", description = "카테고리 생성 API")
