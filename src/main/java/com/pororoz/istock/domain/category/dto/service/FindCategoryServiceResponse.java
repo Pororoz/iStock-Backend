@@ -1,5 +1,7 @@
 package com.pororoz.istock.domain.category.dto.service;
 
+import com.pororoz.istock.common.entity.TimeEntity;
+import com.pororoz.istock.domain.category.dto.response.FindCategoryResponse;
 import com.pororoz.istock.domain.category.entity.Category;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -35,5 +37,19 @@ public class FindCategoryServiceResponse {
     return Objects.equals(id, that.id) && Objects.equals(name, that.name)
         && Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt,
         that.updatedAt);
+  }
+
+  public FindCategoryResponse toResponse() {
+    return FindCategoryResponse.builder()
+        .id(id)
+        .name(name)
+        .createdAt(TimeEntity.formatTime(createdAt))
+        .updatedAt(TimeEntity.formatTime(updatedAt))
+        .build();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, name, createdAt, updatedAt);
   }
 }
