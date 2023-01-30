@@ -9,10 +9,11 @@ import static org.mockito.Mockito.when;
 import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.category.dto.request.FindCategoryRequest;
+import com.pororoz.istock.domain.category.dto.response.FindCategoryResponse;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceResponse;
 import com.pororoz.istock.domain.category.service.CategoryService;
-import com.pororoz.istock.domain.user.dto.response.FindUserResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -31,7 +32,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @ExtendWith(MockitoExtension.class)
-class UserControllerTest {
+class CategoryControllerTest {
 
   @InjectMocks
   CategoryController categoryController;
@@ -70,27 +71,27 @@ class UserControllerTest {
 
         Page<FindCategoryServiceResponse> responsePage = new PageImpl<>(findCategoryServiceResponses,
             PageRequest.of(3, countPerPages), totalCategories);
-        List<FindUserResponse> findUserResponse = List.of(
+        List<FindCategoryResponse> findCategoryResponses = List.of(
             response1.toResponse(), response2.toResponse());
 
         //when
         when(categoryService.findCategories(any(FindCategoryServiceRequest.class))).thenReturn(responsePage);
-        ResponseEntity<ResultDTO<PageResponse<FindUserResponse>>> response
+        ResponseEntity<ResultDTO<PageResponse<FindCategoryResponse>>> response
             = categoryController.findCategories(request);
 
         //then
         assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
 
-        PageResponse<FindUserResponse> data = Objects.requireNonNull(response.getBody()).getData();
+        PageResponse<FindCategoryResponse> data = Objects.requireNonNull(response.getBody()).getData();
         assertEquals(data.getTotalPages(), (int) (totalCategories + countPerPages) / countPerPages);
         assertEquals(data.getTotalElements(), totalCategories);
         assertEquals(data.getCurrentSize(), countPerPages);
         assertFalse(data.isFirst());
         assertFalse(data.isLast());
-        assertIterableEquals(data.getContents(), findUserResponse);
+        assertIterableEquals(data.getContents(), findCategoryResponses);
 
-        FindUserResponse first = data.getContents().get(0);
+        FindCategoryResponse first = data.getContents().get(0);
         String format = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         assertEquals(first.getCreatedAt(), format);
         assertEquals(first.getUpdatedAt(), format);

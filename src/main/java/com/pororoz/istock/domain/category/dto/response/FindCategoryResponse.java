@@ -20,9 +20,6 @@ public class FindCategoryResponse extends CategoryResponse{
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    if (!super.equals(obj)) {
-      return false;
-    }
 
     FindCategoryResponse that = (FindCategoryResponse) obj;
     return super.getId().equals(that.getId()) && super.getName().equals(that.getName()) &&

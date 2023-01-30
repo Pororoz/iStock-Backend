@@ -1,13 +1,17 @@
 package com.pororoz.istock.domain.category.controller;
 
+import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.category.dto.request.FindCategoryRequest;
 import com.pororoz.istock.domain.category.dto.request.SaveCategoryRequest;
 import com.pororoz.istock.domain.category.dto.response.CategoryResponse;
+import com.pororoz.istock.domain.category.dto.response.FindCategoryResponse;
 import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
 import com.pororoz.istock.domain.category.dto.service.DeleteCategoryServiceRequest;
+import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceResponse;
 import com.pororoz.istock.domain.category.service.CategoryService;
 import com.pororoz.istock.domain.category.swagger.exception.InternalServerErrorExceptionSwagger;
 import com.pororoz.istock.domain.category.swagger.response.DeleteCategoryResponseSwagger;
@@ -23,9 +27,17 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Category", description = "Category API")
 @RestController
@@ -35,6 +47,17 @@ import org.springframework.web.bind.annotation.*;
 public class CategoryController {
 
   private final CategoryService categoryService;
+
+  @GetMapping
+  public ResponseEntity<ResultDTO<PageResponse<FindCategoryResponse>>> findCategories(
+      @ModelAttribute("request") FindCategoryRequest request
+  ) {
+    Page<FindCategoryResponse> categoryPage = categoryService.findCategories(request.toService()).map(
+        FindCategoryServiceResponse::toResponse);
+    PageResponse<FindCategoryResponse> response = new PageResponse<>(categoryPage);
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_USER, response));
+  }
 
   @Operation(summary = "save category", description = "카테고리 생성 API")
   @ApiResponses({
