@@ -21,51 +21,52 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 public class SecurityConfiguration {
 
-    private final CustomAuthenticationManager customAuthenticationManager;
-    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-    private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
+  private final CustomAuthenticationManager customAuthenticationManager;
+  private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+  private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
-    @Bean
-    public WebSecurityCustomizer configure() {
-        return (web) -> web.ignoring().requestMatchers("/swagger-ui/**", "/api-docs/**");
-    }
+  @Bean
+  public WebSecurityCustomizer configure() {
+    return (web) -> web.ignoring().requestMatchers("/swagger-ui/**", "/api-docs/**");
+  }
 
-    @Bean
-    @Order(SecurityProperties.BASIC_AUTH_ORDER)
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable();
+  @Bean
+  @Order(SecurityProperties.BASIC_AUTH_ORDER)
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http.csrf().disable();
 
-        http.formLogin().disable();
+    http.formLogin().disable();
 
-        http.addFilterBefore(
-                authenticationFilter(),
-                UsernamePasswordAuthenticationFilter.class);
+    http.addFilterBefore(
+        authenticationFilter(),
+        UsernamePasswordAuthenticationFilter.class);
 
-        http.authorizeHttpRequests((authorize) -> authorize
-                .requestMatchers("/v1/article/**").hasRole("ADMIN")
-                .requestMatchers("/v1/auth/admin").hasRole("ADMIN")
-                .anyRequest().permitAll()
-        );
+    http.authorizeHttpRequests((authorize) -> authorize
+        .requestMatchers("/v1/article/**").hasRole("ADMIN")
+        .requestMatchers("/v1/auth/admin").hasRole("ADMIN")
+        .anyRequest().permitAll()
+    );
 
-        http.logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/v1/auth/logout"))
-                .logoutSuccessUrl("/")
-                .deleteCookies();
+    http.logout()
+        .logoutRequestMatcher(new AntPathRequestMatcher("/v1/auth/logout"))
+        .logoutSuccessUrl("/")
+        .deleteCookies();
 
-        http.sessionManagement()
-                .maximumSessions(1)
-                .maxSessionsPreventsLogin(true);
+    http.sessionManagement()
+        .maximumSessions(1)
+        .maxSessionsPreventsLogin(true);
 
-        return http.build();
-    }
+    return http.build();
+  }
 
-    @Bean
-    public JsonUsernamePasswordAuthenticationFilter authenticationFilter() {
-        JsonUsernamePasswordAuthenticationFilter authenticationFilter = new JsonUsernamePasswordAuthenticationFilter(customAuthenticationSuccessHandler,
-                customAuthenticationFailureHandler, customAuthenticationManager);
+  @Bean
+  public JsonUsernamePasswordAuthenticationFilter authenticationFilter() {
+    JsonUsernamePasswordAuthenticationFilter authenticationFilter = new JsonUsernamePasswordAuthenticationFilter(
+        customAuthenticationSuccessHandler,
+        customAuthenticationFailureHandler, customAuthenticationManager);
 
-        SecurityContextRepository contextRepository = new HttpSessionSecurityContextRepository();
-        authenticationFilter.setSecurityContextRepository(contextRepository);
-        return authenticationFilter;
-    }
+    SecurityContextRepository contextRepository = new HttpSessionSecurityContextRepository();
+    authenticationFilter.setSecurityContextRepository(contextRepository);
+    return authenticationFilter;
+  }
 }

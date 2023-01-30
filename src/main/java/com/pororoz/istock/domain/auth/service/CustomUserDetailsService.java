@@ -17,13 +17,13 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+  private final UserRepository userRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username Not Found"));
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new UsernameNotFoundException("Username Not Found"));
 
-        return new CustomUserDetailsDTO(user);
-    }
+    return new CustomUserDetailsDTO(user);
+  }
 }

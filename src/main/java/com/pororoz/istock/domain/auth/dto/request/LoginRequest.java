@@ -12,12 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class LoginRequest {
-    @Size(min = 2)
-    @NotBlank
-    private String username;
 
-    @Size(min = 2)
-    @NotBlank
-    private String password;
+  @Size(min = 2)
+  @NotBlank
+  private String username;
+
+  @Size(min = 2)
+  @NotBlank
+  private String password;
 
 }

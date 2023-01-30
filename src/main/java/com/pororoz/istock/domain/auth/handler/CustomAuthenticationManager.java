@@ -3,7 +3,6 @@ package com.pororoz.istock.domain.auth.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pororoz.istock.domain.auth.dto.CustomUserDetailsDTO;
 import com.pororoz.istock.domain.auth.service.CustomUserDetailsService;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,20 +19,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Transactional(readOnly = true)
 public class CustomAuthenticationManager implements AuthenticationManager {
-    private final CustomUserDetailsService userDetailsService;
-    private final PasswordEncoder passwordEncoder;
 
-    private final ObjectMapper objectMapper;
+  private final CustomUserDetailsService userDetailsService;
+  private final PasswordEncoder passwordEncoder;
 
-    @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        CustomUserDetailsDTO user = (CustomUserDetailsDTO) userDetailsService.loadUserByUsername(authentication.getName());
+  private final ObjectMapper objectMapper;
 
-        String requestPassword = authentication.getCredentials().toString();
-        if (!passwordEncoder.matches(requestPassword, user.getPassword())) {
-            throw new BadCredentialsException("Not Found User");
-        }
+  @Override
+  public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    CustomUserDetailsDTO user = (CustomUserDetailsDTO) userDetailsService.loadUserByUsername(
+        authentication.getName());
 
-        return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities());
+    String requestPassword = authentication.getCredentials().toString();
+    if (!passwordEncoder.matches(requestPassword, user.getPassword())) {
+      throw new BadCredentialsException("Not Found User");
     }
+
+    return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(),
+        user.getAuthorities());
+  }
 }
