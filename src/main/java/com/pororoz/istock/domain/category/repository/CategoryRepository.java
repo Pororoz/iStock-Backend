@@ -1,10 +1,13 @@
 package com.pororoz.istock.domain.category.repository;
 
 import com.pororoz.istock.domain.category.entity.Category;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-  PageImpl<Category> findAllByName(PageRequest pageRequest);
+  Page<Category> findAllByNameContaining(String name, Pageable pageable);
+
+  List<Category> findAllByNameContaining(String name);
 }
