@@ -11,12 +11,14 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 public class ProfileController {
-    private final Environment env;
 
-    @GetMapping("profile")
-    String profile() {
-        String[] activeProfiles = env.getActiveProfiles();
-        List<String> springProfiles = Arrays.asList("spring1", "spring2");
-        return Arrays.stream(activeProfiles).filter(springProfiles::contains).findAny().orElse("spring1");
-    }
+  private final Environment env;
+
+  @GetMapping("profile")
+  String profile() {
+    String[] activeProfiles = env.getActiveProfiles();
+    List<String> springProfiles = Arrays.asList("spring1", "spring2");
+    return Arrays.stream(activeProfiles).filter(springProfiles::contains).findAny()
+        .orElse("spring1");
+  }
 }
