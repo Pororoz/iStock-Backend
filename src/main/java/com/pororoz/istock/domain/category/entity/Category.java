@@ -1,18 +1,22 @@
 package com.pororoz.istock.domain.category.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Entity
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-@Entity
 public class Category {
 
   @Id
@@ -24,5 +28,7 @@ public class Category {
   @Column(unique = true, nullable = false)
   private String name;
 
-
+  public void update(String name) {
+    this.name = name;
+  }
 }
