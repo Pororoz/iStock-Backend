@@ -20,7 +20,7 @@ public class UpdateCategoryRequest {
   @NotNull
   private Long id;
   @Schema(description = "카테고리 이름", example = "착화기")
-  @Size(min = 2, max = 100, message = ExceptionMessage.INVALID_CATEGORY_NAME)
+  @Size(min = 2, max = 15, message = ExceptionMessage.INVALID_CATEGORY_NAME)
   private String categoryName;
 
   public UpdateCategoryServiceRequest toService() {

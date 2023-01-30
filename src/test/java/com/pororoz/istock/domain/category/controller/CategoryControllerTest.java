@@ -68,13 +68,29 @@ class CategoryControllerTest extends ControllerTest {
 
     @Test
     @DisplayName("카테고리 이름이 1이하이면 예외가 발생한다.")
-    void categoryNameLengthError() throws Exception {
+    void categoryNameLengthMinError() throws Exception {
       //given
       Long id = 1L;
       String newName = "새";
       UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
           .build();
 
+      testCategoryNameLength(request);
+    }
+
+    @Test
+    @DisplayName("카테고리 이름이 16이상이면 예외가 발생한다.")
+    void categoryNameLengthMaxError() throws Exception {
+      //given
+      Long id = 1L;
+      String newName = "일이삼사오육칠팔구십십일십이십삼";
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+          .build();
+
+      testCategoryNameLength(request);
+    }
+
+    private void testCategoryNameLength(UpdateCategoryRequest request) throws Exception {
       //when
       ResultActions actions = mockMvc.perform(put(url)
           .contentType(MediaType.APPLICATION_JSON)
