@@ -10,9 +10,11 @@ import com.pororoz.istock.domain.category.dto.response.CategoryResponse;
 import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
 import com.pororoz.istock.domain.category.dto.service.DeleteCategoryServiceRequest;
 import com.pororoz.istock.domain.category.service.CategoryService;
+import com.pororoz.istock.domain.category.swagger.exception.CategoryNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.category.swagger.exception.InternalServerErrorExceptionSwagger;
 import com.pororoz.istock.domain.category.swagger.response.DeleteCategoryResponseSwagger;
 import com.pororoz.istock.domain.category.swagger.response.SaveCategoryResponseSwagger;
+import com.pororoz.istock.domain.category.swagger.response.UpdateCategoryResponseSwagger;
 import com.pororoz.istock.domain.user.swagger.exception.InvalidPathExceptionSwagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -72,6 +74,12 @@ public class CategoryController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_CATEGORY, response));
   }
 
+  @Operation(summary = "update category", description = "카테고리 수정 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.UPDATE_CATEGORY, content = {
+          @Content(schema = @Schema(implementation = UpdateCategoryResponseSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.CATEGORY_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = CategoryNotFoundExceptionSwagger.class))}),})
   @PutMapping
   public ResponseEntity<ResultDTO<CategoryResponse>> updateCategory(
       @Valid @RequestBody UpdateCategoryRequest request) {

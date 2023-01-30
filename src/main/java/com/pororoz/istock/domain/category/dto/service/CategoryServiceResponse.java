@@ -23,7 +23,7 @@ public class CategoryServiceResponse {
   public CategoryResponse toResponse() {
     return CategoryResponse.builder()
         .id(id)
-        .name(name)
+        .categoryName(name)
         .build();
   }
 

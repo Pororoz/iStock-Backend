@@ -12,6 +12,6 @@ public class CategoryResponse {
   private Long id;
 
   @Schema(description = "카테고리 이름", example = "착화기")
-  private String name;
+  private String categoryName;
 
 }

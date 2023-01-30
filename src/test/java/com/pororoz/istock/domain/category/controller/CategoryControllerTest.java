@@ -55,7 +55,8 @@ class CategoryControllerTest {
       //given
       Long id = 1L;
       String newName = "새이름";
-      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).name(newName).build();
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+          .build();
       CategoryServiceResponse serviceDto = CategoryServiceResponse.builder().id(id).name(newName)
           .build();
 
@@ -72,7 +73,7 @@ class CategoryControllerTest {
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_CATEGORY))
           .andExpect(jsonPath("$.data.id").value(id))
-          .andExpect(jsonPath("$.data.name").value(newName));
+          .andExpect(jsonPath("$.data.categoryName").value(newName));
     }
 
     @Test
@@ -81,7 +82,8 @@ class CategoryControllerTest {
       //given
       Long id = 1L;
       String newName = "새";
-      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).name(newName).build();
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+          .build();
 
       //when
       ResultActions actions = mockMvc.perform(put(url)

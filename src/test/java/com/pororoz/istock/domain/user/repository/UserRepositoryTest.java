@@ -15,8 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @DataJpaTest
+@EnableJpaAuditing
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserRepositoryTest {
 
@@ -61,7 +63,7 @@ class UserRepositoryTest {
     void updatedAt() {
       //given
       User save = userRepository.save(user);
-      System.out.println(save.getCreatedAt());
+
       //when
       save.update("aaaaaaa", save.getRole());
       em.flush();
