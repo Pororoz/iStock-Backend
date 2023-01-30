@@ -1,9 +1,6 @@
 package com.pororoz.istock.domain.user;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -27,6 +24,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,9 +84,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .roleName(newRoleName).build();
 
         // when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         // then
         actions.andExpect(status().isOk())
@@ -116,9 +112,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .roleName(newRoleName).build();
 
         //when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -143,9 +137,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .build();
 
         //when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -168,9 +160,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .build();
 
         //when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -191,9 +181,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .build();
 
         //when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         // then
         actions.andExpect(status().isNotFound())
@@ -214,9 +202,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .build();
 
         //when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         //then
         actions.andExpect(status().isNotFound())
@@ -265,8 +251,7 @@ public class UserIntegrationTest extends IntegrationTest {
         userRepository.save(user);
 
         // when
-        ResultActions actions = mockMvc.perform(delete(url(id))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE, url(id));
 
         // then
         actions.andExpect(status().isOk())
@@ -290,8 +275,7 @@ public class UserIntegrationTest extends IntegrationTest {
         //given
 
         //when
-        ResultActions actions = mockMvc.perform(delete(url(id))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE, url(id));
 
         // then
         actions.andExpect(status().isNotFound())
@@ -307,8 +291,7 @@ public class UserIntegrationTest extends IntegrationTest {
         //given
 
         //when
-        ResultActions actions = mockMvc.perform(delete(url(-1L))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE, url(-1L));
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -324,8 +307,8 @@ public class UserIntegrationTest extends IntegrationTest {
         //given
 
         //when
-        ResultActions actions = mockMvc.perform(delete("/v1/users/nothing")
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE,
+            "/v1/users/nothing");
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -363,15 +346,13 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("중복되지 않는 유저 정보를 건네주면 계정 생성에 성공한다.")
       void saveUser() throws Exception {
         // given
-        String request = objectMapper.writeValueAsString(SaveUserRequest.builder()
+        SaveUserRequest request = SaveUserRequest.builder()
             .username(username)
             .password(password)
-            .roleName(roleName).build());
+            .roleName(roleName).build();
 
         // when
-        ResultActions actions = mockMvc.perform(post(url)
-            .content(request)
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
 
         // then
         actions.andExpect(status().isOk())
@@ -400,9 +381,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .build();
 
         //when
-        ResultActions actions = mockMvc.perform(post(url)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -419,9 +398,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .roleName("nothing").password("1234abcd").build();
 
         //when
-        ResultActions actions = mockMvc.perform(post(url)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
 
         //then
         actions.andExpect(status().isNotFound())

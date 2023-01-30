@@ -2,8 +2,6 @@ package com.pororoz.istock.domain.category.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -23,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
 
 @WebMvcTest(value = CategoryController.class, excludeAutoConfiguration = {
@@ -53,10 +51,7 @@ class CategoryControllerTest extends ControllerTest {
       //when
       when(categoryService.updateCategory(any(UpdateCategoryServiceRequest.class))).thenReturn(
           serviceDto);
-      ResultActions actions = mockMvc.perform(put(url)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(request))
-          .with(csrf()));
+      ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
       //then
       actions.andExpect(status().isOk())
@@ -92,10 +87,7 @@ class CategoryControllerTest extends ControllerTest {
 
     private void testCategoryNameLength(UpdateCategoryRequest request) throws Exception {
       //when
-      ResultActions actions = mockMvc.perform(put(url)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(request))
-          .with(csrf()));
+      ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
       //then
       actions.andExpect(status().isBadRequest())

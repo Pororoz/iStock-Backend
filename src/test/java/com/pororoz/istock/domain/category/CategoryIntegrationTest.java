@@ -1,7 +1,5 @@
 package com.pororoz.istock.domain.category;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -16,7 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
 
 public class CategoryIntegrationTest extends IntegrationTest {
@@ -36,6 +34,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
+      databaseCleanup.execute();
       categoryRepository.save(category);
     }
 
@@ -47,10 +46,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
           .build();
 
       //when
-      ResultActions actions = mockMvc.perform(put(url)
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(objectMapper.writeValueAsString(request))
-          .with(csrf()));
+      ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
       //then
       actions.andExpect(status().isOk())
