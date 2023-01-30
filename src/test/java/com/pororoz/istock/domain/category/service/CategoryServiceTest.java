@@ -2,6 +2,8 @@ package com.pororoz.istock.domain.category.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -21,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
@@ -37,9 +40,10 @@ class CategoryServiceTest {
     @DisplayName("성공 케이스")
     class SuccessCase {
 
+
       @Test
       @DisplayName("카테고리 이름을 검색해 조회하면 페이지네이션을 한다.")
-      void getCategory() {
+      void getCategoryWithNameAndPageAndSize() {
         // given
         LocalDateTime create = LocalDateTime.now();
         LocalDateTime update = LocalDateTime.now();
@@ -83,16 +87,135 @@ class CategoryServiceTest {
       }
     }
 
-    @Nested
-    @DisplayName("실패 케이스")
-    class FailCase {
+    @Test
+    @DisplayName("검색 없이 조회하면 전체를 대상으로 페이지네이션을 한다.")
+    void getCategoryWithOnlyPage() {
+      // given
+      LocalDateTime create = LocalDateTime.now();
+      LocalDateTime update = LocalDateTime.now();
+      long totalCategories = 11L;
+      int size = 2;
+      int page = 3;
+      Category category1 = Category.builder()
+          .id(1L)
+          .name("item1")
+          .createdAt(create)
+          .updatedAt(update)
+          .build();
+      Category category2 = Category.builder()
+          .id(2L)
+          .name("item2")
+          .createdAt(create)
+          .updatedAt(update)
+          .build();
+      List<Category> categories = List.of(category1, category2);
 
+      GetCategoryServiceRequest getCategoryServiceRequest = GetCategoryServiceRequest.builder()
+          .name(null)
+          .page(page)
+          .size(size)
+          .build();
+      PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(page, size), totalCategories);
+      List<GetCategoryServiceResponse> getCategoryServiceResponses = makeCategoryServiceResponses(categories);
+
+      // when
+      when(categoryRepository.findAllByNameContaining(any(Pageable.class))).thenReturn(pages);
+      Page<GetCategoryServiceResponse> result = categoryService.findCategories(getCategoryServiceRequest);
+
+      // then
+      assertThat(result.getTotalElements(), equalTo(totalCategories));
+      assertThat(result.getTotalPages(),
+          equalTo((int) (totalCategories + size) / size));
+      assertThat(result.getContent().size(), equalTo(size));
+      assertThat(result.getContent().get(0), equalTo(getCategoryServiceResponses.get(0)));
+      assertThat(result.getContent().get(1), equalTo(getCategoryServiceResponses.get(1)));
     }
 
-    private List<GetCategoryServiceResponse> makeCategoryServiceResponses(List<Category> categories) {
-      return categories.stream().map(
-          category -> GetCategoryServiceResponse.builder().id(category.getId()).name(category.getName())
-              .createdAt(category.getCreatedAt()).updatedAt(category.getUpdatedAt()).build()).toList();
+    @Test
+    @DisplayName("page와 size가 null이고 이름만 검색할 경우 이름값에 해당하는 전체 값을 준다.")
+    void getCategoryWithOnlyName() {
+      // given
+      LocalDateTime create = LocalDateTime.now();
+      LocalDateTime update = LocalDateTime.now();
+      String name = "";
+      Category category1 = Category.builder()
+          .id(1L)
+          .name("item1")
+          .createdAt(create)
+          .updatedAt(update)
+          .build();
+      Category category2 = Category.builder()
+          .id(2L)
+          .name("item2")
+          .createdAt(create)
+          .updatedAt(update)
+          .build();
+      List<Category> categories = List.of(category1, category2);
+
+      GetCategoryServiceRequest getCategoryServiceRequest = GetCategoryServiceRequest.builder()
+          .name(name)
+          .page(null)
+          .size(null)
+          .build();
+      List<GetCategoryServiceResponse> getCategoryServiceResponses = makeCategoryServiceResponses(categories);
+
+      // when
+      when(categoryRepository.findAllByNameContaining(any(String.class))).thenReturn(categories);
+      Page<GetCategoryServiceResponse> result = categoryService.findCategories(getCategoryServiceRequest);
+
+      // then
+      assertIterableEquals(result.getContent(), getCategoryServiceResponses);
+      assertEquals(result.getTotalElements(), result.getNumberOfElements());
+      assertEquals(result.getTotalPages(), 1);
     }
+
+    @Test
+    @DisplayName("page와 size가 null이면 전체를 조회한다.")
+    void getCategoryWithNull() {
+      // given
+      LocalDateTime create = LocalDateTime.now();
+      LocalDateTime update = LocalDateTime.now();
+      Category category1 = Category.builder()
+          .id(1L)
+          .name("item1")
+          .createdAt(create)
+          .updatedAt(update)
+          .build();
+      Category category2 = Category.builder()
+          .id(2L)
+          .name("item2")
+          .createdAt(create)
+          .updatedAt(update)
+          .build();
+      List<Category> categories = List.of(category1, category2);
+
+      GetCategoryServiceRequest getCategoryServiceRequest = GetCategoryServiceRequest.builder()
+          .name(null)
+          .page(null)
+          .size(null)
+          .build();
+      List<GetCategoryServiceResponse> getCategoryServiceResponses = makeCategoryServiceResponses(categories);
+
+      // when
+      when(categoryRepository.findAll()).thenReturn(categories);
+      Page<GetCategoryServiceResponse> result = categoryService.findCategories(getCategoryServiceRequest);
+
+      // then
+      assertIterableEquals(result.getContent(), getCategoryServiceResponses);
+      assertEquals(result.getTotalElements(), result.getNumberOfElements());
+      assertEquals(result.getTotalPages(), 1);
+    }
+  }
+
+  @Nested
+  @DisplayName("실패 케이스")
+  class FailCase {
+
+  }
+
+  private List<GetCategoryServiceResponse> makeCategoryServiceResponses(List<Category> categories) {
+    return categories.stream().map(
+        category -> GetCategoryServiceResponse.builder().id(category.getId()).name(category.getName())
+            .createdAt(category.getCreatedAt()).updatedAt(category.getUpdatedAt()).build()).toList();
   }
 }

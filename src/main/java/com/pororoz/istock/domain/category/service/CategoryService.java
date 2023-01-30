@@ -32,6 +32,12 @@ public class CategoryService {
       List<Category> categories = categoryRepository.findAllByNameContaining(request.getName());
       return new PageImpl<>(categories).map(GetCategoryServiceResponse::of);
     }
+
+    if (request.getName() == null) {
+      return categoryRepository.findAllByNameContaining(request.toPageRequest())
+          .map(GetCategoryServiceResponse::of);
+    }
+
     return categoryRepository.findAllByNameContaining(request.getName(), request.toPageRequest())
         .map(GetCategoryServiceResponse::of);
   }
