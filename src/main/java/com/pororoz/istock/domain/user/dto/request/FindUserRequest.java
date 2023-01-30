@@ -14,11 +14,12 @@ import lombok.Getter;
 @Builder
 public class FindUserRequest {
 
-  @Schema(description = "사용자 이름", example = "0")
+  @Schema(description = "페이지 요청", example = "0")
   @Nullable
   @PositiveOrZero(message = ExceptionMessage.INVALID_PAGE_REQUEST)
   private Integer page;
-  @Schema(description = "사용자 이름", example = "20")
+
+  @Schema(description = "사이즈 요청", example = "20")
   @Nullable
   @Positive(message = ExceptionMessage.INVALID_PAGE_REQUEST)
   private Integer size;

@@ -15,6 +15,7 @@ import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRespons
 import com.pororoz.istock.domain.category.service.CategoryService;
 import com.pororoz.istock.domain.category.swagger.exception.InternalServerErrorExceptionSwagger;
 import com.pororoz.istock.domain.category.swagger.response.DeleteCategoryResponseSwagger;
+import com.pororoz.istock.domain.category.swagger.response.FindCategoryResponseSwagger;
 import com.pororoz.istock.domain.category.swagger.response.SaveCategoryResponseSwagger;
 import com.pororoz.istock.domain.user.swagger.exception.InvalidPathExceptionSwagger;
 import io.swagger.v3.oas.annotations.Operation;
@@ -48,6 +49,11 @@ public class CategoryController {
 
   private final CategoryService categoryService;
 
+  @Operation(summary = "find category", description = "카테고리 리스트 조회 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200",
+          content = {@Content(schema = @Schema(implementation = FindCategoryResponseSwagger.class))}),
+  })
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<FindCategoryResponse>>> findCategories(
       @ModelAttribute("request") FindCategoryRequest request
