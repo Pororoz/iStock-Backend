@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.category.entity;
 
+import com.pororoz.istock.common.entity.TimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,9 +16,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class Category {
+@AllArgsConstructor
+public class Category extends TimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

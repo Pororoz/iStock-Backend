@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
@@ -20,25 +20,15 @@ import com.pororoz.istock.domain.category.service.CategoryService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 @WebMvcTest(value = CategoryController.class, excludeAutoConfiguration = {
     SecurityAutoConfiguration.class})
-@MockBean(JpaMetamodelMappingContext.class)
-class CategoryControllerTest {
-
-  @Autowired
-  MockMvc mockMvc;
-
-  @Autowired
-  ObjectMapper objectMapper;
+class CategoryControllerTest extends ControllerTest {
 
   @MockBean
   CategoryService categoryService;
@@ -77,7 +67,7 @@ class CategoryControllerTest {
     }
 
     @Test
-    @DisplayName("카테고리 이름이 1이하는 예외가 발생한다.")
+    @DisplayName("카테고리 이름이 1이하이면 예외가 발생한다.")
     void categoryNameLengthError() throws Exception {
       //given
       Long id = 1L;

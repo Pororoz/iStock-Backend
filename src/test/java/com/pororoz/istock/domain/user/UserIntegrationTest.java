@@ -9,8 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pororoz.istock.common.service.DatabaseCleanup;
+import com.pororoz.istock.IntegrationTest;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
@@ -28,33 +27,19 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class UserIntegrationTest {
-
-  @Autowired
-  MockMvc mockMvc;
-
-  @Autowired
-  ObjectMapper objectMapper;
+public class UserIntegrationTest extends IntegrationTest {
 
   @Autowired
   UserRepository userRepository;
 
   @Autowired
   RoleRepository roleRepository;
-
-  @Autowired
-  DatabaseCleanup databaseCleanup;
 
   @AfterEach
   public void afterEach() {
