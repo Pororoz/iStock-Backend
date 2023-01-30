@@ -4,10 +4,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pororoz.istock.common.utils.message.ExceptionMessage;
+import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.dto.request.UpdateCategoryRequest;
@@ -70,6 +73,27 @@ class CategoryControllerTest {
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_CATEGORY))
           .andExpect(jsonPath("$.data.id").value(id))
           .andExpect(jsonPath("$.data.name").value(newName));
+    }
+
+    @Test
+    @DisplayName("카테고리 이름이 1이하는 예외가 발생한다.")
+    void categoryNameLengthError() throws Exception {
+      //given
+      Long id = 1L;
+      String newName = "새";
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).name(newName).build();
+
+      //when
+      ResultActions actions = mockMvc.perform(put(url)
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(objectMapper.writeValueAsString(request))
+          .with(csrf()));
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+          .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_CATEGORY_NAME))
+          .andDo(print());
     }
   }
 }

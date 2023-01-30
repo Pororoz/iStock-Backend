@@ -11,8 +11,9 @@ public class ExceptionMessage {
   public static final String INVALID_ROLENAME = "role 이름은 빈 값이 될 수 없습니다.";
   public static final String INVALID_ID = "형식에 맞지 않는 ID 입니다.";
   public static final String TYPE_MISMATCH = "맞지 않는 타입입니다.";
-  public static final String INTERTNAL_SERVER_ERROR = "내부 서버 오류입니다.";
+  public static final String INTERNAL_SERVER_ERROR = "내부 서버 오류입니다.";
   public static final String INVALID_PAGE_REQUEST = "page는 0 이상, size는 1 이상을 입력해주세요.";
+  public static final String INVALID_CATEGORY_NAME = "카테고리는 2자 이상, 100자 이하로 입력해주세요.";
 
   private ExceptionMessage() {
   }

@@ -25,7 +25,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +37,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/categories")
 @RequiredArgsConstructor
-@Validated
 public class CategoryController {
 
   private final CategoryService categoryService;
@@ -47,7 +45,7 @@ public class CategoryController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_CATEGORY, content = {
           @Content(schema = @Schema(implementation = SaveCategoryResponseSwagger.class))}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.INTERTNAL_SERVER_ERROR, content = {
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.INTERNAL_SERVER_ERROR, content = {
           @Content(schema = @Schema(implementation = InternalServerErrorExceptionSwagger.class))})})
   @PostMapping
   public ResponseEntity<ResultDTO<CategoryResponse>> saveCategory(
@@ -75,7 +73,8 @@ public class CategoryController {
   }
 
   @PutMapping
-  public ResponseEntity<ResultDTO<CategoryResponse>> updateCategory(UpdateCategoryRequest request) {
+  public ResponseEntity<ResultDTO<CategoryResponse>> updateCategory(
+      @Valid @RequestBody UpdateCategoryRequest request) {
     CategoryServiceResponse serviceDto = categoryService.updateCategory(request.toService());
     CategoryResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
