@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 
 public class CategoryIntegrationTest extends IntegrationTest {
@@ -39,6 +41,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
     }
 
     @Test
+    @WithMockUser
     @DisplayName("카테고리를 수정한다.")
     void updateCategory() throws Exception {
       //given
@@ -54,6 +57,21 @@ public class CategoryIntegrationTest extends IntegrationTest {
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_CATEGORY))
           .andExpect(jsonPath("$.data.id").value(id))
           .andExpect(jsonPath("$.data.categoryName").value(newName));
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("로그인 하지 않으면 수정 API에 접근할 수 없다.")
+    void updateCategoryAnonymous() throws Exception {
+      //given
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+          .build();
+
+      //when
+      ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+
+      //given
+      actions.andExpect(status().isForbidden());
     }
   }
 }

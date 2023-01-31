@@ -26,11 +26,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+@WithMockUser(roles = "ADMIN")
 public class UserIntegrationTest extends IntegrationTest {
 
   @Autowired
@@ -46,7 +47,6 @@ public class UserIntegrationTest extends IntegrationTest {
 
   @Nested
   @DisplayName("PUT /v1/users 계정 수정 API")
-  @Transactional
   class UpdateUser {
 
     private final String url = "/v1/users";
@@ -126,9 +126,6 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("영어로만 이루어진 비밀번호는 에러가 발생하고 400 code를 반환한다.")
       void onlyEnglish() throws Exception {
         //given
-        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
-        User user = User.builder().username(username).password(password).role(role).build();
-        userRepository.save(user);
         String onlyStr = "asdafw";
         UpdateUserRequest request = UpdateUserRequest.builder()
             .id(id)
@@ -195,6 +192,9 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("존재하지 않는 role name이 들어오면 Error가 발생하고 404 코드를 반환한다.")
       void notFoundRoleName() throws Exception {
         //given
+        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+        userRepository.save(
+            User.builder().username(username).password(password).role(role).build());
         UpdateUserRequest request = UpdateUserRequest.builder()
             .id(id)
             .roleName("nothing")
@@ -215,7 +215,6 @@ public class UserIntegrationTest extends IntegrationTest {
 
   @Nested
   @DisplayName("DELETE /v1/users/{id} 계정 삭제 API")
-  @Transactional
   class DeleteUser {
 
     private String url(long id) {
@@ -322,7 +321,6 @@ public class UserIntegrationTest extends IntegrationTest {
 
   @Nested
   @DisplayName("POST /v1/users 계정 생성 API")
-  @Transactional
   class SaveUser {
 
     private final String url = "/v1/users";
