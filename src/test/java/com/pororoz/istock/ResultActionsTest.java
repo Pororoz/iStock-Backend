@@ -35,6 +35,18 @@ public abstract class ResultActionsTest {
         .with(csrf()));
   }
 
+  protected ResultActions getResultActionsWithNoBody(HttpMethod httpMethod,
+      String uri)
+      throws Exception {
+    MockHttpServletRequestBuilder buildersMethod = getMockMvcRequestBuildersMethod(
+        httpMethod, URI.create(uri));
+    return mockMvc.perform(buildersMethod
+        .contentType(MediaType.APPLICATION_JSON)
+        .with(csrf()));
+  }
+
+
+
   private MockHttpServletRequestBuilder getMockMvcRequestBuildersMethod(HttpMethod httpMethod,
       URI uri) {
     if (httpMethod == HttpMethod.POST) {
