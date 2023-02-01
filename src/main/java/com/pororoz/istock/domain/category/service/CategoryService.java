@@ -22,6 +22,7 @@ public class CategoryService {
 
   private final CategoryRepository categoryRepository;
 
+  @Transactional(readOnly=true)
   public Page<FindCategoryServiceResponse> findCategories(FindCategoryServiceRequest request) {
     if (request.getName() == null) {
       return categoryRepository.findAll(request.toPageRequest())
