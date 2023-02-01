@@ -1,16 +1,12 @@
 package com.pororoz.istock.domain.user;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pororoz.istock.common.service.DatabaseCleanup;
+import com.pororoz.istock.IntegrationTest;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
@@ -28,33 +24,21 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class UserIntegrationTest {
-
-  @Autowired
-  MockMvc mockMvc;
-
-  @Autowired
-  ObjectMapper objectMapper;
+@WithMockUser(roles = "ADMIN")
+public class UserIntegrationTest extends IntegrationTest {
 
   @Autowired
   UserRepository userRepository;
 
   @Autowired
   RoleRepository roleRepository;
-
-  @Autowired
-  DatabaseCleanup databaseCleanup;
 
   @AfterEach
   public void afterEach() {
@@ -63,7 +47,6 @@ public class UserIntegrationTest {
 
   @Nested
   @DisplayName("PUT /v1/users 계정 수정 API")
-  @Transactional
   class UpdateUser {
 
     private final String url = "/v1/users";
@@ -101,9 +84,7 @@ public class UserIntegrationTest {
             .roleName(newRoleName).build();
 
         // when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         // then
         actions.andExpect(status().isOk())
@@ -131,9 +112,7 @@ public class UserIntegrationTest {
             .roleName(newRoleName).build();
 
         //when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -147,9 +126,6 @@ public class UserIntegrationTest {
       @DisplayName("영어로만 이루어진 비밀번호는 에러가 발생하고 400 code를 반환한다.")
       void onlyEnglish() throws Exception {
         //given
-        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
-        User user = User.builder().username(username).password(password).role(role).build();
-        userRepository.save(user);
         String onlyStr = "asdafw";
         UpdateUserRequest request = UpdateUserRequest.builder()
             .id(id)
@@ -158,9 +134,7 @@ public class UserIntegrationTest {
             .build();
 
         //when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -183,9 +157,7 @@ public class UserIntegrationTest {
             .build();
 
         //when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -206,9 +178,7 @@ public class UserIntegrationTest {
             .build();
 
         //when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         // then
         actions.andExpect(status().isNotFound())
@@ -222,6 +192,9 @@ public class UserIntegrationTest {
       @DisplayName("존재하지 않는 role name이 들어오면 Error가 발생하고 404 코드를 반환한다.")
       void notFoundRoleName() throws Exception {
         //given
+        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+        userRepository.save(
+            User.builder().username(username).password(password).role(role).build());
         UpdateUserRequest request = UpdateUserRequest.builder()
             .id(id)
             .roleName("nothing")
@@ -229,9 +202,7 @@ public class UserIntegrationTest {
             .build();
 
         //when
-        ResultActions actions = mockMvc.perform(put(url)
-            .content(objectMapper.writeValueAsString(request))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
 
         //then
         actions.andExpect(status().isNotFound())
@@ -244,7 +215,6 @@ public class UserIntegrationTest {
 
   @Nested
   @DisplayName("DELETE /v1/users/{id} 계정 삭제 API")
-  @Transactional
   class DeleteUser {
 
     private String url(long id) {
@@ -280,8 +250,7 @@ public class UserIntegrationTest {
         userRepository.save(user);
 
         // when
-        ResultActions actions = mockMvc.perform(delete(url(id))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE, url(id));
 
         // then
         actions.andExpect(status().isOk())
@@ -305,8 +274,7 @@ public class UserIntegrationTest {
         //given
 
         //when
-        ResultActions actions = mockMvc.perform(delete(url(id))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE, url(id));
 
         // then
         actions.andExpect(status().isNotFound())
@@ -322,8 +290,7 @@ public class UserIntegrationTest {
         //given
 
         //when
-        ResultActions actions = mockMvc.perform(delete(url(-1L))
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE, url(-1L));
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -339,8 +306,8 @@ public class UserIntegrationTest {
         //given
 
         //when
-        ResultActions actions = mockMvc.perform(delete("/v1/users/nothing")
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE,
+            "/v1/users/nothing");
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -354,7 +321,6 @@ public class UserIntegrationTest {
 
   @Nested
   @DisplayName("POST /v1/users 계정 생성 API")
-  @Transactional
   class SaveUser {
 
     private final String url = "/v1/users";
@@ -378,15 +344,13 @@ public class UserIntegrationTest {
       @DisplayName("중복되지 않는 유저 정보를 건네주면 계정 생성에 성공한다.")
       void saveUser() throws Exception {
         // given
-        String request = objectMapper.writeValueAsString(SaveUserRequest.builder()
+        SaveUserRequest request = SaveUserRequest.builder()
             .username(username)
             .password(password)
-            .roleName(roleName).build());
+            .roleName(roleName).build();
 
         // when
-        ResultActions actions = mockMvc.perform(post(url)
-            .content(request)
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
 
         // then
         actions.andExpect(status().isOk())
@@ -415,9 +379,7 @@ public class UserIntegrationTest {
             .build();
 
         //when
-        ResultActions actions = mockMvc.perform(post(url)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -434,9 +396,7 @@ public class UserIntegrationTest {
             .roleName("nothing").password("1234abcd").build();
 
         //when
-        ResultActions actions = mockMvc.perform(post(url)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)));
+        ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
 
         //then
         actions.andExpect(status().isNotFound())

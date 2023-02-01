@@ -6,11 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-public class InvalidPathExceptionSwagger {
+public class CategoryNotFoundExceptionSwagger {
 
   @Schema(description = "에러 명칭", example = ExceptionStatus.BAD_REQUEST)
   private String status;
 
-  @Schema(description = "상세 메시지", example = ExceptionMessage.INVALID_PATH)
+  @Schema(description = "상세 메시지", example = ExceptionMessage.CATEGORY_NOT_FOUND)
   private String message;
 }
