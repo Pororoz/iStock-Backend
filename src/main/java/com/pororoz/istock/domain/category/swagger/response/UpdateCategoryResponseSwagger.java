@@ -7,12 +7,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-public class SaveCategoryResponseSwagger {
+public class UpdateCategoryResponseSwagger {
 
   @Schema(description = "Result Code", example = ResponseStatus.OK)
   private String status;
 
-  @Schema(description = "Message", example = ResponseMessage.SAVE_CATEGORY)
+  @Schema(description = "Message", example = ResponseMessage.UPDATE_CATEGORY)
   private String message;
 
   private CategoryResponse data;

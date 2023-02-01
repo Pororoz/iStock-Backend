@@ -12,7 +12,7 @@ public class CategoryResponse {
   private Long id;
 
   @Schema(description = "카테고리 이름", example = "착화기")
-  private String name;
+  private String categoryName;
 
   @Override
   public boolean equals(Object obj) {
@@ -28,6 +28,6 @@ public class CategoryResponse {
 
     CategoryResponse response = (CategoryResponse) obj;
     return id.equals(response.getId()) &&
-        name.equals(response.getName());
+        categoryName.equals(response.getCategoryName());
   }
 }

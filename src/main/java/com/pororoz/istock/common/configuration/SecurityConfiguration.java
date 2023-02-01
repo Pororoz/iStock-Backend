@@ -27,7 +27,7 @@ public class SecurityConfiguration {
 
   @Bean
   public WebSecurityCustomizer configure() {
-    return (web) -> web.ignoring().requestMatchers("/swagger-ui/**", "/api-docs/**");
+    return (web) -> web.ignoring().requestMatchers("/swagger-ui/**", "/api-docs/**", "/profile");
   }
 
   @Bean
@@ -42,9 +42,11 @@ public class SecurityConfiguration {
         UsernamePasswordAuthenticationFilter.class);
 
     http.authorizeHttpRequests((authorize) -> authorize
-        .requestMatchers("/v1/article/**").hasRole("ADMIN")
-        .requestMatchers("/v1/auth/admin").hasRole("ADMIN")
-        .anyRequest().permitAll()
+        .requestMatchers("/v*/test/**").permitAll()
+        .requestMatchers("/v*/auth/login").anonymous()
+        .requestMatchers("/v*/auth/logout").permitAll()
+        .requestMatchers("/v*/categories/**").authenticated()
+        .anyRequest().hasRole("ADMIN")
     );
 
     http.logout()
@@ -54,7 +56,7 @@ public class SecurityConfiguration {
 
     http.sessionManagement()
         .maximumSessions(1)
-        .maxSessionsPreventsLogin(true);
+        .maxSessionsPreventsLogin(false);
 
     return http.build();
   }

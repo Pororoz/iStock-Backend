@@ -25,12 +25,12 @@ public class FindCategoryResponse extends CategoryResponse{
     }
 
     FindCategoryResponse that = (FindCategoryResponse) obj;
-    return super.getId().equals(that.getId()) && super.getName().equals(that.getName()) &&
+    return super.getId().equals(that.getId()) && getCategoryName().equals(that.getCategoryName()) &&
         Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(super.getId(), super.getName(), createdAt, updatedAt);
+    return Objects.hash(getId(), getCategoryName(), createdAt, updatedAt);
   }
 }

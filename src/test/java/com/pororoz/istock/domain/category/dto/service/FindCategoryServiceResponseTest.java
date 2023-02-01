@@ -82,7 +82,7 @@ class FindCategoryServiceResponseTest {
       // given
       FindCategoryResponse findCategoryResponse = FindCategoryResponse.builder()
           .id(1L)
-          .name("item")
+          .categoryName("item")
           .createdAt(null)
           .updatedAt(null)
           .build();

@@ -1,14 +1,16 @@
 package com.pororoz.istock.domain.category;
 
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pororoz.istock.common.service.DatabaseCleanup;
+import com.pororoz.istock.IntegrationTest;
+import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.category.dto.request.UpdateCategoryRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
@@ -19,27 +21,18 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class CategoryIntegrationTest {
-  @Autowired
-  MockMvc mockMvc;
 
-  @Autowired
-  ObjectMapper objectMapper;
+public class CategoryIntegrationTest extends IntegrationTest {
 
   @Autowired
   CategoryRepository categoryRepository;
-
-  @Autowired
-  DatabaseCleanup databaseCleanup;
 
   @AfterEach
   public void afterEach() {
@@ -50,6 +43,7 @@ public class CategoryIntegrationTest {
   @DisplayName("GET /v1/categories?query={}&page={}&size={} - 카테고리 리스트 조회")
   @Transactional
   class FindCategories {
+
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
@@ -80,9 +74,8 @@ public class CategoryIntegrationTest {
         Category category6 = Category.builder().name("button1").build();
         Category category7 = Category.builder().name("item4").build();
 
-
         categoryRepository.saveAll(
-            List.of(category1, category2, category3, category4, category5,category6, category7));
+            List.of(category1, category2, category3, category4, category5, category6, category7));
       }
 
       @Test
@@ -224,7 +217,7 @@ public class CategoryIntegrationTest {
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(""))
             .andExpect(jsonPath("$.data.totalPages")
-                .value((itemCount+defaultSize) / defaultSize))
+                .value((itemCount + defaultSize) / defaultSize))
             .andExpect(jsonPath("$.data.totalElements").value(itemCount))
             .andExpect(jsonPath("$.data.first").value(true))
             .andExpect(jsonPath("$.data.last").value(true))
@@ -251,7 +244,7 @@ public class CategoryIntegrationTest {
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(""))
             .andExpect(jsonPath("$.data.totalPages")
-                .value((itemCount+defaultSize) / defaultSize))
+                .value((itemCount + defaultSize) / defaultSize))
             .andExpect(jsonPath("$.data.totalElements").value(itemCount))
             .andExpect(jsonPath("$.data.first").value(true))
             .andExpect(jsonPath("$.data.last").value(true))
@@ -264,6 +257,57 @@ public class CategoryIntegrationTest {
     @DisplayName("실패 케이스")
     class FailCase {
 
+    }
+  }
+
+  @Nested
+  @DisplayName("PUT /v1/categories")
+  class UpdateCategory {
+
+    String url = "http://localhost:8080/v1/categories";
+    Long id = 1L;
+    String oldName = "이전카테고리";
+    String newName = "새카테고리";
+    Category category = Category.builder().id(id).name(oldName).build();
+
+    @BeforeEach
+    void setUp() {
+      databaseCleanup.execute();
+      categoryRepository.save(category);
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("카테고리를 수정한다.")
+    void updateCategory() throws Exception {
+      //given
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+          .build();
+
+      //when
+      ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+
+      //then
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_CATEGORY))
+          .andExpect(jsonPath("$.data.id").value(id))
+          .andExpect(jsonPath("$.data.categoryName").value(newName));
+    }
+
+    @Test
+    @WithAnonymousUser
+    @DisplayName("로그인 하지 않으면 수정 API에 접근할 수 없다.")
+    void updateCategoryAnonymous() throws Exception {
+      //given
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+          .build();
+
+      //when
+      ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+
+      //given
+      actions.andExpect(status().isForbidden());
     }
   }
 }

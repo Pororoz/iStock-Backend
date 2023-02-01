@@ -42,7 +42,7 @@ public class FindCategoryServiceResponse {
   public FindCategoryResponse toResponse() {
     return FindCategoryResponse.builder()
         .id(id)
-        .name(name)
+        .categoryName(name)
         .createdAt(TimeEntity.formatTime(createdAt))
         .updatedAt(TimeEntity.formatTime(updatedAt))
         .build();

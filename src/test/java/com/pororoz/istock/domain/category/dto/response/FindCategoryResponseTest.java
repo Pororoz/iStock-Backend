@@ -27,9 +27,9 @@ class FindCategoryResponseTest {
       // given
       String now = TimeEntity.formatTime(LocalDateTime.now());
       FindCategoryResponse findCategoryResponse1 = FindCategoryResponse.builder().id(1L)
-          .name("item").createdAt(now).updatedAt(now).build();
+          .categoryName("item").createdAt(now).updatedAt(now).build();
       FindCategoryResponse findCategoryResponse2 = FindCategoryResponse.builder().id(1L)
-          .name("item").createdAt(now).updatedAt(now).build();
+          .categoryName("item").createdAt(now).updatedAt(now).build();
 
       // when
       // then
@@ -40,7 +40,8 @@ class FindCategoryResponseTest {
     @DisplayName("아예 같은 Object라면 true를 반환한다.")
     void sameObj() {
       // given
-      FindCategoryResponse findCategoryResponse = FindCategoryResponse.builder().id(1L).name("item")
+      FindCategoryResponse findCategoryResponse = FindCategoryResponse.builder().id(1L)
+          .categoryName("item")
           .createdAt(TimeEntity.formatTime(LocalDateTime.now()))
           .updatedAt(TimeEntity.formatTime(LocalDateTime.now())).build();
       Object obj = findCategoryResponse;
@@ -54,7 +55,8 @@ class FindCategoryResponseTest {
     @DisplayName("Object가 null이면 false를 반환한다.")
     void nullObj() {
       // given
-      FindCategoryResponse findCategoryResponse = FindCategoryResponse.builder().id(1L).name("item")
+      FindCategoryResponse findCategoryResponse = FindCategoryResponse.builder().id(1L)
+          .categoryName("item")
           .createdAt(TimeEntity.formatTime(LocalDateTime.now()))
           .updatedAt(TimeEntity.formatTime(LocalDateTime.now())).build();
       Object obj = null;
@@ -68,7 +70,8 @@ class FindCategoryResponseTest {
     @DisplayName("Object가 내용물이 같아도 클래스가 다르면 false를 반환한다.")
     void notSameClass() {
       // given
-      FindCategoryResponse findCategoryResponse = FindCategoryResponse.builder().id(1L).name("item")
+      FindCategoryResponse findCategoryResponse = FindCategoryResponse.builder().id(1L)
+          .categoryName("item")
           .createdAt(null).updatedAt(null).build();
       FindCategoryServiceResponse findCategoryServiceResponse = FindCategoryServiceResponse.builder()
           .id(1L).name("item").createdAt(null).updatedAt(null).build();
@@ -89,9 +92,9 @@ class FindCategoryResponseTest {
       // given
       String now = TimeEntity.formatTime(LocalDateTime.now());
       FindCategoryResponse findCategoryResponse1 = FindCategoryResponse.builder().id(1L)
-          .name("item").createdAt(now).updatedAt(now).build();
+          .categoryName("item").createdAt(now).updatedAt(now).build();
       FindCategoryResponse findCategoryResponse2 = FindCategoryResponse.builder().id(1L)
-          .name("item").createdAt(now).updatedAt(now).build();
+          .categoryName("item").createdAt(now).updatedAt(now).build();
 
       // when
       // then

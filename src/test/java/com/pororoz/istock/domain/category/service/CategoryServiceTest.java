@@ -4,15 +4,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceResponse;
+import com.pororoz.istock.domain.category.dto.service.UpdateCategoryServiceRequest;
 import com.pororoz.istock.domain.category.entity.Category;
+import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,6 +29,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
@@ -44,8 +49,6 @@ class CategoryServiceTest {
     class SuccessCase {
 
       Long totalCategories;
-      LocalDateTime create;
-      LocalDateTime update;
       Category category1;
       Category category2;
       List<Category> categories;
@@ -53,19 +56,13 @@ class CategoryServiceTest {
       @BeforeEach
       void setup() {
         totalCategories = 11L;
-        create = LocalDateTime.now();
-        update = LocalDateTime.now();
         category1 = Category.builder()
             .id(1L)
             .name("item1")
-            .createdAt(create)
-            .updatedAt(update)
             .build();
         category2 = Category.builder()
             .id(2L)
             .name("item2")
-            .createdAt(create)
-            .updatedAt(update)
             .build();
         categories = List.of(category1, category2);
       }
@@ -176,7 +173,6 @@ class CategoryServiceTest {
         PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(0, 20),
             totalCategories);
 
-
         // when
         when(categoryRepository.findAll(any(Pageable.class))).thenReturn(pages);
         Page<FindCategoryServiceResponse> result = categoryService.findCategories(
@@ -202,6 +198,45 @@ class CategoryServiceTest {
                   .name(category.getName())
                   .createdAt(category.getCreatedAt()).updatedAt(category.getUpdatedAt()).build())
           .toList();
+    }
+  }
+
+  @Nested
+  @DisplayName("카테고리 수정")
+  class CategoryUpdate {
+
+    String oldName = "이전이름";
+    String newName = "새이름";
+    Long id = 1L;
+
+    @Test
+    @DisplayName("저장된 카테고리 이름을 수정한다.")
+    void updateCategory() {
+      //given
+      Category category = Category.builder().id(id).name(oldName).build();
+      UpdateCategoryServiceRequest request = UpdateCategoryServiceRequest.builder().id(1L)
+          .name(newName).build();
+      //when
+      when(categoryRepository.findById(id)).thenReturn(Optional.of(category));
+      CategoryServiceResponse response = categoryService.updateCategory(request);
+
+      //then
+      assertThat(response.getId(), equalTo(id));
+      assertThat(response.getName(), equalTo(newName));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 ID의 카테고리는 예외가 발생한다.")
+    void throwNotFoundCategoryId() {
+      //given
+      UpdateCategoryServiceRequest request = UpdateCategoryServiceRequest.builder().id(1L)
+          .name(newName).build();
+
+      //when
+      when(categoryRepository.findById(id)).thenReturn(Optional.empty());
+
+      //then
+      assertThrows(CategoryNotFoundException.class, () -> categoryService.updateCategory(request));
     }
   }
 }
