@@ -16,10 +16,11 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 public abstract class TimeEntity {
 
   @CreatedDate
-  @Column(updatable = false)
+  @Column(nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
   @LastModifiedDate
+  @Column(nullable = false)
   private LocalDateTime updatedAt;
 
   public static String formatTime(LocalDateTime time) {
