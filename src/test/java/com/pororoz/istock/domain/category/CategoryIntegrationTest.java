@@ -1,13 +1,13 @@
 package com.pororoz.istock.domain.category;
 
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
+import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.dto.request.UpdateCategoryRequest;
@@ -27,6 +27,8 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 
 public class CategoryIntegrationTest extends IntegrationTest {
@@ -44,25 +46,19 @@ public class CategoryIntegrationTest extends IntegrationTest {
   @Transactional
   class FindCategories {
 
+    final String url = "/v1/categories";
+
+    MultiValueMap<String, String> params;
+
+    @BeforeEach
+    public void setUp() {
+      params = new LinkedMultiValueMap<>();
+    }
+
     @Nested
     @DisplayName("성공 케이스")
+    @WithMockUser
     class SuccessCase {
-
-      String url() {
-        return "/v1/categories";
-      }
-
-      String url(String name) {
-        return "/v1/categories" + "?query=" + name;
-      }
-
-      String url(int page, int size) {
-        return "/v1/categories" + "?page=" + page + "&size=" + size;
-      }
-
-      String url(String name, int page, int size) {
-        return "/v1/categories" + "?query=" + name + "&page=" + page + "&size=" + size;
-      }
 
       @BeforeEach
       void setup() {
@@ -87,11 +83,12 @@ public class CategoryIntegrationTest extends IntegrationTest {
         int itemCount = 4;
         int page = 0;
         int size = 2;
-        String requestUrl = url(name, page, size);
+        params.add("query", name);
+        params.add("page", Integer.toString(page));
+        params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = mockMvc.perform(get(requestUrl)
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsForGetMethod(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -105,7 +102,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.data.last").value(false))
             .andExpect(jsonPath("$.data.currentSize").value(2))
             .andExpect(jsonPath("$.data.contents[0].id").value(1L))
-            .andExpect(jsonPath("$.data.contents[0].name").value("item1"))
+            .andExpect(jsonPath("$.data.contents[0].categoryName").value("item1"))
             .andDo(print());
       }
 
@@ -120,11 +117,12 @@ public class CategoryIntegrationTest extends IntegrationTest {
         int itemCount = 2;
         int page = 0;
         int size = 2;
-        String requestUrl = url(name, page, size);
+        params.add("query", name);
+        params.add("page", Integer.toString(page));
+        params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = mockMvc.perform(get(requestUrl)
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsForGetMethod(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -138,9 +136,9 @@ public class CategoryIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.data.last").value(true))
             .andExpect(jsonPath("$.data.currentSize").value(2))
             .andExpect(jsonPath("$.data.contents[0].id").value(2L))
-            .andExpect(jsonPath("$.data.contents[0].name").value("shop1"))
+            .andExpect(jsonPath("$.data.contents[0].categoryName").value("shop1"))
             .andExpect(jsonPath("$.data.contents[1].id").value(3L))
-            .andExpect(jsonPath("$.data.contents[1].name").value("shop2"))
+            .andExpect(jsonPath("$.data.contents[1].categoryName").value("shop2"))
             .andDo(print());
       }
 
@@ -151,11 +149,11 @@ public class CategoryIntegrationTest extends IntegrationTest {
         int itemCount = 7;
         int page = 1;
         int size = 2;
-        String requestUrl = url(page, size);
+        params.add("page", Integer.toString(page));
+        params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = mockMvc.perform(get(requestUrl)
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsForGetMethod(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -178,11 +176,11 @@ public class CategoryIntegrationTest extends IntegrationTest {
         int itemCount = 7;
         int page = 3;
         int size = 2;
-        String requestUrl = url(page, size);
+        params.add("page", Integer.toString(page));
+        params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = mockMvc.perform(get(requestUrl)
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsForGetMethod(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -204,12 +202,11 @@ public class CategoryIntegrationTest extends IntegrationTest {
         // given
         int itemCount = 4;
         String name = "item";
-        String requestUrl = url(name);
         int defaultSize = FindCategoryServiceRequest.DEFAULT_SIZE;
+        params.add("query", name);
 
         // when
-        ResultActions actions = mockMvc.perform(get(requestUrl)
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsForGetMethod(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -231,12 +228,10 @@ public class CategoryIntegrationTest extends IntegrationTest {
       void findCategoriesWithNull() throws Exception {
         // given
         int itemCount = 7;
-        String requestUrl = url();
         int defaultSize = FindCategoryServiceRequest.DEFAULT_SIZE;
 
         // when
-        ResultActions actions = mockMvc.perform(get(requestUrl)
-            .contentType(MediaType.APPLICATION_JSON));
+        ResultActions actions = getResultActionsForGetMethod(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -257,6 +252,47 @@ public class CategoryIntegrationTest extends IntegrationTest {
     @DisplayName("실패 케이스")
     class FailCase {
 
+      @Test
+      @WithMockUser
+      @DisplayName("타입에 맞지 않는 변수를 전달하면 400 Error를 반환한다.")
+      void badRequest() throws Exception {
+        // given
+        String name = "name";
+        String page = "not match type";
+        String size = "2";
+        params.add("query", name);
+        params.add("page", page);
+        params.add("size", size);
+
+        // when
+        ResultActions actions = getResultActionsForGetMethod(url, params);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+            .andDo(print());
+      }
+
+      @Test
+      @WithAnonymousUser
+      @DisplayName(
+          "로그인 하지 않으면 수정 API에 접근할 수 없다.")
+      void findCategoriesWithNameAndPageAndSizeForItem() throws Exception {
+        // given
+        String name = "item";
+        int page = 0;
+        int size = 2;
+        params.add("query", name);
+        params.add("page", Integer.toString(page));
+        params.add("size", Integer.toString(size));
+
+        // when
+        ResultActions actions = getResultActionsForGetMethod(url, params);
+
+        // then
+        actions.andExpect(status().isForbidden());
+      }
     }
   }
 

@@ -90,7 +90,7 @@ class CategoryControllerTest extends ControllerTest {
         //when
         when(categoryService.findCategories(any(FindCategoryServiceRequest.class))).thenReturn(
             responsePage);
-        ResultActions actions = getResultActioForGetMethod(url, params);
+        ResultActions actions = getResultActionsForGetMethod(url, params);
 
         //then
         actions.andExpect(status().isOk())
