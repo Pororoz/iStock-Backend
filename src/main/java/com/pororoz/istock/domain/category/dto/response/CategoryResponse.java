@@ -22,9 +22,6 @@ public class CategoryResponse {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    if (!super.equals(obj)) {
-      return false;
-    }
 
     CategoryResponse response = (CategoryResponse) obj;
     return id.equals(response.getId()) &&

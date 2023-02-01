@@ -67,6 +67,27 @@ class FindCategoryResponseTest {
     }
 
     @Test
+    @DisplayName("super가 다르면 false를 반환한다.")
+    void timeEntity() {
+      // given
+      LocalDateTime now = LocalDateTime.now();
+      FindCategoryResponse findCategoryResponse = FindCategoryResponse.builder().id(1L)
+          .categoryName("item1")
+          .createdAt(TimeEntity.formatTime(now))
+          .updatedAt(TimeEntity.formatTime(now))
+          .build();
+      FindCategoryResponse obj = FindCategoryResponse.builder().id(1L)
+          .categoryName("item2")
+          .createdAt(TimeEntity.formatTime(now))
+          .updatedAt(TimeEntity.formatTime(now))
+          .build();
+
+      // when
+      // then
+      assertFalse(findCategoryResponse.equals(obj));
+    }
+
+    @Test
     @DisplayName("Object가 내용물이 같아도 클래스가 다르면 false를 반환한다.")
     void notSameClass() {
       // given

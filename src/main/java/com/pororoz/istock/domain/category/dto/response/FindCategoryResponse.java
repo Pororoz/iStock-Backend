@@ -7,7 +7,7 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class FindCategoryResponse extends CategoryResponse{
+public class FindCategoryResponse extends CategoryResponse {
 
   @Schema(description = "생성 시간", example = "2023-01-01 00:00:00")
   private String createdAt;
@@ -16,17 +16,19 @@ public class FindCategoryResponse extends CategoryResponse{
   private String updatedAt;
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) {
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
-    FindCategoryResponse that = (FindCategoryResponse) obj;
-    return super.getId().equals(that.getId()) && getCategoryName().equals(that.getCategoryName()) &&
-        Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt, that.updatedAt);
+    if (!super.equals(o)) {
+      return false;
+    }
+    FindCategoryResponse that = (FindCategoryResponse) o;
+    return Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt,
+        that.updatedAt);
   }
 
   @Override
