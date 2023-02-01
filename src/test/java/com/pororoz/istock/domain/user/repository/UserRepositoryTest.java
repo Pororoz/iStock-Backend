@@ -61,7 +61,7 @@ class UserRepositoryTest {
     void updatedAt() {
       //given
       User save = userRepository.save(user);
-      System.out.println(save.getCreatedAt());
+
       //when
       save.update("aaaaaaa", save.getRole());
       em.flush();

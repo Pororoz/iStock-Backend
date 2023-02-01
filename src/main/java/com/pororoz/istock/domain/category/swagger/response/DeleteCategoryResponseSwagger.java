@@ -5,13 +5,9 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.dto.response.CategoryResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
+@Getter
 public class DeleteCategoryResponseSwagger {
 
   @Schema(description = "Result Code", example = ResponseStatus.OK)

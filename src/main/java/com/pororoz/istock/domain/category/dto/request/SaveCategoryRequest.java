@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class SaveCategoryRequest {
 
   @Schema(description = "카테고리 이름", example = "착화기")
-  @Size(min = 1, max = 15)
+  @Size(min = 2, max = 15)
   private String categoryName;
 
   public SaveCategoryServiceRequest toService() {
