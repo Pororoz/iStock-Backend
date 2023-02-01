@@ -47,7 +47,7 @@ public class CategoryController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_CATEGORY, content = {
           @Content(schema = @Schema(implementation = SaveCategoryResponseSwagger.class))}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.INTERTNAL_SERVER_ERROR, content = {
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.INTERNAL_SERVER_ERROR, content = {
           @Content(schema = @Schema(implementation = InternalServerErrorExceptionSwagger.class))})})
   @PostMapping
   public ResponseEntity<ResultDTO<CategoryResponse>> saveCategory(
