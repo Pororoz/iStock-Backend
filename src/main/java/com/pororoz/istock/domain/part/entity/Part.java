@@ -50,7 +50,4 @@ public class Part extends TimeEntity {
   @Builder.Default
   @Column(columnDefinition = "INT(11) UNSIGNED default 0")
   private long stock = 0;
-
-  @Size(min = 1, max = 50)
-  private String companyName;
 }

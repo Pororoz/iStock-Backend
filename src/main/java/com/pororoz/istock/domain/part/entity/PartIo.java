@@ -38,6 +38,7 @@ public class PartIo extends TimeEntity {
   @Column(length = 100)
   private Status status;
 
+  @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Part part;
 }

@@ -48,6 +48,7 @@ public class Product extends TimeEntity {
   @Size(max = 50)
   private String companyName;
 
+  @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Category category;
 }

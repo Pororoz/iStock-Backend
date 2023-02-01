@@ -11,7 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,7 +29,7 @@ public class ProductIo extends TimeEntity {
   private Long id;
 
   @NotNull
-  @Positive
+  @PositiveOrZero
   @Column(columnDefinition = "INT(11) UNSIGNED")
   private long quantity;
 
@@ -38,6 +38,7 @@ public class ProductIo extends TimeEntity {
   @Column(length = 100)
   private Status status;
 
+  @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Product product;
 }

@@ -13,7 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,25 +37,28 @@ public class Bom extends TimeEntity {
 
   @NotNull
   @Size(max = 200)
-  @Column(name = "location_number")
-  private String locationNumber;
+  @Builder.Default
+  @Column(name = "location_number", columnDefinition = "varchar(200) default '0'")
+  private String locationNumber = "0";
 
-  @NotNull
   @Size(max = 20)
   @Column(name = "code_number")
   private String codeNumber;
 
   @NotNull
-  @Positive
-  @Column(columnDefinition = "INT(11) UNSIGNED")
-  private long quantity;
+  @PositiveOrZero
+  @Builder.Default
+  @Column(columnDefinition = "INT(11) UNSIGNED default 0")
+  private long quantity = 0;
 
   @Size(max = 50)
   private String memo;
 
+  @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Part part;
 
+  @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Product product;
 }
