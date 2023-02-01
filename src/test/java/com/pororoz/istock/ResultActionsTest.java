@@ -2,6 +2,7 @@ package com.pororoz.istock;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -14,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.util.MultiValueMap;
 
 public abstract class ResultActionsTest {
 
@@ -23,6 +25,15 @@ public abstract class ResultActionsTest {
   @Autowired
   protected ObjectMapper objectMapper;
 
+
+  protected ResultActions getResultActionsForGetMethod(String url,
+      MultiValueMap<String, String> params) throws Exception {
+    return mockMvc.perform(get(url)
+        .params(params)
+        .contentType(MediaType.APPLICATION_JSON)
+        .with(csrf())
+    );
+  }
 
   protected ResultActions getResultActionsWithBody(Object request, HttpMethod httpMethod,
       String uri)
@@ -44,8 +55,6 @@ public abstract class ResultActionsTest {
         .contentType(MediaType.APPLICATION_JSON)
         .with(csrf()));
   }
-
-
 
   private MockHttpServletRequestBuilder getMockMvcRequestBuildersMethod(HttpMethod httpMethod,
       URI uri) {

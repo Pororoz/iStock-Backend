@@ -59,6 +59,16 @@ jacocoTestReport {
         html.enabled true
         // 기본 경로는 build/reports/jacoco
     }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, excludes: [
+                    "**/*Application*",
+                    "**/config*/*",
+                    "**/*Swagger*",
+            ])
+        }))
+    }
 }
 
 tasks.jacocoTestCoverageVerification {
@@ -71,6 +81,12 @@ tasks.jacocoTestCoverageVerification {
                 value = "COVEREDRATIO"
                 minimum = "0.80".toBigDecimal()
             }
+
+            excludes = [
+                    "**/*Application*",
+                    "**/config*/*",
+                    "**/*Swagger*",
+            ]
         }
     }
 }

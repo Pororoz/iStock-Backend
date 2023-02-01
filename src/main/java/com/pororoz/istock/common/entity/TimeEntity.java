@@ -5,6 +5,7 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -27,5 +28,18 @@ public abstract class TimeEntity {
       return null;
     }
     return time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    TimeEntity that = (TimeEntity) o;
+    return Objects.equals(createdAt, that.createdAt) && Objects.equals(updatedAt,
+        that.updatedAt);
   }
 }
