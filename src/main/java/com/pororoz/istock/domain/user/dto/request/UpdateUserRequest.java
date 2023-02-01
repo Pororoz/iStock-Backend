@@ -5,8 +5,8 @@ import com.pororoz.istock.domain.user.dto.service.UpdateUserServiceRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,8 +24,7 @@ public class UpdateUserRequest {
   private Long id;
 
   @Schema(description = "비밀번호", example = "1q2w3e4r!")
-  @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{4,100}$",
-      message = ExceptionMessage.INVALID_PASSWORD)
+  @Size(min = 2, max = 100, message = ExceptionMessage.INVALID_PASSWORD)
   private String password;
 
   @Schema(description = "권한", example = "ROLE_USER")
