@@ -26,10 +26,13 @@ public abstract class ResultActionsTest {
   protected ObjectMapper objectMapper;
 
 
-  protected ResultActions getResultActioForGetMethod(String url,
+  protected ResultActions getResultActionsForGetMethod(String url,
       MultiValueMap<String, String> params) throws Exception {
-    return mockMvc.perform(
-        get(url).params(params).contentType(MediaType.APPLICATION_JSON).with(csrf()));
+    return mockMvc.perform(get(url)
+        .params(params)
+        .contentType(MediaType.APPLICATION_JSON)
+        .with(csrf())
+    );
   }
 
   protected ResultActions getResultActionsWithBody(Object request, HttpMethod httpMethod,
