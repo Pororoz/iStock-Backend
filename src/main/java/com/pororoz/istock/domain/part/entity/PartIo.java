@@ -36,7 +36,7 @@ public class PartIo extends TimeEntity {
   @NotNull
   @Enumerated(EnumType.STRING)
   @Column(length = 100)
-  private Status status;
+  private PartStatus status;
 
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)

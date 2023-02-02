@@ -36,7 +36,7 @@ public class ProductIo extends TimeEntity {
   @NotNull
   @Enumerated(EnumType.STRING)
   @Column(length = 100)
-  private Status status;
+  private ProductStatus status;
 
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
