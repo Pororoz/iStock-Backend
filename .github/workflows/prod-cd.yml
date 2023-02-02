@@ -1,9 +1,11 @@
 name: cd
 
+# dev-cd.yml과 github actions secret이 동일해서 추후 수정 필요
+
 on:
   push:
     branches:
-      - 'release'
+      - 'blocked'
 
 env:
   REPOSITORY: istock-backend
@@ -115,3 +117,4 @@ jobs:
         with:
           tag_name: ${{ steps.extract_version_name.outputs.version }}
           release_name: ${{ steps.extract_version_name.outputs.version }}
+
