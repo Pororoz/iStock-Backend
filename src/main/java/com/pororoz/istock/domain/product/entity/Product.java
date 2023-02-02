@@ -34,6 +34,7 @@ public class Product extends TimeEntity {
 
   @NotNull
   @Size(max = 200)
+  @Column(name = "product_number", unique = true)
   private String productNumber;
 
   @Size(max = 20)
