@@ -16,7 +16,6 @@ import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -35,11 +34,6 @@ public class CategoryIntegrationTest extends IntegrationTest {
 
   @Autowired
   CategoryRepository categoryRepository;
-
-  @AfterEach
-  public void afterEach() {
-    databaseCleanup.execute();
-  }
 
   @Nested
   @DisplayName("GET /v1/categories?query={}&page={}&size={} - 카테고리 리스트 조회")
@@ -62,6 +56,8 @@ public class CategoryIntegrationTest extends IntegrationTest {
 
       @BeforeEach
       void setup() {
+        databaseCleanup.execute();
+
         Category category1 = Category.builder().name("item1").build();
         Category category2 = Category.builder().name("shop1").build();
         Category category3 = Category.builder().name("shop2").build();
@@ -88,7 +84,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = getResultActionsForGetMethod(url, params);
+        ResultActions actions = getResultActions(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -122,7 +118,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = getResultActionsForGetMethod(url, params);
+        ResultActions actions = getResultActions(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -153,7 +149,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = getResultActionsForGetMethod(url, params);
+        ResultActions actions = getResultActions(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -180,7 +176,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = getResultActionsForGetMethod(url, params);
+        ResultActions actions = getResultActions(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -206,7 +202,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("query", name);
 
         // when
-        ResultActions actions = getResultActionsForGetMethod(url, params);
+        ResultActions actions = getResultActions(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -231,7 +227,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         int defaultSize = FindCategoryServiceRequest.DEFAULT_SIZE;
 
         // when
-        ResultActions actions = getResultActionsForGetMethod(url, params);
+        ResultActions actions = getResultActions(url, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -265,7 +261,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", size);
 
         // when
-        ResultActions actions = getResultActionsForGetMethod(url, params);
+        ResultActions actions = getResultActions(url, params);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -288,7 +284,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = getResultActionsForGetMethod(url, params);
+        ResultActions actions = getResultActions(url, params);
 
         // then
         actions.andExpect(status().isForbidden());
@@ -321,7 +317,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
           .build();
 
       //when
-      ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+      ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
       //then
       actions.andExpect(status().isOk())
@@ -340,7 +336,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
           .build();
 
       //when
-      ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+      ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
       //given
       actions.andExpect(status().isForbidden());
@@ -371,7 +367,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
           .build();
 
       //when
-      ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
+      ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
       //then
       actions.andExpect(status().isOk())
@@ -391,7 +387,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
           .build();
 
       //when
-      ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
+      ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
       //then
 
@@ -408,6 +404,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
     private String url(long id) {
       return "http://localhost:8080/v1/categories" + "/" + id;
     }
+
     private long id;
     private String categoryName;
 
@@ -428,7 +425,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
       id = 1L;
 
       //when
-      ResultActions actions = getResultActionsWithNoBody(HttpMethod.DELETE, url(id));
+      ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
 
       // then
       actions.andExpect(status().isOk())
@@ -446,7 +443,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
       id = 2L;
 
       //when
-      ResultActions actions = getResultActionsWithNoBody(HttpMethod.DELETE, url(id));
+      ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
 
       // then
       actions.andExpect(status().isNotFound())

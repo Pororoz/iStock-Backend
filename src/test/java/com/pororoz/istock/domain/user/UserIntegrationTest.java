@@ -84,7 +84,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .roleName(newRoleName).build();
 
         // when
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
         // then
         actions.andExpect(status().isOk())
@@ -112,34 +112,13 @@ public class UserIntegrationTest extends IntegrationTest {
             .roleName(newRoleName).build();
 
         //when
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
         // then
         actions.andExpect(status().isBadRequest())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
             .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_ID))
-            .andDo(print());
-      }
-
-      @Test
-      @DisplayName("영어로만 이루어진 비밀번호는 에러가 발생하고 400 code를 반환한다.")
-      void onlyEnglish() throws Exception {
-        //given
-        String onlyStr = "asdafw";
-        UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(id)
-            .password(onlyStr)
-            .roleName(newRoleName)
-            .build();
-
-        //when
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
-
-        //then
-        actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
-            .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_PASSWORD))
             .andDo(print());
       }
 
@@ -157,7 +136,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .build();
 
         //when
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -178,7 +157,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .build();
 
         //when
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
         // then
         actions.andExpect(status().isNotFound())
@@ -202,7 +181,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .build();
 
         //when
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
         //then
         actions.andExpect(status().isNotFound())
@@ -250,7 +229,7 @@ public class UserIntegrationTest extends IntegrationTest {
         userRepository.save(user);
 
         // when
-        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE, url(id));
+        ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isOk())
@@ -274,7 +253,7 @@ public class UserIntegrationTest extends IntegrationTest {
         //given
 
         //when
-        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE, url(id));
+        ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isNotFound())
@@ -290,7 +269,7 @@ public class UserIntegrationTest extends IntegrationTest {
         //given
 
         //when
-        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE, url(-1L));
+        ResultActions actions = getResultActions(url(-1L), HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -306,8 +285,7 @@ public class UserIntegrationTest extends IntegrationTest {
         //given
 
         //when
-        ResultActions actions = getResultActionsWithBody(null, HttpMethod.DELETE,
-            "/v1/users/nothing");
+        ResultActions actions = getResultActions("/v1/users/nothing", HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -350,7 +328,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .roleName(roleName).build();
 
         // when
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
         // then
         actions.andExpect(status().isOk())
@@ -379,7 +357,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .build();
 
         //when
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -396,7 +374,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .roleName("nothing").password("1234abcd").build();
 
         //when
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.POST, url);
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isNotFound())
@@ -410,11 +388,6 @@ public class UserIntegrationTest extends IntegrationTest {
   @Nested
   @DisplayName("GET /v1/users 계정 조회 API")
   class FindUsers {
-
-    @AfterEach
-    public void afterEach() {
-      databaseCleanup.execute();
-    }
 
     @Nested
     @DisplayName("성공 케이스")

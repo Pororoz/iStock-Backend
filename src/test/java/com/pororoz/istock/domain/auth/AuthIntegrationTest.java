@@ -6,14 +6,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pororoz.istock.common.service.DatabaseCleanup;
 import com.pororoz.istock.domain.auth.dto.request.LoginRequest;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -44,15 +42,6 @@ public class AuthIntegrationTest {
 
   @Autowired
   RoleRepository roleRepository;
-
-  @Autowired
-  DatabaseCleanup databaseCleanup;
-
-  @AfterEach
-  public void afterEach() {
-    databaseCleanup.execute();
-  }
-
 
   @Nested
   @DisplayName("GET /v1/auth/admin - 유저 role 확인")

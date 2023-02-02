@@ -94,7 +94,7 @@ class CategoryControllerTest extends ControllerTest {
         //when
         when(categoryService.findCategories(any(FindCategoryServiceRequest.class))).thenReturn(
             responsePage);
-        ResultActions actions = getResultActionsForGetMethod(url, params);
+        ResultActions actions = getResultActions(url, params);
 
         //then
         actions.andExpect(status().isOk())
@@ -141,7 +141,7 @@ class CategoryControllerTest extends ControllerTest {
         //when
         when(categoryService.updateCategory(any(UpdateCategoryServiceRequest.class))).thenReturn(
             serviceDto);
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
         //then
         actions.andExpect(status().isOk())
@@ -177,7 +177,7 @@ class CategoryControllerTest extends ControllerTest {
 
       private void testCategoryNameLength(UpdateCategoryRequest request) throws Exception {
         //when
-        ResultActions actions = getResultActionsWithBody(request, HttpMethod.PUT, url);
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -200,7 +200,7 @@ class CategoryControllerTest extends ControllerTest {
       // given
       Long id = 1L;
       String categoryName = "착화기";
-      SaveCategoryRequest saveCategoryRequest = SaveCategoryRequest.builder()
+      SaveCategoryRequest request = SaveCategoryRequest.builder()
           .categoryName(categoryName)
           .build();
       CategoryServiceResponse categoryServiceResponse = CategoryServiceResponse.builder()
@@ -211,7 +211,7 @@ class CategoryControllerTest extends ControllerTest {
       //when
       when(categoryService.saveCategory(any(SaveCategoryServiceRequest.class))).thenReturn(
           categoryServiceResponse);
-      ResultActions actions = getResultActionsWithBody(saveCategoryRequest, HttpMethod.POST, url);
+      ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
       //then
       actions.andExpect(status().isOk())
@@ -226,12 +226,12 @@ class CategoryControllerTest extends ControllerTest {
     void categoryNameFormatError() throws Exception {
       // given
       String categoryName = "";
-      SaveCategoryRequest saveCategoryRequest = SaveCategoryRequest.builder()
+      SaveCategoryRequest request = SaveCategoryRequest.builder()
           .categoryName(categoryName)
           .build();
 
       //when
-      ResultActions actions = getResultActionsWithBody(saveCategoryRequest, HttpMethod.POST, url);
+      ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
       //then
       actions.andExpect(status().isBadRequest())
@@ -253,7 +253,6 @@ class CategoryControllerTest extends ControllerTest {
 
     private String categoryName;
 
-
     @Test
     @DisplayName("존재하는 카테고리를 삭제하면 Category 값을 반환한다.")
     void deleteCategory() throws Exception {
@@ -269,7 +268,7 @@ class CategoryControllerTest extends ControllerTest {
       when(categoryService.deleteCategory(any(DeleteCategoryServiceRequest.class))).thenReturn(
           categoryServiceResponse);
 
-      ResultActions actions = getResultActionsWithNoBody(HttpMethod.DELETE, url(id));
+      ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
 
       //then
       actions.andExpect(status().isOk())
@@ -287,7 +286,7 @@ class CategoryControllerTest extends ControllerTest {
 
       when(categoryService.deleteCategory(any(DeleteCategoryServiceRequest.class))).thenThrow(
           new CategoryNotFoundException());
-      ResultActions actions = getResultActionsWithNoBody(HttpMethod.DELETE, url(id));
+      ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
 
       actions.andExpect(status().isNotFound())
           .andExpect(jsonPath("$.status").value(ExceptionStatus.CATEGORY_NOT_FOUND))

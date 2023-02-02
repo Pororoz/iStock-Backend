@@ -8,7 +8,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.net.URI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -26,38 +25,26 @@ public abstract class ResultActionsTest {
   protected ObjectMapper objectMapper;
 
 
-  protected ResultActions getResultActionsForGetMethod(String url,
-      MultiValueMap<String, String> params) throws Exception {
-    return mockMvc.perform(get(url)
-        .params(params)
-        .contentType(MediaType.APPLICATION_JSON)
-        .with(csrf())
-    );
+  protected ResultActions getResultActions(String uri, MultiValueMap<String, String> params)
+      throws Exception {
+    return mockMvc.perform(
+        get(uri).params(params).contentType(MediaType.APPLICATION_JSON).with(csrf()));
   }
 
-  protected ResultActions getResultActionsWithBody(Object request, HttpMethod httpMethod,
-      String uri)
+  protected ResultActions getResultActions(String uri, HttpMethod httpMethod, Object request)
       throws Exception {
-    MockHttpServletRequestBuilder buildersMethod = getMockMvcRequestBuildersMethod(
-        httpMethod, URI.create(uri));
-    return mockMvc.perform(buildersMethod
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(request))
-        .with(csrf()));
+    MockHttpServletRequestBuilder buildersMethod = getMockMvcRequestBuildersMethod(httpMethod, uri);
+    return mockMvc.perform(buildersMethod.contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)).with(csrf()));
   }
 
-  protected ResultActions getResultActionsWithNoBody(HttpMethod httpMethod,
-      String uri)
-      throws Exception {
-    MockHttpServletRequestBuilder buildersMethod = getMockMvcRequestBuildersMethod(
-        httpMethod, URI.create(uri));
-    return mockMvc.perform(buildersMethod
-        .contentType(MediaType.APPLICATION_JSON)
-        .with(csrf()));
+  protected ResultActions getResultActions(String uri, HttpMethod httpMethod) throws Exception {
+    MockHttpServletRequestBuilder buildersMethod = getMockMvcRequestBuildersMethod(httpMethod, uri);
+    return mockMvc.perform(buildersMethod.contentType(MediaType.APPLICATION_JSON).with(csrf()));
   }
 
   private MockHttpServletRequestBuilder getMockMvcRequestBuildersMethod(HttpMethod httpMethod,
-      URI uri) {
+      String uri) {
     if (httpMethod == HttpMethod.POST) {
       return post(uri);
     } else if (httpMethod == HttpMethod.PUT) {
