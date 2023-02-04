@@ -3,6 +3,7 @@ package com.pororoz.istock.domain.category.controller;
 import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
+import com.pororoz.istock.common.swagger.exception.InvalidPageRequestExceptionSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
@@ -17,7 +18,6 @@ import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRespons
 import com.pororoz.istock.domain.category.service.CategoryService;
 import com.pororoz.istock.domain.category.swagger.exception.CategoryNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.category.swagger.exception.InternalServerErrorExceptionSwagger;
-import com.pororoz.istock.common.swagger.exception.InvalidPageRequestExceptionSwagger;
 import com.pororoz.istock.domain.category.swagger.response.DeleteCategoryResponseSwagger;
 import com.pororoz.istock.domain.category.swagger.response.FindCategoryResponseSwagger;
 import com.pororoz.istock.domain.category.swagger.response.SaveCategoryResponseSwagger;
@@ -47,10 +47,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Category", description = "Category API")
+@Validated
 @RestController
 @RequestMapping("/v1/categories")
 @RequiredArgsConstructor
-@Validated
 public class CategoryController {
 
   private final CategoryService categoryService;
