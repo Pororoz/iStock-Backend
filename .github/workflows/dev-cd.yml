@@ -23,13 +23,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Take tag version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-
       - name: Set up Docker buildx
         uses: docker/setup-buildx-action@v2
 
@@ -50,7 +43,6 @@ jobs:
           file: ./Dockerfile
           tags: |
             ghcr.io/${{ env.ORGANIZATION }}/${{ env.REPOSITORY }}:latest
-            ghcr.io/${{ env.ORGANIZATION }}/${{ env.REPOSITORY }}:${{ steps.tag_version.outputs.new_tag }}
           push: true
 
   deploy:
