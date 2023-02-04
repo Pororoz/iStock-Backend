@@ -19,8 +19,9 @@ public class SaveProductServiceResponse {
 
   public static SaveProductServiceResponse of(Product product) {
     return SaveProductServiceResponse.builder().id(product.getId()).productName(product.getName())
-        .productNumber(product.getProductNumber()).stock(product.getStock())
-        .companyName(product.getCompanyName()).categoryId(product.getCategory().getId()).build();
+        .productNumber(product.getProductNumber()).codeNumber(product.getCodeNumber())
+        .stock(product.getStock()).companyName(product.getCompanyName())
+        .categoryId(product.getCategory().getId()).build();
   }
 
   public ProductResponse toResponse() {
