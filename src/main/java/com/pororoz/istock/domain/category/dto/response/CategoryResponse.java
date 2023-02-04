@@ -13,18 +13,4 @@ public class CategoryResponse {
 
   @Schema(description = "카테고리 이름", example = "착화기")
   private String categoryName;
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-
-    CategoryResponse response = (CategoryResponse) obj;
-    return id.equals(response.getId()) &&
-        categoryName.equals(response.getCategoryName());
-  }
 }

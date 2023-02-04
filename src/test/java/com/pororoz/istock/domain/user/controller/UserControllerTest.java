@@ -1,8 +1,7 @@
 package com.pororoz.istock.domain.user.controller;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -70,21 +69,12 @@ class UserControllerTest {
       @DisplayName("존재하는 유저의 update를 요청하면 수정된 유저의 정보를 받는다.")
       void updateUser() {
         // given
-        UpdateUserRequest updateUserRequest = UpdateUserRequest.builder()
-            .id(id)
-            .roleName(roleName)
-            .password(password)
-            .build();
-        UserServiceResponse userServiceResponse = UserServiceResponse.builder()
-            .id(id)
-            .username(username)
-            .roleName(roleName)
-            .build();
-        UserResponse userResponse = UserResponse.builder()
-            .id(id)
-            .username(username)
-            .roleName(roleName)
-            .build();
+        UpdateUserRequest updateUserRequest = UpdateUserRequest.builder().id(id).roleName(roleName)
+            .password(password).build();
+        UserServiceResponse userServiceResponse = UserServiceResponse.builder().id(id)
+            .username(username).roleName(roleName).build();
+        UserResponse userResponse = UserResponse.builder().id(id).username(username)
+            .roleName(roleName).build();
 
         // when
         when(userService.updateUser(any())).thenReturn(userServiceResponse);
@@ -92,9 +82,11 @@ class UserControllerTest {
             updateUserRequest);
 
         // then
-        assertEquals(Objects.requireNonNull(response.getBody()).getData(), userResponse);
-        assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
-        assertEquals(Objects.requireNonNull(response.getBody()).getMessage(),
+        assertThat(Objects.requireNonNull(response.getBody()).getData()).usingRecursiveComparison()
+            .isEqualTo(userResponse);
+        assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(
+            ResponseStatus.OK);
+        assertThat(Objects.requireNonNull(response.getBody()).getMessage()).isEqualTo(
             ResponseMessage.UPDATE_USER);
       }
     }
@@ -129,25 +121,21 @@ class UserControllerTest {
       @DisplayName("존재하는 유저를 삭제하면 삭제된 유저를 반환한다.")
       void deleteUser() {
         // given
-        UserServiceResponse userServiceResponse = UserServiceResponse.builder()
-            .id(id)
-            .username(username)
-            .roleName(roleName)
-            .build();
-        UserResponse userResponse = UserResponse.builder()
-            .id(id)
-            .username(username)
-            .roleName(roleName)
-            .build();
+        UserServiceResponse userServiceResponse = UserServiceResponse.builder().id(id)
+            .username(username).roleName(roleName).build();
+        UserResponse userResponse = UserResponse.builder().id(id).username(username)
+            .roleName(roleName).build();
 
         // when
         when(userService.deleteUser(any())).thenReturn(userServiceResponse);
         ResponseEntity<ResultDTO<UserResponse>> response = userController.deleteUser(id);
 
         // then
-        assertEquals(Objects.requireNonNull(response.getBody()).getData(), userResponse);
-        assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
-        assertEquals(Objects.requireNonNull(response.getBody()).getMessage(),
+        assertThat(Objects.requireNonNull(response.getBody()).getData()).usingRecursiveComparison()
+            .isEqualTo(userResponse);
+        assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(
+            ResponseStatus.OK);
+        assertThat(Objects.requireNonNull(response.getBody()).getMessage()).isEqualTo(
             ResponseMessage.DELETE_USER);
       }
     }
@@ -184,30 +172,23 @@ class UserControllerTest {
       @DisplayName("유저 생성하기를 성공하면 User 값을 반환받는다.")
       void saveUser() {
         // given
-        SaveUserRequest saveUserRequest = SaveUserRequest.builder()
-            .username(username)
-            .password(password)
-            .roleName(roleName)
-            .build();
-        UserServiceResponse userServiceResponse = UserServiceResponse.builder()
-            .id(id)
-            .username(username)
-            .roleName(roleName)
-            .build();
-        UserResponse userResponse = UserResponse.builder()
-            .id(id)
-            .username(username)
-            .roleName(roleName)
-            .build();
+        SaveUserRequest saveUserRequest = SaveUserRequest.builder().username(username)
+            .password(password).roleName(roleName).build();
+        UserServiceResponse userServiceResponse = UserServiceResponse.builder().id(id)
+            .username(username).roleName(roleName).build();
+        UserResponse userResponse = UserResponse.builder().id(id).username(username)
+            .roleName(roleName).build();
 
         // when
         when(userService.saveUser(any())).thenReturn(userServiceResponse);
         ResponseEntity<ResultDTO<UserResponse>> response = userController.saveUser(saveUserRequest);
 
         // then
-        assertEquals(Objects.requireNonNull(response.getBody()).getData(), userResponse);
-        assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
-        assertEquals(Objects.requireNonNull(response.getBody()).getMessage(),
+        assertThat(Objects.requireNonNull(response.getBody()).getData()).usingRecursiveComparison()
+            .isEqualTo(userResponse);
+        assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(
+            ResponseStatus.OK);
+        assertThat(Objects.requireNonNull(response.getBody()).getMessage()).isEqualTo(
             ResponseMessage.SAVE_USER);
       }
     }
@@ -252,23 +233,25 @@ class UserControllerTest {
             request);
 
         //then
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
-        assertEquals(Objects.requireNonNull(response.getBody()).getStatus(), ResponseStatus.OK);
-        assertEquals(Objects.requireNonNull(response.getBody()).getMessage(),
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(Objects.requireNonNull(response.getBody()).getStatus()).isEqualTo(
+            ResponseStatus.OK);
+        assertThat(Objects.requireNonNull(response.getBody()).getMessage()).isEqualTo(
             ResponseMessage.FIND_USER);
 
         PageResponse<FindUserResponse> data = Objects.requireNonNull(response.getBody()).getData();
-        assertEquals(data.getTotalPages(), (int) (totalUsers + countPerPages) / countPerPages);
-        assertEquals(data.getTotalElements(), totalUsers);
-        assertEquals(data.getCurrentSize(), countPerPages);
+        assertThat(data.getTotalPages()).isEqualTo(
+            (int) (totalUsers + countPerPages) / countPerPages);
+        assertThat(data.getTotalElements()).isEqualTo(totalUsers);
+        assertThat(data.getCurrentSize()).isEqualTo(countPerPages);
         assertFalse(data.isFirst());
         assertFalse(data.isLast());
-        assertIterableEquals(data.getContents(), findUserResponse);
+        assertThat(data.getContents()).usingRecursiveComparison().isEqualTo(findUserResponse);
 
         FindUserResponse first = data.getContents().get(0);
         String format = today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        assertEquals(first.getCreatedAt(), format);
-        assertEquals(first.getUpdatedAt(), format);
+        assertThat(first.getCreatedAt()).isEqualTo(format);
+        assertThat(first.getUpdatedAt()).isEqualTo(format);
       }
     }
   }

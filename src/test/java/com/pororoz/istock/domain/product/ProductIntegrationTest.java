@@ -27,7 +27,7 @@ public class ProductIntegrationTest extends IntegrationTest {
   Category category;
 
   @Nested
-  @DisplayName("POST /v1/products")
+  @DisplayName("POST /v1/products - 제품 생성")
   class SaveProduct {
 
     String uri = "http://localhost:8080/v1/products";
