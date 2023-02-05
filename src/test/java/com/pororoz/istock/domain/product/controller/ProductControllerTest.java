@@ -9,9 +9,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
+import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
-import com.pororoz.istock.domain.product.dto.service.SaveProductServiceResponse;
 import com.pororoz.istock.domain.product.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,6 +40,7 @@ class ProductControllerTest extends ControllerTest {
     long stock = 1;
     String companyName = "companyName";
     Long categoryId = 1L;
+    Category category = Category.builder().id(categoryId).build();
 
     String uri = "http://localhost:8080/v1/products";
 
@@ -49,9 +51,9 @@ class ProductControllerTest extends ControllerTest {
       SaveProductRequest request = SaveProductRequest.builder().productName(name)
           .productNumber(number).codeNumber(codeNumber).stock(stock)
           .companyName(companyName).categoryId(categoryId).build();
-      SaveProductServiceResponse serviceResponse = SaveProductServiceResponse.builder()
+      ProductServiceResponse serviceResponse = ProductServiceResponse.builder()
           .productName(name).productNumber(number).codeNumber(codeNumber).stock(stock)
-          .companyName(companyName).categoryId(categoryId).build();
+          .companyName(companyName).category(category).build();
 
       //when
       when(productService.saveProduct(any(SaveProductServiceRequest.class))).thenReturn(

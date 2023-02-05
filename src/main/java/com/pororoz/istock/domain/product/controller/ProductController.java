@@ -6,7 +6,7 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
-import com.pororoz.istock.domain.product.dto.service.SaveProductServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.service.ProductService;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNameDuplicatedSwagger;
 import com.pororoz.istock.domain.product.swagger.response.SaveProductResponseSwagger;
@@ -43,7 +43,7 @@ public class ProductController {
   @PostMapping
   public ResponseEntity<ResultDTO<ProductResponse>> saveProduct(
       @Valid @RequestBody SaveProductRequest saveProductRequest) {
-    SaveProductServiceResponse serviceDto = productService.saveProduct(
+    ProductServiceResponse serviceDto = productService.saveProduct(
         saveProductRequest.toService());
     ProductResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
