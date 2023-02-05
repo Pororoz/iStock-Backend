@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.product.controller;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -11,8 +12,11 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
+import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
+import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
+import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
 import com.pororoz.istock.domain.product.service.ProductService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -30,17 +34,18 @@ class ProductControllerTest extends ControllerTest {
   @MockBean
   ProductService productService;
 
+  Long id = 1L;
+  String name = "productName";
+  String number = "productNumber";
+  String codeNumber = "codeNumber";
+  long stock = 1;
+  String companyName = "companyName";
+  Long categoryId = 1L;
+  Category category = Category.builder().id(categoryId).build();
+
   @Nested
   @DisplayName("product 저장")
   class SaveProduct {
-
-    String name = "productName";
-    String number = "productNumber";
-    String codeNumber = "codeNumber";
-    long stock = 1;
-    String companyName = "companyName";
-    Long categoryId = 1L;
-    Category category = Category.builder().id(categoryId).build();
 
     String uri = "http://localhost:8080/v1/products";
 
@@ -51,7 +56,7 @@ class ProductControllerTest extends ControllerTest {
       SaveProductRequest request = SaveProductRequest.builder().productName(name)
           .productNumber(number).codeNumber(codeNumber).stock(stock)
           .companyName(companyName).categoryId(categoryId).build();
-      ProductServiceResponse serviceResponse = ProductServiceResponse.builder()
+      ProductServiceResponse serviceResponse = ProductServiceResponse.builder().id(id)
           .productName(name).productNumber(number).codeNumber(codeNumber).stock(stock)
           .companyName(companyName).category(category).build();
 
@@ -61,15 +66,14 @@ class ProductControllerTest extends ControllerTest {
       ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
 
       //then
+      ProductResponse response = ProductResponse.builder().id(id).productName(name)
+          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
+          .categoryId(category.getId()).build();
+
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_PRODUCT))
-          .andExpect(jsonPath("$.data.productName").value(name))
-          .andExpect(jsonPath("$.data.productNumber").value(number))
-          .andExpect(jsonPath("$.data.codeNumber").value(codeNumber))
-          .andExpect(jsonPath("$.data.stock").value(stock))
-          .andExpect(jsonPath("$.data.companyName").value(companyName))
-          .andExpect(jsonPath("$.data.categoryId").value(categoryId))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
           .andDo(print());
     }
 
@@ -118,6 +122,41 @@ class ProductControllerTest extends ControllerTest {
 
       //then
       actions.andExpect(status().isBadRequest())
+          .andDo(print());
+    }
+  }
+
+  @Nested
+  @DisplayName("product 수정")
+  class ProductUpdate {
+
+    String uri = "http://localhost:8080/v1/products";
+
+    @Test
+    @DisplayName("product를 수정한다.")
+    void updateProduct() throws Exception {
+      //given
+      UpdateProductRequest request = UpdateProductRequest.builder().id(1L).productName(name)
+          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
+          .categoryId(categoryId).build();
+      ProductServiceResponse serviceDto = ProductServiceResponse.builder().id(1L).productName(name)
+          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
+          .category(category).build();
+
+      //when
+      when(productService.updateProduct(any(UpdateProductServiceRequest.class))).thenReturn(
+          serviceDto);
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      ProductResponse response = ProductResponse.builder().id(1L).productName(name)
+          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
+          .categoryId(category.getId()).build();
+
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
           .andDo(print());
     }
   }
