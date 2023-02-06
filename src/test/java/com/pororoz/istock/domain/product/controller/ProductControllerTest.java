@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.ControllerTest;
+import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.entity.Category;
@@ -157,6 +158,57 @@ class ProductControllerTest extends ControllerTest {
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
           .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("id가 null이면 예외가 발생한다.")
+    void idNullException() throws Exception {
+      //given
+      UpdateProductRequest request = UpdateProductRequest.builder().id(null).productName(name)
+          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
+          .categoryId(categoryId).build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("product name이 null이면 예외가 발생한다.")
+    void productNameNullException() throws Exception {
+      //given
+      UpdateProductRequest request = UpdateProductRequest.builder().id(1L).productName(null)
+          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
+          .categoryId(categoryId).build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("categoryId가 null이면 예외가 발생한다.")
+    void categoryIdNullException() throws Exception {
+      //given
+      UpdateProductRequest request = UpdateProductRequest.builder().id(1L).productName(name)
+          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
+          .categoryId(null).build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
           .andDo(print());
     }
   }
