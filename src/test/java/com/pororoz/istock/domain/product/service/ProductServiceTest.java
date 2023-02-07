@@ -47,15 +47,20 @@ class ProductServiceTest {
   final String companyName = "공신금속";
   final Long categoryId = 1L;
   final Category category = Category.builder().id(categoryId).build();
-  final Product product = Product.builder().id(id).name(productName).number(productNumber)
-      .codeNumber(codeNumber).stock(stock).companyName(companyName).category(category).build();
+  final Product product = Product.builder()
+      .id(id).name(productName)
+      .number(productNumber).codeNumber(codeNumber)
+      .stock(stock).companyName(companyName)
+      .category(category)
+      .build();
 
   @Nested
   @DisplayName("product 저장")
   class SaveProduct {
 
-    SaveProductServiceRequest request = SaveProductServiceRequest.builder().productName(productName)
-        .categoryId(categoryId).build();
+    SaveProductServiceRequest request = SaveProductServiceRequest.builder()
+        .productName(productName).categoryId(categoryId)
+        .build();
 
     @Nested
     @DisplayName("성공 케이스")
@@ -65,9 +70,12 @@ class ProductServiceTest {
       @DisplayName("product를 저장한다.")
       void saveProduct() {
         //given
-        Product product = Product.builder().name(productName).category(category).build();
+        Product product = Product.builder()
+            .name(productName).category(category)
+            .build();
         ProductServiceResponse response = ProductServiceResponse.builder()
-            .productName(productName).category(category).build();
+            .productName(productName).category(category)
+            .build();
 
         //when
         when(categoryRepository.findById(request.getCategoryId())).thenReturn(
@@ -125,13 +133,21 @@ class ProductServiceTest {
       @DisplayName("product를 수정한다.")
       void updateProduct() {
         //given
-        Category newCategory = Category.builder().id(categoryId + 1).name("new category").build();
-        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder().productId(id)
-            .productNumber("new pnumber").productName("new pname").codeNumber("new cnumber")
-            .stock(stock + 1).companyName("new cname").categoryId(categoryId + 1).build();
-        ProductServiceResponse response = ProductServiceResponse.builder().productId(id)
-            .productNumber("new pnumber").productName("new pname").codeNumber("new cnumber")
-            .stock(stock + 1).companyName("new cname").category(newCategory).build();
+        Category newCategory = Category.builder()
+            .id(categoryId + 1).name("new category")
+            .build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(categoryId + 1)
+            .build();
+        ProductServiceResponse response = ProductServiceResponse.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .category(newCategory)
+            .build();
 
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
@@ -151,7 +167,8 @@ class ProductServiceTest {
       @DisplayName("id에 해당하는 product가 없으면 에러가 발생한다.")
       void productNotFound() {
         //given
-        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder().productId(2L)
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(2L)
             .build();
 
         //when
@@ -165,8 +182,9 @@ class ProductServiceTest {
       @DisplayName("categoryId 에 해당하는 category가 없으면 에러가 발생한다.")
       void categoryNotFound() {
         //given
-        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder().productId(1L)
-            .categoryId(2L).build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(1L).categoryId(2L)
+            .build();
 
         //when
         when(productRepository.findById(request.getProductId())).thenReturn(

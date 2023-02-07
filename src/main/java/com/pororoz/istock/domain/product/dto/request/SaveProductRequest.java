@@ -43,8 +43,10 @@ public class SaveProductRequest {
   private Long categoryId;
 
   public SaveProductServiceRequest toService() {
-    return SaveProductServiceRequest.builder().productName(productName).productNumber(productNumber)
-        .codeNumber(codeNumber).stock(stock).companyName(companyName).categoryId(categoryId)
+    return SaveProductServiceRequest.builder()
+        .productName(productName).productNumber(productNumber)
+        .codeNumber(codeNumber).stock(stock)
+        .companyName(companyName).categoryId(categoryId)
         .build();
   }
 }

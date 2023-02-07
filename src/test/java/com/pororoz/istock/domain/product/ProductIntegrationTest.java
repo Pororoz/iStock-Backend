@@ -51,9 +51,11 @@ public class ProductIntegrationTest extends IntegrationTest {
       //given
       databaseCleanup.execute();
       Category category = categoryRepository.save(Category.builder().name("카테고리").build());
-      SaveProductRequest request = SaveProductRequest.builder().productName(name)
-          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
-          .categoryId(category.getId()).build();
+      SaveProductRequest request = SaveProductRequest.builder()
+          .productName(name).productNumber(number)
+          .codeNumber(codeNumber).stock(stock)
+          .companyName(companyName).categoryId(category.getId())
+          .build();
 
       //when
       ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
@@ -117,8 +119,11 @@ public class ProductIntegrationTest extends IntegrationTest {
       category1 = categoryRepository.save(Category.builder().name("카테고리1").build());
       category2 = categoryRepository.save(Category.builder().name("카테고리2").build());
       product = productRepository.save(
-          Product.builder().name(name).number(number).codeNumber(codeNumber)
-              .companyName(companyName).stock(stock).category(category1).build());
+          Product.builder().name(name)
+              .number(number).codeNumber(codeNumber)
+              .companyName(companyName).stock(stock)
+              .category(category1)
+              .build());
     }
 
     @Test
@@ -126,18 +131,23 @@ public class ProductIntegrationTest extends IntegrationTest {
     @DisplayName("제품을 수정한다.")
     void saveProduct() throws Exception {
       //given
-      UpdateProductRequest request = UpdateProductRequest.builder().productId(product.getId())
-          .productName(newName).productNumber(newNumber).codeNumber(newCodeNumber).stock(newStock)
-          .companyName(newCompanyName).categoryId(category2.getId()).build();
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
 
       //when
       ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
 
       //then
-      ProductResponse response = ProductResponse.builder().productId(product.getId())
-          .productName(newName)
-          .productNumber(newNumber).codeNumber(newCodeNumber).stock(newStock)
-          .companyName(newCompanyName).categoryId(category2.getId()).build();
+      ProductResponse response = ProductResponse.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
 
       actions.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
@@ -149,18 +159,23 @@ public class ProductIntegrationTest extends IntegrationTest {
     @DisplayName("stock이 null이면 0으로 수정된다.")
     void defaultStockZeroProduct() throws Exception {
       //given
-      UpdateProductRequest request = UpdateProductRequest.builder().productId(product.getId())
-          .productName(newName).productNumber(newNumber).codeNumber(newCodeNumber)
-          .companyName(newCompanyName).categoryId(category2.getId()).build();
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .companyName(newCompanyName).categoryId(category2.getId())
+          .build();
 
       //when
       ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
 
       //then
-      ProductResponse response = ProductResponse.builder().productId(product.getId())
-          .productName(newName)
-          .productNumber(newNumber).codeNumber(newCodeNumber).stock(0).companyName(newCompanyName)
-          .categoryId(category2.getId()).build();
+      ProductResponse response = ProductResponse.builder()
+          .productId(product.getId())
+          .productName(newName).productNumber(newNumber)
+          .codeNumber(newCodeNumber).stock(0)
+          .companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
 
       actions.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))

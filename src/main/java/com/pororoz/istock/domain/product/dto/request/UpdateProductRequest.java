@@ -50,7 +50,9 @@ public class UpdateProductRequest {
   public UpdateProductServiceRequest toService() {
     return UpdateProductServiceRequest.builder()
         .productId(productId).productName(productName)
-        .productNumber(productNumber).codeNumber(codeNumber).stock(stock).companyName(companyName)
-        .categoryId(categoryId).build();
+        .productNumber(productNumber).codeNumber(codeNumber)
+        .stock(stock).companyName(companyName)
+        .categoryId(categoryId)
+        .build();
   }
 }

@@ -155,11 +155,14 @@ class ProductControllerTest extends ControllerTest {
           .productId(1L).productName(name)
           .productNumber(number).codeNumber(codeNumber)
           .stock(stock).companyName(companyName)
-          .categoryId(categoryId).build();
-      ProductServiceResponse serviceDto = ProductServiceResponse.builder().productId(1L)
-          .productName(name)
-          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
-          .category(category).build();
+          .categoryId(categoryId)
+          .build();
+      ProductServiceResponse serviceDto = ProductServiceResponse.builder()
+          .productId(1L).productName(name)
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
+          .category(category)
+          .build();
 
       //when
       when(productService.updateProduct(any(UpdateProductServiceRequest.class))).thenReturn(
@@ -167,9 +170,12 @@ class ProductControllerTest extends ControllerTest {
       ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
 
       //then
-      ProductResponse response = ProductResponse.builder().productId(1L).productName(name)
-          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
-          .categoryId(category.getId()).build();
+      ProductResponse response = ProductResponse.builder()
+          .productId(1L).productName(name)
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
+          .categoryId(category.getId())
+          .build();
 
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
@@ -184,8 +190,10 @@ class ProductControllerTest extends ControllerTest {
       //given
       UpdateProductRequest request = UpdateProductRequest.builder()
           .productId(null).productName(name)
-          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
-          .categoryId(categoryId).build();
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
+          .categoryId(categoryId)
+          .build();
 
       //when
       ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
@@ -200,9 +208,12 @@ class ProductControllerTest extends ControllerTest {
     @DisplayName("product name이 null이면 예외가 발생한다.")
     void productNameNullException() throws Exception {
       //given
-      UpdateProductRequest request = UpdateProductRequest.builder().productId(1L).productName(null)
-          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
-          .categoryId(categoryId).build();
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(1L).productName(null)
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
+          .categoryId(categoryId)
+          .build();
 
       //when
       ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
@@ -217,9 +228,12 @@ class ProductControllerTest extends ControllerTest {
     @DisplayName("categoryId가 null이면 예외가 발생한다.")
     void categoryIdNullException() throws Exception {
       //given
-      UpdateProductRequest request = UpdateProductRequest.builder().productId(1L).productName(name)
-          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
-          .categoryId(null).build();
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(1L).productName(name)
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
+          .categoryId(null)
+          .build();
 
       //when
       ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
