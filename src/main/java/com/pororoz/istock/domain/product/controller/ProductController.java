@@ -42,7 +42,7 @@ public class ProductController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_PRODUCT, content = {
           @Content(schema = @Schema(implementation = SaveProductResponseSwagger.class))}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.PRODUCT_NAME_DUPLICATED, content = {
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.PRODUCT_NUMBER_DUPLICATED, content = {
           @Content(schema = @Schema(implementation = ProductNameDuplicatedSwagger.class))})})
   @PostMapping
   public ResponseEntity<ResultDTO<ProductResponse>> saveProduct(

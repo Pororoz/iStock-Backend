@@ -14,8 +14,8 @@ import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
 import com.pororoz.istock.domain.product.entity.Product;
-import com.pororoz.istock.domain.product.exception.ProductNameDuplicatedException;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -98,9 +98,9 @@ class ProductServiceTest {
         //given
         //when
         when(categoryRepository.findById(anyLong())).thenThrow(
-            ProductNameDuplicatedException.class);
+            ProductNumberDuplicatedException.class);
         //then
-        assertThrows(ProductNameDuplicatedException.class,
+        assertThrows(ProductNumberDuplicatedException.class,
             () -> productService.saveProduct(request));
       }
 
@@ -111,11 +111,11 @@ class ProductServiceTest {
 
         //when
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByName(request.getProductName())).thenReturn(
+        when(productRepository.findByNumber(request.getProductNumber())).thenReturn(
             Optional.of(mock(Product.class)));
 
         //then
-        assertThrows(ProductNameDuplicatedException.class,
+        assertThrows(ProductNumberDuplicatedException.class,
             () -> productService.saveProduct(request));
       }
     }
