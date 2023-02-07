@@ -15,10 +15,4 @@ public class LoginResponse {
   @Schema(description = "role", example = "ROLE_USER")
   private String roleName;
 
-  public static LoginResponse of(User user) {
-    return LoginResponse.builder()
-        .username(user.getUsername())
-        .roleName(user.getRole().getName())
-        .build();
-  }
 }

@@ -1,12 +1,15 @@
 package com.pororoz.istock.domain.auth.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pororoz.istock.common.dto.ResultDTO;
+import com.pororoz.istock.common.utils.message.ResponseMessage;
+import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.auth.dto.response.LoginResponse;
-import com.pororoz.istock.domain.auth.dto.response.result.ResultLoginResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -26,11 +29,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
     response.setHeader("content-type", "application/json");
     response.setCharacterEncoding("UTF-8");
-    LoginResponse data = LoginResponse.builder()
+    LoginResponse loginResponse = LoginResponse.builder()
         .username((String) authentication.getPrincipal())
         .roleName(authentication.getAuthorities().iterator().next().toString()).build();
-    ResultLoginResponse resultLoginResponse = new ResultLoginResponse("OK", "로그인", data);
-    String result = objectMapper.writeValueAsString(resultLoginResponse);
+    ResponseEntity responseEntity = ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.Login, loginResponse));
+    String result = objectMapper.writeValueAsString(responseEntity.getBody());
     response.getWriter().write(result);
 
   }
