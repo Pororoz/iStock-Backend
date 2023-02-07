@@ -13,12 +13,12 @@ public class LoginResponse {
   private String username;
 
   @Schema(description = "role", example = "ROLE_USER")
-  private String rolename;
+  private String roleName;
 
   public static LoginResponse of(User user) {
     return LoginResponse.builder()
         .username(user.getUsername())
-        .rolename(user.getRole().getName())
+        .roleName(user.getRole().getName())
         .build();
   }
 }
