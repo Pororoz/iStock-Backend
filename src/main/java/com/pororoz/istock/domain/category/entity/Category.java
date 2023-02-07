@@ -27,9 +27,9 @@ public class Category extends TimeEntity {
   @NotEmpty
   @Size(max = 15)
   @Column(unique = true, nullable = false)
-  private String name;
+  private String categoryName;
 
-  public void update(String name) {
-    this.name = name;
+  public void update(String categoryName) {
+    this.categoryName = categoryName;
   }
 }

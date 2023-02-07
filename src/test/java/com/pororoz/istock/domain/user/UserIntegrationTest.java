@@ -50,7 +50,7 @@ public class UserIntegrationTest extends IntegrationTest {
   class UpdateUser {
 
     private final String url = "/v1/users";
-    private Long id;
+    private Long userId;
     private String username;
     private String password;
     private String newPassword;
@@ -59,7 +59,7 @@ public class UserIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     public void beforeEach() {
-      id = 1L;
+      userId = 1L;
       username = "test";
       password = "1234a";
       newPassword = "123asb";
@@ -79,7 +79,7 @@ public class UserIntegrationTest extends IntegrationTest {
         User user = User.builder().username(username).password(password).role(role).build();
         userRepository.save(user);
         UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(id)
+            .userId(userId)
             .password(newPassword)
             .roleName(newRoleName).build();
 
@@ -91,7 +91,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_USER))
-            .andExpect(jsonPath("$.data.id").value(id))
+            .andExpect(jsonPath("$.data.userId").value(userId))
             .andExpect(jsonPath("$.data.username").value(username))
             .andExpect(jsonPath("$.data.roleName").value(newRoleName))
             .andDo(print());
@@ -107,7 +107,7 @@ public class UserIntegrationTest extends IntegrationTest {
       void pathNegativeError() throws Exception {
         //given
         UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(-1L)
+            .userId(-1L)
             .password(newPassword)
             .roleName(newRoleName).build();
 
@@ -130,7 +130,7 @@ public class UserIntegrationTest extends IntegrationTest {
         User user = User.builder().username(username).password(password).role(role).build();
         userRepository.save(user);
         UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(id)
+            .userId(userId)
             .password(password)
             .roleName("")
             .build();
@@ -151,7 +151,7 @@ public class UserIntegrationTest extends IntegrationTest {
         //given
         long notExistUserId = 10000L;
         UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(notExistUserId)
+            .userId(notExistUserId)
             .password(newPassword)
             .roleName(newRoleName)
             .build();
@@ -175,7 +175,7 @@ public class UserIntegrationTest extends IntegrationTest {
         userRepository.save(
             User.builder().username(username).password(password).role(role).build());
         UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(id)
+            .userId(userId)
             .roleName("nothing")
             .password(newPassword)
             .build();
@@ -236,7 +236,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_USER))
-            .andExpect(jsonPath("$.data.id").value(id))
+            .andExpect(jsonPath("$.data.userId").value(id))
             .andExpect(jsonPath("$.data.username").value(username))
             .andExpect(jsonPath("$.data.roleName").value(roleName))
             .andDo(print());
@@ -335,7 +335,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_USER))
-            .andExpect(jsonPath("$.data.id").value(1L))
+            .andExpect(jsonPath("$.data.userId").value(1L))
             .andExpect(jsonPath("$.data.username").value(username))
             .andExpect(jsonPath("$.data.roleName").value(roleName))
             .andDo(print());

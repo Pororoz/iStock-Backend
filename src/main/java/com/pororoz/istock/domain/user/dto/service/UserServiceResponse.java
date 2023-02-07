@@ -12,24 +12,24 @@ import lombok.Getter;
 @Builder
 public class UserServiceResponse {
 
-  private Long id;
+  private Long userId;
   private String username;
   private String roleName;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
   public static UserServiceResponse of(User user) {
-    return UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
+    return UserServiceResponse.builder().userId(user.getId()).username(user.getUsername())
         .roleName(user.getRole().getName()).createdAt(user.getCreatedAt())
         .updatedAt(user.getUpdatedAt()).build();
   }
 
   public UserResponse toResponse() {
-    return UserResponse.builder().id(id).username(username).roleName(roleName).build();
+    return UserResponse.builder().userId(userId).username(username).roleName(roleName).build();
   }
 
   public FindUserResponse toFindResponse() {
-    return FindUserResponse.builder().id(id).username(username).roleName(roleName)
+    return FindUserResponse.builder().userId(userId).username(username).roleName(roleName)
         .createdAt(TimeEntity.formatTime(createdAt))
         .updatedAt(TimeEntity.formatTime(updatedAt)).build();
   }

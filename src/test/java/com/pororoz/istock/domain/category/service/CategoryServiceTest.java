@@ -56,14 +56,8 @@ class CategoryServiceTest {
       @BeforeEach
       void setup() {
         totalCategories = 11L;
-        category1 = Category.builder()
-            .id(1L)
-            .name("item1")
-            .build();
-        category2 = Category.builder()
-            .id(2L)
-            .name("item2")
-            .build();
+        category1 = Category.builder().id(1L).categoryName("item1").build();
+        category2 = Category.builder().id(2L).categoryName("item2").build();
         categories = List.of(category1, category2);
       }
 
@@ -76,10 +70,7 @@ class CategoryServiceTest {
         String name = "item";
 
         FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
-            .name(name)
-            .page(page)
-            .size(size)
-            .build();
+            .categoryName(name).page(page).size(size).build();
         PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(page, size),
             totalCategories);
         List<FindCategoryServiceResponse> findCategoryServiceRespons = makeCategoryServiceResponses(
@@ -109,12 +100,9 @@ class CategoryServiceTest {
         int page = 0;
 
         FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
-            .name(null)
-            .page(page)
-            .size(size)
-            .build();
-        List<FindCategoryServiceResponse> findCategoryServiceResponses
-            = makeCategoryServiceResponses(categories);
+            .categoryName(null).page(page).size(size).build();
+        List<FindCategoryServiceResponse> findCategoryServiceResponses = makeCategoryServiceResponses(
+            categories);
         PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(0, 20),
             totalCategories);
 
@@ -140,18 +128,15 @@ class CategoryServiceTest {
         String name = "item";
 
         FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
-            .name(name)
-            .page(null)
-            .size(null)
-            .build();
-        List<FindCategoryServiceResponse> findCategoryServiceResponses
-            = makeCategoryServiceResponses(categories);
+            .categoryName(name).page(null).size(null).build();
+        List<FindCategoryServiceResponse> findCategoryServiceResponses = makeCategoryServiceResponses(
+            categories);
         PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(0, 20),
             totalCategories);
 
         // when
-        when(categoryRepository.findAllByNameContaining(
-            any(String.class), any(Pageable.class))).thenReturn(pages);
+        when(categoryRepository.findAllByNameContaining(any(String.class),
+            any(Pageable.class))).thenReturn(pages);
         Page<FindCategoryServiceResponse> result = categoryService.findCategories(
             getCategoryServiceRequest);
 
@@ -167,12 +152,9 @@ class CategoryServiceTest {
       void getCategoryWithNull() {
         // given
         FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
-            .name(null)
-            .page(null)
-            .size(null)
-            .build();
-        List<FindCategoryServiceResponse> findCategoryServiceResponses
-            = makeCategoryServiceResponses(categories);
+            .categoryName(null).page(null).size(null).build();
+        List<FindCategoryServiceResponse> findCategoryServiceResponses = makeCategoryServiceResponses(
+            categories);
         PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(0, 20),
             totalCategories);
 
@@ -198,10 +180,9 @@ class CategoryServiceTest {
     private List<FindCategoryServiceResponse> makeCategoryServiceResponses(
         List<Category> categories) {
       return categories.stream().map(
-              category -> FindCategoryServiceResponse.builder().id(category.getId())
-                  .name(category.getName())
-                  .createdAt(category.getCreatedAt()).updatedAt(category.getUpdatedAt()).build())
-          .toList();
+          category -> FindCategoryServiceResponse.builder().categoryId(category.getId())
+              .categoryName(category.getCategoryName()).createdAt(category.getCreatedAt())
+              .updatedAt(category.getUpdatedAt()).build()).toList();
     }
   }
 
@@ -217,24 +198,24 @@ class CategoryServiceTest {
     @DisplayName("저장된 카테고리 이름을 수정한다.")
     void updateCategory() {
       //given
-      Category category = Category.builder().id(id).name(oldName).build();
-      UpdateCategoryServiceRequest request = UpdateCategoryServiceRequest.builder().id(1L)
-          .name(newName).build();
+      Category category = Category.builder().id(id).categoryName(oldName).build();
+      UpdateCategoryServiceRequest request = UpdateCategoryServiceRequest.builder().categoryId(1L)
+          .categoryName(newName).build();
       //when
       when(categoryRepository.findById(id)).thenReturn(Optional.of(category));
       CategoryServiceResponse response = categoryService.updateCategory(request);
 
       //then
-      assertThat(response.getId()).isEqualTo(id);
-      assertThat(response.getName()).isEqualTo(newName);
+      assertThat(response.getCategoryId()).isEqualTo(id);
+      assertThat(response.getCategoryName()).isEqualTo(newName);
     }
 
     @Test
     @DisplayName("존재하지 않는 ID의 카테고리는 예외가 발생한다.")
     void throwNotFoundCategoryId() {
       //given
-      UpdateCategoryServiceRequest request = UpdateCategoryServiceRequest.builder().id(1L)
-          .name(newName).build();
+      UpdateCategoryServiceRequest request = UpdateCategoryServiceRequest.builder().categoryId(1L)
+          .categoryName(newName).build();
 
       //when
       when(categoryRepository.findById(id)).thenReturn(Optional.empty());
@@ -243,80 +224,72 @@ class CategoryServiceTest {
       assertThrows(CategoryNotFoundException.class, () -> categoryService.updateCategory(request));
     }
 
-    @Nested
-    @DisplayName("카테고리 생성 API")
-    class SaveCategory {
 
-      @Test
-      @DisplayName("카테고리를 생성한다.")
-      void saveCategory() {
-        //given
-        String name = "착화기";
-        SaveCategoryServiceRequest saveCategoryServiceRequest = SaveCategoryServiceRequest.builder()
-            .name(name).build();
-        Category category = Category.builder()
-            .id(1L)
-            .name(name)
-            .build();
-        CategoryServiceResponse response = CategoryServiceResponse.builder()
-            .id(1L)
-            .name(name)
-            .build();
+  }
 
-        //when
-        when(categoryRepository.save(any())).thenReturn(category);
-        CategoryServiceResponse result = categoryService.saveCategory(saveCategoryServiceRequest);
+  @Nested
+  @DisplayName("카테고리 생성 API")
+  class SaveCategory {
 
-        //then
-        assertThat(result.getId()).isEqualTo(response.getId());
-        assertThat(result.getName()).isEqualTo(response.getName());
-      }
+    @Test
+    @DisplayName("카테고리를 생성한다.")
+    void saveCategory() {
+      //given
+      String name = "착화기";
+      SaveCategoryServiceRequest saveCategoryServiceRequest = SaveCategoryServiceRequest.builder()
+          .categoryName(name).build();
+      Category category = Category.builder().id(1L).categoryName(name).build();
+      CategoryServiceResponse response = CategoryServiceResponse.builder().categoryId(1L)
+          .categoryName(name).build();
+
+      //when
+      when(categoryRepository.save(any())).thenReturn(category);
+      CategoryServiceResponse result = categoryService.saveCategory(saveCategoryServiceRequest);
+
+      //then
+      assertThat(result.getCategoryId()).isEqualTo(response.getCategoryId());
+      assertThat(result.getCategoryName()).isEqualTo(response.getCategoryName());
+    }
+  }
+
+  @Nested
+  @DisplayName("카테고리 삭제 API")
+  class DeleteCategory {
+
+
+    @Test
+    @DisplayName("카테고리를 삭제한다.")
+    void deleteCategory() {
+      //given
+      String name = "착화기";
+      DeleteCategoryServiceRequest deleteCategoryServiceRequest = DeleteCategoryServiceRequest.builder()
+          .categoryId(1L).build();
+      Category category = Category.builder().id(1L).categoryName(name).build();
+      CategoryServiceResponse response = CategoryServiceResponse.builder().categoryId(1L)
+          .categoryName(name).build();
+
+      //when
+      when(categoryRepository.findById(1L)).thenReturn(Optional.ofNullable(category));
+      CategoryServiceResponse result = categoryService.deleteCategory(
+          deleteCategoryServiceRequest);
+
+      //then
+      assertThat(result.getCategoryId()).isEqualTo(response.getCategoryId());
+      assertThat(result.getCategoryName()).isEqualTo(response.getCategoryName());
     }
 
-    @Nested
-    @DisplayName("카테고리 삭제 API")
-    class DeleteCategory {
+    @Test
+    @DisplayName("존재하지 않는 category를 요청했을 경우, CategoryNotFoundException을 반환한다.")
+    void categoryNotFound() {
+      //given
+      DeleteCategoryServiceRequest deleteCategoryServiceRequest = DeleteCategoryServiceRequest.builder()
+          .categoryId(1L).build();
 
+      //when
 
-      @Test
-      @DisplayName("카테고리를 삭제한다.")
-      void deleteCategory() {
-        //given
-        String name = "착화기";
-        DeleteCategoryServiceRequest deleteCategoryServiceRequest = DeleteCategoryServiceRequest.builder()
-            .id(1L).build();
-        Category category = Category.builder()
-            .id(1L)
-            .name(name)
-            .build();
-        CategoryServiceResponse response = CategoryServiceResponse.builder()
-            .id(1L)
-            .name(name)
-            .build();
-
-        //when
-        when(categoryRepository.findById(1L)).thenReturn(Optional.ofNullable(category));
-        CategoryServiceResponse result = categoryService.deleteCategory(
-            deleteCategoryServiceRequest);
-
-        //then
-        assertThat(result.getId()).isEqualTo(response.getId());
-        assertThat(result.getName()).isEqualTo(response.getName());
-      }
-
-      @Test
-      @DisplayName("존재하지 않는 category를 요청했을 경우, CategoryNotFoundException을 반환한다.")
-      void categoryNotFound() {
-        //given
-        DeleteCategoryServiceRequest deleteCategoryServiceRequest = DeleteCategoryServiceRequest.builder()
-            .id(1L).build();
-
-        //when
-
-        //then
-        assertThrows(CategoryNotFoundException.class,
-            () -> categoryService.deleteCategory(deleteCategoryServiceRequest));
-      }
+      //then
+      assertThrows(CategoryNotFoundException.class,
+          () -> categoryService.deleteCategory(deleteCategoryServiceRequest));
     }
   }
 }

@@ -54,7 +54,7 @@ class UserServiceTest {
   @DisplayName("계정 수정 API")
   class UpdateUser {
 
-    private Long id;
+    private Long userId;
     private String username;
     private String password;
     private String newPassword;
@@ -64,7 +64,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setup() {
-      id = 1L;
+      userId = 1L;
       username = "test";
       password = "ab1234";
       newPassword = "abc123";
@@ -82,20 +82,20 @@ class UserServiceTest {
         // given
         String encodedPassword = "newEncoded0987";
         UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
-            .id(id)
+            .userId(userId)
             .roleName(newRoleName)
             .password(newPassword)
             .build();
 
         User targetUser = User.builder()
-            .id(id)
+            .id(userId)
             .username(username)
             .password(password)
             .role(role)
             .build();
 
         UserServiceResponse response = UserServiceResponse.builder()
-            .id(id)
+            .userId(userId)
             .username(username)
             .roleName(roleName)
             .build();
@@ -103,7 +103,7 @@ class UserServiceTest {
         // when
         when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
         when(roleRepository.findByName(any())).thenReturn(Optional.of(role));
-        when(userRepository.findById(id)).thenReturn(Optional.of(targetUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(targetUser));
         UserServiceResponse result = userService.updateUser(updateUserServiceRequest);
 
         // then
@@ -121,7 +121,7 @@ class UserServiceTest {
         // given
         long invalidId = 10000L;
         UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
-            .id(invalidId)
+            .userId(invalidId)
             .password(password)
             .roleName(roleName)
             .build();
@@ -140,7 +140,7 @@ class UserServiceTest {
         //given
         String invalidRole = "a";
         UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
-            .id(id)
+            .userId(userId)
             .password(password)
             .roleName(invalidRole)
             .build();
@@ -158,7 +158,7 @@ class UserServiceTest {
   @DisplayName("계정 삭제 API")
   class DeleteUser {
 
-    private Long id;
+    private Long userId;
     private String username;
     private String password;
     private String roleName;
@@ -166,7 +166,7 @@ class UserServiceTest {
 
     @BeforeEach
     void setup() {
-      id = 1L;
+      userId = 1L;
       username = "test";
       password = "1234";
       role = Role.builder().name("ROLE_ADMIN").build();
@@ -182,23 +182,23 @@ class UserServiceTest {
       void deleteUser() {
         // given
         DeleteUserServiceRequest deleteUserServiceRequest = DeleteUserServiceRequest.builder()
-            .id(id).build();
+            .userId(userId).build();
 
         User resultUser = User.builder()
-            .id(id)
+            .id(userId)
             .username(username)
             .password(password)
             .role(role)
             .build();
 
         UserServiceResponse response = UserServiceResponse.builder()
-            .id(id)
+            .userId(userId)
             .username(username)
             .roleName(roleName)
             .build();
 
         // when
-        when(userRepository.findById(id)).thenReturn(Optional.of(resultUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(resultUser));
         UserServiceResponse result = userService.deleteUser(deleteUserServiceRequest);
 
         // then
@@ -216,7 +216,7 @@ class UserServiceTest {
         // given
         long invalidId = 10000L;
         DeleteUserServiceRequest deleteUserServiceRequest = DeleteUserServiceRequest.builder()
-            .id(invalidId)
+            .userId(invalidId)
             .build();
 
         // when
@@ -265,7 +265,7 @@ class UserServiceTest {
             .build();
 
         UserServiceResponse response = UserServiceResponse.builder()
-            .id(id)
+            .userId(id)
             .username(username)
             .roleName(roleName)
             .build();
@@ -450,7 +450,7 @@ class UserServiceTest {
 
     private List<UserServiceResponse> getUserServiceResponses(List<User> users) {
       return users.stream().map(
-          user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
+          user -> UserServiceResponse.builder().userId(user.getId()).username(user.getUsername())
               .roleName(user.getRole().getName()).build()).toList();
     }
   }

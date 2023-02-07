@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 public class UpdateUserServiceRequest {
 
-  private Long id;
+  private Long userId;
   private String password;
   private String roleName;
 }

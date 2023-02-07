@@ -24,34 +24,34 @@ public class CategoryService {
 
   @Transactional(readOnly=true)
   public Page<FindCategoryServiceResponse> findCategories(FindCategoryServiceRequest request) {
-    if (request.getName() == null) {
+    if (request.getCategoryName() == null) {
       return categoryRepository.findAll(request.toPageRequest())
           .map(FindCategoryServiceResponse::of);
     }
 
-    return categoryRepository.findAllByNameContaining(request.getName(), request.toPageRequest())
+    return categoryRepository.findAllByNameContaining(request.getCategoryName(), request.toPageRequest())
         .map(FindCategoryServiceResponse::of);
   }
 
   public CategoryServiceResponse saveCategory(
       SaveCategoryServiceRequest saveCategoryServiceRequest) {
-    Category category = saveCategoryServiceRequest.toCategory(saveCategoryServiceRequest.getName());
+    Category category = saveCategoryServiceRequest.toCategory();
     Category result = categoryRepository.save(category);
     return CategoryServiceResponse.of(result);
   }
 
   public CategoryServiceResponse updateCategory(UpdateCategoryServiceRequest request) {
-    Category category = categoryRepository.findById(request.getId())
+    Category category = categoryRepository.findById(request.getCategoryId())
         .orElseThrow(CategoryNotFoundException::new);
-    category.update(request.getName());
+    category.update(request.getCategoryName());
     return CategoryServiceResponse.of(category);
   }
 
   public CategoryServiceResponse deleteCategory(
       DeleteCategoryServiceRequest deleteCategoryServiceRequest) {
-    Category category = categoryRepository.findById(deleteCategoryServiceRequest.getId())
+    Category category = categoryRepository.findById(deleteCategoryServiceRequest.getCategoryId())
         .orElseThrow(CategoryNotFoundException::new);
-    categoryRepository.deleteById(deleteCategoryServiceRequest.getId());
+    categoryRepository.deleteById(deleteCategoryServiceRequest.getCategoryId());
     return CategoryServiceResponse.of(category);
   }
 }

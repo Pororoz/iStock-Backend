@@ -58,13 +58,13 @@ public class CategoryIntegrationTest extends IntegrationTest {
       void setup() {
         databaseCleanup.execute();
 
-        Category category1 = Category.builder().name("item1").build();
-        Category category2 = Category.builder().name("shop1").build();
-        Category category3 = Category.builder().name("shop2").build();
-        Category category4 = Category.builder().name("item2").build();
-        Category category5 = Category.builder().name("item3").build();
-        Category category6 = Category.builder().name("button1").build();
-        Category category7 = Category.builder().name("item4").build();
+        Category category1 = Category.builder().categoryName("item1").build();
+        Category category2 = Category.builder().categoryName("shop1").build();
+        Category category3 = Category.builder().categoryName("shop2").build();
+        Category category4 = Category.builder().categoryName("item2").build();
+        Category category5 = Category.builder().categoryName("item3").build();
+        Category category6 = Category.builder().categoryName("button1").build();
+        Category category7 = Category.builder().categoryName("item4").build();
 
         categoryRepository.saveAll(
             List.of(category1, category2, category3, category4, category5, category6, category7));
@@ -97,7 +97,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.data.first").value(true))
             .andExpect(jsonPath("$.data.last").value(false))
             .andExpect(jsonPath("$.data.currentSize").value(2))
-            .andExpect(jsonPath("$.data.contents[0].id").value(1L))
+            .andExpect(jsonPath("$.data.contents[0].categoryId").value(1L))
             .andExpect(jsonPath("$.data.contents[0].categoryName").value("item1"))
             .andDo(print());
       }
@@ -131,9 +131,9 @@ public class CategoryIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.data.first").value(true))
             .andExpect(jsonPath("$.data.last").value(true))
             .andExpect(jsonPath("$.data.currentSize").value(2))
-            .andExpect(jsonPath("$.data.contents[0].id").value(2L))
+            .andExpect(jsonPath("$.data.contents[0].categoryId").value(2L))
             .andExpect(jsonPath("$.data.contents[0].categoryName").value("shop1"))
-            .andExpect(jsonPath("$.data.contents[1].id").value(3L))
+            .andExpect(jsonPath("$.data.contents[1].categoryId").value(3L))
             .andExpect(jsonPath("$.data.contents[1].categoryName").value("shop2"))
             .andDo(print());
       }
@@ -297,10 +297,10 @@ public class CategoryIntegrationTest extends IntegrationTest {
   class UpdateCategory {
 
     String url = "http://localhost:8080/v1/categories";
-    Long id = 1L;
+    Long categoryId = 1L;
     String oldName = "이전카테고리";
     String newName = "새카테고리";
-    Category category = Category.builder().id(id).name(oldName).build();
+    Category category = Category.builder().id(categoryId).categoryName(oldName).build();
 
     @BeforeEach
     void setUp() {
@@ -313,7 +313,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
     @DisplayName("카테고리를 수정한다.")
     void updateCategory() throws Exception {
       //given
-      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId).categoryName(newName)
           .build();
 
       //when
@@ -323,7 +323,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_CATEGORY))
-          .andExpect(jsonPath("$.data.id").value(id))
+          .andExpect(jsonPath("$.data.categoryId").value(categoryId))
           .andExpect(jsonPath("$.data.categoryName").value(newName));
     }
 
@@ -332,7 +332,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
     @DisplayName("로그인 하지 않으면 수정 API에 접근할 수 없다.")
     void updateCategoryAnonymous() throws Exception {
       //given
-      UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId).categoryName(newName)
           .build();
 
       //when
@@ -405,14 +405,14 @@ public class CategoryIntegrationTest extends IntegrationTest {
       return "http://localhost:8080/v1/categories" + "/" + id;
     }
 
-    private long id;
+    private long categoryId;
     private String categoryName;
 
     @BeforeEach
     void setUp() {
       databaseCleanup.execute();
       categoryName = "착화기";
-      Category category = Category.builder().name(categoryName).build();
+      Category category = Category.builder().categoryName(categoryName).build();
       categoryRepository.save(category);
     }
 
@@ -422,16 +422,16 @@ public class CategoryIntegrationTest extends IntegrationTest {
     @DisplayName("존재하는 카테고리를 삭제할 수 있다.")
     void deleteCategory() throws Exception {
       //given
-      id = 1L;
+      categoryId = 1L;
 
       //when
-      ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
+      ResultActions actions = getResultActions(url(categoryId), HttpMethod.DELETE);
 
       // then
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_CATEGORY))
-          .andExpect(jsonPath("$.data.id").value(id))
+          .andExpect(jsonPath("$.data.categoryId").value(categoryId))
           .andExpect(jsonPath("$.data.categoryName").value(categoryName));
     }
 
@@ -440,10 +440,10 @@ public class CategoryIntegrationTest extends IntegrationTest {
     @DisplayName("존재하지 않는 카테고리를 삭제하면 CATEGORY_NOT_FOUND를 반환한다.")
     void categoryNotFound() throws Exception {
       //given
-      id = 2L;
+      categoryId = 2L;
 
       //when
-      ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
+      ResultActions actions = getResultActions(url(categoryId), HttpMethod.DELETE);
 
       // then
       actions.andExpect(status().isNotFound())
