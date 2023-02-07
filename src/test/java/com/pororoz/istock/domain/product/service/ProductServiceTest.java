@@ -59,7 +59,7 @@ class ProductServiceTest {
   class SaveProduct {
 
     SaveProductServiceRequest request = SaveProductServiceRequest.builder()
-        .productName(productName).categoryId(categoryId)
+        .productNumber(productNumber).categoryId(categoryId)
         .build();
 
     @Nested
@@ -78,9 +78,9 @@ class ProductServiceTest {
             .build();
 
         //when
+        when(productRepository.save(any(Product.class))).thenReturn(product);
         when(categoryRepository.findById(request.getCategoryId())).thenReturn(
             Optional.of(category));
-        when(productRepository.save(any(Product.class))).thenReturn(product);
         ProductServiceResponse result = productService.saveProduct(request);
 
         //then
@@ -97,20 +97,19 @@ class ProductServiceTest {
       void categoryIdNotExist() {
         //given
         //when
-        when(categoryRepository.findById(anyLong())).thenThrow(
-            ProductNumberDuplicatedException.class);
+        when(productRepository.findByProductNumber(request.getProductNumber()))
+            .thenReturn(Optional.empty());
+        when(categoryRepository.findById(anyLong())).thenReturn(Optional.empty());
         //then
-        assertThrows(ProductNumberDuplicatedException.class,
+        assertThrows(CategoryNotFoundException.class,
             () -> productService.saveProduct(request));
       }
 
       @Test
-      @DisplayName("같은 product name이 이미 존재하면 예외가 발생한다.")
+      @DisplayName("같은 product number가 이미 존재하면 예외가 발생한다.")
       void productNameDuplicated() {
         //given
-
         //when
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
         when(productRepository.findByProductNumber(request.getProductNumber())).thenReturn(
             Optional.of(mock(Product.class)));
 
@@ -179,16 +178,40 @@ class ProductServiceTest {
       }
 
       @Test
+      @DisplayName("변경하려는 품번이 이미 있으면 예외가 발생한다.")
+      void duplicateProductNumber() {
+        //given
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(1L).productNumber("new")
+            .build();
+        Product product = Product.builder()
+            .id(1L).productNumber("old")
+            .build();
+
+        //when
+        when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        when(productRepository.findByProductNumber(request.getProductNumber()))
+            .thenReturn(Optional.of(mock(Product.class)));
+
+        //then
+        assertThrows(ProductNumberDuplicatedException.class,
+            () -> productService.updateProduct(request));
+      }
+
+      @Test
       @DisplayName("categoryId 에 해당하는 category가 없으면 에러가 발생한다.")
       void categoryNotFound() {
         //given
         UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
-            .productId(1L).categoryId(2L)
+            .productId(1L).productNumber("number")
+            .categoryId(2L)
             .build();
 
         //when
         when(productRepository.findById(request.getProductId())).thenReturn(
             Optional.of(mock(Product.class)));
+        when(productRepository.findByProductNumber(request.getProductNumber()))
+            .thenReturn(Optional.empty());
         when(categoryRepository.findById(request.getCategoryId())).thenReturn(Optional.empty());
 
         //then
