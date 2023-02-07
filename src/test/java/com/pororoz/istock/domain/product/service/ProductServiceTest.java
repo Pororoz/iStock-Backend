@@ -48,8 +48,8 @@ class ProductServiceTest {
   final Long categoryId = 1L;
   final Category category = Category.builder().id(categoryId).build();
   final Product product = Product.builder()
-      .id(id).name(productName)
-      .number(productNumber).codeNumber(codeNumber)
+      .id(id).productName(productName)
+      .productNumber(productNumber).codeNumber(codeNumber)
       .stock(stock).companyName(companyName)
       .category(category)
       .build();
@@ -71,7 +71,7 @@ class ProductServiceTest {
       void saveProduct() {
         //given
         Product product = Product.builder()
-            .name(productName).category(category)
+            .productName(productName).category(category)
             .build();
         ProductServiceResponse response = ProductServiceResponse.builder()
             .productName(productName).category(category)
@@ -111,7 +111,7 @@ class ProductServiceTest {
 
         //when
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByNumber(request.getProductNumber())).thenReturn(
+        when(productRepository.findByProductNumber(request.getProductNumber())).thenReturn(
             Optional.of(mock(Product.class)));
 
         //then

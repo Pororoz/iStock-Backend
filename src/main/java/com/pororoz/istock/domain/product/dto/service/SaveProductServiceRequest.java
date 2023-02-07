@@ -18,7 +18,7 @@ public class SaveProductServiceRequest {
 
   public Product toProduct(Category category) {
     return Product.builder()
-        .name(productName).number(productNumber)
+        .productName(productName).productNumber(productNumber)
         .codeNumber(codeNumber).companyName(companyName)
         .stock(stock).category(category)
         .build();

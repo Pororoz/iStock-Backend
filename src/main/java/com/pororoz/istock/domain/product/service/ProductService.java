@@ -25,7 +25,7 @@ public class ProductService {
   public ProductServiceResponse saveProduct(SaveProductServiceRequest request) {
     Category category = categoryRepository.findById(request.getCategoryId())
         .orElseThrow(CategoryNotFoundException::new);
-    productRepository.findByNumber(request.getProductNumber()).ifPresent(p -> {
+    productRepository.findByProductNumber(request.getProductNumber()).ifPresent(p -> {
       throw new ProductNumberDuplicatedException();
     });
     Product product = productRepository.save(request.toProduct(category));

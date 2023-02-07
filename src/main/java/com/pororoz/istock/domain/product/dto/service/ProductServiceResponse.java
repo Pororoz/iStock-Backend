@@ -20,8 +20,8 @@ public class ProductServiceResponse {
 
   public static ProductServiceResponse of(Product product) {
     return ProductServiceResponse.builder()
-        .productId(product.getId()).productName(product.getName())
-        .productNumber(product.getNumber()).codeNumber(product.getCodeNumber())
+        .productId(product.getId()).productName(product.getProductName())
+        .productNumber(product.getProductNumber()).codeNumber(product.getCodeNumber())
         .stock(product.getStock()).companyName(product.getCompanyName())
         .category(product.getCategory())
         .build();

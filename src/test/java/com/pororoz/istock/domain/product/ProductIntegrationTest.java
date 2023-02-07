@@ -133,8 +133,8 @@ public class ProductIntegrationTest extends IntegrationTest {
       category1 = categoryRepository.save(Category.builder().name("카테고리1").build());
       category2 = categoryRepository.save(Category.builder().name("카테고리2").build());
       product = productRepository.save(
-          Product.builder().name(name)
-              .number(number).codeNumber(codeNumber)
+          Product.builder().productName(name)
+              .productNumber(number).codeNumber(codeNumber)
               .companyName(companyName).stock(stock)
               .category(category1)
               .build());
