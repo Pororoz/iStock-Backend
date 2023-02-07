@@ -293,7 +293,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
   }
 
   @Nested
-  @DisplayName("PUT /v1/categories")
+  @DisplayName("PUT /v1/categories - 카테고리 수정")
   class UpdateCategory {
 
     String url = "http://localhost:8080/v1/categories";

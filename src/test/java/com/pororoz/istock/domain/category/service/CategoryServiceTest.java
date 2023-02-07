@@ -1,9 +1,7 @@
 package com.pororoz.istock.domain.category.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -93,12 +91,13 @@ class CategoryServiceTest {
             getCategoryServiceRequest);
 
         // then
-        assertThat(result.getTotalElements(), equalTo(totalCategories));
-        assertThat(result.getTotalPages(),
-            equalTo((int) (totalCategories + size) / size));
-        assertThat(result.getContent().size(), equalTo(size));
-        assertThat(result.getContent().get(0), equalTo(findCategoryServiceRespons.get(0)));
-        assertThat(result.getContent().get(1), equalTo(findCategoryServiceRespons.get(1)));
+        assertThat(result.getTotalElements()).isEqualTo(totalCategories);
+        assertThat(result.getTotalPages()).isEqualTo((int) (totalCategories + size) / size);
+        assertThat(result.getContent().size()).isEqualTo(size);
+        assertThat(result.getContent().get(0)).usingRecursiveComparison()
+            .isEqualTo(findCategoryServiceRespons.get(0));
+        assertThat(result.getContent().get(1)).usingRecursiveComparison()
+            .isEqualTo(findCategoryServiceRespons.get(1));
       }
 
       @Test
@@ -125,12 +124,13 @@ class CategoryServiceTest {
             getCategoryServiceRequest);
 
         // then
-        assertThat(result.getTotalElements(), equalTo(totalCategories));
-        assertThat(result.getTotalPages(),
-            equalTo((int) (totalCategories / size)));
-        assertThat(result.getContent().size(), equalTo(size));
-        assertThat(result.getContent().get(0), equalTo(findCategoryServiceResponses.get(0)));
-        assertThat(result.getContent().get(1), equalTo(findCategoryServiceResponses.get(1)));
+        assertThat(result.getTotalElements()).isEqualTo(totalCategories);
+        assertThat(result.getTotalPages()).isEqualTo((int) (totalCategories / size));
+        assertThat(result.getContent().size()).isEqualTo(size);
+        assertThat(result.getContent().get(0)).usingRecursiveComparison()
+            .isEqualTo(findCategoryServiceResponses.get(0));
+        assertThat(result.getContent().get(1)).usingRecursiveComparison()
+            .isEqualTo(findCategoryServiceResponses.get(1));
       }
 
       @Test
@@ -156,7 +156,8 @@ class CategoryServiceTest {
             getCategoryServiceRequest);
 
         // then
-        assertIterableEquals(result.getContent(), findCategoryServiceResponses);
+        assertThat(result.getContent()).usingRecursiveComparison()
+            .isEqualTo(findCategoryServiceResponses);
         assertEquals(result.getTotalElements(), result.getNumberOfElements());
         assertEquals(result.getTotalPages(), 1);
       }
@@ -181,7 +182,8 @@ class CategoryServiceTest {
             getCategoryServiceRequest);
 
         // then
-        assertIterableEquals(result.getContent(), findCategoryServiceResponses);
+        assertThat(result.getContent()).usingRecursiveComparison()
+            .isEqualTo(findCategoryServiceResponses);
         assertEquals(result.getTotalElements(), result.getNumberOfElements());
         assertEquals(result.getTotalPages(), 1);
       }
@@ -223,8 +225,8 @@ class CategoryServiceTest {
       CategoryServiceResponse response = categoryService.updateCategory(request);
 
       //then
-      assertThat(response.getId(), equalTo(id));
-      assertThat(response.getName(), equalTo(newName));
+      assertThat(response.getId()).isEqualTo(id);
+      assertThat(response.getName()).isEqualTo(newName);
     }
 
     @Test
@@ -266,8 +268,8 @@ class CategoryServiceTest {
         CategoryServiceResponse result = categoryService.saveCategory(saveCategoryServiceRequest);
 
         //then
-        assertThat(result.getId(), equalTo(response.getId()));
-        assertThat(result.getName(), equalTo(response.getName()));
+        assertThat(result.getId()).isEqualTo(response.getId());
+        assertThat(result.getName()).isEqualTo(response.getName());
       }
     }
 
@@ -298,8 +300,8 @@ class CategoryServiceTest {
             deleteCategoryServiceRequest);
 
         //then
-        assertThat(result.getId(), equalTo(response.getId()));
-        assertThat(result.getName(), equalTo(response.getName()));
+        assertThat(result.getId()).isEqualTo(response.getId());
+        assertThat(result.getName()).isEqualTo(response.getName());
       }
 
       @Test

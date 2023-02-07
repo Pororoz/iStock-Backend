@@ -44,10 +44,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "User", description = "User API")
+@Validated
 @RestController
 @RequestMapping("/v1/users")
 @RequiredArgsConstructor
-@Validated
 public class UserController {
 
   private final UserService userService;

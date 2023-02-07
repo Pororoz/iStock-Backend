@@ -10,18 +10,20 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorCode {
 
-    PAGE_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PAGE_NOT_FOUND, ExceptionMessage.PAGE_NOT_FOUND),
+  PAGE_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PAGE_NOT_FOUND,
+      ExceptionMessage.PAGE_NOT_FOUND),
+  ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.ROLE_NOT_FOUND,
+      ExceptionMessage.ROLE_NOT_FOUND),
+  USER_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.USER_NOT_FOUND,
+      ExceptionMessage.USER_NOT_FOUND),
+  CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.CATEGORY_NOT_FOUND,
+      ExceptionMessage.CATEGORY_NOT_FOUND),
+  PRODUCT_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NAME_DUPLICATED,
+      ExceptionMessage.PRODUCT_NAME_DUPLICATED);
 
-    ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.ROLE_NOT_FOUND, ExceptionMessage.ROLE_NOT_FOUND),
+  private final HttpStatus statusCode;
 
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.USER_NOT_FOUND, ExceptionMessage.USER_NOT_FOUND),
+  private final String status;
 
-    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.CATEGORY_NOT_FOUND, ExceptionMessage.CATEGORY_NOT_FOUND)
-    ;
-
-    private final HttpStatus statusCode;
-
-    private final String status;
-
-    private final String message;
+  private final String message;
 }

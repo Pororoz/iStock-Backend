@@ -1,10 +1,8 @@
 package com.pororoz.istock.domain.user.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -109,7 +107,7 @@ class UserServiceTest {
         UserServiceResponse result = userService.updateUser(updateUserServiceRequest);
 
         // then
-        assertEquals(result, response);
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
 
@@ -204,7 +202,7 @@ class UserServiceTest {
         UserServiceResponse result = userService.deleteUser(deleteUserServiceRequest);
 
         // then
-        assertEquals(result, response);
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
 
@@ -279,7 +277,7 @@ class UserServiceTest {
         UserServiceResponse result = userService.saveUser(saveUserServiceRequest);
 
         // then
-        assertEquals(result, response);
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
 
@@ -336,12 +334,13 @@ class UserServiceTest {
         Page<UserServiceResponse> result = userService.findUsers(request);
 
         //then
-        assertThat(result.getTotalElements(), equalTo(totalUsers));
-        assertThat(result.getTotalPages(),
-            equalTo((int) (totalUsers + size) / size));
-        assertThat(result.getContent().size(), equalTo(2));
-        assertThat(result.getContent().get(0), equalTo(userServiceResponses.get(0)));
-        assertThat(result.getContent().get(1), equalTo(userServiceResponses.get(1)));
+        assertThat(result.getTotalElements()).isEqualTo(totalUsers);
+        assertThat(result.getTotalPages()).isEqualTo((int) (totalUsers + size) / size);
+        assertThat(result.getContent().size()).isEqualTo(2);
+        assertThat(result.getContent().get(0)).usingRecursiveComparison()
+            .isEqualTo(userServiceResponses.get(0));
+        assertThat(result.getContent().get(1)).usingRecursiveComparison()
+            .isEqualTo(userServiceResponses.get(1));
       }
 
       @Test
@@ -356,7 +355,7 @@ class UserServiceTest {
         Page<UserServiceResponse> result = userService.findUsers(request);
 
         //then
-        assertIterableEquals(result.getContent(), userServiceResponses);
+        assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(userServiceResponses);
         assertEquals(result.getTotalElements(), result.getNumberOfElements());
         assertEquals(result.getTotalPages(), 1);
       }
@@ -374,7 +373,7 @@ class UserServiceTest {
         Page<UserServiceResponse> result = userService.findUsers(request);
 
         //then
-        assertIterableEquals(result.getContent(), userServiceResponses);
+        assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(userServiceResponses);
         assertEquals(result.getTotalElements(), 0);
         assertEquals(result.getNumberOfElements(), 0);
         assertEquals(result.getTotalPages(), 1);
@@ -399,12 +398,13 @@ class UserServiceTest {
         //then
         assertTrue(result.isFirst());
         assertFalse(result.isLast());
-        assertThat(result.getTotalElements(), equalTo(totalUsers));
-        assertThat(result.getTotalPages(),
-            equalTo((int) (totalUsers + size) / size));
-        assertThat(result.getContent().size(), equalTo(2));
-        assertThat(result.getContent().get(0), equalTo(userServiceResponses.get(0)));
-        assertThat(result.getContent().get(1), equalTo(userServiceResponses.get(1)));
+        assertThat(result.getTotalElements()).isEqualTo(totalUsers);
+        assertThat(result.getTotalPages()).isEqualTo((int) (totalUsers + size) / size);
+        assertThat(result.getContent().size()).isEqualTo(2);
+        assertThat(result.getContent().get(0)).usingRecursiveComparison()
+            .isEqualTo(userServiceResponses.get(0));
+        assertThat(result.getContent().get(1)).usingRecursiveComparison()
+            .isEqualTo(userServiceResponses.get(1));
       }
 
       @Test
@@ -434,11 +434,11 @@ class UserServiceTest {
         //then
         assertFalse(result.isFirst());
         assertFalse(result.isLast());
-        assertThat(result.getTotalElements(), equalTo(totalUsers));
-        assertThat(result.getTotalPages(),
-            equalTo((int) (totalUsers + defaultSize) / defaultSize));
-        assertThat(result.getContent().size(), equalTo(defaultSize));
-        assertIterableEquals(result.getContent(), userServiceResponses);
+        assertThat(result.getTotalElements()).isEqualTo(totalUsers);
+        assertThat(result.getTotalPages()).isEqualTo(
+            (int) (totalUsers + defaultSize) / defaultSize);
+        assertThat(result.getContent().size()).isEqualTo(defaultSize);
+        assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(userServiceResponses);
       }
     }
 
