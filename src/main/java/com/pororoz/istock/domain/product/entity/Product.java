@@ -30,7 +30,7 @@ public class Product extends TimeEntity {
 
   @NotNull
   @Size(max = 100)
-  private String name;
+  private String productName;
 
   @NotNull
   @Size(max = 200)

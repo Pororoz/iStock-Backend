@@ -44,7 +44,7 @@ public class ProductIntegrationTest extends IntegrationTest {
     void saveProduct() throws Exception {
       //given
       databaseCleanup.execute();
-      category = categoryRepository.save(Category.builder().name("카테고리").build());
+      category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
       SaveProductRequest request = SaveProductRequest.builder().productName(name)
           .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
           .categoryId(categoryId).build();

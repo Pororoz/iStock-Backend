@@ -8,11 +8,11 @@ import lombok.Getter;
 @Builder
 public class SaveCategoryServiceRequest {
 
-  private String name;
+  private String categoryName;
 
-  public Category toCategory(String name) {
+  public Category toCategory() {
     return Category.builder()
-        .name(name)
+        .categoryName(categoryName)
         .build();
   }
 }

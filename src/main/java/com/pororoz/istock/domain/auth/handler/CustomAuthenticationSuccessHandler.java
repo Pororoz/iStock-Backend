@@ -37,5 +37,4 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     response.getWriter().write(result);
 
   }
-
 }

@@ -9,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 public class UserResponse {
 
   @Schema(description = "사용자 아이디", example = "1")
-  private Long id;
+  private Long userId;
 
   @Schema(description = "사용자 이름", example = "pororoz")
   private String username;

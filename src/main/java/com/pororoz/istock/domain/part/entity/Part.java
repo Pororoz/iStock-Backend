@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(
     uniqueConstraints =
-    @UniqueConstraint(columnNames = {"name", "spec"})
+    @UniqueConstraint(columnNames = {"partName", "spec"})
 )
 public class Part extends TimeEntity {
 
@@ -33,7 +33,7 @@ public class Part extends TimeEntity {
 
   @NotNull
   @Size(max = 100)
-  private String name;
+  private String partName;
 
   @NotNull
   @Size(max = 255)

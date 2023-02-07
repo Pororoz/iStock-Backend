@@ -114,11 +114,12 @@ public class CategoryController {
           @Content(schema = @Schema(implementation = InvalidPathExceptionSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))})})
-  @DeleteMapping("/{id}")
+  @DeleteMapping("/{categoryId}")
   public ResponseEntity<ResultDTO<CategoryResponse>> deleteCategory(
-      @PathVariable("id") @NotNull(message = ExceptionMessage.INVALID_PATH) @Positive(message = ExceptionMessage.INVALID_PATH) Long id) {
+      @PathVariable("categoryId") @NotNull(message = ExceptionMessage.INVALID_PATH)
+      @Positive(message = ExceptionMessage.INVALID_PATH) Long categoryId) {
     CategoryServiceResponse serviceDto = categoryService.deleteCategory(
-        DeleteCategoryServiceRequest.builder().id(id).build());
+        DeleteCategoryServiceRequest.builder().categoryId(categoryId).build());
     CategoryResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_CATEGORY, response));

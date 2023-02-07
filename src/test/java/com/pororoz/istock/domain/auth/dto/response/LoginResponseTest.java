@@ -16,7 +16,7 @@ class LoginResponseTest {
     String username = "user";
     String roleName = "role";
     Role role = Role.builder()
-        .name(roleName)
+        .roleName(roleName)
         .build();
     User user = User.builder()
         .username(username)

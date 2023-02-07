@@ -18,12 +18,13 @@ public class UpdateCategoryRequest {
 
   @Schema(description = "카테고리 아이디", example = "1")
   @NotNull
-  private Long id;
+  private Long categoryId;
   @Schema(description = "카테고리 이름", example = "착화기")
   @Size(min = 2, max = 15, message = ExceptionMessage.INVALID_CATEGORY_NAME)
   private String categoryName;
 
   public UpdateCategoryServiceRequest toService() {
-    return UpdateCategoryServiceRequest.builder().id(id).name(categoryName).build();
+    return UpdateCategoryServiceRequest.builder().categoryId(categoryId).categoryName(categoryName)
+        .build();
   }
 }

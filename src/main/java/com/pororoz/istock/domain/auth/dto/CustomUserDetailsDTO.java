@@ -41,7 +41,7 @@ public class CustomUserDetailsDTO implements UserDetails, Serializable {
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
-    authorities.add(new SimpleGrantedAuthority(this.user.getRole().getName()));
+    authorities.add(new SimpleGrantedAuthority(this.user.getRole().getRoleName()));
     return authorities;
   }
 
