@@ -28,7 +28,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     response.setCharacterEncoding("UTF-8");
     LoginResponse data = LoginResponse.builder()
         .username((String) authentication.getPrincipal())
-        .roleName(authentication.getAuthorities().toString()).build();
+        .roleName(authentication.getAuthorities().iterator().next().toString()).build();
     ResultLoginResponse resultLoginResponse = new ResultLoginResponse("OK", "로그인", data);
     String result = objectMapper.writeValueAsString(resultLoginResponse);
     response.getWriter().write(result);
