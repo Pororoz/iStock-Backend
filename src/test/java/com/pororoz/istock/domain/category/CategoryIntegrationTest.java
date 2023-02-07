@@ -36,7 +36,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
   CategoryRepository categoryRepository;
 
   @Nested
-  @DisplayName("GET /v1/categories?query={}&page={}&size={} - 카테고리 리스트 조회")
+  @DisplayName("GET /v1/categories?categoryName={}&page={}&size={} - 카테고리 리스트 조회")
   @Transactional
   class FindCategories {
 
@@ -79,7 +79,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         int itemCount = 4;
         int page = 0;
         int size = 2;
-        params.add("query", name);
+        params.add("categoryName", name);
         params.add("page", Integer.toString(page));
         params.add("size", Integer.toString(size));
 
@@ -113,7 +113,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         int itemCount = 2;
         int page = 0;
         int size = 2;
-        params.add("query", name);
+        params.add("categoryName", name);
         params.add("page", Integer.toString(page));
         params.add("size", Integer.toString(size));
 
@@ -199,7 +199,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         int itemCount = 4;
         String name = "item";
         int defaultSize = FindCategoryServiceRequest.DEFAULT_SIZE;
-        params.add("query", name);
+        params.add("categoryName", name);
 
         // when
         ResultActions actions = getResultActions(url, params);
@@ -256,7 +256,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         String name = "name";
         String page = "not match type";
         String size = "2";
-        params.add("query", name);
+        params.add("categoryName", name);
         params.add("page", page);
         params.add("size", size);
 
@@ -279,7 +279,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         String name = "item";
         int page = 0;
         int size = 2;
-        params.add("query", name);
+        params.add("categoryName", name);
         params.add("page", Integer.toString(page));
         params.add("size", Integer.toString(size));
 
