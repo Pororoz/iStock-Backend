@@ -133,7 +133,7 @@ class ProductServiceTest {
       void updateProduct() {
         //given
         Category newCategory = Category.builder()
-            .id(categoryId + 1).name("new category")
+            .id(categoryId + 1).categoryName("new category")
             .build();
         UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
             .productId(id).productNumber("new pnumber")

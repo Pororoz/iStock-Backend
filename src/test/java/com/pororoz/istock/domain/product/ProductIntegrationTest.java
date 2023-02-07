@@ -51,7 +51,7 @@ public class ProductIntegrationTest extends IntegrationTest {
     void saveProductAdmin() throws Exception {
       //given
       databaseCleanup.execute();
-      Category category = categoryRepository.save(Category.builder().name("카테고리").build());
+      Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
       SaveProductRequest request = SaveProductRequest.builder()
           .productName(name).productNumber(number)
           .codeNumber(codeNumber).stock(stock)
@@ -78,7 +78,7 @@ public class ProductIntegrationTest extends IntegrationTest {
     void saveProductUser() throws Exception {
       //given
       databaseCleanup.execute();
-      Category category = categoryRepository.save(Category.builder().name("카테고리").build());
+      Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
       SaveProductRequest request = SaveProductRequest.builder()
           .productName(name).productNumber(number)
           .categoryId(category.getId())
@@ -130,8 +130,8 @@ public class ProductIntegrationTest extends IntegrationTest {
     @BeforeEach
     void setUp() {
       databaseCleanup.execute();
-      category1 = categoryRepository.save(Category.builder().name("카테고리1").build());
-      category2 = categoryRepository.save(Category.builder().name("카테고리2").build());
+      category1 = categoryRepository.save(Category.builder().categoryName("카테고리1").build());
+      category2 = categoryRepository.save(Category.builder().categoryName("카테고리2").build());
       product = productRepository.save(
           Product.builder().productName(name)
               .productNumber(number).codeNumber(codeNumber)

@@ -29,9 +29,9 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
 
   public UserServiceResponse updateUser(UpdateUserServiceRequest updateUserServiceRequest) {
-    Role role = roleRepository.findByName(updateUserServiceRequest.getRoleName())
+    Role role = roleRepository.findByRoleName(updateUserServiceRequest.getRoleName())
         .orElseThrow(RoleNotFoundException::new);
-    User targetUser = userRepository.findById(updateUserServiceRequest.getId())
+    User targetUser = userRepository.findById(updateUserServiceRequest.getUserId())
         .orElseThrow(UserNotFoundException::new);
     String encodedPassword = passwordEncoder.encode(updateUserServiceRequest.getPassword());
     targetUser.update(encodedPassword, role);
@@ -39,14 +39,14 @@ public class UserService {
   }
 
   public UserServiceResponse deleteUser(DeleteUserServiceRequest deleteUserServiceRequest) {
-    User user = userRepository.findById(deleteUserServiceRequest.getId())
+    User user = userRepository.findById(deleteUserServiceRequest.getUserId())
         .orElseThrow(UserNotFoundException::new);
-    userRepository.deleteById(deleteUserServiceRequest.getId());
+    userRepository.deleteById(deleteUserServiceRequest.getUserId());
     return UserServiceResponse.of(user);
   }
 
   public UserServiceResponse saveUser(SaveUserServiceRequest saveUserServiceRequest) {
-    Role role = roleRepository.findByName(saveUserServiceRequest.getRoleName())
+    Role role = roleRepository.findByRoleName(saveUserServiceRequest.getRoleName())
         .orElseThrow(RoleNotFoundException::new);
     String encodedPassword = passwordEncoder.encode(saveUserServiceRequest.getPassword());
     User user = saveUserServiceRequest.toUser(encodedPassword, role);

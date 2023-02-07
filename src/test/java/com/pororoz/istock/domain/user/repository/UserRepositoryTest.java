@@ -36,7 +36,7 @@ class UserRepositoryTest {
 
     @BeforeEach
     void setUp() {
-      Role role = roleRepository.findByName("ROLE_USER").orElseThrow();
+      Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow();
       user = User.builder().username("user1").password("12345678").role(role).build();
     }
 
