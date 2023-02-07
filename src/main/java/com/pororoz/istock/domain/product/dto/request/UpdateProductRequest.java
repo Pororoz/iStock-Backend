@@ -19,7 +19,7 @@ public class UpdateProductRequest {
 
   @Schema(description = "제품 아이디", example = "1")
   @NotNull
-  private Long id;
+  private Long productId;
 
   @Schema(description = "제품명", example = "인덕션 컨트롤러 V1.2")
   @NotNull
@@ -48,7 +48,8 @@ public class UpdateProductRequest {
   private Long categoryId;
 
   public UpdateProductServiceRequest toService() {
-    return UpdateProductServiceRequest.builder().id(id).productName(productName)
+    return UpdateProductServiceRequest.builder()
+        .productId(productId).productName(productName)
         .productNumber(productNumber).codeNumber(codeNumber).stock(stock).companyName(companyName)
         .categoryId(categoryId).build();
   }

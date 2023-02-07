@@ -17,7 +17,7 @@ public class SaveProductServiceRequest {
   private Long categoryId;
 
   public Product toProduct(Category category) {
-    return Product.builder().name(productName).productNumber(productNumber).codeNumber(codeNumber)
+    return Product.builder().name(productName).number(productNumber).codeNumber(codeNumber)
         .companyName(companyName).stock(stock).category(category).build();
   }
 }

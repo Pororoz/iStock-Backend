@@ -54,12 +54,17 @@ class ProductControllerTest extends ControllerTest {
     @DisplayName("product를 정상적으로 저장한다.")
     void saveProduct() throws Exception {
       //given
-      SaveProductRequest request = SaveProductRequest.builder().productName(name)
-          .productNumber(number).codeNumber(codeNumber).stock(stock)
-          .companyName(companyName).categoryId(categoryId).build();
-      ProductServiceResponse serviceResponse = ProductServiceResponse.builder().id(id)
-          .productName(name).productNumber(number).codeNumber(codeNumber).stock(stock)
-          .companyName(companyName).category(category).build();
+      SaveProductRequest request = SaveProductRequest.builder()
+          .productName(name).productNumber(number)
+          .codeNumber(codeNumber).stock(stock)
+          .companyName(companyName).categoryId(categoryId)
+          .build();
+      ProductServiceResponse serviceResponse = ProductServiceResponse.builder()
+          .productId(id).productName(name)
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
+          .category(category)
+          .build();
 
       //when
       when(productService.saveProduct(any(SaveProductServiceRequest.class))).thenReturn(
@@ -67,9 +72,12 @@ class ProductControllerTest extends ControllerTest {
       ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
 
       //then
-      ProductResponse response = ProductResponse.builder().id(id).productName(name)
-          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
-          .categoryId(category.getId()).build();
+      ProductResponse response = ProductResponse.builder()
+          .productId(id).productName(name)
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
+          .categoryId(category.getId())
+          .build();
 
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
@@ -82,9 +90,11 @@ class ProductControllerTest extends ControllerTest {
     @DisplayName("productName은 null이면 예외가 발생한다.")
     void productNameNullException() throws Exception {
       //given
-      SaveProductRequest request = SaveProductRequest.builder().productName(null)
-          .productNumber(number).codeNumber(codeNumber).stock(stock)
-          .companyName(companyName).categoryId(categoryId).build();
+      SaveProductRequest request = SaveProductRequest.builder()
+          .productName(null).productNumber(number)
+          .codeNumber(codeNumber).stock(stock)
+          .companyName(companyName).categoryId(categoryId)
+          .build();
 
       //when
       ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
@@ -98,9 +108,11 @@ class ProductControllerTest extends ControllerTest {
     @DisplayName("productNumber는 null이면 예외가 발생한다.")
     void productNumberNullException() throws Exception {
       //given
-      SaveProductRequest request = SaveProductRequest.builder().productName(name)
-          .productNumber(null).codeNumber(codeNumber).stock(stock)
-          .companyName(companyName).categoryId(categoryId).build();
+      SaveProductRequest request = SaveProductRequest.builder()
+          .productNumber(null).productName(name)
+          .codeNumber(codeNumber).stock(stock)
+          .companyName(companyName).categoryId(categoryId)
+          .build();
 
       //when
       ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
@@ -114,9 +126,11 @@ class ProductControllerTest extends ControllerTest {
     @DisplayName("cagegoryId는 null이면 예외가 발생한다.")
     void categoryIdNullException() throws Exception {
       //given
-      SaveProductRequest request = SaveProductRequest.builder().productName(name)
-          .productNumber(number).codeNumber(codeNumber).stock(stock)
-          .companyName(companyName).categoryId(null).build();
+      SaveProductRequest request = SaveProductRequest.builder()
+          .categoryId(null).productName(name)
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
+          .build();
 
       //when
       ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
@@ -137,10 +151,13 @@ class ProductControllerTest extends ControllerTest {
     @DisplayName("product를 수정한다.")
     void updateProduct() throws Exception {
       //given
-      UpdateProductRequest request = UpdateProductRequest.builder().id(1L).productName(name)
-          .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(1L).productName(name)
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
           .categoryId(categoryId).build();
-      ProductServiceResponse serviceDto = ProductServiceResponse.builder().id(1L).productName(name)
+      ProductServiceResponse serviceDto = ProductServiceResponse.builder().productId(1L)
+          .productName(name)
           .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
           .category(category).build();
 
@@ -150,7 +167,7 @@ class ProductControllerTest extends ControllerTest {
       ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
 
       //then
-      ProductResponse response = ProductResponse.builder().id(1L).productName(name)
+      ProductResponse response = ProductResponse.builder().productId(1L).productName(name)
           .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
           .categoryId(category.getId()).build();
 
@@ -165,7 +182,8 @@ class ProductControllerTest extends ControllerTest {
     @DisplayName("id가 null이면 예외가 발생한다.")
     void idNullException() throws Exception {
       //given
-      UpdateProductRequest request = UpdateProductRequest.builder().id(null).productName(name)
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(null).productName(name)
           .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
           .categoryId(categoryId).build();
 
@@ -182,7 +200,7 @@ class ProductControllerTest extends ControllerTest {
     @DisplayName("product name이 null이면 예외가 발생한다.")
     void productNameNullException() throws Exception {
       //given
-      UpdateProductRequest request = UpdateProductRequest.builder().id(1L).productName(null)
+      UpdateProductRequest request = UpdateProductRequest.builder().productId(1L).productName(null)
           .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
           .categoryId(categoryId).build();
 
@@ -199,7 +217,7 @@ class ProductControllerTest extends ControllerTest {
     @DisplayName("categoryId가 null이면 예외가 발생한다.")
     void categoryIdNullException() throws Exception {
       //given
-      UpdateProductRequest request = UpdateProductRequest.builder().id(1L).productName(name)
+      UpdateProductRequest request = UpdateProductRequest.builder().productId(1L).productName(name)
           .productNumber(number).codeNumber(codeNumber).stock(stock).companyName(companyName)
           .categoryId(null).build();
 

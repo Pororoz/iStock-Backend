@@ -35,8 +35,8 @@ public class Product extends TimeEntity {
 
   @NotNull
   @Size(max = 200)
-  @Column(name = "product_number", unique = true)
-  private String productNumber;
+  @Column(unique = true)
+  private String number;
 
   @Size(max = 20)
   private String codeNumber;
@@ -56,7 +56,7 @@ public class Product extends TimeEntity {
 
   public void update(UpdateProductServiceRequest request, Category category) {
     this.name = request.getProductName();
-    this.productNumber = request.getProductNumber();
+    this.number = request.getProductNumber();
     this.codeNumber = request.getCodeNumber();
     this.stock = request.getStock();
     this.companyName = request.getCompanyName();

@@ -47,7 +47,7 @@ class ProductServiceTest {
   final String companyName = "공신금속";
   final Long categoryId = 1L;
   final Category category = Category.builder().id(categoryId).build();
-  final Product product = Product.builder().id(id).name(productName).productNumber(productNumber)
+  final Product product = Product.builder().id(id).name(productName).number(productNumber)
       .codeNumber(codeNumber).stock(stock).companyName(companyName).category(category).build();
 
   @Nested
@@ -126,10 +126,10 @@ class ProductServiceTest {
       void updateProduct() {
         //given
         Category newCategory = Category.builder().id(categoryId + 1).name("new category").build();
-        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder().id(id)
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder().productId(id)
             .productNumber("new pnumber").productName("new pname").codeNumber("new cnumber")
             .stock(stock + 1).companyName("new cname").categoryId(categoryId + 1).build();
-        ProductServiceResponse response = ProductServiceResponse.builder().id(id)
+        ProductServiceResponse response = ProductServiceResponse.builder().productId(id)
             .productNumber("new pnumber").productName("new pname").codeNumber("new cnumber")
             .stock(stock + 1).companyName("new cname").category(newCategory).build();
 
@@ -151,10 +151,11 @@ class ProductServiceTest {
       @DisplayName("id에 해당하는 product가 없으면 에러가 발생한다.")
       void productNotFound() {
         //given
-        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder().id(2L).build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder().productId(2L)
+            .build();
 
         //when
-        when(productRepository.findById(request.getId())).thenReturn(Optional.empty());
+        when(productRepository.findById(request.getProductId())).thenReturn(Optional.empty());
 
         //then
         assertThrows(ProductNotFoundException.class, () -> productService.updateProduct(request));
@@ -164,11 +165,11 @@ class ProductServiceTest {
       @DisplayName("categoryId 에 해당하는 category가 없으면 에러가 발생한다.")
       void categoryNotFound() {
         //given
-        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder().id(1L)
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder().productId(1L)
             .categoryId(2L).build();
 
         //when
-        when(productRepository.findById(request.getId())).thenReturn(
+        when(productRepository.findById(request.getProductId())).thenReturn(
             Optional.of(mock(Product.class)));
         when(categoryRepository.findById(request.getCategoryId())).thenReturn(Optional.empty());
 

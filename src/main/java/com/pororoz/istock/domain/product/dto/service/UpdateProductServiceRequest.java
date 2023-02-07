@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 public class UpdateProductServiceRequest {
 
-  private Long id;
+  private Long productId;
   private String productName;
   private String productNumber;
   private String codeNumber;

@@ -10,7 +10,7 @@ import lombok.Getter;
 @Builder
 public class ProductServiceResponse {
 
-  private Long id;
+  private Long productId;
   private String productName;
   private String productNumber;
   private String codeNumber;
@@ -19,15 +19,20 @@ public class ProductServiceResponse {
   private Category category;
 
   public static ProductServiceResponse of(Product product) {
-    return ProductServiceResponse.builder().id(product.getId()).productName(product.getName())
-        .productNumber(product.getProductNumber()).codeNumber(product.getCodeNumber())
+    return ProductServiceResponse.builder()
+        .productId(product.getId()).productName(product.getName())
+        .productNumber(product.getNumber()).codeNumber(product.getCodeNumber())
         .stock(product.getStock()).companyName(product.getCompanyName())
-        .category(product.getCategory()).build();
+        .category(product.getCategory())
+        .build();
   }
 
   public ProductResponse toResponse() {
-    return ProductResponse.builder().id(id).productName(productName).productNumber(productNumber)
-        .codeNumber(codeNumber).stock(stock).companyName(companyName).categoryId(category.getId())
+    return ProductResponse.builder()
+        .productId(productId).productName(productName)
+        .productNumber(productNumber).codeNumber(codeNumber)
+        .stock(stock).companyName(companyName)
+        .categoryId(category.getId())
         .build();
   }
 }
