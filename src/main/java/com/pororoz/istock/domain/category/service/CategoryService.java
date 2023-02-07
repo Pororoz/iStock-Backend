@@ -29,7 +29,7 @@ public class CategoryService {
           .map(FindCategoryServiceResponse::of);
     }
 
-    return categoryRepository.findAllByNameContaining(request.getCategoryName(), request.toPageRequest())
+    return categoryRepository.findAllByCategoryNameContaining(request.getCategoryName(), request.toPageRequest())
         .map(FindCategoryServiceResponse::of);
   }
 

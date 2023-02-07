@@ -29,7 +29,7 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
 
   public UserServiceResponse updateUser(UpdateUserServiceRequest updateUserServiceRequest) {
-    Role role = roleRepository.findByName(updateUserServiceRequest.getRoleName())
+    Role role = roleRepository.findByRoleName(updateUserServiceRequest.getRoleName())
         .orElseThrow(RoleNotFoundException::new);
     User targetUser = userRepository.findById(updateUserServiceRequest.getUserId())
         .orElseThrow(UserNotFoundException::new);
@@ -46,7 +46,7 @@ public class UserService {
   }
 
   public UserServiceResponse saveUser(SaveUserServiceRequest saveUserServiceRequest) {
-    Role role = roleRepository.findByName(saveUserServiceRequest.getRoleName())
+    Role role = roleRepository.findByRoleName(saveUserServiceRequest.getRoleName())
         .orElseThrow(RoleNotFoundException::new);
     String encodedPassword = passwordEncoder.encode(saveUserServiceRequest.getPassword());
     User user = saveUserServiceRequest.toUser(encodedPassword, role);

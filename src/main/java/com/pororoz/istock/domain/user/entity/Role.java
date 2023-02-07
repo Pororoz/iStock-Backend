@@ -26,13 +26,13 @@ public class Role {
   @NotNull
   @NotEmpty
   @Column(unique = true)
-  private String name;
+  private String roleName;
 
   @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
   private Collection<User> users;
 
   @Builder
-  public Role(String name) {
-    this.name = name;
+  public Role(String roleName) {
+    this.roleName = roleName;
   }
 }

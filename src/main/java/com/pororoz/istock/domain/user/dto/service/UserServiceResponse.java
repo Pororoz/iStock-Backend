@@ -20,7 +20,7 @@ public class UserServiceResponse {
 
   public static UserServiceResponse of(User user) {
     return UserServiceResponse.builder().userId(user.getId()).username(user.getUsername())
-        .roleName(user.getRole().getName()).createdAt(user.getCreatedAt())
+        .roleName(user.getRole().getRoleName()).createdAt(user.getCreatedAt())
         .updatedAt(user.getUpdatedAt()).build();
   }
 

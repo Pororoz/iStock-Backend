@@ -60,7 +60,7 @@ class UserServiceTest {
     private String newPassword;
     private String roleName;
     private String newRoleName;
-    private final Role role = Role.builder().name("ROLE_USER").build();
+    private final Role role = Role.builder().roleName("ROLE_USER").build();
 
     @BeforeEach
     void setup() {
@@ -102,7 +102,7 @@ class UserServiceTest {
 
         // when
         when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
-        when(roleRepository.findByName(any())).thenReturn(Optional.of(role));
+        when(roleRepository.findByRoleName(any())).thenReturn(Optional.of(role));
         when(userRepository.findById(userId)).thenReturn(Optional.of(targetUser));
         UserServiceResponse result = userService.updateUser(updateUserServiceRequest);
 
@@ -127,7 +127,7 @@ class UserServiceTest {
             .build();
 
         // when
-        when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
+        when(roleRepository.findByRoleName(roleName)).thenReturn(Optional.of(role));
 
         // then
         assertThrows(UserNotFoundException.class,
@@ -169,7 +169,7 @@ class UserServiceTest {
       userId = 1L;
       username = "test";
       password = "1234";
-      role = Role.builder().name("ROLE_ADMIN").build();
+      role = Role.builder().roleName("ROLE_ADMIN").build();
       roleName = "ROLE_ADMIN";
     }
 
@@ -236,7 +236,7 @@ class UserServiceTest {
     private String username;
     private String password;
     private final String roleName = "ROLE_ADMIN";
-    private final Role role = Role.builder().name(roleName).build();
+    private final Role role = Role.builder().roleName(roleName).build();
 
     @BeforeEach
     void setup() {
@@ -273,7 +273,7 @@ class UserServiceTest {
         // when
         when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
         when(userRepository.save(any())).thenReturn(resultUser);
-        when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
+        when(roleRepository.findByRoleName(roleName)).thenReturn(Optional.of(role));
         UserServiceResponse result = userService.saveUser(saveUserServiceRequest);
 
         // then
@@ -305,7 +305,7 @@ class UserServiceTest {
   @DisplayName("유저 조회 API Test")
   class FindUser {
 
-    Role userRole = Role.builder().name("ROLE_USER").build();
+    Role userRole = Role.builder().roleName("ROLE_USER").build();
 
     @Nested
     @DisplayName("성공 케이스")
@@ -451,7 +451,7 @@ class UserServiceTest {
     private List<UserServiceResponse> getUserServiceResponses(List<User> users) {
       return users.stream().map(
           user -> UserServiceResponse.builder().userId(user.getId()).username(user.getUsername())
-              .roleName(user.getRole().getName()).build()).toList();
+              .roleName(user.getRole().getRoleName()).build()).toList();
     }
   }
 }

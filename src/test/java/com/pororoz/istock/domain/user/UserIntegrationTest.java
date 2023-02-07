@@ -75,7 +75,7 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("존재하는 유저를 수정하면 수정이 이행되고, 해당 유저의 정보를 받아볼 수 있다.")
       void updateUser() throws Exception {
         // given
-        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName(roleName).orElseThrow(RoleNotFoundException::new);
         User user = User.builder().username(username).password(password).role(role).build();
         userRepository.save(user);
         UpdateUserRequest request = UpdateUserRequest.builder()
@@ -126,7 +126,7 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("role이 빈값이면 400code를 반환한다.")
       void roleEmpty() throws Exception {
         //given
-        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName(roleName).orElseThrow(RoleNotFoundException::new);
         User user = User.builder().username(username).password(password).role(role).build();
         userRepository.save(user);
         UpdateUserRequest request = UpdateUserRequest.builder()
@@ -171,7 +171,7 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("존재하지 않는 role name이 들어오면 Error가 발생하고 404 코드를 반환한다.")
       void notFoundRoleName() throws Exception {
         //given
-        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName(roleName).orElseThrow(RoleNotFoundException::new);
         userRepository.save(
             User.builder().username(username).password(password).role(role).build());
         UpdateUserRequest request = UpdateUserRequest.builder()
@@ -224,7 +224,7 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("존재하는 유저를 삭제하면 삭제에 성공한다.")
       void deleteUser() throws Exception {
         // given
-        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName(roleName).orElseThrow(RoleNotFoundException::new);
         User user = User.builder().username(username).password(password).role(role).build();
         userRepository.save(user);
 
@@ -399,7 +399,7 @@ public class UserIntegrationTest extends IntegrationTest {
       @BeforeEach
       void setUp() {
         for (int i = 0; i < userCounts; i++) {
-          Role role = roleRepository.findByName("ROLE_USER").orElseThrow();
+          Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow();
           User user = User.builder().username("ROLE_USER" + i).role(role).password("12345678")
               .build();
           userRepository.save(user);

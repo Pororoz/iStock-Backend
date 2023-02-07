@@ -77,7 +77,7 @@ class CategoryServiceTest {
             categories);
 
         // when
-        when(categoryRepository.findAllByNameContaining(any(), any())).thenReturn(pages);
+        when(categoryRepository.findAllByCategoryNameContaining(any(), any())).thenReturn(pages);
         Page<FindCategoryServiceResponse> result = categoryService.findCategories(
             getCategoryServiceRequest);
 
@@ -135,7 +135,7 @@ class CategoryServiceTest {
             totalCategories);
 
         // when
-        when(categoryRepository.findAllByNameContaining(any(String.class),
+        when(categoryRepository.findAllByCategoryNameContaining(any(String.class),
             any(Pageable.class))).thenReturn(pages);
         Page<FindCategoryServiceResponse> result = categoryService.findCategories(
             getCategoryServiceRequest);
