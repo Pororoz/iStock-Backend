@@ -50,7 +50,7 @@ public class UserIntegrationTest extends IntegrationTest {
   class UpdateUser {
 
     private final String url = "/v1/users";
-    private Long id;
+    private Long userId;
     private String username;
     private String password;
     private String newPassword;
@@ -59,7 +59,7 @@ public class UserIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     public void beforeEach() {
-      id = 1L;
+      userId = 1L;
       username = "test";
       password = "1234a";
       newPassword = "123asb";
@@ -75,11 +75,11 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("존재하는 유저를 수정하면 수정이 이행되고, 해당 유저의 정보를 받아볼 수 있다.")
       void updateUser() throws Exception {
         // given
-        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName(roleName).orElseThrow(RoleNotFoundException::new);
         User user = User.builder().username(username).password(password).role(role).build();
         userRepository.save(user);
         UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(id)
+            .userId(userId)
             .password(newPassword)
             .roleName(newRoleName).build();
 
@@ -91,7 +91,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_USER))
-            .andExpect(jsonPath("$.data.id").value(id))
+            .andExpect(jsonPath("$.data.userId").value(userId))
             .andExpect(jsonPath("$.data.username").value(username))
             .andExpect(jsonPath("$.data.roleName").value(newRoleName))
             .andDo(print());
@@ -107,7 +107,7 @@ public class UserIntegrationTest extends IntegrationTest {
       void pathNegativeError() throws Exception {
         //given
         UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(-1L)
+            .userId(-1L)
             .password(newPassword)
             .roleName(newRoleName).build();
 
@@ -126,11 +126,11 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("role이 빈값이면 400code를 반환한다.")
       void roleEmpty() throws Exception {
         //given
-        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName(roleName).orElseThrow(RoleNotFoundException::new);
         User user = User.builder().username(username).password(password).role(role).build();
         userRepository.save(user);
         UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(id)
+            .userId(userId)
             .password(password)
             .roleName("")
             .build();
@@ -151,7 +151,7 @@ public class UserIntegrationTest extends IntegrationTest {
         //given
         long notExistUserId = 10000L;
         UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(notExistUserId)
+            .userId(notExistUserId)
             .password(newPassword)
             .roleName(newRoleName)
             .build();
@@ -171,11 +171,11 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("존재하지 않는 role name이 들어오면 Error가 발생하고 404 코드를 반환한다.")
       void notFoundRoleName() throws Exception {
         //given
-        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName(roleName).orElseThrow(RoleNotFoundException::new);
         userRepository.save(
             User.builder().username(username).password(password).role(role).build());
         UpdateUserRequest request = UpdateUserRequest.builder()
-            .id(id)
+            .userId(userId)
             .roleName("nothing")
             .password(newPassword)
             .build();
@@ -224,7 +224,7 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("존재하는 유저를 삭제하면 삭제에 성공한다.")
       void deleteUser() throws Exception {
         // given
-        Role role = roleRepository.findByName(roleName).orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName(roleName).orElseThrow(RoleNotFoundException::new);
         User user = User.builder().username(username).password(password).role(role).build();
         userRepository.save(user);
 
@@ -236,7 +236,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_USER))
-            .andExpect(jsonPath("$.data.id").value(id))
+            .andExpect(jsonPath("$.data.userId").value(id))
             .andExpect(jsonPath("$.data.username").value(username))
             .andExpect(jsonPath("$.data.roleName").value(roleName))
             .andDo(print());
@@ -335,7 +335,7 @@ public class UserIntegrationTest extends IntegrationTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_USER))
-            .andExpect(jsonPath("$.data.id").value(1L))
+            .andExpect(jsonPath("$.data.userId").value(1L))
             .andExpect(jsonPath("$.data.username").value(username))
             .andExpect(jsonPath("$.data.roleName").value(roleName))
             .andDo(print());
@@ -399,7 +399,7 @@ public class UserIntegrationTest extends IntegrationTest {
       @BeforeEach
       void setUp() {
         for (int i = 0; i < userCounts; i++) {
-          Role role = roleRepository.findByName("ROLE_USER").orElseThrow();
+          Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow();
           User user = User.builder().username("ROLE_USER" + i).role(role).password("12345678")
               .build();
           userRepository.save(user);

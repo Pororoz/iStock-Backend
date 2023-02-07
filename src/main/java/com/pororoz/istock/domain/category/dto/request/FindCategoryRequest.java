@@ -15,7 +15,7 @@ public class FindCategoryRequest {
 
   @Schema(description = "카테고리 이름", example = "착화기")
   @Nullable
-  private String query;
+  private String categoryName;
 
   @Schema(description = "페이지 요청", example = "0")
   @Nullable
@@ -28,6 +28,6 @@ public class FindCategoryRequest {
   private Integer size;
 
   public FindCategoryServiceRequest toService() {
-    return FindCategoryServiceRequest.builder().name(query).page(page).size(size).build();
+    return FindCategoryServiceRequest.builder().categoryName(categoryName).page(page).size(size).build();
   }
 }
