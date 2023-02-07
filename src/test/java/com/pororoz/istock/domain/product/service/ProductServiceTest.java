@@ -51,7 +51,7 @@ class ProductServiceTest {
       void saveProduct() {
         //given
         Category category = Category.builder().id(1L).build();
-        Product product = Product.builder().name("name").category(category).build();
+        Product product = Product.builder().productName("name").category(category).build();
         SaveProductServiceResponse response = SaveProductServiceResponse.builder()
             .productName("name").categoryId(1L).build();
 
@@ -90,7 +90,7 @@ class ProductServiceTest {
 
         //when
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByName(request.getProductName())).thenReturn(
+        when(productRepository.findByProductName(request.getProductName())).thenReturn(
             Optional.of(mock(Product.class)));
 
         //then
