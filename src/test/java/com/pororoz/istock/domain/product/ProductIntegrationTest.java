@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.product;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,7 +48,7 @@ public class ProductIntegrationTest extends IntegrationTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("제품을 저장한다.")
-    void saveProduct() throws Exception {
+    void saveProductAdmin() throws Exception {
       //given
       databaseCleanup.execute();
       Category category = categoryRepository.save(Category.builder().name("카테고리").build());
@@ -73,16 +74,29 @@ public class ProductIntegrationTest extends IntegrationTest {
 
     @Test
     @WithMockUser(roles = "USER")
-    @DisplayName("user role은 POST api에 접근할 수 없다.")
-    void cannotAccessUser() throws Exception {
+    @DisplayName("user role로 제품을 저장한다.")
+    void saveProductUser() throws Exception {
       //given
-      SaveProductRequest request = SaveProductRequest.builder().build();
+      databaseCleanup.execute();
+      Category category = categoryRepository.save(Category.builder().name("카테고리").build());
+      SaveProductRequest request = SaveProductRequest.builder()
+          .productName(name).productNumber(number)
+          .categoryId(category.getId())
+          .build();
 
       //when
       ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
 
       //then
-      actions.andExpect(status().isForbidden());
+      actions.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_PRODUCT))
+          .andExpect(jsonPath("$.data.productName").value(name))
+          .andExpect(jsonPath("$.data.productNumber").value(number))
+          .andExpect(jsonPath("$.data.codeNumber").value(nullValue()))
+          .andExpect(jsonPath("$.data.stock").value(0))
+          .andExpect(jsonPath("$.data.companyName").value(nullValue()))
+          .andExpect(jsonPath("$.data.categoryId").value(category.getId()))
+          .andDo(print());
     }
 
     @Test
