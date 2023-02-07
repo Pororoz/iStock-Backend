@@ -10,7 +10,9 @@ import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.service.ProductService;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNameDuplicatedSwagger;
+import com.pororoz.istock.domain.product.swagger.exception.ProductNotFoundSwagger;
 import com.pororoz.istock.domain.product.swagger.response.SaveProductResponseSwagger;
+import com.pororoz.istock.domain.product.swagger.response.UpdateProductResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -51,6 +53,12 @@ public class ProductController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_PRODUCT, response));
   }
 
+  @Operation(summary = "update product", description = "제품 수정 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.UPDATE_PRODUCT, content = {
+          @Content(schema = @Schema(implementation = UpdateProductResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = ProductNotFoundSwagger.class))})})
   @PutMapping
   public ResponseEntity<ResultDTO<ProductResponse>> updateProduct(
       @Valid @RequestBody UpdateProductRequest updateProductRequest) {
