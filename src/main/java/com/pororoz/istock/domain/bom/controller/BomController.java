@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.bom.controller;
 
 import com.pororoz.istock.common.dto.ResultDTO;
+import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
@@ -35,9 +36,13 @@ public class BomController {
   @Operation(summary = "save bom", description = "BOM 행 추가 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_BOM, content = {
-          @Content(schema = @Schema(implementation = SaveBomResponseSwagger.class))}),
+          @Content(schema = @Schema(implementation = SaveBomResponseSwagger.class))}
+      ),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.NOT_EXISTED_PART, content = {
           @Content(schema = @Schema(implementation = NotExistedPartExceptionSwagger.class))}
+      ),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}
       ),
   })
   @PostMapping
