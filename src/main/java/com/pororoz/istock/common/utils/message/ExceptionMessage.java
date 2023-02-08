@@ -16,6 +16,7 @@ public class ExceptionMessage {
   public static final String INVALID_CATEGORY_NAME = "카테고리는 2자 이상, 15자 이하로 입력해주세요.";
   public static final String FORBIDDEN = "사용이 거절되었습니다.";
   public static final String PRODUCT_NAME_DUPLICATED = "중복된 product name입니다.";
+  public static final String NOT_EXISTED_PART = "존재하지 않는 part입니다.";
 
   private ExceptionMessage() {
   }

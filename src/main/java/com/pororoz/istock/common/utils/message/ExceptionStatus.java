@@ -9,6 +9,7 @@ public class ExceptionStatus {
   public static final String USER_NOT_FOUND = "USER_NOT_FOUND";
   public static final String CATEGORY_NOT_FOUND = "CATEGORY_NOT_FOUND";
   public static final String PRODUCT_NAME_DUPLICATED = "PRODUCT_NAME_DUPLICATED";
+  public static final String NOT_EXISTED_PART = "NOT_EXISTED_PART";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";
