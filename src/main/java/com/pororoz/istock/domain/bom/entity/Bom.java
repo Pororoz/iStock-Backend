@@ -55,8 +55,14 @@ public class Bom extends TimeEntity {
   private String memo;
 
   @NotNull
+  private Long partId;
+
+  @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Part part;
+
+  @NotNull
+  private Long productId;
 
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
