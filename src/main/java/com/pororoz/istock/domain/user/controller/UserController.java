@@ -44,10 +44,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "User", description = "User API")
+@Validated
 @RestController
 @RequestMapping("/v1/users")
 @RequiredArgsConstructor
-@Validated
 public class UserController {
 
   private final UserService userService;
@@ -85,9 +85,9 @@ public class UserController {
   @DeleteMapping("/{id}")
   public ResponseEntity<ResultDTO<UserResponse>> deleteUser(
       @PathVariable("id") @NotNull(message = ExceptionMessage.INVALID_PATH)
-      @Positive(message = ExceptionMessage.INVALID_PATH) Long id) {
+      @Positive(message = ExceptionMessage.INVALID_PATH) Long userId) {
     UserServiceResponse serviceDto = userService.deleteUser(
-        DeleteUserServiceRequest.builder().id(id).build());
+        DeleteUserServiceRequest.builder().userId(userId).build());
     UserResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_USER, response));

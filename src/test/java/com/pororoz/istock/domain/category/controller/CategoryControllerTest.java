@@ -71,10 +71,10 @@ class CategoryControllerTest extends ControllerTest {
         //given
         LocalDateTime create = LocalDateTime.now();
         LocalDateTime update = LocalDateTime.now();
-        FindCategoryServiceResponse response1 = FindCategoryServiceResponse.builder().id(1L)
-            .name("item1").createdAt(create).updatedAt(update).build();
-        FindCategoryServiceResponse response2 = FindCategoryServiceResponse.builder().id(2L)
-            .name("item2").createdAt(create).updatedAt(update).build();
+        FindCategoryServiceResponse response1 = FindCategoryServiceResponse.builder().categoryId(1L)
+            .categoryName("item1").createdAt(create).updatedAt(update).build();
+        FindCategoryServiceResponse response2 = FindCategoryServiceResponse.builder().categoryId(2L)
+            .categoryName("item2").createdAt(create).updatedAt(update).build();
         List<FindCategoryServiceResponse> findCategoryServiceResponses = List.of(response1,
             response2);
 
@@ -107,9 +107,9 @@ class CategoryControllerTest extends ControllerTest {
             .andExpect(jsonPath("$.data.first").value(false))
             .andExpect(jsonPath("$.data.last").value(false))
             .andExpect(jsonPath("$.data.currentSize").value(2))
-            .andExpect(jsonPath("$.data.contents[0].id").value(1L))
+            .andExpect(jsonPath("$.data.contents[0].categoryId").value(1L))
             .andExpect(jsonPath("$.data.contents[0].categoryName").value("item1"))
-            .andExpect(jsonPath("$.data.contents[1].id").value(2L))
+            .andExpect(jsonPath("$.data.contents[1].categoryId").value(2L))
             .andExpect(jsonPath("$.data.contents[1].categoryName").value("item2"))
             .andDo(print());
       }
@@ -131,11 +131,13 @@ class CategoryControllerTest extends ControllerTest {
       @DisplayName("카테고리를 수정한다.")
       void categoryUpdate() throws Exception {
         //given
-        Long id = 1L;
+        Long categoryId = 1L;
         String newName = "새이름";
-        UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+        UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId)
+            .categoryName(newName)
             .build();
-        CategoryServiceResponse serviceDto = CategoryServiceResponse.builder().id(id).name(newName)
+        CategoryServiceResponse serviceDto = CategoryServiceResponse.builder()
+            .categoryId(categoryId).categoryName(newName)
             .build();
 
         //when
@@ -147,7 +149,7 @@ class CategoryControllerTest extends ControllerTest {
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_CATEGORY))
-            .andExpect(jsonPath("$.data.id").value(id))
+            .andExpect(jsonPath("$.data.categoryId").value(categoryId))
             .andExpect(jsonPath("$.data.categoryName").value(newName));
       }
 
@@ -155,9 +157,9 @@ class CategoryControllerTest extends ControllerTest {
       @DisplayName("카테고리 이름이 1이하이면 예외가 발생한다.")
       void categoryNameLengthMinError() throws Exception {
         //given
-        Long id = 1L;
+        Long categoryId = 1L;
         String newName = "새";
-        UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+        UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId).categoryName(newName)
             .build();
 
         testCategoryNameLength(request);
@@ -167,9 +169,9 @@ class CategoryControllerTest extends ControllerTest {
       @DisplayName("카테고리 이름이 16이상이면 예외가 발생한다.")
       void categoryNameLengthMaxError() throws Exception {
         //given
-        Long id = 1L;
+        Long categoryId = 1L;
         String newName = "일이삼사오육칠팔구십십일십이십삼";
-        UpdateCategoryRequest request = UpdateCategoryRequest.builder().id(id).categoryName(newName)
+        UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId).categoryName(newName)
             .build();
 
         testCategoryNameLength(request);
@@ -198,14 +200,14 @@ class CategoryControllerTest extends ControllerTest {
     @DisplayName("카테고리 생성을 성공하면 Category 값을 반환한다.")
     void saveCategory() throws Exception {
       // given
-      Long id = 1L;
+      Long categoryId = 1L;
       String categoryName = "착화기";
       SaveCategoryRequest request = SaveCategoryRequest.builder()
           .categoryName(categoryName)
           .build();
       CategoryServiceResponse categoryServiceResponse = CategoryServiceResponse.builder()
-          .id(id)
-          .name(categoryName)
+          .categoryId(categoryId)
+          .categoryName(categoryName)
           .build();
 
       //when
@@ -217,7 +219,7 @@ class CategoryControllerTest extends ControllerTest {
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_CATEGORY))
-          .andExpect(jsonPath("$.data.id").value(id))
+          .andExpect(jsonPath("$.data.categoryId").value(categoryId))
           .andExpect(jsonPath("$.data.categoryName").value(categoryName));
     }
 
@@ -249,7 +251,7 @@ class CategoryControllerTest extends ControllerTest {
       return "http://localhost:8080/v1/categories" + "/" + id;
     }
 
-    private Long id;
+    private Long categoryId;
 
     private String categoryName;
 
@@ -257,24 +259,24 @@ class CategoryControllerTest extends ControllerTest {
     @DisplayName("존재하는 카테고리를 삭제하면 Category 값을 반환한다.")
     void deleteCategory() throws Exception {
       // given
-      id = 1L;
+      categoryId = 1L;
       categoryName = "착화기";
       CategoryServiceResponse categoryServiceResponse = CategoryServiceResponse.builder()
-          .id(id)
-          .name(categoryName)
+          .categoryId(categoryId)
+          .categoryName(categoryName)
           .build();
 
       // when
       when(categoryService.deleteCategory(any(DeleteCategoryServiceRequest.class))).thenReturn(
           categoryServiceResponse);
 
-      ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
+      ResultActions actions = getResultActions(url(categoryId), HttpMethod.DELETE);
 
       //then
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_CATEGORY))
-          .andExpect(jsonPath("$.data.id").value(id))
+          .andExpect(jsonPath("$.data.categoryId").value(categoryId))
           .andExpect(jsonPath("$.data.categoryName").value(categoryName));
     }
 
@@ -282,11 +284,11 @@ class CategoryControllerTest extends ControllerTest {
     @DisplayName("존재하지 않는 카테고리를 삭제하면 오류가 발생한다.")
     void error() throws Exception {
       //given
-      id = 2L;
+      categoryId = 2L;
 
       when(categoryService.deleteCategory(any(DeleteCategoryServiceRequest.class))).thenThrow(
           new CategoryNotFoundException());
-      ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
+      ResultActions actions = getResultActions(url(categoryId), HttpMethod.DELETE);
 
       actions.andExpect(status().isNotFound())
           .andExpect(jsonPath("$.status").value(ExceptionStatus.CATEGORY_NOT_FOUND))

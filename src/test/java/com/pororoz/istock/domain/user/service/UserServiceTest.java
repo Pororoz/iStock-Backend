@@ -1,10 +1,8 @@
 package com.pororoz.istock.domain.user.service;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,17 +54,17 @@ class UserServiceTest {
   @DisplayName("계정 수정 API")
   class UpdateUser {
 
-    private Long id;
+    private Long userId;
     private String username;
     private String password;
     private String newPassword;
     private String roleName;
     private String newRoleName;
-    private final Role role = Role.builder().name("ROLE_USER").build();
+    private final Role role = Role.builder().roleName("ROLE_USER").build();
 
     @BeforeEach
     void setup() {
-      id = 1L;
+      userId = 1L;
       username = "test";
       password = "ab1234";
       newPassword = "abc123";
@@ -84,32 +82,32 @@ class UserServiceTest {
         // given
         String encodedPassword = "newEncoded0987";
         UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
-            .id(id)
+            .userId(userId)
             .roleName(newRoleName)
             .password(newPassword)
             .build();
 
         User targetUser = User.builder()
-            .id(id)
+            .id(userId)
             .username(username)
             .password(password)
             .role(role)
             .build();
 
         UserServiceResponse response = UserServiceResponse.builder()
-            .id(id)
+            .userId(userId)
             .username(username)
             .roleName(roleName)
             .build();
 
         // when
         when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
-        when(roleRepository.findByName(any())).thenReturn(Optional.of(role));
-        when(userRepository.findById(id)).thenReturn(Optional.of(targetUser));
+        when(roleRepository.findByRoleName(any())).thenReturn(Optional.of(role));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(targetUser));
         UserServiceResponse result = userService.updateUser(updateUserServiceRequest);
 
         // then
-        assertEquals(result, response);
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
 
@@ -123,13 +121,13 @@ class UserServiceTest {
         // given
         long invalidId = 10000L;
         UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
-            .id(invalidId)
+            .userId(invalidId)
             .password(password)
             .roleName(roleName)
             .build();
 
         // when
-        when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
+        when(roleRepository.findByRoleName(roleName)).thenReturn(Optional.of(role));
 
         // then
         assertThrows(UserNotFoundException.class,
@@ -142,7 +140,7 @@ class UserServiceTest {
         //given
         String invalidRole = "a";
         UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
-            .id(id)
+            .userId(userId)
             .password(password)
             .roleName(invalidRole)
             .build();
@@ -160,7 +158,7 @@ class UserServiceTest {
   @DisplayName("계정 삭제 API")
   class DeleteUser {
 
-    private Long id;
+    private Long userId;
     private String username;
     private String password;
     private String roleName;
@@ -168,10 +166,10 @@ class UserServiceTest {
 
     @BeforeEach
     void setup() {
-      id = 1L;
+      userId = 1L;
       username = "test";
       password = "1234";
-      role = Role.builder().name("ROLE_ADMIN").build();
+      role = Role.builder().roleName("ROLE_ADMIN").build();
       roleName = "ROLE_ADMIN";
     }
 
@@ -184,27 +182,27 @@ class UserServiceTest {
       void deleteUser() {
         // given
         DeleteUserServiceRequest deleteUserServiceRequest = DeleteUserServiceRequest.builder()
-            .id(id).build();
+            .userId(userId).build();
 
         User resultUser = User.builder()
-            .id(id)
+            .id(userId)
             .username(username)
             .password(password)
             .role(role)
             .build();
 
         UserServiceResponse response = UserServiceResponse.builder()
-            .id(id)
+            .userId(userId)
             .username(username)
             .roleName(roleName)
             .build();
 
         // when
-        when(userRepository.findById(id)).thenReturn(Optional.of(resultUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(resultUser));
         UserServiceResponse result = userService.deleteUser(deleteUserServiceRequest);
 
         // then
-        assertEquals(result, response);
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
 
@@ -218,7 +216,7 @@ class UserServiceTest {
         // given
         long invalidId = 10000L;
         DeleteUserServiceRequest deleteUserServiceRequest = DeleteUserServiceRequest.builder()
-            .id(invalidId)
+            .userId(invalidId)
             .build();
 
         // when
@@ -238,7 +236,7 @@ class UserServiceTest {
     private String username;
     private String password;
     private final String roleName = "ROLE_ADMIN";
-    private final Role role = Role.builder().name(roleName).build();
+    private final Role role = Role.builder().roleName(roleName).build();
 
     @BeforeEach
     void setup() {
@@ -267,7 +265,7 @@ class UserServiceTest {
             .build();
 
         UserServiceResponse response = UserServiceResponse.builder()
-            .id(id)
+            .userId(id)
             .username(username)
             .roleName(roleName)
             .build();
@@ -275,11 +273,11 @@ class UserServiceTest {
         // when
         when(passwordEncoder.encode(password)).thenReturn(encodedPassword);
         when(userRepository.save(any())).thenReturn(resultUser);
-        when(roleRepository.findByName(roleName)).thenReturn(Optional.of(role));
+        when(roleRepository.findByRoleName(roleName)).thenReturn(Optional.of(role));
         UserServiceResponse result = userService.saveUser(saveUserServiceRequest);
 
         // then
-        assertEquals(result, response);
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
 
@@ -307,7 +305,7 @@ class UserServiceTest {
   @DisplayName("유저 조회 API Test")
   class FindUser {
 
-    Role userRole = Role.builder().name("ROLE_USER").build();
+    Role userRole = Role.builder().roleName("ROLE_USER").build();
 
     @Nested
     @DisplayName("성공 케이스")
@@ -336,12 +334,13 @@ class UserServiceTest {
         Page<UserServiceResponse> result = userService.findUsers(request);
 
         //then
-        assertThat(result.getTotalElements(), equalTo(totalUsers));
-        assertThat(result.getTotalPages(),
-            equalTo((int) (totalUsers + size) / size));
-        assertThat(result.getContent().size(), equalTo(2));
-        assertThat(result.getContent().get(0), equalTo(userServiceResponses.get(0)));
-        assertThat(result.getContent().get(1), equalTo(userServiceResponses.get(1)));
+        assertThat(result.getTotalElements()).isEqualTo(totalUsers);
+        assertThat(result.getTotalPages()).isEqualTo((int) (totalUsers + size) / size);
+        assertThat(result.getContent().size()).isEqualTo(2);
+        assertThat(result.getContent().get(0)).usingRecursiveComparison()
+            .isEqualTo(userServiceResponses.get(0));
+        assertThat(result.getContent().get(1)).usingRecursiveComparison()
+            .isEqualTo(userServiceResponses.get(1));
       }
 
       @Test
@@ -356,7 +355,7 @@ class UserServiceTest {
         Page<UserServiceResponse> result = userService.findUsers(request);
 
         //then
-        assertIterableEquals(result.getContent(), userServiceResponses);
+        assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(userServiceResponses);
         assertEquals(result.getTotalElements(), result.getNumberOfElements());
         assertEquals(result.getTotalPages(), 1);
       }
@@ -374,7 +373,7 @@ class UserServiceTest {
         Page<UserServiceResponse> result = userService.findUsers(request);
 
         //then
-        assertIterableEquals(result.getContent(), userServiceResponses);
+        assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(userServiceResponses);
         assertEquals(result.getTotalElements(), 0);
         assertEquals(result.getNumberOfElements(), 0);
         assertEquals(result.getTotalPages(), 1);
@@ -399,12 +398,13 @@ class UserServiceTest {
         //then
         assertTrue(result.isFirst());
         assertFalse(result.isLast());
-        assertThat(result.getTotalElements(), equalTo(totalUsers));
-        assertThat(result.getTotalPages(),
-            equalTo((int) (totalUsers + size) / size));
-        assertThat(result.getContent().size(), equalTo(2));
-        assertThat(result.getContent().get(0), equalTo(userServiceResponses.get(0)));
-        assertThat(result.getContent().get(1), equalTo(userServiceResponses.get(1)));
+        assertThat(result.getTotalElements()).isEqualTo(totalUsers);
+        assertThat(result.getTotalPages()).isEqualTo((int) (totalUsers + size) / size);
+        assertThat(result.getContent().size()).isEqualTo(2);
+        assertThat(result.getContent().get(0)).usingRecursiveComparison()
+            .isEqualTo(userServiceResponses.get(0));
+        assertThat(result.getContent().get(1)).usingRecursiveComparison()
+            .isEqualTo(userServiceResponses.get(1));
       }
 
       @Test
@@ -434,11 +434,11 @@ class UserServiceTest {
         //then
         assertFalse(result.isFirst());
         assertFalse(result.isLast());
-        assertThat(result.getTotalElements(), equalTo(totalUsers));
-        assertThat(result.getTotalPages(),
-            equalTo((int) (totalUsers + defaultSize) / defaultSize));
-        assertThat(result.getContent().size(), equalTo(defaultSize));
-        assertIterableEquals(result.getContent(), userServiceResponses);
+        assertThat(result.getTotalElements()).isEqualTo(totalUsers);
+        assertThat(result.getTotalPages()).isEqualTo(
+            (int) (totalUsers + defaultSize) / defaultSize);
+        assertThat(result.getContent().size()).isEqualTo(defaultSize);
+        assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(userServiceResponses);
       }
     }
 
@@ -450,8 +450,8 @@ class UserServiceTest {
 
     private List<UserServiceResponse> getUserServiceResponses(List<User> users) {
       return users.stream().map(
-          user -> UserServiceResponse.builder().id(user.getId()).username(user.getUsername())
-              .roleName(user.getRole().getName()).build()).toList();
+          user -> UserServiceResponse.builder().userId(user.getId()).username(user.getUsername())
+              .roleName(user.getRole().getRoleName()).build()).toList();
     }
   }
 }
