@@ -23,8 +23,8 @@ public class SaveBomServiceResponse {
         .codeNumber(bom.getCodeNumber())
         .quantity(bom.getQuantity())
         .memo(bom.getMemo())
-        .partId(bom.getPartId())
-        .productId(bom.getProductId())
+        .partId(bom.getPart().getId())
+        .productId(bom.getProduct().getId())
         .build();
   }
 }

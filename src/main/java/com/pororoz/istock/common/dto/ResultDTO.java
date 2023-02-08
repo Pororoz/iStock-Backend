@@ -9,12 +9,12 @@ import lombok.Data;
 @Data
 public class ResultDTO<D> {
 
-    @NotBlank
-    private final String status;
+  @NotBlank
+  private final String status;
 
-    @NotBlank
-    private final String message;
+  @NotBlank
+  private final String message;
 
-    @NotNull
-    private final D data;
+  @NotNull
+  private final D data;
 }

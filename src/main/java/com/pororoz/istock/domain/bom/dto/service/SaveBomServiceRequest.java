@@ -23,9 +23,7 @@ public class SaveBomServiceRequest {
         .codeNumber(codeNumber)
         .quantity(quantity)
         .memo(memo)
-        .partId(partId)
         .part(part)
-        .productId(productId)
         .product(product)
         .build();
   }
