@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceResponse;
 import com.pororoz.istock.domain.bom.service.BomService;
@@ -72,7 +73,7 @@ class BomControllerTest extends ControllerTest {
         // then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_PRODUCT))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_BOM))
             .andExpect(jsonPath("$.data.bomId").value(bomId))
             .andExpect(jsonPath("$.data.locationNumber").value(locationNumber))
             .andExpect(jsonPath("$.data.codeNumber").value(codeNumber))

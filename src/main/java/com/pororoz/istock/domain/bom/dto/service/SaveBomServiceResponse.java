@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.bom.dto.service;
 
+import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +26,18 @@ public class SaveBomServiceResponse {
         .memo(bom.getMemo())
         .partId(bom.getPart().getId())
         .productId(bom.getProduct().getId())
+        .build();
+  }
+
+  public BomResponse toResponse() {
+    return BomResponse.builder()
+        .bomId(bomId)
+        .locationNumber(locationNumber)
+        .codeNumber(codeNumber)
+        .quantity(quantity)
+        .memo(memo)
+        .partId(partId)
+        .productId(productId)
         .build();
   }
 }
