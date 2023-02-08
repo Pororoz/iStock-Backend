@@ -3,6 +3,7 @@ package com.pororoz.istock.domain.bom.service;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.bom.exception.NotExistedPart;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
@@ -23,7 +24,7 @@ public class BomService {
 
   public SaveBomServiceResponse saveBom(SaveBomServiceRequest request) {
     Part part = partRepository.findById(request.getPartId())
-        .orElseThrow();
+        .orElseThrow(NotExistedPart::new);
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow();
     Bom result = bomRepository.save(request.toBom(part, product));
