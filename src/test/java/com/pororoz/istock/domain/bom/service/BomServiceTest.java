@@ -10,6 +10,7 @@ import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.NotExistedPart;
+import com.pororoz.istock.domain.bom.exception.NotExistedProduct;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
@@ -151,6 +152,8 @@ class BomServiceTest {
             .build();
 
         //when
+        Part part = Part.builder().id(partId).build();
+        when(partRepository.findById(any())).thenReturn(Optional.of(part));
         when(productRepository.findById(anyLong())).thenThrow(
             NotExistedProduct.class);
         //then
