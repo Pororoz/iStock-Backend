@@ -1,8 +1,11 @@
 package com.pororoz.istock.domain.bom.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
@@ -90,7 +93,9 @@ class BomServiceTest {
             .codeNumber(codeNumber)
             .quantity(quantity)
             .memo(memo)
+            .partId(partId)
             .part(part)
+            .productId(productId)
             .product(product)
             .build();
 
