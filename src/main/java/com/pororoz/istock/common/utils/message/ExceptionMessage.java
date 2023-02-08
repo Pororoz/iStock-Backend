@@ -17,6 +17,7 @@ public class ExceptionMessage {
   public static final String FORBIDDEN = "사용이 거절되었습니다.";
   public static final String PRODUCT_NAME_DUPLICATED = "중복된 product name입니다.";
   public static final String NOT_EXISTED_PART = "존재하지 않는 part입니다.";
+  public static final String NOT_EXISTED_PRODUCT = "존재하지 않는 product입니다.";
 
   private ExceptionMessage() {
   }
