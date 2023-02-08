@@ -18,8 +18,10 @@ public enum ErrorCode {
       ExceptionMessage.USER_NOT_FOUND),
   CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.CATEGORY_NOT_FOUND,
       ExceptionMessage.CATEGORY_NOT_FOUND),
-  PRODUCT_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NAME_DUPLICATED,
-      ExceptionMessage.PRODUCT_NAME_DUPLICATED);
+  PRODUCT_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NUMBER_DUPLICATED,
+      ExceptionMessage.PRODUCT_NUMBER_DUPLICATED),
+  PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_NOT_FOUND,
+      ExceptionMessage.PRODUCT_NOT_FOUND);
 
   private final HttpStatus statusCode;
 
