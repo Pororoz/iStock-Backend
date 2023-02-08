@@ -16,8 +16,10 @@ public enum ErrorCode {
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.USER_NOT_FOUND, ExceptionMessage.USER_NOT_FOUND),
 
-    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.CATEGORY_NOT_FOUND, ExceptionMessage.CATEGORY_NOT_FOUND)
-    ;
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.CATEGORY_NOT_FOUND, ExceptionMessage.CATEGORY_NOT_FOUND),
+
+    PART_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NAME_DUPLICATED, ExceptionMessage.PART_NAME_DUPLICATED);
+
 
     private final HttpStatus statusCode;
 
