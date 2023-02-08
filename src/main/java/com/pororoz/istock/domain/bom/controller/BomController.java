@@ -7,6 +7,7 @@ import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceResponse;
 import com.pororoz.istock.domain.bom.service.BomService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,8 @@ public class BomController {
   private final BomService bomService;
 
   @PostMapping
-  public ResponseEntity<ResultDTO<BomResponse>> saveBom(@RequestBody SaveBomRequest request) {
+  public ResponseEntity<ResultDTO<BomResponse>> saveBom(
+      @Valid @RequestBody SaveBomRequest request) {
     SaveBomServiceResponse serviceDto = bomService.saveBom(request.toService());
     BomResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
