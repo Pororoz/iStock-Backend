@@ -14,7 +14,9 @@ public enum ErrorCode {
     ROLE_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.ROLE_NOT_FOUND, ExceptionMessage.ROLE_NOT_FOUND),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.USER_NOT_FOUND, ExceptionMessage.USER_NOT_FOUND),
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.CATEGORY_NOT_FOUND, ExceptionMessage.CATEGORY_NOT_FOUND),
+    PRODUCT_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NUMBER_DUPLICATED,ExceptionMessage.PRODUCT_NUMBER_DUPLICATED),
     PART_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NAME_DUPLICATED, ExceptionMessage.PART_NAME_DUPLICATED);
+
 
     private final HttpStatus statusCode;
 
