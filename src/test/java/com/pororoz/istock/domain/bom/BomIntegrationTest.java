@@ -185,6 +185,50 @@ public class BomIntegrationTest extends IntegrationTest {
       }
 
       @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("API 요청 시, partId의 값으로 null을 전달하면 400 Bad Request를 반환한다.")
+      void badRequestPartId() throws Exception {
+        // given
+        SaveBomRequest request = SaveBomRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(null)
+            .productId(productId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("API 요청 시, productId의 값으로 null을 전달하면 400 Bad Request를 반환한다.")
+      void badRequestProductId() throws Exception {
+        // given
+        SaveBomRequest request = SaveBomRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(null)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
       @DisplayName("인증되지 않은 사용자가 접근하면 403 Forbidden을 반환한다.")
       void forbidden() throws Exception {
         // given
