@@ -187,7 +187,22 @@ public class BomIntegrationTest extends IntegrationTest {
       @Test
       @DisplayName("인증되지 않은 사용자가 접근하면 403 Forbidden을 반환한다.")
       void forbidden() throws Exception {
+        // given
+        SaveBomRequest request = SaveBomRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
 
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isForbidden())
+            .andDo(print());
       }
     }
   }
