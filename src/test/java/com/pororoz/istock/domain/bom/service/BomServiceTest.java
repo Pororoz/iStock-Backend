@@ -1,7 +1,9 @@
 package com.pororoz.istock.domain.bom.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
@@ -113,7 +115,26 @@ class BomServiceTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+      @Test
+      @DisplayName("partId에 해당하는 part가 존재하지 않으면 예외가 발생한다.")
+      void partNotExist() {
+        //given
+        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
 
+        //when
+        when(partRepository.findById(anyLong())).thenThrow(
+            NotExistedPart.class);
+        //then
+        assertThrows(NotExistedPart.class,
+            () -> bomService.saveBom(request));
+      }
     }
   }
 }
