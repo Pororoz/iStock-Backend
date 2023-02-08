@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.bom.exception.NotExistedPart;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
@@ -133,6 +134,27 @@ class BomServiceTest {
             NotExistedPart.class);
         //then
         assertThrows(NotExistedPart.class,
+            () -> bomService.saveBom(request));
+      }
+
+      @Test
+      @DisplayName("productId에 해당하는 product가 존재하지 않으면 예외가 발생한다.")
+      void productNotExist() {
+        //given
+        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
+
+        //when
+        when(productRepository.findById(anyLong())).thenThrow(
+            NotExistedProduct.class);
+        //then
+        assertThrows(NotExistedProduct.class,
             () -> bomService.saveBom(request));
       }
     }
