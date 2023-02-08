@@ -17,6 +17,7 @@ import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,6 +40,11 @@ public class BomIntegrationTest extends IntegrationTest {
 
   @Autowired
   CategoryRepository categoryRepository;
+
+  @AfterEach
+  void afterEach() {
+    databaseCleanup.execute();
+  }
 
   @Nested
   @DisplayName("POST /api/v1/bom - BOM 행 추가 API")
@@ -146,13 +152,36 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser(roles = "ADMIN")
-      @DisplayName("")
+      @DisplayName("존재하지 않는 productId를 입력하면 400 Bad Request를 반환한다.")
       void notExistedProduct() throws Exception {
         // given
+        String nothing = "1";
+        long number = 1L;
+        Part part = Part.builder()
+            .partName(nothing)
+            .spec(nothing)
+            .stock(number)
+            .price(number)
+            .build();
+        partRepository.save(part);
+
+        SaveBomRequest request = SaveBomRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
 
         // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
 
         // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.NOT_EXISTED_PRODUCT))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.NOT_EXISTED_PRODUCT))
+            .andDo(print());
       }
 
       @Test
