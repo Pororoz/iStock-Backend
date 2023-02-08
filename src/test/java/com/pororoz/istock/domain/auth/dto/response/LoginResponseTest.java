@@ -14,9 +14,9 @@ class LoginResponseTest {
   void of() {
     // given
     String username = "user";
-    String rolename = "role";
+    String roleName = "role";
     Role role = Role.builder()
-        .name(rolename)
+        .roleName(roleName)
         .build();
     User user = User.builder()
         .username(username)
@@ -24,7 +24,7 @@ class LoginResponseTest {
         .build();
     LoginResponse standard = LoginResponse.builder()
         .username(username)
-        .rolename(rolename)
+        .roleName(roleName)
         .build();
 
     // when
@@ -33,6 +33,6 @@ class LoginResponseTest {
     // then
     assertEquals(standard.getClass(), result.getClass());
     assertEquals(standard.getUsername(), result.getUsername());
-    assertEquals(standard.getRolename(), result.getRolename());
+    assertEquals(standard.getRoleName(), result.getRoleName());
   }
 }

@@ -9,23 +9,11 @@ import lombok.experimental.SuperBuilder;
 public class UserResponse {
 
   @Schema(description = "사용자 아이디", example = "1")
-  protected Long id;
+  private Long userId;
 
   @Schema(description = "사용자 이름", example = "pororoz")
-  protected String username;
+  private String username;
 
   @Schema(description = "역할", example = "ROLE_USER")
-  protected String roleName;
-
-  @Override
-  public boolean equals(Object obj) {
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-
-    UserResponse response = (UserResponse) obj;
-    return id.equals(response.getId()) &&
-        username.equals(response.getUsername()) &&
-        roleName.equals(response.getRoleName());
-  }
+  private String roleName;
 }

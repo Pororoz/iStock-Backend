@@ -21,7 +21,7 @@ public class UpdateUserRequest {
   @Schema(description = "사용자 아이디", example = "1")
   @NotNull
   @Positive(message = ExceptionMessage.INVALID_ID)
-  private Long id;
+  private Long userId;
 
   @Schema(description = "비밀번호", example = "1q2w3e4r!")
   @Size(min = 2, max = 100, message = ExceptionMessage.INVALID_PASSWORD)
@@ -33,7 +33,7 @@ public class UpdateUserRequest {
 
   public UpdateUserServiceRequest toService() {
     return UpdateUserServiceRequest.builder()
-        .id(id)
+        .userId(userId)
         .password(password)
         .roleName(roleName)
         .build();

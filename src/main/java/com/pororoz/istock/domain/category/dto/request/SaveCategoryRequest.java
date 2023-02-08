@@ -21,7 +21,7 @@ public class SaveCategoryRequest {
 
   public SaveCategoryServiceRequest toService() {
     return SaveCategoryServiceRequest.builder()
-        .name(categoryName)
+        .categoryName(categoryName)
         .build();
   }
 }
