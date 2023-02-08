@@ -88,7 +88,47 @@ class BomControllerTest extends ControllerTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+      @Test
+      @DisplayName("partId가 비어있으면 Bad Request 오류를 반환한다.")
+      void emptyPartId() throws Exception {
+        // given
+        SaveBomRequest request = SaveBomRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(null)
+            .productId(productId)
+            .build();
 
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("productId가 비어있으면 Bad Request 오류를 반환한다.")
+      void emptyProductId() throws Exception {
+        // given
+        SaveBomRequest request = SaveBomRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(null)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
     }
   }
 }
