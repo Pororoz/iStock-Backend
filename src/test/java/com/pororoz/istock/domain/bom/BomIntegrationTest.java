@@ -5,6 +5,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
+import com.pororoz.istock.common.utils.message.ExceptionMessage;
+import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
@@ -119,13 +121,44 @@ public class BomIntegrationTest extends IntegrationTest {
     class FailCase {
 
       @Test
-      @DisplayName("")
-      void notExistedPart() {
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하지 않는 partId를 입력하면 400 Bad Request를 반환한다.")
+      void notExistedPart() throws Exception {
+        // given
+        SaveBomRequest request = SaveBomRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.NOT_EXISTED_PART))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.NOT_EXISTED_PART))
+            .andDo(print());
       }
 
       @Test
+      @WithMockUser(roles = "ADMIN")
       @DisplayName("")
-      void notExistedProduct() {
+      void notExistedProduct() throws Exception {
+        // given
+
+        // when
+
+        // then
+      }
+
+      @Test
+      @DisplayName("인증되지 않은 사용자가 접근하면 403 Forbidden을 반환한다.")
+      void forbidden() throws Exception {
+
       }
     }
   }
