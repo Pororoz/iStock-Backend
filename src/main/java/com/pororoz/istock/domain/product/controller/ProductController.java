@@ -4,6 +4,7 @@ import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.category.swagger.exception.CategoryNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
@@ -11,6 +12,7 @@ import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.service.ProductService;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNameDuplicatedSwagger;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNotFoundSwagger;
+import com.pororoz.istock.domain.product.swagger.response.DeleteProductResponseSwagger;
 import com.pororoz.istock.domain.product.swagger.response.SaveProductResponseSwagger;
 import com.pororoz.istock.domain.product.swagger.response.UpdateProductResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,7 +48,9 @@ public class ProductController {
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_PRODUCT, content = {
           @Content(schema = @Schema(implementation = SaveProductResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.PRODUCT_NUMBER_DUPLICATED, content = {
-          @Content(schema = @Schema(implementation = ProductNameDuplicatedSwagger.class))})})
+          @Content(schema = @Schema(implementation = ProductNameDuplicatedSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.CATEGORY_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = CategoryNotFoundExceptionSwagger.class))})})
   @PostMapping
   public ResponseEntity<ResultDTO<ProductResponse>> saveProduct(
       @Valid @RequestBody SaveProductRequest saveProductRequest) {
@@ -60,7 +64,7 @@ public class ProductController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.UPDATE_PRODUCT, content = {
           @Content(schema = @Schema(implementation = UpdateProductResponseSwagger.class))}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
           @Content(schema = @Schema(implementation = ProductNotFoundSwagger.class))})})
   @PutMapping
   public ResponseEntity<ResultDTO<ProductResponse>> updateProduct(
@@ -72,6 +76,12 @@ public class ProductController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_PRODUCT, response));
   }
 
+  @Operation(summary = "delete product", description = "제품 삭제 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_PRODUCT, content = {
+          @Content(schema = @Schema(implementation = DeleteProductResponseSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = ProductNotFoundSwagger.class))})})
   @DeleteMapping("/{productId}")
   public ResponseEntity<ResultDTO<ProductResponse>> deleteProduct(
       @Valid @PathVariable("productId") @Positive(message = ExceptionMessage.INVALID_PATH) Long productId) {
