@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.part.controller;
 
 import com.pororoz.istock.common.dto.ResultDTO;
+import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
@@ -39,7 +40,9 @@ public class PartController {
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_PART, content = {
           @Content(schema = @Schema(implementation = SavePartResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.PART_NAME_DUPLICATED, content = {
-          @Content(schema = @Schema(implementation = PartNameDuplicatedSwagger.class))})})
+          @Content(schema = @Schema(implementation = PartNameDuplicatedSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))})})
   @PostMapping
   public ResponseEntity<ResultDTO<PartResponse>> savePart(
       @Valid @RequestBody SavePartRequest savePartRequest){
