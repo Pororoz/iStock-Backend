@@ -37,61 +37,65 @@ public class PartIntegrationTest extends IntegrationTest {
     @BeforeEach
     void setUp() {
       databaseCleanup.execute();
-
       Part part = Part.builder().partName("sth").spec("sth").build();
-
       partRepository.save(part);
     }
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하지 않는 파트를 넘겨주면 파트 추가에 성공한다.")
+      void savePart() throws Exception {
+        //given
+        partName = "BEAD";
+        spec = "BRD|A2D";
+        price = 100000;
+        stock = 5;
+        SavePartRequest request = SavePartRequest.builder()
+            .partName(partName)
+            .spec(spec)
+            .price(price)
+            .stock(stock)
+            .build();
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("존재하지 않는 파트를 넘겨주면 파트 추가에 성공한다.")
-    void savePart() throws Exception {
-      //given
-      partName = "BEAD";
-      spec = "BRD|A2D";
-      price = 100000;
-      stock = 5;
-      SavePartRequest request = SavePartRequest.builder()
-          .partName(partName)
-          .spec(spec)
-          .price(price)
-          .stock(stock)
-          .build();
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
-      //when
-      ResultActions actions = getResultActions(url, HttpMethod.POST, request);
-
-      //then
-      actions.andExpect(status().isOk())
-          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-          .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_PART))
-          .andExpect(jsonPath("$.data.partName").value(partName));
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_PART))
+            .andExpect(jsonPath("$.data.partName").value(partName));
+      }
     }
+    @Nested
+    @DisplayName("실패 케이스")
+    class failCase {
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하는 파트를 넘겨주면 파트 추가에 실패한다.")
+      void duplicatedPart() throws Exception {
+        //given
+        partName = "sth";
+        spec = "sth";
+        price = 100000;
+        stock = 5;
+        SavePartRequest request = SavePartRequest.builder()
+            .partName(partName)
+            .spec(spec)
+            .price(price)
+            .stock(stock)
+            .build();
 
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("존재하는 파트를 넘겨주면 파트 추가에 실패한다.")
-    void duplicatedPart() throws Exception {
-      //given
-      partName = "sth";
-      spec = "BRD|A2D";
-      price = 100000;
-      stock = 5;
-      SavePartRequest request = SavePartRequest.builder()
-          .partName(partName)
-          .spec(spec)
-          .price(price)
-          .stock(stock)
-          .build();
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
-      //when
-      ResultActions actions = getResultActions(url, HttpMethod.POST, request);
-
-      //then
-      actions.andExpect(status().isBadRequest())
-          .andExpect(jsonPath("$.status").value(ExceptionStatus.PART_NAME_DUPLICATED))
-          .andExpect(jsonPath("$.message").value(ExceptionMessage.PART_NAME_DUPLICATED));
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.PART_NAME_DUPLICATED))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.PART_NAME_DUPLICATED));
+      }
     }
   }
 }

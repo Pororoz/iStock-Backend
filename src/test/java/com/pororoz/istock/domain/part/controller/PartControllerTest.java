@@ -24,7 +24,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 @WebMvcTest(value = PartController.class, excludeAutoConfiguration = {
     SecurityAutoConfiguration.class})
-public class PartControllerTest  extends ControllerTest {
+public class PartControllerTest extends ControllerTest {
 
   @MockBean
   PartService partService;
@@ -32,97 +32,104 @@ public class PartControllerTest  extends ControllerTest {
   @Nested
   @DisplayName("파트 추가")
   class SavePart {
+
     String url = "http://localhost:8080/v1/parts";
     private String partName;
     private String spec;
     private long price;
     private long stock;
 
-    @Test
-    @DisplayName("파트를 추가한다.")
-    void savePart() throws Exception {
-      //given
-      partName = "BEAD";
-      spec = "BRD|A2D";
-      price = 100000;
-      stock = 5;
+    @Nested
+    @DisplayName("성공 케이스")
+    class successCase {
 
-      SavePartRequest request = SavePartRequest.builder()
-          .partName(partName).spec(spec)
-          .price(price).stock(stock)
-          .build();
-      SavePartServiceResponse serviceResponse = SavePartServiceResponse.builder()
-          .partName(partName).spec(spec)
-          .price(price).stock(stock)
-          .build();
+      @Test
+      @DisplayName("파트를 추가한다.")
+      void savePart() throws Exception {
+        //given
+        partName = "BEAD";
+        spec = "BRD|A2D";
+        price = 100000;
+        stock = 5;
 
-      //when
-      when(partService.savePart(any(SavePartServiceRequest.class))).thenReturn(
-          serviceResponse);
-      ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        SavePartRequest request = SavePartRequest.builder()
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+        SavePartServiceResponse serviceResponse = SavePartServiceResponse.builder()
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
 
-      //then
-      actions.andExpect(status().isOk())
-          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-          .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_PART))
-          .andExpect(jsonPath("$.data.partName").value(partName))
-          .andDo(print());
+        //when
+        when(partService.savePart(any(SavePartServiceRequest.class))).thenReturn(
+            serviceResponse);
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_PART))
+            .andExpect(jsonPath("$.data.partName").value(partName))
+            .andDo(print());
+      }
     }
 
-    @Test
-    @DisplayName("partName을 적지 않으면 예외가 발생한다.")
-    void partNameNullException() throws Exception {
-      //given
-      partName = null;
-      spec = "BRD|A2D";
-      price = 100000;
-      stock = 5;
+    @Nested
+    @DisplayName("실패 케이스")
+    class failCase {
 
-      SavePartRequest request = SavePartRequest.builder()
-          .partName(partName).spec(spec)
-          .price(price).stock(stock)
-          .build();
-      SavePartServiceResponse serviceResponse = SavePartServiceResponse.builder()
-          .partName(partName).spec(spec)
-          .price(price).stock(stock)
-          .build();
+      @Test
+      @DisplayName("partName을 적지 않으면 예외가 발생한다.")
+      void partNameNullException() throws Exception {
+        //given
+        partName = null;
+        spec = "BRD|A2D";
+        price = 100000;
+        stock = 5;
 
-      //when
-      ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        SavePartRequest request = SavePartRequest.builder()
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+        SavePartServiceResponse serviceResponse = SavePartServiceResponse.builder()
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
 
-      //then
-      actions.andExpect(status().isBadRequest())
-          .andDo(print());
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("spec 적지 않으면 예외가 발생한다.")
+      void specNullException() throws Exception {
+        //given
+        partName = "BEAD";
+        spec = null;
+        price = 100000;
+        stock = 5;
+
+        SavePartRequest request = SavePartRequest.builder()
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+        SavePartServiceResponse serviceResponse = SavePartServiceResponse.builder()
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
     }
-
-    @Test
-    @DisplayName("spec 적지 않으면 예외가 발생한다.")
-    void specNullException() throws Exception {
-      //given
-      partName = "BEAD";
-      spec = null;
-      price = 100000;
-      stock = 5;
-
-      SavePartRequest request = SavePartRequest.builder()
-          .partName(partName).spec(spec)
-          .price(price).stock(stock)
-          .build();
-      SavePartServiceResponse serviceResponse = SavePartServiceResponse.builder()
-          .partName(partName).spec(spec)
-          .price(price).stock(stock)
-          .build();
-
-      //when
-      ResultActions actions = getResultActions(url, HttpMethod.POST, request);
-
-      //then
-      actions.andExpect(status().isBadRequest())
-          .andDo(print());
-
-    }
-
   }
-
 }
