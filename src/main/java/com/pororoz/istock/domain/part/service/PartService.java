@@ -17,7 +17,7 @@ public class PartService {
   private final PartRepository partRepository;
 
   public SavePartServiceResponse savePart(SavePartServiceRequest request) {
-    partRepository.findByPartName(request.getPartName()).ifPresent(p -> {
+    partRepository.findByPartNameAndSpec(request.getPartName(), request.getSpec()).ifPresent(p -> {
       throw new PartNameDuplicatedException();
     });
     Part part = partRepository.save(request.toPart());
