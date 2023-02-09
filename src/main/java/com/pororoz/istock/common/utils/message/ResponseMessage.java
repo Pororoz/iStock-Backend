@@ -1,6 +1,7 @@
 package com.pororoz.istock.common.utils.message;
 
 public class ResponseMessage {
+
   public static final String Login = "로그인";
   public static final String SAVE_USER = "계정 생성";
   public static final String DELETE_USER = "계정 삭제";
@@ -11,6 +12,7 @@ public class ResponseMessage {
   public static final String UPDATE_CATEGORY = "카테고리 수정";
   public static final String SAVE_PRODUCT = "제품 생성";
   public static final String UPDATE_PRODUCT = "제품 수정";
+  public static final String DELETE_PRODUCT = "제품 삭제";
 
   private ResponseMessage() {
   }

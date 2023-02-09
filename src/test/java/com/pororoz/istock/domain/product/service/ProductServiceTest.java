@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -218,5 +219,51 @@ class ProductServiceTest {
         assertThrows(CategoryNotFoundException.class, () -> productService.updateProduct(request));
       }
     }
+  }
+
+  @Nested
+  @DisplayName("product 삭제")
+  class DeleteProduct {
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("product를 삭제한다.")
+      void deleteProduct() {
+        //given
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        doNothing().when(productRepository).delete(product);
+
+        //then
+        ProductServiceResponse response = ProductServiceResponse.builder()
+            .productId(id).productNumber(productNumber)
+            .productName(productName).stock(stock)
+            .companyName(companyName).codeNumber(codeNumber)
+            .category(category)
+            .build();
+        assertThat(productService.deleteProduct(id)).usingRecursiveComparison().isEqualTo(response);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("product id에 맞는 product를 찾을 수 없으면 예외가 발생한다.")
+      void productNotFoundException() {
+        //given
+        //when
+        when(productRepository.findById(any())).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(1L));
+      }
+    }
+
+
   }
 }
