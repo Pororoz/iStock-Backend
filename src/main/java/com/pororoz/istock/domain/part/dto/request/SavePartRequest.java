@@ -27,12 +27,12 @@ public class SavePartRequest {
   private String spec;
 
   @Schema(description = "단가", example = "10000")
-  @NotNull
-  private long price;
+  @Builder.Default
+  private long price = 0;
 
   @Schema(description = "재고", example = "5")
-  @NotNull
-  private long stock;
+  @Builder.Default
+  private long stock = 0;
 
   public SavePartServiceRequest toService() {
     return SavePartServiceRequest.builder()
