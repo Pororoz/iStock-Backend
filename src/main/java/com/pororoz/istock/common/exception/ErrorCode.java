@@ -24,6 +24,9 @@ public enum ErrorCode {
       ExceptionMessage.NOT_EXISTED_PART),
   NOT_EXISTED_PRODUCT(HttpStatus.BAD_REQUEST, ExceptionStatus.NOT_EXISTED_PRODUCT,
       ExceptionMessage.NOT_EXISTED_PRODUCT),
+
+  DUPLICATE_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.DUPLICATE_BOM,
+      ExceptionMessage.DUPLICATE_BOM),
   ;
 
   private final HttpStatus statusCode;
