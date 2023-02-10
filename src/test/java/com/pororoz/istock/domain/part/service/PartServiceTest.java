@@ -105,15 +105,15 @@ public class PartServiceTest {
       @DisplayName("파트를 삭제한다.")
       void deletePart() {
         //given
-        DeletePartServiceResponse response = DeletePartServiceResponse.builder()
-            .partName(partName).spec(spec)
-            .price(price).stock(stock)
-            .build();
 
         //when
         when(partRepository.findByPartId(partId)).thenReturn(Optional.of(part));
 
         //then
+        DeletePartServiceResponse response = DeletePartServiceResponse.builder()
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
         DeletePartServiceResponse result = partService.deletePart(partId);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
 
