@@ -1,5 +1,7 @@
 package com.pororoz.istock.domain.auth.controlloer;
 
+import com.pororoz.istock.common.utils.message.ExceptionMessage;
+import com.pororoz.istock.common.utils.message.ResponseMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -16,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/auth")
 public class AuthController {
 
-  @Operation(summary = "로그인", description = "유저 로그인")
+  @Operation(summary = "login", description = "유저 로그인")
   @ApiResponses({
-      @ApiResponse(responseCode = "204", description = "NO_CONTENT"),
-      @ApiResponse(responseCode = "401", description = "UNAUTHORIZED")
+      @ApiResponse(responseCode = "200", description = ResponseMessage.LOGIN),
+      @ApiResponse(responseCode = "401", description = ExceptionMessage.UNAUTHORIZED)
   })
   @PostMapping("/login")
   public void login() {

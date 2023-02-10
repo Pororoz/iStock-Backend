@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.product.dto.service;
 
+import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.entity.Product;
 import lombok.Builder;
@@ -7,7 +8,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SaveProductServiceResponse {
+public class ProductServiceResponse {
 
   private Long productId;
   private String productName;
@@ -15,20 +16,23 @@ public class SaveProductServiceResponse {
   private String codeNumber;
   private long stock;
   private String companyName;
-  private Long categoryId;
+  private Category category;
 
-  public static SaveProductServiceResponse of(Product product) {
-    return SaveProductServiceResponse.builder().productId(product.getId())
-        .productName(product.getProductName())
+  public static ProductServiceResponse of(Product product) {
+    return ProductServiceResponse.builder()
+        .productId(product.getId()).productName(product.getProductName())
         .productNumber(product.getProductNumber()).codeNumber(product.getCodeNumber())
         .stock(product.getStock()).companyName(product.getCompanyName())
-        .categoryId(product.getCategory().getId()).build();
+        .category(product.getCategory())
+        .build();
   }
 
   public ProductResponse toResponse() {
-    return ProductResponse.builder().productId(productId).productName(productName)
-        .productNumber(productNumber)
-        .codeNumber(codeNumber).stock(stock).companyName(companyName).categoryId(categoryId)
+    return ProductResponse.builder()
+        .productId(productId).productName(productName)
+        .productNumber(productNumber).codeNumber(codeNumber)
+        .stock(stock).companyName(companyName)
+        .categoryId(category.getId())
         .build();
   }
 }

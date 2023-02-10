@@ -18,13 +18,14 @@ public enum ErrorCode {
       ExceptionMessage.USER_NOT_FOUND),
   CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.CATEGORY_NOT_FOUND,
       ExceptionMessage.CATEGORY_NOT_FOUND),
-  PRODUCT_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NAME_DUPLICATED,
-      ExceptionMessage.PRODUCT_NAME_DUPLICATED),
+  PRODUCT_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NUMBER_DUPLICATED,
+      ExceptionMessage.PRODUCT_NUMBER_DUPLICATED),
+  PART_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NAME_DUPLICATED,
+      ExceptionMessage.PART_NAME_DUPLICATED),
   NOT_EXISTED_PART(HttpStatus.BAD_REQUEST, ExceptionStatus.NOT_EXISTED_PART,
       ExceptionMessage.NOT_EXISTED_PART),
   NOT_EXISTED_PRODUCT(HttpStatus.BAD_REQUEST, ExceptionStatus.NOT_EXISTED_PRODUCT,
       ExceptionMessage.NOT_EXISTED_PRODUCT),
-
   DUPLICATE_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.DUPLICATE_BOM,
       ExceptionMessage.DUPLICATE_BOM),
   ;

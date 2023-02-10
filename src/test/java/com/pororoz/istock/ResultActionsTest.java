@@ -7,7 +7,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -24,6 +26,10 @@ public abstract class ResultActionsTest {
   @Autowired
   protected ObjectMapper objectMapper;
 
+  protected Object asParsedJson(Object obj) throws JsonProcessingException {
+    String json = new ObjectMapper().writeValueAsString(obj);
+    return JsonPath.read(json, "$");
+  }
 
   protected ResultActions getResultActions(String uri, MultiValueMap<String, String> params)
       throws Exception {
