@@ -12,9 +12,8 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
-import com.pororoz.istock.domain.part.dto.service.DeletePartServiceResponse;
 import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
-import com.pororoz.istock.domain.part.dto.service.SavePartServiceResponse;
+import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.service.PartService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -60,7 +59,7 @@ public class PartControllerTest extends ControllerTest {
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
-        SavePartServiceResponse serviceResponse = SavePartServiceResponse.builder()
+        PartServiceResponse serviceResponse = PartServiceResponse.builder()
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
@@ -132,7 +131,8 @@ public class PartControllerTest extends ControllerTest {
   @Nested
   @DisplayName("파트 삭제")
   class deletePart {
-    private String url(long partId) { return "http://localhost:8080/v1/parts" + "/" + partId; }
+
+    String url = "http://localhost:8080/v1/parts";
 
     @Nested
     @DisplayName("성공 케이스")
@@ -144,14 +144,14 @@ public class PartControllerTest extends ControllerTest {
       void deletePart() throws Exception {
         //given
         partId = 1L;
-        DeletePartServiceResponse serviceDto = DeletePartServiceResponse.builder()
+        PartServiceResponse serviceDto = PartServiceResponse.builder()
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
 
         //when
         when(partService.deletePart(partId)).thenReturn(serviceDto);
-        ResultActions actions = getResultActions(url(partId), HttpMethod.DELETE);
+        ResultActions actions = getResultActions(url+"/"+partId, HttpMethod.DELETE);
 
         //then
         PartResponse response = PartResponse.builder()
@@ -174,10 +174,10 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("partId가 1이상의 정수가 아니면 bad request 오류가 발생한다.")
       void partIdInvalid() throws Exception {
         //given
-        partId = -1;
+        partId = 0;
 
         //when
-        ResultActions actions = getResultActions(url(partId), HttpMethod.DELETE);
+        ResultActions actions = getResultActions(url + "/" + partId, HttpMethod.DELETE);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -188,9 +188,9 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("partId를 지정하지 않으면 not found 오류가 발생한다.")
       void partIdNotFound() throws Exception {
         //given
-
+        Long partId = 1L;
         //when
-        ResultActions actions = getResultActions(url(partId), HttpMethod.DELETE);
+        ResultActions actions = getResultActions(url + "/", HttpMethod.DELETE);
 
         //then
         actions.andExpect(status().isNotFound())

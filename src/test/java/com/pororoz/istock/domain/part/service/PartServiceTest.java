@@ -6,9 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.pororoz.istock.domain.part.dto.service.DeletePartServiceResponse;
 import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
-import com.pororoz.istock.domain.part.dto.service.SavePartServiceResponse;
+import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartNameDuplicatedException;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
@@ -59,14 +58,14 @@ public class PartServiceTest {
       @DisplayName("파트를 추가한다.")
       void savePart() {
         //given
-        SavePartServiceResponse response = SavePartServiceResponse.builder()
+        PartServiceResponse response = PartServiceResponse.builder()
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
 
         //when
         when(partRepository.save(any())).thenReturn(part);
-        SavePartServiceResponse result = partService.savePart(request);
+        PartServiceResponse result = partService.savePart(request);
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
@@ -110,11 +109,11 @@ public class PartServiceTest {
         when(partRepository.findByPartId(partId)).thenReturn(Optional.of(part));
 
         //then
-        DeletePartServiceResponse response = DeletePartServiceResponse.builder()
+        PartServiceResponse response = PartServiceResponse.builder()
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
-        DeletePartServiceResponse result = partService.deletePart(partId);
+        PartServiceResponse result = partService.deletePart(partId);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
 
       }
