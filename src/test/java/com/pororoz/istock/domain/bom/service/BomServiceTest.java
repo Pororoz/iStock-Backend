@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
 import com.pororoz.istock.domain.bom.exception.NotExistedPartException;
 import com.pororoz.istock.domain.bom.exception.NotExistedProductException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
@@ -106,6 +107,8 @@ class BomServiceTest {
         // when
         when(partRepository.findById(any())).thenReturn(Optional.of(part));
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
+            anyLong())).thenReturn(Optional.empty());
         when(bomRepository.save(any())).thenReturn(bom);
         SaveBomServiceResponse result = bomService.saveBom(request);
 
@@ -162,8 +165,8 @@ class BomServiceTest {
       }
 
       @Test
-      @DisplayName("productId에 해당하는 product가 존재하지 않으면 예외가 발생한다.")
-      void duplicateBomCombination() {
+      @DisplayName("location_number, product_id, part_id이 이미 존재하는 조합이면 예외가 발생한다.")
+      void duplicateBom() {
         //given
         SaveBomServiceRequest request = SaveBomServiceRequest.builder()
             .locationNumber(locationNumber)
@@ -174,16 +177,26 @@ class BomServiceTest {
             .productId(productId)
             .build();
 
-        //when
         Part part = Part.builder().id(partId).build();
         Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+
+        //when
         when(partRepository.findById(any())).thenReturn(Optional.of(part));
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
-            anyLong())).thenReturn(Optional.empty());
+            anyLong())).thenReturn(Optional.of(bom));
 
         //then
-        assertThrows(DuplicateBomCombination.class,
+        assertThrows(DuplicateBomException.class,
             () -> bomService.saveBom(request));
       }
     }
