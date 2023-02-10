@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class ErrorBinder {
-    private String fieldName;
-    private String message;
+
+  private String fieldName;
+  private String message;
 }

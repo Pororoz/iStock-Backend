@@ -76,11 +76,6 @@ public class PartServiceTest {
       @DisplayName("존재하는 파트를 추가하려고 하면 오류가 발생한다.")
       void partNameDuplicated() {
         //given
-        Part part = Part.builder()
-            .partName(partName).spec(spec)
-            .price(price).stock(stock)
-            .build();
-
         //when
         when(partRepository.findByPartNameAndSpec(request.getPartName(),
             request.getSpec())).thenReturn(

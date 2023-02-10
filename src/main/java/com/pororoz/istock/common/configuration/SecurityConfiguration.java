@@ -47,6 +47,7 @@ public class SecurityConfiguration {
         .requestMatchers("/v*/auth/logout").permitAll()
         .requestMatchers("/v*/categories/**").authenticated()
         .requestMatchers("/v*/products/**").authenticated()
+        .requestMatchers("/v*/bom/**").authenticated()
         .anyRequest().hasRole("ADMIN")
     );
 

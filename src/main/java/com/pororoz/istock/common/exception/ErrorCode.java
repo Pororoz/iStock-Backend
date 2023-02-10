@@ -20,10 +20,14 @@ public enum ErrorCode {
       ExceptionMessage.CATEGORY_NOT_FOUND),
   PRODUCT_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NUMBER_DUPLICATED,
       ExceptionMessage.PRODUCT_NUMBER_DUPLICATED),
+  PART_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NAME_DUPLICATED,
+      ExceptionMessage.PART_NAME_DUPLICATED),
+  NOT_EXISTED_PART(HttpStatus.BAD_REQUEST, ExceptionStatus.NOT_EXISTED_PART,
+      ExceptionMessage.NOT_EXISTED_PART),
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_NOT_FOUND,
       ExceptionMessage.PRODUCT_NOT_FOUND),
-  PART_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NAME_DUPLICATED,
-      ExceptionMessage.PART_NAME_DUPLICATED);
+  DUPLICATE_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.DUPLICATE_BOM,
+      ExceptionMessage.DUPLICATE_BOM);
 
 
   private final HttpStatus statusCode;
