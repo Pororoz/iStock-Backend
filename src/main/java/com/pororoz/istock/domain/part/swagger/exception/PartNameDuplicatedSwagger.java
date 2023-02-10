@@ -5,7 +5,8 @@ import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
-@Getter public class PartNameDuplicatedSwagger {
+@Getter
+public class PartNameDuplicatedSwagger {
 
   @Schema(description = "에러 명칭", example = ExceptionStatus.BAD_REQUEST)
   private String status;

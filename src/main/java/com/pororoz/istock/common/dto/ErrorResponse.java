@@ -12,13 +12,13 @@ import java.util.List;
 @Getter
 public class ErrorResponse {
 
-    @Schema(description = "상태 메시지")
-    @NotBlank
-    private final String status;
+  @Schema(description = "상태 메시지")
+  @NotBlank
+  private final String status;
 
-    @Schema(description = "에러에 대한 상세 메시지")
-    @NotBlank
-    private final String message;
+  @Schema(description = "에러에 대한 상세 메시지")
+  @NotBlank
+  private final String message;
 
-    private List<ErrorBinder> errors;
+  private List<ErrorBinder> errors;
 }

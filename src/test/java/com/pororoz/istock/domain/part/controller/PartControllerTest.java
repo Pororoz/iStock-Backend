@@ -92,10 +92,6 @@ public class PartControllerTest extends ControllerTest {
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
-        SavePartServiceResponse serviceResponse = SavePartServiceResponse.builder()
-            .partName(partName).spec(spec)
-            .price(price).stock(stock)
-            .build();
 
         //when
         ResultActions actions = getResultActions(url, HttpMethod.POST, request);
@@ -115,10 +111,6 @@ public class PartControllerTest extends ControllerTest {
         stock = 5;
 
         SavePartRequest request = SavePartRequest.builder()
-            .partName(partName).spec(spec)
-            .price(price).stock(stock)
-            .build();
-        SavePartServiceResponse serviceResponse = SavePartServiceResponse.builder()
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
