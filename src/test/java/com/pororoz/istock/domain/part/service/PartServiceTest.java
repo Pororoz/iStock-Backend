@@ -29,14 +29,21 @@ public class PartServiceTest {
   @Mock
   PartRepository partRepository;
 
+  Long partId = 1L;
+  String partName = "BEAD";
+  String spec = "BID|E2";
+  long price = 100000;
+  long stock = 5;
+
+  Part part = Part.builder()
+      .partName(partName).spec(spec)
+      .price(price).stock(stock)
+      .build();
+
   @Nested
-  @DisplayName("파트 추가 API")
+  @DisplayName("파트 추가")
   class SavePart {
 
-    String partName = "BEAD";
-    String spec = "BID|E2";
-    long price = 100000;
-    long stock = 5;
     SavePartServiceRequest request = SavePartServiceRequest.builder()
         .partName(partName).spec(spec)
         .price(price).stock(stock)
@@ -50,10 +57,6 @@ public class PartServiceTest {
       @DisplayName("파트를 추가한다.")
       void savePart() {
         //given
-        Part part = Part.builder()
-            .partName(partName).spec(spec)
-            .price(price).stock(stock)
-            .build();
         SavePartServiceResponse response = SavePartServiceResponse.builder()
             .partName(partName).spec(spec)
             .price(price).stock(stock)
@@ -84,6 +87,52 @@ public class PartServiceTest {
         //then
         assertThrows(PartNameDuplicatedException.class,
             () -> partService.savePart(request));
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("파트 삭제")
+  class DeletePart {
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("파트를 삭제한다.")
+      void deletePart() {
+        //given
+        DeletePartServiceResponse response = DeletePartServiceResponse.builder()
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+
+        //when
+        when(partRepository.findByPartId(partId)).thenReturn(Optional.of(part));
+
+        //then
+        DeletePartServiceResponse result = partService.deletePart(partId);
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("존재하지 않는 파트를 삭제하려고 하면 오류가 발생한다.")
+      void partNotFound() {
+        //given
+
+        //when
+        when(partRepository.findByPartId(any())).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(PartNotFoundException.class,
+            () -> partService.deletePart(partId));
       }
     }
   }
