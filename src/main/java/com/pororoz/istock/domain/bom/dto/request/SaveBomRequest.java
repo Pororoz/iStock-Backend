@@ -13,18 +13,22 @@ import lombok.Getter;
 public class SaveBomRequest {
   @Schema(description = "location 번호", example = "L5.L4")
   @Size(max = 20)
-  private String locationNumber;
+  @Builder.Default
+  private String locationNumber = "0";
 
   @Schema(description = "코드 번호", example = "0A")
   @Size(max = 20)
-  private String codeNumber;
+  @Builder.Default
+  private String codeNumber = "";
 
   @Schema(description = "제품 수량", example = "3")
   @PositiveOrZero
-  private Long quantity;
+  @Builder.Default
+  private long quantity = 0;
 
-  @Schema(description = "비고", example = "")
-  private String memo;
+  @Schema(description = "비고", example = "비고")
+  @Builder.Default
+  private String memo = "";
 
   @Schema(description = "part 아이다", example = "1")
   @NotNull
