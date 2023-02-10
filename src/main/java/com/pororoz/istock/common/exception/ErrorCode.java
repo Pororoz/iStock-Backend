@@ -24,8 +24,8 @@ public enum ErrorCode {
       ExceptionMessage.PART_NAME_DUPLICATED),
   NOT_EXISTED_PART(HttpStatus.BAD_REQUEST, ExceptionStatus.NOT_EXISTED_PART,
       ExceptionMessage.NOT_EXISTED_PART),
-  NOT_EXISTED_PRODUCT(HttpStatus.BAD_REQUEST, ExceptionStatus.NOT_EXISTED_PRODUCT,
-      ExceptionMessage.NOT_EXISTED_PRODUCT),
+  PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NOT_FOUND,
+      ExceptionMessage.PRODUCT_NOT_FOUND),
   DUPLICATE_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.DUPLICATE_BOM,
       ExceptionMessage.DUPLICATE_BOM),
   ;

@@ -179,8 +179,8 @@ public class BomIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.NOT_EXISTED_PRODUCT))
-            .andExpect(jsonPath("$.message").value(ExceptionMessage.NOT_EXISTED_PRODUCT))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.PRODUCT_NOT_FOUND))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.PRODUCT_NOT_FOUND))
             .andDo(print());
       }
 

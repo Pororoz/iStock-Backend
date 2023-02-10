@@ -12,7 +12,6 @@ public class ExceptionStatus {
   public static final String PRODUCT_NUMBER_DUPLICATED = "PRODUCT_NUMBER_DUPLICATED";
   public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
   public static final String NOT_EXISTED_PART = "NOT_EXISTED_PART";
-  public static final String NOT_EXISTED_PRODUCT = "NOT_EXISTED_PRODUCT";
   public static final String DUPLICATE_BOM = "DUPLICATE_BOM_COMBINATION";
 
   // Uncontrolled Range

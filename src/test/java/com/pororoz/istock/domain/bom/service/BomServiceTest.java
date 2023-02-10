@@ -12,11 +12,11 @@ import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
 import com.pororoz.istock.domain.bom.exception.NotExistedPartException;
-import com.pororoz.istock.domain.bom.exception.NotExistedProductException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
+import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -160,7 +160,7 @@ class BomServiceTest {
         when(partRepository.findById(any())).thenReturn(Optional.of(part));
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
         //then
-        assertThrows(NotExistedProductException.class,
+        assertThrows(ProductNotFoundException.class,
             () -> bomService.saveBom(request));
       }
 

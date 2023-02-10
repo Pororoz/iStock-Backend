@@ -19,7 +19,6 @@ public class ExceptionMessage {
   public static final String PRODUCT_NUMBER_DUPLICATED = "중복된 product number입니다.";
   public static final String PRODUCT_NOT_FOUND = "해당 제품을 찾을 수 없습니다.";
   public static final String NOT_EXISTED_PART = "존재하지 않는 part입니다.";
-  public static final String NOT_EXISTED_PRODUCT = "존재하지 않는 product입니다.";
   public static final String DUPLICATE_BOM = "location_number, product_id, part_id의 조합이 중복됩니다.";
 
   private ExceptionMessage() {
