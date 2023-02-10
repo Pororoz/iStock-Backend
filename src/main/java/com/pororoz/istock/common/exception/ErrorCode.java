@@ -21,7 +21,10 @@ public enum ErrorCode {
   PRODUCT_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NUMBER_DUPLICATED,
       ExceptionMessage.PRODUCT_NUMBER_DUPLICATED),
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_NOT_FOUND,
-      ExceptionMessage.PRODUCT_NOT_FOUND);
+      ExceptionMessage.PRODUCT_NOT_FOUND),
+  PART_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NAME_DUPLICATED,
+      ExceptionMessage.PART_NAME_DUPLICATED);
+
 
   private final HttpStatus statusCode;
 
