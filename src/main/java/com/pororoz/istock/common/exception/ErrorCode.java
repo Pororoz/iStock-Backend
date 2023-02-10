@@ -22,6 +22,8 @@ public enum ErrorCode {
       ExceptionMessage.PRODUCT_NUMBER_DUPLICATED),
   PART_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NAME_DUPLICATED,
       ExceptionMessage.PART_NAME_DUPLICATED),
+  PART_NOT_FOUND(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NOT_FOUND,
+      ExceptionMessage.PART_NOT_FOUND),
   NOT_EXISTED_PART(HttpStatus.BAD_REQUEST, ExceptionStatus.NOT_EXISTED_PART,
       ExceptionMessage.NOT_EXISTED_PART),
   PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NOT_FOUND,
