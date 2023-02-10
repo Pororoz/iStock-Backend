@@ -26,7 +26,7 @@ public class PartService {
   }
 
   public PartServiceResponse deletePart(long partId) {
-    Part part = partRepository.findByPartId(partId)
+    Part part = partRepository.findById(partId)
         .orElseThrow(PartNotFoundException::new);
     partRepository.delete(part);
     return PartServiceResponse.of(part);

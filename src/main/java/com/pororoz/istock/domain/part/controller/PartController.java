@@ -10,6 +10,8 @@ import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.service.PartService;
 import com.pororoz.istock.domain.part.swagger.exception.PartNameDuplicatedSwagger;
+import com.pororoz.istock.domain.part.swagger.exception.PartNotFoundExceptionSwagger;
+import com.pororoz.istock.domain.part.swagger.response.DeletePartResponseSwagger;
 import com.pororoz.istock.domain.part.swagger.response.SavePartResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,7 +20,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -49,23 +50,26 @@ public class PartController {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))})})
   @PostMapping
   public ResponseEntity<ResultDTO<PartResponse>> savePart(
-      @Valid @RequestBody SavePartRequest savePartRequest){
+      @Valid @RequestBody SavePartRequest savePartRequest) {
     PartServiceResponse serviceDto = partService.savePart(
         savePartRequest.toService());
     PartResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
-        new ResultDTO<>(ResponseStatus.OK,ResponseMessage.SAVE_PART,response));
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_PART, response));
   }
 
   @Operation(summary = "delete part", description = "Part 삭제 API")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_PART, content = {}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.PART_NOT_FOUND),
-      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {})})
+      @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_PART, content = {
+          @Content(schema = @Schema(implementation = DeletePartResponseSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PART_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = PartNotFoundExceptionSwagger.class))})
+  })
   @DeleteMapping("/{partId}")
   public ResponseEntity<ResultDTO<PartResponse>> deletePart(
-      @PathVariable("partId") @NotNull(message=ExceptionMessage.INVALID_PATH)
-      @Positive(message = ExceptionMessage.INVALID_PATH) Long partId) {
+      @PathVariable("partId") @Positive(message = ExceptionMessage.INVALID_PATH) Long partId) {
     PartServiceResponse serviceDto = partService.deletePart(partId);
     PartResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
