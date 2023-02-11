@@ -10,6 +10,7 @@ import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
+import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.service.BomService;
@@ -129,6 +130,69 @@ class BomControllerTest extends ControllerTest {
         actions.andExpect(status().isBadRequest())
             .andDo(print());
       }
+    }
+  }
+
+  @Nested
+  @DisplayName("BOM Delete Controller Test")
+  class DeleteBom {
+
+    Long bomId = 1L;
+    String locationNumber = "L5.L4";
+    String codeNumber = "";
+    Long quantity = 3L;
+    String memo = "";
+    Long partId = 1L;
+    Long productId = 2L;
+
+    String uri(long bomId) {
+      return "http://localhost:8080/v1/bom/" + bomId;
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class  SuccessCase {
+      @Test
+      @DisplayName("존재하는 BOM을 삭제하면 Response가 돌아온다.")
+      void deleteBom() throws Exception {
+        // given
+        DeleteBomRequest request = DeleteBomRequest.builder()
+            .bomId(bomId)
+            .build();
+        BomServiceResponse serviceResponse = BomServiceResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
+
+        // when
+        when(bomService.deleteBom(any(DeleteBomServiceRequest.class))).thenReturn(serviceResponse);
+        ResultActions actions = getResultActions(uri(bomId), HttpMethod.DELETE, request);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_BOM))
+            .andExpect(jsonPath("$.data.bomId").value(bomId))
+            .andExpect(jsonPath("$.data.locationNumber").value(locationNumber))
+            .andExpect(jsonPath("$.data.codeNumber").value(codeNumber))
+            .andExpect(jsonPath("$.data.quantity").value(quantity))
+            .andExpect(jsonPath("$.data.memo").value(memo))
+            .andExpect(jsonPath("$.data.partId").value(partId))
+            .andExpect(jsonPath("$.data.productId").value(productId))
+            .andDo(print());
+      }
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
     }
   }
 }
