@@ -200,7 +200,17 @@ class BomControllerTest extends ControllerTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+        @Test
+        @DisplayName("bomId가 null 값이면 400 Bad Request를 반환한다.")
+        void bomIdNull() throws Exception {
+          // given
+          // when
+          ResultActions actions = deleteWithParams(uri, params);
 
+          // then
+          actions.andExpect(status().isBadRequest())
+              .andDo(print());
+        }
     }
   }
 }
