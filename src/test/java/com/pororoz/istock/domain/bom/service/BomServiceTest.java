@@ -232,7 +232,7 @@ class BomServiceTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("")
+      @DisplayName("존재하는 BOM ID를 전송하면 해당 BOM을 삭제한다.")
       void deleteBom() {
         // given
         Part part = Part.builder().id(partId).build();
@@ -274,7 +274,7 @@ class BomServiceTest {
     @DisplayName("실패 케이스")
     class FailCase {
       @Test
-      @DisplayName("")
+      @DisplayName("만약 존재하지 않는 BOM을 삭제하려고 하면 BomNotFoundException를 반환한다.")
       void deleteBom() {
         // given
         DeleteBomServiceRequest request =  DeleteBomServiceRequest.builder()
