@@ -343,6 +343,7 @@ public class BomIntegrationTest extends IntegrationTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
       @Test
       @WithMockUser(roles = "ADMIN")
       @DisplayName("존재하지 않는 BOM 값을 삭제 시도하면 400 Bad Request를 반환한다.")
