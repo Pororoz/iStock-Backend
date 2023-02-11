@@ -272,7 +272,21 @@ class BomServiceTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+      @Test
+      @DisplayName("")
+      void deleteBom() {
+        // given
+        DeleteBomServiceRequest request =  DeleteBomServiceRequest.builder()
+            .bomId(bomId)
+            .build();
 
+        // when
+        when(bomRepository.findById(bomId)).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(BomNotFoundException.class,
+            () -> bomService.deleteBom(request));
+      }
     }
   }
 }
