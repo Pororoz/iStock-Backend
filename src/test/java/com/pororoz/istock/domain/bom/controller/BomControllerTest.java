@@ -185,7 +185,7 @@ class BomControllerTest extends ControllerTest {
         // then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_BOM))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_BOM))
             .andExpect(jsonPath("$.data.bomId").value(bomId))
             .andExpect(jsonPath("$.data.locationNumber").value(locationNumber))
             .andExpect(jsonPath("$.data.codeNumber").value(codeNumber))

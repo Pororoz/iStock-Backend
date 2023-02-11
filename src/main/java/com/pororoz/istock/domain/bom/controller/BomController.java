@@ -63,6 +63,6 @@ public class BomController {
     BomServiceResponse serviceDto = bomService.deleteBom(request.toService());
     BomResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
-        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_BOM, response));
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_BOM, response));
   }
 }

@@ -13,6 +13,7 @@ public class ResponseMessage {
   public static final String SAVE_PRODUCT = "제품 생성";
   public static final String UPDATE_PRODUCT = "제품 수정";
   public static final String SAVE_BOM = "BOM 행 추가";
+  public static final String DELETE_BOM = "BOM 행 제거";
 
   private ResponseMessage() {
   }

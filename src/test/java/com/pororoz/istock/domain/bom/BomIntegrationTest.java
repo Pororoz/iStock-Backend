@@ -10,6 +10,7 @@ import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
+import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
@@ -26,6 +27,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 public class BomIntegrationTest extends IntegrationTest {
 
@@ -246,6 +249,93 @@ public class BomIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("DELETE /api/v1/bom - BOM 행 제거 API")
+  class deleteBom {
+
+    Long bomId = 1L;
+    String locationNumber = "L5.L4";
+    String codeNumber = "";
+    Long quantity = 3L;
+    String memo = "";
+    Long partId = 1L;
+    Long productId = 1L;
+
+    MultiValueMap<String, String> params;
+    String uri = "http://localhost:8080/v1/bom";
+
+    @BeforeEach
+    void setup() {
+      params = new LinkedMultiValueMap<>();
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      Part part;
+      Product product;
+      Category category;
+      Bom bom;
+
+      @BeforeEach
+      void setup() {
+        String nothing = "1";
+        long number = 1L;
+        part = Part.builder()
+            .partName(nothing)
+            .spec(nothing)
+            .stock(number)
+            .price(number)
+            .build();
+        category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
+        product = Product.builder()
+            .productName(nothing)
+            .productNumber(nothing)
+            .codeNumber(nothing)
+            .category(category)
+            .companyName(nothing)
+            .stock(number)
+            .build();
+        partRepository.save(part);
+        productRepository.save(product);
+        bom = Bom.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .product(product)
+            .part(part)
+            .build();
+        bomRepository.save(bom);
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하는 BOM을 삭제하면 해당 BOM 데이터 값과 200 OK를 반환한다.")
+      void deleteBom() throws Exception {
+        // given
+        params.add("bomId", Long.toString(bomId));
+
+        // when
+        ResultActions actions = deleteWithParams(uri, params);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_BOM))
+            .andExpect(jsonPath("$.data.bomId").value(bomId))
+            .andExpect(jsonPath("$.data.locationNumber").value(locationNumber))
+            .andExpect(jsonPath("$.data.codeNumber").value(codeNumber))
+            .andExpect(jsonPath("$.data.quantity").value(quantity))
+            .andExpect(jsonPath("$.data.memo").value(memo))
+            .andExpect(jsonPath("$.data.partId").value(partId))
+            .andExpect(jsonPath("$.data.productId").value(productId))
             .andDo(print());
       }
     }
