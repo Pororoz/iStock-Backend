@@ -5,6 +5,7 @@ import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.bom.dto.request.DeleteBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
@@ -20,6 +21,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +52,15 @@ public class BomController {
   public ResponseEntity<ResultDTO<BomResponse>> saveBom(
       @Valid @RequestBody SaveBomRequest request) {
     BomServiceResponse serviceDto = bomService.saveBom(request.toService());
+    BomResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_BOM, response));
+  }
+
+  @DeleteMapping
+  public ResponseEntity<ResultDTO<BomResponse>> deleteBom(
+      @ModelAttribute("request") DeleteBomRequest request) {
+    BomServiceResponse serviceDto = bomService.deleteBom(request.toService());
     BomResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_BOM, response));
