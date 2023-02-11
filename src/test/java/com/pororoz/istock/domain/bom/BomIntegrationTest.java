@@ -339,5 +339,55 @@ public class BomIntegrationTest extends IntegrationTest {
             .andDo(print());
       }
     }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하지 않는 BOM 값을 삭제 시도하면 400 Bad Request를 반환한다.")
+      void bomNotFound() throws Exception {
+        // given
+        params.add("bomId", Long.toString(bomId));
+
+        // when
+        ResultActions actions = deleteWithParams(uri, params);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.BOM_NOT_FOUND))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.BOM_NOT_FOUND))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("bomId에 마이너스 값을 넣으면 400 Bad Request를 반환한다.")
+      void bomIdMinus() throws Exception {
+        // given
+        params.add("bomId", Long.toString(-1));
+
+        // when
+        ResultActions actions = deleteWithParams(uri, params);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("인증되지 않은 사용자가 접근하면 403 Forbidden을 반환한다.")
+      void forbidden() throws Exception {
+        // given
+        params.add("bomId", Long.toString(bomId));
+
+        // when
+        ResultActions actions = deleteWithParams(uri, params);
+
+        // then
+        actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
+    }
   }
 }
