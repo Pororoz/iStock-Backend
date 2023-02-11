@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -246,7 +247,7 @@ class BomServiceTest {
             .build();
 
         DeleteBomServiceRequest request =  DeleteBomServiceRequest.builder()
-            .bomId()
+            .bomId(bomId)
             .build();
 
         BomServiceResponse response = BomServiceResponse.builder()
