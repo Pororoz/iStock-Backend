@@ -106,7 +106,7 @@ public class PartServiceTest {
         //given
 
         //when
-        when(partRepository.findByPartId(partId)).thenReturn(Optional.of(part));
+        when(partRepository.findById(partId)).thenReturn(Optional.of(part));
 
         //then
         PartServiceResponse response = PartServiceResponse.builder()
@@ -129,7 +129,7 @@ public class PartServiceTest {
         //given
 
         //when
-        when(partRepository.findByPartId(any())).thenReturn(Optional.empty());
+        when(partRepository.findById(any())).thenReturn(Optional.empty());
 
         //then
         assertThrows(PartNotFoundException.class,

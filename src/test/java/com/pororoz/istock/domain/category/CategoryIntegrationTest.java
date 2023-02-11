@@ -398,7 +398,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
   }
 
   @Nested
-  @DisplayName("DELETE /v1/categories/{id} - 카테고리 삭제 API")
+  @DisplayName("DELETE /v1/categories/{categoryId} - 카테고리 삭제 API")
   class DeleteCategory {
 
     private String url(long id) {
