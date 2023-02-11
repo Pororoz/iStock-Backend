@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SaveBomServiceResponse {
+public class BomServiceResponse {
 
   private Long bomId;
   private String locationNumber;
@@ -17,8 +17,8 @@ public class SaveBomServiceResponse {
   private Long partId;
   private Long productId;
 
-  public static SaveBomServiceResponse of(Bom bom) {
-    return SaveBomServiceResponse.builder()
+  public static BomServiceResponse of(Bom bom) {
+    return BomServiceResponse.builder()
         .bomId(bom.getId())
         .locationNumber(bom.getLocationNumber())
         .codeNumber(bom.getCodeNumber())

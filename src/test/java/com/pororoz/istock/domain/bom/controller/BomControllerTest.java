@@ -11,7 +11,7 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
-import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceResponse;
+import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.service.BomService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -56,7 +56,7 @@ class BomControllerTest extends ControllerTest {
             .partId(partId)
             .productId(productId)
             .build();
-        SaveBomServiceResponse serviceResponse = SaveBomServiceResponse.builder()
+        BomServiceResponse serviceResponse = BomServiceResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)

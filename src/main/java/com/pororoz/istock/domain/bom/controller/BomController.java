@@ -7,7 +7,7 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
-import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceResponse;
+import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.service.BomService;
 import com.pororoz.istock.domain.bom.swagger.exception.NotExistedPartExceptionSwagger;
 import com.pororoz.istock.domain.bom.swagger.response.SaveBomResponseSwagger;
@@ -48,7 +48,7 @@ public class BomController {
   @PostMapping
   public ResponseEntity<ResultDTO<BomResponse>> saveBom(
       @Valid @RequestBody SaveBomRequest request) {
-    SaveBomServiceResponse serviceDto = bomService.saveBom(request.toService());
+    BomServiceResponse serviceDto = bomService.saveBom(request.toService());
     BomResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_BOM, response));
