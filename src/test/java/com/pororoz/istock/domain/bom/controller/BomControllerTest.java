@@ -10,10 +10,11 @@ import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
+import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
-import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.service.BomService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 @WebMvcTest(value = BomController.class, excludeAutoConfiguration = {
     SecurityAutoConfiguration.class})
@@ -33,6 +36,7 @@ class BomControllerTest extends ControllerTest {
   @Nested
   @DisplayName("제품 Bom 행 추가")
   class SaveBom {
+
     Long bomId = 1L;
     String locationNumber = "L5.L4";
     String codeNumber = "";
@@ -45,6 +49,7 @@ class BomControllerTest extends ControllerTest {
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
+
       @Test
       @DisplayName("Bom 정보를 넣으면 저장된다.")
       void saveBom() throws Exception {
@@ -89,6 +94,7 @@ class BomControllerTest extends ControllerTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
       @Test
       @DisplayName("partId가 비어있으면 Bad Request 오류를 반환한다.")
       void emptyPartId() throws Exception {
@@ -145,20 +151,22 @@ class BomControllerTest extends ControllerTest {
     Long partId = 1L;
     Long productId = 2L;
 
-    String uri(long bomId) {
-      return "http://localhost:8080/v1/bom/" + bomId;
+    String uri = "http://localhost:8080/v1/bom";
+    MultiValueMap<String, String> params;
+
+    @BeforeEach
+    void setup() {
+      params = new LinkedMultiValueMap<>();
     }
 
     @Nested
     @DisplayName("성공 케이스")
-    class  SuccessCase {
+    class SuccessCase {
+
       @Test
       @DisplayName("존재하는 BOM을 삭제하면 Response가 돌아온다.")
       void deleteBom() throws Exception {
         // given
-        DeleteBomRequest request = DeleteBomRequest.builder()
-            .bomId(bomId)
-            .build();
         BomServiceResponse serviceResponse = BomServiceResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
@@ -168,10 +176,11 @@ class BomControllerTest extends ControllerTest {
             .partId(partId)
             .productId(productId)
             .build();
+        params.add("bomId", Long.toString(bomId));
 
         // when
         when(bomService.deleteBom(any(DeleteBomServiceRequest.class))).thenReturn(serviceResponse);
-        ResultActions actions = getResultActions(uri(bomId), HttpMethod.DELETE, request);
+        ResultActions actions = deleteWithParams(uri, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -185,7 +194,6 @@ class BomControllerTest extends ControllerTest {
             .andExpect(jsonPath("$.data.partId").value(partId))
             .andExpect(jsonPath("$.data.productId").value(productId))
             .andDo(print());
-      }
       }
     }
 

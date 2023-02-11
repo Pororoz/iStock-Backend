@@ -275,7 +275,7 @@ class BomServiceTest {
     class FailCase {
       @Test
       @DisplayName("만약 존재하지 않는 BOM을 삭제하려고 하면 BomNotFoundException를 반환한다.")
-      void deleteBom() {
+      void bomNotFound() {
         // given
         DeleteBomServiceRequest request =  DeleteBomServiceRequest.builder()
             .bomId(bomId)
