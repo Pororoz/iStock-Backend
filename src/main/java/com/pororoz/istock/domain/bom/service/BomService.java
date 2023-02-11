@@ -4,6 +4,7 @@ import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
 import com.pororoz.istock.domain.bom.exception.NotExistedPartException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
@@ -40,7 +41,7 @@ public class BomService {
 
   public BomServiceResponse deleteBom(DeleteBomServiceRequest request) {
     Bom result = bomRepository.findById(request.getBomId())
-        .orElseThrow();
+        .orElseThrow(BomNotFoundException::new);
     bomRepository.delete(result);
     return BomServiceResponse.of(result);
   }
