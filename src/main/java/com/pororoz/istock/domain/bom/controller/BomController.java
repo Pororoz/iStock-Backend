@@ -59,7 +59,7 @@ public class BomController {
 
   @DeleteMapping
   public ResponseEntity<ResultDTO<BomResponse>> deleteBom(
-      @ModelAttribute("request") DeleteBomRequest request) {
+      @Valid @ModelAttribute("request") DeleteBomRequest request) {
     BomServiceResponse serviceDto = bomService.deleteBom(request.toService());
     BomResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(

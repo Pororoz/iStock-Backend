@@ -211,6 +211,34 @@ class BomControllerTest extends ControllerTest {
           actions.andExpect(status().isBadRequest())
               .andDo(print());
         }
+
+      @Test
+      @DisplayName("bomId가 숫자가 아닌 값이면 400 Bad Request를 반환한다.")
+      void bomIdNotNumber() throws Exception {
+        // given
+        params.add("bomId", "not-number");
+
+        // when
+        ResultActions actions = deleteWithParams(uri, params);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("bomId가 마이너스 값이면 400 Bad Request를 반환한다.")
+      void bomIdMinusNumber() throws Exception {
+        // given
+        params.add("bomId", "-1");
+
+        // when
+        ResultActions actions = deleteWithParams(uri, params);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
     }
   }
 }
