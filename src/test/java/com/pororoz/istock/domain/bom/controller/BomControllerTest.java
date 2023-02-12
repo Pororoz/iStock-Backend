@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.bom.controller;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -10,6 +11,7 @@ import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
+import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
@@ -71,6 +73,15 @@ class BomControllerTest extends ControllerTest {
             .partId(partId)
             .productId(productId)
             .build();
+        BomResponse response = BomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
 
         // when
         when(bomService.saveBom(any(SaveBomServiceRequest.class))).thenReturn(serviceResponse);
@@ -80,13 +91,7 @@ class BomControllerTest extends ControllerTest {
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_BOM))
-            .andExpect(jsonPath("$.data.bomId").value(bomId))
-            .andExpect(jsonPath("$.data.locationNumber").value(locationNumber))
-            .andExpect(jsonPath("$.data.codeNumber").value(codeNumber))
-            .andExpect(jsonPath("$.data.quantity").value(quantity))
-            .andExpect(jsonPath("$.data.memo").value(memo))
-            .andExpect(jsonPath("$.data.partId").value(partId))
-            .andExpect(jsonPath("$.data.productId").value(productId))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }
@@ -177,6 +182,15 @@ class BomControllerTest extends ControllerTest {
             .productId(productId)
             .build();
         params.add("bomId", Long.toString(bomId));
+        BomResponse response = BomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
 
         // when
         when(bomService.deleteBom(any(DeleteBomServiceRequest.class))).thenReturn(serviceResponse);
@@ -186,13 +200,7 @@ class BomControllerTest extends ControllerTest {
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_BOM))
-            .andExpect(jsonPath("$.data.bomId").value(bomId))
-            .andExpect(jsonPath("$.data.locationNumber").value(locationNumber))
-            .andExpect(jsonPath("$.data.codeNumber").value(codeNumber))
-            .andExpect(jsonPath("$.data.quantity").value(quantity))
-            .andExpect(jsonPath("$.data.memo").value(memo))
-            .andExpect(jsonPath("$.data.partId").value(partId))
-            .andExpect(jsonPath("$.data.productId").value(productId))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }

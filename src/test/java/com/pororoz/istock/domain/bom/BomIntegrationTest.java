@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.bom;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,6 +11,7 @@ import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
+import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
@@ -106,6 +108,15 @@ public class BomIntegrationTest extends IntegrationTest {
             .partId(partId)
             .productId(productId)
             .build();
+        BomResponse response = BomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
 
         // when
         ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
@@ -114,13 +125,7 @@ public class BomIntegrationTest extends IntegrationTest {
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_BOM))
-            .andExpect(jsonPath("$.data.bomId").value(bomId))
-            .andExpect(jsonPath("$.data.locationNumber").value(locationNumber))
-            .andExpect(jsonPath("$.data.codeNumber").value(codeNumber))
-            .andExpect(jsonPath("$.data.quantity").value(quantity))
-            .andExpect(jsonPath("$.data.memo").value(memo))
-            .andExpect(jsonPath("$.data.partId").value(partId))
-            .andExpect(jsonPath("$.data.productId").value(productId))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }
@@ -320,6 +325,16 @@ public class BomIntegrationTest extends IntegrationTest {
       @DisplayName("존재하는 BOM을 삭제하면 해당 BOM 데이터 값과 200 OK를 반환한다.")
       void deleteBom() throws Exception {
         // given
+        BomResponse response = BomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
+
         params.add("bomId", Long.toString(bomId));
 
         // when
@@ -329,13 +344,7 @@ public class BomIntegrationTest extends IntegrationTest {
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_BOM))
-            .andExpect(jsonPath("$.data.bomId").value(bomId))
-            .andExpect(jsonPath("$.data.locationNumber").value(locationNumber))
-            .andExpect(jsonPath("$.data.codeNumber").value(codeNumber))
-            .andExpect(jsonPath("$.data.quantity").value(quantity))
-            .andExpect(jsonPath("$.data.memo").value(memo))
-            .andExpect(jsonPath("$.data.partId").value(partId))
-            .andExpect(jsonPath("$.data.productId").value(productId))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }
