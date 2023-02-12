@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SavePartServiceResponse {
+public class PartServiceResponse {
 
   private Long partId;
   private String partName;
@@ -15,8 +15,8 @@ public class SavePartServiceResponse {
   private long price;
   private long stock;
 
-  public static SavePartServiceResponse of(Part part) {
-    return SavePartServiceResponse.builder()
+  public static PartServiceResponse of(Part part) {
+    return PartServiceResponse.builder()
         .partId(part.getId())
         .partName(part.getPartName())
         .spec(part.getSpec())
