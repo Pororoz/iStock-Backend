@@ -37,7 +37,7 @@ public class UpdateProductRequest {
 
   @Schema(description = "재고 수량", example = "0")
   @PositiveOrZero
-  private long stock = 0L;
+  private long stock = 0;
 
   @Schema(description = "거래처 이름", example = "pororoz")
   @Size(max = 50)

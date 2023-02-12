@@ -32,7 +32,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
     LoginResponse loginResponse = LoginResponse.builder()
         .username((String) authentication.getPrincipal())
         .roleName(authentication.getAuthorities().iterator().next().toString()).build();
-    ResponseEntity responseEntity = ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, ResponseMessage.LOGIN, loginResponse));
+    ResponseEntity responseEntity = ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.LOGIN, loginResponse));
     String result = objectMapper.writeValueAsString(responseEntity.getBody());
     response.getWriter().write(result);
 

@@ -9,9 +9,7 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
-import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
-import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +33,7 @@ public class PartIntegrationTest extends IntegrationTest {
   private String spec;
   private long price;
   private long stock;
+
   @Nested
   @DisplayName("POST /v1/parts - 파트 추가")
   class SavePart {
@@ -45,9 +44,11 @@ public class PartIntegrationTest extends IntegrationTest {
       Part part = Part.builder().partName("sth").spec("sth").build();
       partRepository.save(part);
     }
+
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
+
       @Test
       @WithMockUser(roles = "ADMIN")
       @DisplayName("존재하지 않는 파트를 넘겨주면 파트 추가에 성공한다.")
@@ -74,9 +75,11 @@ public class PartIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.data.partName").value(partName));
       }
     }
+
     @Nested
     @DisplayName("실패 케이스")
     class failCase {
+
       @Test
       @WithMockUser(roles = "ADMIN")
       @DisplayName("존재하는 파트를 넘겨주면 파트 추가에 실패한다.")
@@ -107,6 +110,7 @@ public class PartIntegrationTest extends IntegrationTest {
   @Nested
   @DisplayName("DELETE /v1/parts/{partId} - 파트 삭제 API")
   class DeletePart {
+
     @BeforeEach
     void setUp() {
       databaseCleanup.execute();
@@ -117,6 +121,7 @@ public class PartIntegrationTest extends IntegrationTest {
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
+
       @Test
       @WithMockUser(roles = "ADMIN")
       @DisplayName("존재하는 파트를 넘겨주면 파트 삭제에 성공한다.")

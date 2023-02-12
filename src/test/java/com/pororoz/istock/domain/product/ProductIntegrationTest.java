@@ -196,4 +196,40 @@ public class ProductIntegrationTest extends IntegrationTest {
           .andExpect(jsonPath("$.data", equalTo(asParsedJson(response)))).andDo(print());
     }
   }
+
+  @Nested
+  @DisplayName("DELETE /v1/products/{productId} - 제품 삭제")
+  class deleteProduct {
+
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName("제품을 정상적으로 삭제한다.")
+    void saveProduct() throws Exception {
+      //given
+      databaseCleanup.execute();
+      Category category = categoryRepository.save(
+          Category.builder().categoryName("category").build());
+      Product product = productRepository.save(Product.builder()
+          .productNumber(number).productName(name)
+          .stock(stock).companyName(companyName)
+          .category(category)
+          .build());
+
+      //when
+      ResultActions actions = getResultActions(uri + "/" + product.getId().intValue(),
+          HttpMethod.DELETE);
+
+      //then
+      ProductResponse response = ProductResponse.builder()
+          .productId(product.getId()).productNumber(number)
+          .productName(name).companyName(companyName)
+          .stock(stock).categoryId(category.getId())
+          .build();
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+  }
 }

@@ -35,6 +35,7 @@ class ProductControllerTest extends ControllerTest {
   @MockBean
   ProductService productService;
 
+  String uri = "http://localhost:8080/v1/products";
   Long id = 1L;
   String name = "productName";
   String number = "productNumber";
@@ -47,8 +48,6 @@ class ProductControllerTest extends ControllerTest {
   @Nested
   @DisplayName("product 저장")
   class SaveProduct {
-
-    String uri = "http://localhost:8080/v1/products";
 
     @Test
     @DisplayName("product를 정상적으로 저장한다.")
@@ -145,8 +144,6 @@ class ProductControllerTest extends ControllerTest {
   @DisplayName("product 수정")
   class ProductUpdate {
 
-    String uri = "http://localhost:8080/v1/products";
-
     @Test
     @DisplayName("product를 수정한다.")
     void updateProduct() throws Exception {
@@ -241,6 +238,65 @@ class ProductControllerTest extends ControllerTest {
       //then
       actions.andExpect(status().isBadRequest())
           .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+          .andDo(print());
+    }
+  }
+
+  @Nested
+  @DisplayName("product 삭제")
+  class DeleteProduct {
+
+    @Test
+    @DisplayName("product를 삭제한다.")
+    void deleteProduct() throws Exception {
+      //given
+      ProductServiceResponse serviceDto = ProductServiceResponse.builder()
+          .productId(1L).productName(name)
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
+          .category(category)
+          .build();
+
+      //when
+      when(productService.deleteProduct(1L)).thenReturn(serviceDto);
+      ResultActions actions = getResultActions(uri + "/1", HttpMethod.DELETE);
+
+      //then
+      ProductResponse response = ProductResponse.builder()
+          .productId(1L).productName(name)
+          .productNumber(number).codeNumber(codeNumber)
+          .stock(stock).companyName(companyName)
+          .categoryId(category.getId())
+          .build();
+
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("product id를 지정하지 않으면 not found가 발생한다.")
+    void productIdNull() throws Exception {
+      //given
+      //when
+      ResultActions actions = getResultActions(uri + "/", HttpMethod.DELETE);
+
+      //then
+      actions.andExpect(status().isNotFound())
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("product id가 음수이면 bad request가 발생한다.")
+    void productIdNegative() throws Exception {
+      //given
+      //when
+      ResultActions actions = getResultActions(uri + "/-1", HttpMethod.DELETE);
+
+      //then
+      actions.andExpect(status().isBadRequest())
           .andDo(print());
     }
   }

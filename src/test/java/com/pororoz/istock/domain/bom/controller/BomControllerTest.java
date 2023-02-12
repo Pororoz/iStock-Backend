@@ -32,10 +32,11 @@ class BomControllerTest extends ControllerTest {
   @Nested
   @DisplayName("제품 Bom 행 추가")
   class SaveBom {
+
     Long bomId = 1L;
     String locationNumber = "L5.L4";
     String codeNumber = "";
-    Long quantity = 3L;
+    long quantity = 3;
     String memo = "";
     Long partId = 1L;
     Long productId = 2L;
@@ -44,6 +45,7 @@ class BomControllerTest extends ControllerTest {
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
+
       @Test
       @DisplayName("Bom 정보를 넣으면 저장된다.")
       void saveBom() throws Exception {
@@ -88,6 +90,7 @@ class BomControllerTest extends ControllerTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
       @Test
       @DisplayName("partId가 비어있으면 Bad Request 오류를 반환한다.")
       void emptyPartId() throws Exception {

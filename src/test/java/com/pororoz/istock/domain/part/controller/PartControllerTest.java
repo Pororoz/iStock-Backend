@@ -12,8 +12,8 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
-import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
+import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
 import com.pororoz.istock.domain.part.service.PartService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -36,6 +36,7 @@ public class PartControllerTest extends ControllerTest {
   private String spec;
   private long price;
   private long stock;
+
   @Nested
   @DisplayName("파트 추가")
   class SavePart {
@@ -151,7 +152,7 @@ public class PartControllerTest extends ControllerTest {
 
         //when
         when(partService.deletePart(partId)).thenReturn(serviceDto);
-        ResultActions actions = getResultActions(url+"/"+partId, HttpMethod.DELETE);
+        ResultActions actions = getResultActions(url + "/" + partId, HttpMethod.DELETE);
 
         //then
         PartResponse response = PartResponse.builder()
@@ -188,7 +189,6 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("partId를 지정하지 않으면 not found 오류가 발생한다.")
       void partIdNotFound() throws Exception {
         //given
-        Long partId = 1L;
         //when
         ResultActions actions = getResultActions(url + "/", HttpMethod.DELETE);
 

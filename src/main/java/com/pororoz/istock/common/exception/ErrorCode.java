@@ -26,11 +26,11 @@ public enum ErrorCode {
       ExceptionMessage.PART_NOT_FOUND),
   NOT_EXISTED_PART(HttpStatus.BAD_REQUEST, ExceptionStatus.NOT_EXISTED_PART,
       ExceptionMessage.NOT_EXISTED_PART),
-  PRODUCT_NOT_FOUND(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NOT_FOUND,
+  PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_NOT_FOUND,
       ExceptionMessage.PRODUCT_NOT_FOUND),
   DUPLICATE_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.DUPLICATE_BOM,
-      ExceptionMessage.DUPLICATE_BOM),
-  ;
+      ExceptionMessage.DUPLICATE_BOM);
+
 
   private final HttpStatus statusCode;
 

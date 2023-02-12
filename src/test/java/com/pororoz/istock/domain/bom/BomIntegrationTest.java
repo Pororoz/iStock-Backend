@@ -53,7 +53,7 @@ public class BomIntegrationTest extends IntegrationTest {
     Long bomId = 1L;
     String locationNumber = "L5.L4";
     String codeNumber = "";
-    Long quantity = 3L;
+    long quantity = 3;
     String memo = "";
     Long partId = 1L;
     Long productId = 1L;
@@ -70,7 +70,7 @@ public class BomIntegrationTest extends IntegrationTest {
       @BeforeEach
       void setup() {
         String nothing = "1";
-        long number = 1L;
+        long number = 1;
         part = Part.builder()
             .partName(nothing)
             .spec(nothing)
@@ -91,7 +91,7 @@ public class BomIntegrationTest extends IntegrationTest {
       }
 
       @Test
-      @WithMockUser(roles = "ADMIN")
+      @WithMockUser(roles = "USER")
       @DisplayName("모든 값을 정상적으로 넣으면 200 OK와 저장한 Bom Data를 반환한다.")
       void saveBom() throws Exception {
         // given
@@ -152,11 +152,11 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser(roles = "ADMIN")
-      @DisplayName("존재하지 않는 productId를 입력하면 400 Bad Request를 반환한다.")
+      @DisplayName("존재하지 않는 productId를 입력하면 404 Not Found를 반환한다.")
       void notExistedProduct() throws Exception {
         // given
         String nothing = "1";
-        long number = 1L;
+        long number = 1;
         Part part = Part.builder()
             .partName(nothing)
             .spec(nothing)
@@ -178,7 +178,7 @@ public class BomIntegrationTest extends IntegrationTest {
         ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
 
         // then
-        actions.andExpect(status().isBadRequest())
+        actions.andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(ExceptionStatus.PRODUCT_NOT_FOUND))
             .andExpect(jsonPath("$.message").value(ExceptionMessage.PRODUCT_NOT_FOUND))
             .andDo(print());

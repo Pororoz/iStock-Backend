@@ -48,6 +48,7 @@ public class SecurityConfiguration {
         .requestMatchers("/v*/categories/**").authenticated()
         .requestMatchers("/v*/parts/**").authenticated()
         .requestMatchers("/v*/products/**").authenticated()
+        .requestMatchers("/v*/bom/**").authenticated()
         .anyRequest().hasRole("ADMIN")
     );
 

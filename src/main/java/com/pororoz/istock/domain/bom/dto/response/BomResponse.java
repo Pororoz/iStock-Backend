@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class BomResponse {
+
   @Schema(description = "bom 아이디", example = "1")
   private Long bomId;
 
@@ -19,7 +20,7 @@ public class BomResponse {
   @Schema(description = "제품 수량", example = "3")
   private Long quantity;
 
-  @Schema(description = "비고", example = "")
+  @Schema(description = "비고", example = "메모")
   private String memo;
 
   @Schema(description = "part 아이다", example = "1")
