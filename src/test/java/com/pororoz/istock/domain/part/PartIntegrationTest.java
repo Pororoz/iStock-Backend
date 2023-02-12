@@ -151,7 +151,7 @@ public class PartIntegrationTest extends IntegrationTest {
         ResultActions actions = getResultActions(url + "/" + partId, HttpMethod.DELETE);
 
         // then
-        actions.andExpect(status().isBadRequest())
+        actions.andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(ExceptionStatus.PART_NOT_FOUND))
             .andExpect(jsonPath("$.message").value(ExceptionMessage.PART_NOT_FOUND))
             .andDo(print());
