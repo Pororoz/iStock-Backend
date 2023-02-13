@@ -11,6 +11,7 @@ import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
+import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
@@ -137,7 +138,7 @@ public class BomIntegrationTest extends IntegrationTest {
       @Test
       @WithMockUser(roles = "ADMIN")
       @DisplayName("존재하지 않는 partId를 입력하면 400 Bad Request를 반환한다.")
-      void notExistedPart() throws Exception {
+      void partNotFound() throws Exception {
         // given
         SaveBomRequest request = SaveBomRequest.builder()
             .locationNumber(locationNumber)
@@ -152,16 +153,16 @@ public class BomIntegrationTest extends IntegrationTest {
         ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
 
         // then
-        actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.NOT_EXISTED_PART))
-            .andExpect(jsonPath("$.message").value(ExceptionMessage.NOT_EXISTED_PART))
+        actions.andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.PART_NOT_FOUND))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.PART_NOT_FOUND))
             .andDo(print());
       }
 
       @Test
       @WithMockUser(roles = "ADMIN")
       @DisplayName("존재하지 않는 productId를 입력하면 404 Not Found를 반환한다.")
-      void notExistedProduct() throws Exception {
+      void productNotFound() throws Exception {
         // given
         String nothing = "1";
         long number = 1;
@@ -364,7 +365,7 @@ public class BomIntegrationTest extends IntegrationTest {
         ResultActions actions = deleteWithParams(uri, params);
 
         // then
-        actions.andExpect(status().isBadRequest())
+        actions.andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(ExceptionStatus.BOM_NOT_FOUND))
             .andExpect(jsonPath("$.message").value(ExceptionMessage.BOM_NOT_FOUND))
             .andDo(print());
@@ -398,6 +399,129 @@ public class BomIntegrationTest extends IntegrationTest {
         actions.andExpect(status().isForbidden())
             .andDo(print());
       }
+    }
+  }
+
+  @Nested
+  @DisplayName("")
+  class UpdateBom {
+
+    Long bomId = 1L;
+    String locationNumber = "L5.L4";
+    String codeNumber = "";
+    long quantity = 3;
+    String memo = "";
+    Long partId = 1L;
+    Long productId = 1L;
+    String newLocationNumber = "new location";
+    String newCodeNumber = "new code";
+    Long newQuantity = 5L;
+    String newMemo = "new";
+    Long newPartId = 2L;
+    Long newProductId = 2L;
+    String uri = "http://localhost:8080/v1/bom";
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+      Part part;
+      Product product;
+      Category category;
+
+      @BeforeEach
+      void setup() {
+        String nothing1 = "1";
+        String nothing2 = "2";
+        long number1 = 1;
+        long number2 = 2;
+        category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
+        Part partFixture1 = Part.builder()
+            .id(partId)
+            .partName(nothing1)
+            .spec(nothing1)
+            .stock(number1)
+            .price(number1)
+            .build();
+        Part partFixture2 = Part.builder()
+            .id(newPartId)
+            .partName(nothing2)
+            .spec(nothing2)
+            .stock(number2)
+            .price(number2)
+            .build();
+        Product productFixture1 = Product.builder()
+            .id(productId)
+            .productName(nothing1)
+            .productNumber(nothing1)
+            .codeNumber(nothing1)
+            .category(category)
+            .companyName(nothing1)
+            .stock(number1)
+            .build();
+        Product productFixture2 = Product.builder()
+            .id(newProductId)
+            .productName(nothing2)
+            .productNumber(nothing2)
+            .codeNumber(nothing2)
+            .category(category)
+            .companyName(nothing2)
+            .stock(number2)
+            .build();
+        part = partRepository.save(partFixture1);
+        partRepository.save(partFixture2);
+        product = productRepository.save(productFixture1);
+        productRepository.save(productFixture2);
+        Bom bom = Bom.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+        bomRepository.save(bom);
+      }
+
+      @Test
+      @WithMockUser(roles = "USER")
+      @DisplayName("모든 값을 정상적으로 넣으면 200 OK와 저장한 Bom Data를 반환한다.")
+      void saveBom() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+        BomResponse response = BomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
     }
   }
 }
