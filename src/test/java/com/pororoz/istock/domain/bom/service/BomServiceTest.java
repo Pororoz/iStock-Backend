@@ -290,4 +290,104 @@ class BomServiceTest {
       }
     }
   }
+
+  @Nested
+  @DisplayName("제품 BOM 행 수정 로직 테스트")
+  class UpdateBom {
+
+    Long bomId;
+    String locationNumber;
+    String codeNumber;
+    Long quantity;
+    String memo;
+    Long partId;
+    Long productId;
+
+    @BeforeEach
+    void setup() {
+      bomId = 1L;
+      locationNumber = "L5.L4";
+      codeNumber = "";
+      quantity = 3L;
+      memo = "";
+      partId = 1L;
+      productId = 2L;
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+      @Test
+      @DisplayName("BOM 수정에 성공한다.")
+      void updateBom() {
+        // given
+        String newLocationNumber = "new location";
+        String newCodeNumber = "new code";
+        Long newQuantity = 5L;
+        String newMemo = "new";
+        Long newPartId = 3L;
+        Long newProductId = 4L;
+        Part part = Part.builder().id(partId).build();
+        Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+        Part newPart = Part.builder().id(newPartId).build();
+        Product newProduct = Product.builder().id(newProductId).build();
+        Bom newBom = Bom.builder()
+            .id(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .part(newPart)
+            .product(newProduct)
+            .build();
+
+        UpdateBomServiceRequest request =  UpdateBomServiceRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        BomServiceResponse response = BomServiceResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
+
+        // when
+        when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
+        when(partRepository.findById(any())).thenReturn(Optional.of(part));
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
+            anyLong())).thenReturn(Optional.empty());
+        when(bomRepository.save(any())).thenReturn(newBom);
+        BomServiceResponse result = bomService.updateBom(request);
+
+        // then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+    }
+  }
 }
