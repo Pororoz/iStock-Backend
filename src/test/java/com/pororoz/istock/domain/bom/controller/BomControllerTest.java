@@ -42,7 +42,7 @@ class BomControllerTest extends ControllerTest {
     Long bomId = 1L;
     String locationNumber = "L5.L4";
     String codeNumber = "";
-    Long quantity = 3L;
+    long quantity = 3;
     String memo = "";
     Long partId = 1L;
     Long productId = 2L;

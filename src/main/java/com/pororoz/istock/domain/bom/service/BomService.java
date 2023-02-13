@@ -17,9 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class BomService {
 
   private final PartRepository partRepository;
@@ -33,7 +33,7 @@ public class BomService {
         .orElseThrow(ProductNotFoundException::new);
     bomRepository.findByLocationNumberAndProductIdAndPartId(request.getLocationNumber(),
         request.getProductId(), request.getPartId()).ifPresent(p -> {
-          throw new DuplicateBomException();
+      throw new DuplicateBomException();
     });
     Bom result = bomRepository.save(request.toBom(part, product));
     return BomServiceResponse.of(result);

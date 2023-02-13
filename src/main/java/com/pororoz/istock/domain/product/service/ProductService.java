@@ -41,6 +41,13 @@ public class ProductService {
     return ProductServiceResponse.of(product);
   }
 
+  public ProductServiceResponse deleteProduct(Long productId) {
+    Product product = productRepository.findById(productId)
+        .orElseThrow(ProductNotFoundException::new);
+    productRepository.delete(product);
+    return ProductServiceResponse.of(product);
+  }
+
   private void checkProductNumberDuplicated(String oldNumber, String newNumber) {
     if (Objects.equals(oldNumber, newNumber)) {
       return;
