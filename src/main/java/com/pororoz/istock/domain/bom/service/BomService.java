@@ -52,9 +52,15 @@ public class BomService {
         .orElseThrow(PartNotFoundException::new);
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
+
+    // 인덱스로 묶여진 3가지 요소가 다를 때는 예외처리를 해줘야 한다.
     bomRepository.findByLocationNumberAndProductIdAndPartId(request.getLocationNumber(),
         request.getProductId(), request.getPartId()).ifPresent(p -> {
-      throw new DuplicateBomException();
+      if (!request.getLocationNumber().equals(bom.getLocationNumber())
+          || !request.getPartId().equals(bom.getPart().getId())
+          || !request.getProductId().equals(bom.getProduct().getId())) {
+        throw new DuplicateBomException();
+      }
     });
 
     bom.update(part, product, request);

@@ -84,7 +84,7 @@ public class BomController {
 
   @PutMapping
   public ResponseEntity<ResultDTO<BomResponse>> updateBom(
-      @RequestBody UpdateBomRequest request) {
+      @Valid @RequestBody UpdateBomRequest request) {
     BomServiceResponse serviceDto = bomService.updateBom(request.toService());
     BomResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(

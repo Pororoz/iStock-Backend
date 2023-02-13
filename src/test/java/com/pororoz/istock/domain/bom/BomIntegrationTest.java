@@ -137,7 +137,7 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser(roles = "ADMIN")
-      @DisplayName("존재하지 않는 partId를 입력하면 400 Bad Request를 반환한다.")
+      @DisplayName("존재하지 않는 partId를 입력하면 404 Not Found를 반환한다.")
       void partNotFound() throws Exception {
         // given
         SaveBomRequest request = SaveBomRequest.builder()
@@ -190,6 +190,58 @@ public class BomIntegrationTest extends IntegrationTest {
         actions.andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(ExceptionStatus.PRODUCT_NOT_FOUND))
             .andExpect(jsonPath("$.message").value(ExceptionMessage.PRODUCT_NOT_FOUND))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("이미 존재하는 조합의 BOM을 저장하면 404 Bad Request를 반환한다.")
+      void duplicateBom() throws Exception {
+        // given
+        String nothing = "1";
+        long number = 1;
+        Part part = partRepository.save(Part.builder()
+            .partName(nothing)
+            .spec(nothing)
+            .stock(number)
+            .price(number)
+            .build());
+        Category category = categoryRepository.save(
+            Category.builder().categoryName("카테고리").build());
+        Product product = productRepository.save(Product.builder()
+            .productName(nothing)
+            .productNumber(nothing)
+            .codeNumber(nothing)
+            .category(category)
+            .companyName(nothing)
+            .stock(number)
+            .build());
+        Bom bom = Bom.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+        bomRepository.save(bom);
+
+        SaveBomRequest request = SaveBomRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.DUPLICATE_BOM))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.DUPLICATE_BOM))
             .andDo(print());
       }
 
@@ -356,7 +408,7 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser(roles = "ADMIN")
-      @DisplayName("존재하지 않는 BOM 값을 삭제 시도하면 400 Bad Request를 반환한다.")
+      @DisplayName("존재하지 않는 BOM 값을 삭제 시도하면 404 Not Found를 반환한다.")
       void bomNotFound() throws Exception {
         // given
         params.add("bomId", Long.toString(bomId));
@@ -403,7 +455,7 @@ public class BomIntegrationTest extends IntegrationTest {
   }
 
   @Nested
-  @DisplayName("")
+  @DisplayName("PUT /api/v1/bom - 제품 BOM 행 수정 API")
   class UpdateBom {
 
     Long bomId = 1L;
@@ -424,6 +476,7 @@ public class BomIntegrationTest extends IntegrationTest {
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
+
       Part part;
       Product product;
       Category category;
@@ -485,7 +538,7 @@ public class BomIntegrationTest extends IntegrationTest {
       @Test
       @WithMockUser(roles = "USER")
       @DisplayName("모든 값을 정상적으로 넣으면 200 OK와 저장한 Bom Data를 반환한다.")
-      void saveBom() throws Exception {
+      void updateBom() throws Exception {
         // given
         UpdateBomRequest request = UpdateBomRequest.builder()
             .bomId(bomId)
@@ -516,12 +569,380 @@ public class BomIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
+
+      @Test
+      @WithMockUser(roles = "USER")
+      @DisplayName("locationNumber, partId, productId를 변경하지 않을 경우 수정해도 BOM 값이 수정되고, 200 OK와 저장한 Bom Data를 반환한다.")
+      void updateBomWithSameIndex() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(partId)
+            .productId(productId)
+            .build();
+        BomResponse response = BomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(partId)
+            .productId(productId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "USER")
+      @DisplayName("아무 값도 변경하지 않은 요청을 보낼 경우, 200 OK와 저장한 Bom Data를 반환한다.")
+      void updateBomNotChange() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
+        BomResponse response = BomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(partId)
+            .productId(productId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
     }
 
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
 
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하지 않는 BOM의 ID를 입력하면 404 Not Found를 반환한다.")
+      void bomNotFound() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.BOM_NOT_FOUND))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.BOM_NOT_FOUND))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하지 않는 partId를 입력하면 404 Not Found를 반환한다.")
+      void partNotFound() throws Exception {
+        // given
+        String nothing1 = "1";
+        long number1 = 1;
+        Category category = categoryRepository.save(
+            Category.builder().categoryName("카테고리").build());
+        Part partFixture1 = Part.builder()
+            .id(partId)
+            .partName(nothing1)
+            .spec(nothing1)
+            .stock(number1)
+            .price(number1)
+            .build();
+        Product productFixture1 = Product.builder()
+            .id(productId)
+            .productName(nothing1)
+            .productNumber(nothing1)
+            .codeNumber(nothing1)
+            .category(category)
+            .companyName(nothing1)
+            .stock(number1)
+            .build();
+        Part part = partRepository.save(partFixture1);
+        Product product = productRepository.save(productFixture1);
+        Bom bom = Bom.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+        bomRepository.save(bom);
+
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.PART_NOT_FOUND))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.PART_NOT_FOUND))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하지 않는 productId를 입력하면 404 Not Found를 반환한다.")
+      void productNotFound() throws Exception {
+        // given
+        String nothing1 = "1";
+        String nothing2 = "2";
+        long number1 = 1;
+        long number2 = 2;
+        Category category = categoryRepository.save(
+            Category.builder().categoryName("카테고리").build());
+        Part partFixture1 = Part.builder()
+            .id(partId)
+            .partName(nothing1)
+            .spec(nothing1)
+            .stock(number1)
+            .price(number1)
+            .build();
+        Part partFixture2 = Part.builder()
+            .id(newPartId)
+            .partName(nothing2)
+            .spec(nothing2)
+            .stock(number2)
+            .price(number2)
+            .build();
+        Product productFixture1 = Product.builder()
+            .id(productId)
+            .productName(nothing1)
+            .productNumber(nothing1)
+            .codeNumber(nothing1)
+            .category(category)
+            .companyName(nothing1)
+            .stock(number1)
+            .build();
+        Part part = partRepository.save(partFixture1);
+        partRepository.save(partFixture2);
+        Product product = productRepository.save(productFixture1);
+        Bom bom = Bom.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+        bomRepository.save(bom);
+
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.PRODUCT_NOT_FOUND))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.PRODUCT_NOT_FOUND))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("locationNumber, partId, productId 중 하나라도 변경하는 경우, 이미 존재하는 조합의 BOM으로 수정하려고 하면 404 Bad Request를 반환한다.")
+      void duplicateBom() throws Exception {
+        // given
+        String nothing1 = "1";
+        long number1 = 1;
+        String nothing2 = "2";
+        long number2 = 2;
+        Part part1 = partRepository.save(Part.builder()
+            .id(1L)
+            .partName(nothing1)
+            .spec(nothing1)
+            .stock(number1)
+            .price(number1)
+            .build());
+        Part part2 = partRepository.save(Part.builder()
+            .id(2L)
+            .partName(nothing2)
+            .spec(nothing2)
+            .stock(number2)
+            .price(number2)
+            .build());
+        Category category = categoryRepository.save(
+            Category.builder().categoryName("카테고리").build());
+        Product product1 = productRepository.save(Product.builder()
+            .productName(nothing1)
+            .productNumber(nothing1)
+            .codeNumber(nothing1)
+            .category(category)
+            .companyName(nothing1)
+            .stock(number1)
+            .build());
+        Product product2 = productRepository.save(Product.builder()
+            .productName(nothing2)
+            .productNumber(nothing2)
+            .codeNumber(nothing2)
+            .category(category)
+            .companyName(nothing2)
+            .stock(number2)
+            .build());
+        Bom bom1 = Bom.builder()
+            .id(1L)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part1)
+            .product(product1)
+            .build();
+        Bom bom2 = Bom.builder()
+            .id(2L)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part2)
+            .product(product2)
+            .build();
+        bomRepository.save(bom1);
+        bomRepository.save(bom2);
+
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.DUPLICATE_BOM))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.DUPLICATE_BOM))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("API 요청 시, partId의 값으로 null을 전달하면 400 Bad Request를 반환한다.")
+      void badRequestPartId() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(null)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("API 요청 시, productId의 값으로 null을 전달하면 400 Bad Request를 반환한다.")
+      void badRequestProductId() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(null)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("인증되지 않은 사용자가 접근하면 403 Forbidden을 반환한다.")
+      void forbidden() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
     }
   }
 }
