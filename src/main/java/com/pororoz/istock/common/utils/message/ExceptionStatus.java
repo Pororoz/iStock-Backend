@@ -12,7 +12,6 @@ public class ExceptionStatus {
   public static final String PART_NOT_FOUND = "PART_NOT_FOUND";
   public static final String PRODUCT_NUMBER_DUPLICATED = "PRODUCT_NUMBER_DUPLICATED";
   public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
-  public static final String NOT_EXISTED_PART = "NOT_EXISTED_PART";
   public static final String DUPLICATE_BOM = "DUPLICATE_BOM_COMBINATION";
   public static final String BOM_NOT_FOUND = "BOM_NOT_FOUND";
 
