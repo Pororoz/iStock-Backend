@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
+import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
@@ -327,6 +328,7 @@ class BomServiceTest {
         String newMemo = "new";
         Long newPartId = 3L;
         Long newProductId = 4L;
+
         Part part = Part.builder().id(partId).build();
         Product product = Product.builder().id(productId).build();
         Bom bom = Bom.builder()
@@ -338,6 +340,7 @@ class BomServiceTest {
             .part(part)
             .product(product)
             .build();
+
         Part newPart = Part.builder().id(newPartId).build();
         Product newProduct = Product.builder().id(newProductId).build();
         Bom newBom = Bom.builder()
@@ -362,12 +365,12 @@ class BomServiceTest {
 
         BomServiceResponse response = BomServiceResponse.builder()
             .bomId(bomId)
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .partId(partId)
-            .productId(productId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
             .build();
 
         // when

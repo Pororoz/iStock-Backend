@@ -3,6 +3,7 @@ package com.pororoz.istock.domain.bom.service;
 import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
+import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
@@ -40,9 +41,22 @@ public class BomService {
   }
 
   public BomServiceResponse deleteBom(DeleteBomServiceRequest request) {
-    Bom result = bomRepository.findById(request.getBomId())
-        .orElseThrow(BomNotFoundException::new);
+    Bom result = bomRepository.findById(request.getBomId()).orElseThrow(BomNotFoundException::new);
     bomRepository.delete(result);
+    return BomServiceResponse.of(result);
+  }
+
+  public BomServiceResponse updateBom(UpdateBomServiceRequest request) {
+    Bom bom = bomRepository.findById(request.getBomId()).orElseThrow();
+    Part part = partRepository.findById(request.getPartId()).orElseThrow();
+    Product product = productRepository.findById(request.getProductId()).orElseThrow();
+    bomRepository.findByLocationNumberAndProductIdAndPartId(request.getLocationNumber(),
+        request.getProductId(), request.getPartId()).ifPresent(p -> {
+      throw new DuplicateBomException();
+    });
+
+    bom.update(part, product, request);
+    Bom result = bomRepository.save(bom);
     return BomServiceResponse.of(result);
   }
 }
