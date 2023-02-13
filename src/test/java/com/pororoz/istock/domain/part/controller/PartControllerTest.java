@@ -14,6 +14,7 @@ import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
+import com.pororoz.istock.domain.part.dto.service.UpdatePartServiceRequest;
 import com.pororoz.istock.domain.part.service.PartService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -196,6 +197,147 @@ public class PartControllerTest extends ControllerTest {
         actions.andExpect(status().isNotFound())
             .andDo(print());
       }
+    }
+  }
+
+  @Nested
+  @DisplayName("파트 수정 API")
+  class UpdatePart {
+
+    String url = "http://localhost:8080/v1/parts";
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("존재하는 파트를 수정하면 수정된 파트 값을 반환한다.")
+      void updatePart() throws Exception{
+        //given
+        partId = 1L;
+        partName = "BEAD";
+        spec = "BRD|A2D";
+        price = 100000;
+        stock = 5;
+
+        UpdatePartRequest request = UpdatePartRequest.builder()
+            .partId(partId)
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+
+        PartServiceRespone serviceDto = PartServiceResponse.builder()
+            .partId(partId)
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+
+        PartResponse response = PartResponse.builder()
+            .partId(partId)
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+
+        //when
+        when(partService.updatePart(any(UpdatePartServiceRequest.class))).thenReturn(serviceDto);
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PART))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("partId가 1이상의 정수가 아니면 bad request 오류가 발생한다.")
+      void partIdInvalid() throws Exception {
+        //given
+        partId = 0;
+        UpdatePartRequest request = UpdatePartRequest.builder()
+            .partId(partId)
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+
+        //when
+        ResultActions actions = getResultActions(url,HttpMethod.PUT,request);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("partId를 지정하지 않으면 not found 오류가 발생한다.")
+      void partIdNotFound() throws Exception {
+        //given
+        UpdatePartRequest request = UpdatePartRequest.builder()
+            .partId(partId)
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
+
+        //then
+        actions.andExpect(status().isNotFound())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("partName을 적지 않으면 Bad Request 오류가 발생한다.")
+      void partNameNullException() throws Exception {
+        //given
+        partName = null;
+        spec = "BRD|A2D";
+        price = 100000;
+        stock = 5;
+
+        UpdatePartRequest request = UpdatePartRequest.builder()
+            .partId(partId)
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("spec 적지 않으면 Bad Request 오류가 발생한다.")
+      void specNullException() throws Exception {
+        //given
+        partName = "BEAD";
+        spec = null;
+        price = 100000;
+        stock = 5;
+
+        UpdatePartRequest request = UpdatePartRequest.builder()
+            .partId(partId)
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
     }
   }
 }
