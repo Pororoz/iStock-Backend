@@ -16,7 +16,6 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -71,25 +70,5 @@ public class Bom extends TimeEntity {
     this.memo = request.getMemo();
     this.part = part;
     this.product = product;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Bom bom = (Bom) o;
-    return quantity == bom.quantity && Objects.equals(id, bom.id)
-        && Objects.equals(locationNumber, bom.locationNumber) && Objects.equals(
-        codeNumber, bom.codeNumber) && Objects.equals(memo, bom.memo)
-        && Objects.equals(part, bom.part) && Objects.equals(product, bom.product);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, locationNumber, codeNumber, quantity, memo, part, product);
   }
 }

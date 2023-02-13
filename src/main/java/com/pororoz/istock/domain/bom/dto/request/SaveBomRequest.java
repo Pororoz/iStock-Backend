@@ -18,6 +18,7 @@ public class SaveBomRequest {
 
   @Schema(description = "location 번호", example = "L5.L4")
   @Size(max = 20)
+  @Builder.Default
   private String locationNumber = "0";
 
   @Schema(description = "코드 번호", example = "0A")
@@ -26,6 +27,7 @@ public class SaveBomRequest {
 
   @Schema(description = "제품 수량", example = "3")
   @PositiveOrZero
+  @Builder.Default
   private long quantity = 0;
 
   @Schema(description = "비고", example = "비고")

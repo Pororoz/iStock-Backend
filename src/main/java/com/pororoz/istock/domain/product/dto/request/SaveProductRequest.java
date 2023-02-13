@@ -32,6 +32,7 @@ public class SaveProductRequest {
 
   @Schema(description = "재고 수량", example = "0")
   @PositiveOrZero
+  @Builder.Default
   private long stock = 0;
 
   @Schema(description = "거래처 이름", example = "pororoz")
