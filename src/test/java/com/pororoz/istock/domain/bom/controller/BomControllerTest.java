@@ -11,10 +11,12 @@ import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
+import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.service.BomService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -245,6 +247,69 @@ class BomControllerTest extends ControllerTest {
 
         // then
         actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("BOM Update Controller Test")
+  class UpdateBom {
+
+    Long bomId = 1L;
+    String newLocationNumber = "new location";
+    String newCodeNumber = "new code";
+    Long newQuantity = 5L;
+    String newMemo = "new";
+    Long newPartId = 3L;
+    Long newProductId = 4L;
+
+    String uri = "http://localhost:8080/v1/bom";
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+      @Test
+      @DisplayName("존재하는 BOM 값을 수정하면 200 OK를 반환한다.")
+      void saveBom() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+        BomServiceResponse serviceResponse = BomServiceResponse.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+        BomResponse response = BomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        // when
+        when(bomService.updateBom(any(UpdateBomServiceRequest.class))).thenReturn(serviceResponse);
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }
