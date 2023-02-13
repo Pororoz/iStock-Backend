@@ -6,6 +6,7 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
+import com.pororoz.istock.domain.part.dto.request.UpdatePartRequest;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.service.PartService;
@@ -27,6 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,5 +76,16 @@ public class PartController {
     PartResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_PART, response));
+  }
+
+  @Operation(summary = "update part", description = "Part 수정 API")
+  @PutMapping
+  public ResponseEntity<ResultDTO<PartResponse>> updatePart(
+      @Valid @RequestBody UpdatePartRequest updatePartRequest) {
+    PartServiceResponse serviceDto = partService.updatePart(
+        updatePartRequest.toService());
+    PartResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_PART, response));
   }
 }
