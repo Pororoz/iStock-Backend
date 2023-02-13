@@ -313,5 +313,97 @@ class BomControllerTest extends ControllerTest {
             .andDo(print());
       }
     }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+      @Test
+      @DisplayName("bomId가 null 값이면 400 Bad Request를 반환한다.")
+      void bomIdNull() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(null)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("bomId가 마이너스 값이면 400 Bad Request를 반환한다.")
+      void bomIdMinusNumber() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(-1L)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("partId가 비어있으면 Bad Request 오류를 반환한다.")
+      void emptyPartId() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(-1L)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(null)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("productId가 비어있으면 Bad Request 오류를 반환한다.")
+      void emptyProductId() throws Exception {
+        // given
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(-1L)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(null)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
   }
 }
