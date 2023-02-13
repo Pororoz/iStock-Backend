@@ -1,6 +1,7 @@
 package com.pororoz.istock.common.utils.message;
 
 public class ExceptionMessage {
+  public static final String BAD_REQUEST = "잘못된 요청을 보냈습니다.";
   public static final String UNAUTHORIZED = "로그인 정보가 일치하지 않습니다.";
   public static final String PAGE_NOT_FOUND = "해당 페이지는 존재하지 않습니다.";
   public static final String ROLE_NOT_FOUND = "해당 Role이 존재하지 않습니다.";

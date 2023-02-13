@@ -11,7 +11,9 @@ import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.service.BomService;
+import com.pororoz.istock.domain.bom.swagger.exception.BomIdBadRequestExceptionSwagger;
 import com.pororoz.istock.domain.bom.swagger.exception.BomNotFoundExceptionSwagger;
+import com.pororoz.istock.domain.bom.swagger.exception.PartIdBadRequestExceptionSwagger;
 import com.pororoz.istock.domain.bom.swagger.response.DeleteBomResponseSwagger;
 import com.pororoz.istock.domain.bom.swagger.response.SaveBomResponseSwagger;
 import com.pororoz.istock.domain.bom.swagger.response.UpdateBomResponseSwagger;
@@ -46,11 +48,14 @@ public class BomController {
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_BOM, content = {
           @Content(schema = @Schema(implementation = SaveBomResponseSwagger.class))}
       ),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.PART_NOT_FOUND, content = {
-          @Content(schema = @Schema(implementation = PartNotFoundExceptionSwagger.class))}
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.BAD_REQUEST, content = {
+          @Content(schema = @Schema(implementation = PartIdBadRequestExceptionSwagger.class))}
       ),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}
+      ),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PART_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = PartNotFoundExceptionSwagger.class))}
       ),
   })
   @PostMapping
@@ -67,11 +72,14 @@ public class BomController {
       @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_BOM, content = {
           @Content(schema = @Schema(implementation = DeleteBomResponseSwagger.class))}
       ),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.BOM_NOT_FOUND, content = {
-          @Content(schema = @Schema(implementation = BomNotFoundExceptionSwagger.class))}
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.BAD_REQUEST, content = {
+          @Content(schema = @Schema(implementation = BomIdBadRequestExceptionSwagger.class))}
       ),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}
+      ),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.BOM_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = BomNotFoundExceptionSwagger.class))}
       ),
   })
   @DeleteMapping
@@ -88,11 +96,14 @@ public class BomController {
       @ApiResponse(responseCode = "200", description = ResponseMessage.UPDATE_BOM, content = {
           @Content(schema = @Schema(implementation = UpdateBomResponseSwagger.class))}
       ),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.PART_NOT_FOUND, content = {
-          @Content(schema = @Schema(implementation = PartNotFoundExceptionSwagger.class))}
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.BAD_REQUEST, content = {
+          @Content(schema = @Schema(implementation = BomIdBadRequestExceptionSwagger.class))}
       ),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}
+      ),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.BOM_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = BomNotFoundExceptionSwagger.class))}
       ),
   })
   @PutMapping

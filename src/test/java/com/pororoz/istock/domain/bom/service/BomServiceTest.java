@@ -334,10 +334,10 @@ class BomServiceTest {
       @DisplayName("BOM 수정에 성공한다.")
       void updateBom() {
         // given
-
-
         Part part = Part.builder().id(partId).build();
         Product product = Product.builder().id(productId).build();
+        Part newPart = Part.builder().id(newPartId).build();
+        Product newProduct = Product.builder().id(newProductId).build();
         Bom bom = Bom.builder()
             .id(bomId)
             .locationNumber(locationNumber)
@@ -346,18 +346,6 @@ class BomServiceTest {
             .memo(memo)
             .part(part)
             .product(product)
-            .build();
-
-        Part newPart = Part.builder().id(newPartId).build();
-        Product newProduct = Product.builder().id(newProductId).build();
-        Bom newBom = Bom.builder()
-            .id(bomId)
-            .locationNumber(newLocationNumber)
-            .codeNumber(newCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .part(newPart)
-            .product(newProduct)
             .build();
 
         UpdateBomServiceRequest request =  UpdateBomServiceRequest.builder()
@@ -382,11 +370,10 @@ class BomServiceTest {
 
         // when
         when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
-        when(partRepository.findById(any())).thenReturn(Optional.of(part));
-        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        when(partRepository.findById(any())).thenReturn(Optional.of(newPart));
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(newProduct));
         when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
             anyLong())).thenReturn(Optional.empty());
-        when(bomRepository.save(any())).thenReturn(newBom);
         BomServiceResponse result = bomService.updateBom(request);
 
         // then

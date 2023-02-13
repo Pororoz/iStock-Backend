@@ -48,23 +48,20 @@ public class BomService {
 
   public BomServiceResponse updateBom(UpdateBomServiceRequest request) {
     Bom bom = bomRepository.findById(request.getBomId()).orElseThrow(BomNotFoundException::new);
-    Part part = partRepository.findById(request.getPartId())
+    Part newPart = partRepository.findById(request.getPartId())
         .orElseThrow(PartNotFoundException::new);
-    Product product = productRepository.findById(request.getProductId())
+    Product newProduct = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
 
-    // 인덱스로 묶여진 3가지 요소가 다를 때는 예외처리를 해줘야 한다.
+    // 인덱스로 묶여진 3가지 요소가 다를 때, 이미 해당 키로 구성된 요소가 있으면 예외처리를 해줘야 한다.
     bomRepository.findByLocationNumberAndProductIdAndPartId(request.getLocationNumber(),
         request.getProductId(), request.getPartId()).ifPresent(p -> {
-      if (!request.getLocationNumber().equals(bom.getLocationNumber())
-          || !request.getPartId().equals(bom.getPart().getId())
-          || !request.getProductId().equals(bom.getProduct().getId())) {
+      if (!p.equals(bom)) {
         throw new DuplicateBomException();
       }
     });
 
-    bom.update(part, product, request);
-    Bom result = bomRepository.save(bom);
-    return BomServiceResponse.of(result);
+    bom.update(newPart, newProduct, request);
+    return BomServiceResponse.of(bom);
   }
 }
