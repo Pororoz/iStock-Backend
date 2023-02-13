@@ -14,9 +14,9 @@ import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
-import com.pororoz.istock.domain.bom.exception.NotExistedPartException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
+import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
@@ -141,7 +141,7 @@ class BomServiceTest {
         when(partRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         //then
-        assertThrows(NotExistedPartException.class,
+        assertThrows(PartNotFoundException.class,
             () -> bomService.saveBom(request));
       }
 
@@ -303,6 +303,12 @@ class BomServiceTest {
     String memo;
     Long partId;
     Long productId;
+    String newLocationNumber;
+    String newCodeNumber;
+    Long newQuantity;
+    String newMemo;
+    Long newPartId;
+    Long newProductId;
 
     @BeforeEach
     void setup() {
@@ -313,6 +319,12 @@ class BomServiceTest {
       memo = "";
       partId = 1L;
       productId = 2L;
+      newLocationNumber = "new location";
+      newCodeNumber = "new code";
+      newQuantity = 5L;
+      newMemo = "new";
+      newPartId = 3L;
+      newProductId = 4L;
     }
 
     @Nested
@@ -322,12 +334,7 @@ class BomServiceTest {
       @DisplayName("BOM 수정에 성공한다.")
       void updateBom() {
         // given
-        String newLocationNumber = "new location";
-        String newCodeNumber = "new code";
-        Long newQuantity = 5L;
-        String newMemo = "new";
-        Long newPartId = 3L;
-        Long newProductId = 4L;
+
 
         Part part = Part.builder().id(partId).build();
         Product product = Product.builder().id(productId).build();
@@ -391,6 +398,145 @@ class BomServiceTest {
     @DisplayName("실패 케이스")
     class FailCase {
 
+      @Test
+      @DisplayName("BOM id에 해당하는 BOM이 존재하지 않으면 예외가 발생한다.")
+      void bomNotFound() {
+        //given
+        UpdateBomServiceRequest request =  UpdateBomServiceRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        //when
+        when(bomRepository.findById(bomId)).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(BomNotFoundException.class,
+            () -> bomService.updateBom(request));
+      }
+
+      @Test
+      @DisplayName("partId에 해당하는 part가 존재하지 않으면 예외가 발생한다.")
+      void partNotExist() {
+        //given
+        UpdateBomServiceRequest request =  UpdateBomServiceRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+        Part part = Part.builder().id(partId).build();
+        Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+
+        //when
+        when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
+        when(partRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(PartNotFoundException.class,
+            () -> bomService.updateBom(request));
+      }
+
+      @Test
+      @DisplayName("productId에 해당하는 product가 존재하지 않으면 예외가 발생한다.")
+      void productNotExist() {
+        //given
+        UpdateBomServiceRequest request =  UpdateBomServiceRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+        Part part = Part.builder().id(partId).build();
+        Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+        Part newPart = Part.builder().id(newPartId).build();
+
+        //when
+        when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
+        when(partRepository.findById(any())).thenReturn(Optional.of(newPart));
+        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+        //then
+        assertThrows(ProductNotFoundException.class,
+            () -> bomService.updateBom(request));
+      }
+
+      @Test
+      @DisplayName("location_number, product_id, part_id이 이미 존재하는 조합이면 예외가 발생한다.")
+      void duplicateBom() {
+        //given
+        UpdateBomServiceRequest request =  UpdateBomServiceRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        Part part = Part.builder().id(partId).build();
+        Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+        Part newPart = Part.builder().id(newPartId).build();
+        Product newProduct = Product.builder().id(newProductId).build();
+        Bom ExistedBom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(newPart)
+            .product(newProduct)
+            .build();
+
+        //when
+        when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
+        when(partRepository.findById(any())).thenReturn(Optional.of(newPart));
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(newProduct));
+        when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
+            anyLong())).thenReturn(Optional.of(ExistedBom));
+
+        //then
+        assertThrows(DuplicateBomException.class,
+            () -> bomService.updateBom(request));
+      }
     }
   }
 }
