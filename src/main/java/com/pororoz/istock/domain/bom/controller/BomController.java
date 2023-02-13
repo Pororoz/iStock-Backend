@@ -7,6 +7,7 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.DeleteBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
+import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.service.BomService;
@@ -26,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -78,5 +80,14 @@ public class BomController {
     BomResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_BOM, response));
+  }
+
+  @PutMapping
+  public ResponseEntity<ResultDTO<BomResponse>> updateBom(
+      @RequestBody UpdateBomRequest request) {
+    BomServiceResponse serviceDto = bomService.updateBom(request.toService());
+    BomResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_BOM, response));
   }
 }

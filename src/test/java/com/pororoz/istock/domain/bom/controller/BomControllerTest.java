@@ -308,7 +308,7 @@ class BomControllerTest extends ControllerTest {
         // then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_BOM))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_BOM))
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
