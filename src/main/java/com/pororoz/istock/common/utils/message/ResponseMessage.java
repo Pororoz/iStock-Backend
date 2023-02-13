@@ -12,6 +12,7 @@ public class ResponseMessage {
   public static final String UPDATE_CATEGORY = "카테고리 수정";
   public static final String SAVE_PART = "파트 생성";
   public static final String DELETE_PART = "파트 삭제";
+  public static final String UPDATE_PART = "파트 수정";
   public static final String SAVE_PRODUCT = "제품 생성";
   public static final String UPDATE_PRODUCT = "제품 수정";
   public static final String DELETE_PRODUCT = "제품 삭제";

@@ -11,6 +11,7 @@ import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
+import com.pororoz.istock.domain.part.dto.request.UpdatePartRequest;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
@@ -32,11 +33,11 @@ public class PartControllerTest extends ControllerTest {
   @MockBean
   PartService partService;
 
-  private long partId;
-  private String partName;
-  private String spec;
-  private long price;
-  private long stock;
+  private long partId = 1L;
+  private String partName = "BEAD";
+  private String spec = "BRD|A2D";
+  private long price = 100000;
+  private long stock = 5;
 
   @Nested
   @DisplayName("파트 추가")
@@ -52,11 +53,6 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("파트를 추가한다.")
       void savePart() throws Exception {
         //given
-        partName = "BEAD";
-        spec = "BRD|A2D";
-        price = 100000;
-        stock = 5;
-
         SavePartRequest request = SavePartRequest.builder()
             .partName(partName).spec(spec)
             .price(price).stock(stock)
@@ -89,9 +85,6 @@ public class PartControllerTest extends ControllerTest {
       void partNameNullException() throws Exception {
         //given
         partName = null;
-        spec = "BRD|A2D";
-        price = 100000;
-        stock = 5;
 
         SavePartRequest request = SavePartRequest.builder()
             .partName(partName).spec(spec)
@@ -110,10 +103,7 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("spec 적지 않으면 예외가 발생한다.")
       void specNullException() throws Exception {
         //given
-        partName = "BEAD";
         spec = null;
-        price = 100000;
-        stock = 5;
 
         SavePartRequest request = SavePartRequest.builder()
             .partName(partName).spec(spec)
@@ -145,7 +135,6 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("존재하는 파트를 삭제하면 파트 값을 반환한다.")
       void deletePart() throws Exception {
         //given
-        partId = 1L;
         PartServiceResponse serviceDto = PartServiceResponse.builder()
             .partName(partName).spec(spec)
             .price(price).stock(stock)
@@ -190,6 +179,7 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("partId를 지정하지 않으면 not found 오류가 발생한다.")
       void partIdNotFound() throws Exception {
         //given
+
         //when
         ResultActions actions = getResultActions(url + "/", HttpMethod.DELETE);
 
@@ -214,19 +204,13 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("존재하는 파트를 수정하면 수정된 파트 값을 반환한다.")
       void updatePart() throws Exception{
         //given
-        partId = 1L;
-        partName = "BEAD";
-        spec = "BRD|A2D";
-        price = 100000;
-        stock = 5;
-
         UpdatePartRequest request = UpdatePartRequest.builder()
             .partId(partId)
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
 
-        PartServiceRespone serviceDto = PartServiceResponse.builder()
+        PartServiceResponse serviceDto = PartServiceResponse.builder()
             .partId(partId)
             .partName(partName).spec(spec)
             .price(price).stock(stock)
@@ -275,11 +259,10 @@ public class PartControllerTest extends ControllerTest {
       }
 
       @Test
-      @DisplayName("partId를 지정하지 않으면 not found 오류가 발생한다.")
+      @DisplayName("partId를 지정하지 않으면 bad request 오류가 발생한다.")
       void partIdNotFound() throws Exception {
         //given
         UpdatePartRequest request = UpdatePartRequest.builder()
-            .partId(partId)
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
@@ -288,12 +271,12 @@ public class PartControllerTest extends ControllerTest {
         ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
         //then
-        actions.andExpect(status().isNotFound())
+        actions.andExpect(status().isBadRequest())
             .andDo(print());
       }
 
       @Test
-      @DisplayName("partName을 적지 않으면 Bad Request 오류가 발생한다.")
+      @DisplayName("partName을 적지 않으면 bad request 오류가 발생한다.")
       void partNameNullException() throws Exception {
         //given
         partName = null;
@@ -316,7 +299,7 @@ public class PartControllerTest extends ControllerTest {
       }
 
       @Test
-      @DisplayName("spec 적지 않으면 Bad Request 오류가 발생한다.")
+      @DisplayName("spec 적지 않으면 bad request 오류가 발생한다.")
       void specNullException() throws Exception {
         //given
         partName = "BEAD";
@@ -337,7 +320,6 @@ public class PartControllerTest extends ControllerTest {
         actions.andExpect(status().isBadRequest())
             .andDo(print());
       }
-
     }
   }
 }
