@@ -14,13 +14,4 @@ public class UpdatePartServiceRequest {
   private long price;
   private long stock;
 
-  public Part toPart(){
-    return Part.builder()
-        .id(partId)
-        .partName(partName)
-        .spec(spec)
-        .price(price)
-        .stock(stock)
-        .build();
-  }
 }
