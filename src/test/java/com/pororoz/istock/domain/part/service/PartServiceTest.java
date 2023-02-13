@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
+import com.pororoz.istock.domain.part.dto.service.UpdatePartServiceRequest;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartDuplicatedException;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
