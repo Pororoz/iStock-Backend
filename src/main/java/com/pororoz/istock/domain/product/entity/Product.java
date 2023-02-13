@@ -59,6 +59,7 @@ public class Product extends TimeEntity {
   private Category category;
 
   @OneToMany(mappedBy = "product")
+  @Builder.Default
   private List<Bom> boms = new ArrayList<>();
 
   public void update(UpdateProductServiceRequest request, Category category) {
@@ -68,5 +69,12 @@ public class Product extends TimeEntity {
     this.stock = request.getStock();
     this.companyName = request.getCompanyName();
     this.category = category;
+  }
+
+  public void setBoms(List<Bom> boms) {
+    this.boms = boms;
+    for (Bom b : boms) {
+      b.setProduct(this);
+    }
   }
 }
