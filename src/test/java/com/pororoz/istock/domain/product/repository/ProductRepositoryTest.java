@@ -51,24 +51,16 @@ class ProductRepositoryTest extends RepositoryTest {
   void findProductsWithParts() {
     //given
     PageRequest page = PageRequest.of(0, 3);
-    List<String> productSearch = List.of("a", "b");
+
     //product 저장
     em.persist(Product.builder()
-        .productName("aa").productNumber("numberX")
+        .productName("name").productNumber("numberX")
         .category(category2)
-        .build());
-    em.persist(Product.builder()
-        .productName("???").productNumber("numberY")
-        .category(category1)
-        .build());
-    em.persist(Product.builder()
-        .productName("aacc").productNumber("numberZ")
-        .category(category1)
         .build());
     List<Product> products = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
       Product product = em.persist(Product.builder()
-          .productName("bbcaa").productNumber("number" + i)
+          .productName("name").productNumber("number" + i)
           .category(category1)
           .build());
       products.add(product);
@@ -86,7 +78,7 @@ class ProductRepositoryTest extends RepositoryTest {
     //when
     // product list에 있는 product만 조회된다.
     Page<Product> pages = productRepository.findProductsWithParts(page,
-        category1.getId(), productSearch);
+        category1.getId());
 
     //then
     assertThat(pages.getTotalElements()).isEqualTo(products.size());
@@ -109,15 +101,14 @@ class ProductRepositoryTest extends RepositoryTest {
   void productListEmpty() {
     //given
     PageRequest page = PageRequest.of(0, 10);
-    List<String> productSearch = List.of("!");
     em.persist(Product.builder()
         .productName("aa").productNumber("number")
-        .category(category1)
+        .category(category2)
         .build());
 
     //when
     Page<Product> pages = productRepository.findProductsWithParts(page,
-        category1.getId(), productSearch);
+        category1.getId());
 
     //then
     assertThat(pages.getTotalElements()).isEqualTo(0);
@@ -126,11 +117,10 @@ class ProductRepositoryTest extends RepositoryTest {
   }
 
   @Test
-  @DisplayName("bom이 없어서 product만 조회된다.")
+  @DisplayName("bom이 없으면 product만 조회된다.")
   void findProductWithoutParts() {
     //given
     PageRequest page = PageRequest.of(0, 10);
-    List<String> productSearch = List.of("x");
     Product product = em.persist(Product.builder()
         .productName("xxx").productNumber("number")
         .category(category1)
@@ -138,7 +128,7 @@ class ProductRepositoryTest extends RepositoryTest {
 
     //when
     Page<Product> pages = productRepository.findProductsWithParts(page,
-        category1.getId(), productSearch);
+        category1.getId());
 
     //then
     assertThat(pages.getTotalPages()).isEqualTo(1);
