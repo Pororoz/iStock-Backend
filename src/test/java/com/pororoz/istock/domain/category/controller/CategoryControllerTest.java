@@ -94,7 +94,7 @@ class CategoryControllerTest extends ControllerTest {
         //when
         when(categoryService.findCategories(any(FindCategoryServiceRequest.class))).thenReturn(
             responsePage);
-        ResultActions actions = getResultActions(url, params);
+        ResultActions actions = getResultActions(url, HttpMethod.GET, params);
 
         //then
         actions.andExpect(status().isOk())
@@ -159,7 +159,8 @@ class CategoryControllerTest extends ControllerTest {
         //given
         Long categoryId = 1L;
         String newName = "새";
-        UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId).categoryName(newName)
+        UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId)
+            .categoryName(newName)
             .build();
 
         testCategoryNameLength(request);
@@ -171,7 +172,8 @@ class CategoryControllerTest extends ControllerTest {
         //given
         Long categoryId = 1L;
         String newName = "일이삼사오육칠팔구십십일십이십삼";
-        UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId).categoryName(newName)
+        UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId)
+            .categoryName(newName)
             .build();
 
         testCategoryNameLength(request);
