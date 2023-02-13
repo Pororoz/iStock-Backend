@@ -29,8 +29,10 @@ public enum ErrorCode {
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_NOT_FOUND,
       ExceptionMessage.PRODUCT_NOT_FOUND),
   DUPLICATE_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.DUPLICATE_BOM,
-      ExceptionMessage.DUPLICATE_BOM);
-
+      ExceptionMessage.DUPLICATE_BOM),
+  BOM_NOT_FOUND(HttpStatus.BAD_REQUEST, ExceptionStatus.BOM_NOT_FOUND,
+      ExceptionMessage.BOM_NOT_FOUND),
+  ;
 
   private final HttpStatus statusCode;
 

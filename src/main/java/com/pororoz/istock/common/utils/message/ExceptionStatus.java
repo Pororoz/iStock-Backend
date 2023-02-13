@@ -14,6 +14,7 @@ public class ExceptionStatus {
   public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
   public static final String NOT_EXISTED_PART = "NOT_EXISTED_PART";
   public static final String DUPLICATE_BOM = "DUPLICATE_BOM_COMBINATION";
+  public static final String BOM_NOT_FOUND = "BOM_NOT_FOUND";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";
