@@ -62,7 +62,7 @@ class ProductControllerTest extends ControllerTest {
           .productId(id).productName(name)
           .productNumber(number).codeNumber(codeNumber)
           .stock(stock).companyName(companyName)
-          .category(category)
+          .categoryId(categoryId)
           .build();
 
       //when
@@ -158,7 +158,7 @@ class ProductControllerTest extends ControllerTest {
           .productId(1L).productName(name)
           .productNumber(number).codeNumber(codeNumber)
           .stock(stock).companyName(companyName)
-          .category(category)
+          .categoryId(categoryId)
           .build();
 
       //when
@@ -254,7 +254,7 @@ class ProductControllerTest extends ControllerTest {
           .productId(1L).productName(name)
           .productNumber(number).codeNumber(codeNumber)
           .stock(stock).companyName(companyName)
-          .category(category)
+          .categoryId(category.getId())
           .build();
 
       //when
