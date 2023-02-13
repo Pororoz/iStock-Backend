@@ -14,6 +14,7 @@ import com.pororoz.istock.domain.part.swagger.exception.PartDuplicatedSwagger;
 import com.pororoz.istock.domain.part.swagger.exception.PartNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.part.swagger.response.DeletePartResponseSwagger;
 import com.pororoz.istock.domain.part.swagger.response.SavePartResponseSwagger;
+import com.pororoz.istock.domain.part.swagger.response.UpdatePartResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -79,6 +80,16 @@ public class PartController {
   }
 
   @Operation(summary = "update part", description = "Part 수정 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.UPDATE_PART, content = {
+          @Content(schema = @Schema(implementation = UpdatePartResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.PART_DUPLICATED, content = {
+          @Content(schema = @Schema(implementation = PartDuplicatedSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PART_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = PartNotFoundExceptionSwagger.class))})
+  })
   @PutMapping
   public ResponseEntity<ResultDTO<PartResponse>> updatePart(
       @Valid @RequestBody UpdatePartRequest updatePartRequest) {
