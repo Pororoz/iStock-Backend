@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.bom.entity;
 
 import com.pororoz.istock.common.entity.TimeEntity;
+import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.product.entity.Product;
 import jakarta.persistence.Column;
@@ -61,4 +62,13 @@ public class Bom extends TimeEntity {
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Product product;
+
+  public void update(Part part, Product product, UpdateBomServiceRequest request) {
+    this.locationNumber = request.getLocationNumber();
+    this.codeNumber = request.getCodeNumber();
+    this.quantity = request.getQuantity();
+    this.memo = request.getMemo();
+    this.part = part;
+    this.product = product;
+  }
 }
