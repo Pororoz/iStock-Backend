@@ -3,9 +3,8 @@ package com.pororoz.istock.domain.bom.exception;
 import com.pororoz.istock.common.exception.CustomException;
 import com.pororoz.istock.common.exception.ErrorCode;
 
-public class NotExistedPartException extends CustomException {
-
-  public NotExistedPartException() {
-    super(ErrorCode.NOT_EXISTED_PART);
+public class BomNotFoundException extends CustomException {
+  public BomNotFoundException() {
+    super(ErrorCode.BOM_NOT_FOUND);
   }
 }

@@ -1,6 +1,6 @@
 package com.pororoz.istock.domain.bom.dto.request;
 
-import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -14,7 +14,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SaveBomRequest {
+public class UpdateBomRequest {
+  @Schema(description = "BOM 아이디", example = "1")
+  @NotNull
+  @PositiveOrZero
+  private Long bomId;
 
   @Schema(description = "location 번호", example = "L5.L4")
   @Size(max = 20)
@@ -41,8 +45,9 @@ public class SaveBomRequest {
   @NotNull
   private Long productId;
 
-  public SaveBomServiceRequest toService() {
-    return SaveBomServiceRequest.builder()
+  public UpdateBomServiceRequest toService() {
+    return UpdateBomServiceRequest.builder()
+        .bomId(bomId)
         .locationNumber(locationNumber)
         .codeNumber(codeNumber)
         .quantity(quantity)

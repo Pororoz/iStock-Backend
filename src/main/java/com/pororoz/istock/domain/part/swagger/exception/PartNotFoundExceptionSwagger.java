@@ -6,12 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-public class PartNameDuplicatedSwagger {
-
-  @Schema(description = "에러 명칭", example = ExceptionStatus.PART_NAME_DUPLICATED)
+public class PartNotFoundExceptionSwagger {
+  @Schema(description = "에러 명칭", example = ExceptionStatus.PART_NOT_FOUND)
   private String status;
 
-  @Schema(description = "상세 메세지", example = ExceptionMessage.PART_NAME_DUPLICATED)
+  @Schema(description = "상세 메세지", example = ExceptionMessage.PART_NOT_FOUND)
   private String message;
 
 }

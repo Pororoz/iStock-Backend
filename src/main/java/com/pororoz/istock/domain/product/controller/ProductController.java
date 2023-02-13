@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.product.controller;
 
 import com.pororoz.istock.common.dto.ResultDTO;
+import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
@@ -49,6 +50,8 @@ public class ProductController {
           @Content(schema = @Schema(implementation = SaveProductResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.PRODUCT_NUMBER_DUPLICATED, content = {
           @Content(schema = @Schema(implementation = ProductNameDuplicatedSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.CATEGORY_NOT_FOUND, content = {
           @Content(schema = @Schema(implementation = CategoryNotFoundExceptionSwagger.class))})})
   @PostMapping
@@ -64,6 +67,8 @@ public class ProductController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.UPDATE_PRODUCT, content = {
           @Content(schema = @Schema(implementation = UpdateProductResponseSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
           @Content(schema = @Schema(implementation = ProductNotFoundSwagger.class))})})
   @PutMapping
@@ -80,6 +85,8 @@ public class ProductController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_PRODUCT, content = {
           @Content(schema = @Schema(implementation = DeleteProductResponseSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
           @Content(schema = @Schema(implementation = ProductNotFoundSwagger.class))})})
   @DeleteMapping("/{productId}")

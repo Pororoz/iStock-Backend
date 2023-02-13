@@ -2,12 +2,13 @@ package com.pororoz.istock.domain.bom.dto.service;
 
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
+import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
-public class SaveBomServiceResponse {
+public class BomServiceResponse {
 
   private Long bomId;
   private String locationNumber;
@@ -16,9 +17,11 @@ public class SaveBomServiceResponse {
   private String memo;
   private Long partId;
   private Long productId;
+  private LocalDateTime createdAt;
+  private LocalDateTime updateAt;
 
-  public static SaveBomServiceResponse of(Bom bom) {
-    return SaveBomServiceResponse.builder()
+  public static BomServiceResponse of(Bom bom) {
+    return BomServiceResponse.builder()
         .bomId(bom.getId())
         .locationNumber(bom.getLocationNumber())
         .codeNumber(bom.getCodeNumber())
@@ -26,6 +29,8 @@ public class SaveBomServiceResponse {
         .memo(bom.getMemo())
         .partId(bom.getPart().getId())
         .productId(bom.getProduct().getId())
+        .createdAt(bom.getCreatedAt())
+        .updateAt(bom.getUpdatedAt())
         .build();
   }
 

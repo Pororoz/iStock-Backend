@@ -49,6 +49,12 @@ public abstract class ResultActionsTest {
     return mockMvc.perform(buildersMethod.contentType(MediaType.APPLICATION_JSON).with(csrf()));
   }
 
+  protected ResultActions deleteWithParams(String uri, MultiValueMap<String, String> params)
+      throws Exception {
+    return mockMvc.perform(
+        delete(uri).params(params).contentType(MediaType.APPLICATION_JSON).with(csrf()));
+  }
+
   private MockHttpServletRequestBuilder getMockMvcRequestBuildersMethod(HttpMethod httpMethod,
       String uri) {
     if (httpMethod == HttpMethod.POST) {

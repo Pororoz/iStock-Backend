@@ -1,6 +1,7 @@
 package com.pororoz.istock.common.utils.message;
 
 public class ExceptionMessage {
+  public static final String BAD_REQUEST = "잘못된 요청을 보냈습니다.";
   public static final String UNAUTHORIZED = "로그인 정보가 일치하지 않습니다.";
   public static final String PAGE_NOT_FOUND = "해당 페이지는 존재하지 않습니다.";
   public static final String ROLE_NOT_FOUND = "해당 Role이 존재하지 않습니다.";
@@ -15,11 +16,12 @@ public class ExceptionMessage {
   public static final String INVALID_PAGE_REQUEST = "page는 0 이상, size는 1 이상을 입력해주세요.";
   public static final String INVALID_CATEGORY_NAME = "카테고리는 2자 이상, 15자 이하로 입력해주세요.";
   public static final String PART_NAME_DUPLICATED = "이미 존재하는 part 입니다.";
+  public static final String PART_NOT_FOUND = "존재하지 않는 part입니다.";
   public static final String FORBIDDEN = "사용이 거절되었습니다.";
   public static final String PRODUCT_NUMBER_DUPLICATED = "중복된 product number입니다.";
   public static final String PRODUCT_NOT_FOUND = "해당 제품을 찾을 수 없습니다.";
-  public static final String NOT_EXISTED_PART = "존재하지 않는 part입니다.";
   public static final String DUPLICATE_BOM = "location_number, product_id, part_id의 조합이 중복됩니다.";
+  public static final String BOM_NOT_FOUND = "존재하지 않는 BOM입니다.";
 
   private ExceptionMessage() {
   }
