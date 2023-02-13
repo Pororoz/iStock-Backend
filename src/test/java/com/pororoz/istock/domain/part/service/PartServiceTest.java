@@ -38,6 +38,7 @@ public class PartServiceTest {
   long stock = 5;
 
   Part part = Part.builder()
+      .id(partId)
       .partName(partName).spec(spec)
       .price(price).stock(stock)
       .build();
@@ -165,14 +166,14 @@ public class PartServiceTest {
       void updatePart() {
         //given
         Part updatedPart = part.builder()
-            .id(partId)
+            .id(newPartId)
             .partName(newPartName).spec(newSpec)
             .price(newPrice).stock(newStock)
             .build();
         UpdatePartServiceRequest request = UpdatePartServiceRequest.builder()
             .partId(newPartId)
-            .partName(partName).spec(spec)
-            .price(price).stock(stock)
+            .partName(newPartName).spec(newSpec)
+            .price(newPrice).stock(newStock)
             .build();
         PartServiceResponse response = PartServiceResponse.builder()
             .partId(newPartId)
@@ -182,7 +183,6 @@ public class PartServiceTest {
 
         //when
         when(partRepository.findById(newPartId)).thenReturn(Optional.of(part));
-        when(partRepository.save(any())).thenReturn(updatedPart);
 
         //then
         PartServiceResponse result = partService.updatePart(request);
@@ -209,29 +209,31 @@ public class PartServiceTest {
 
         //then
         assertThrows(PartNotFoundException.class,
-            () -> partService.updatePart(partId));
+            () -> partService.updatePart(request));
       }
-    }
 
-    @Test
-    @DisplayName("존재하는 partName, spec의 파트를 수정하려고 하면 오류가 발생한다.")
-    void partDuplicated() {
-      //given
-      UpdatePartServiceRequest request = UpdatePartServiceRequest.builder()
-          .partId(newPartId)
-          .partName(partName).spec(spec)
-          .price(price).stock(stock)
-          .build();
 
-      //when
-      when(partRepository.findByPartNameAndSpec(request.getPartName(),
-          request.getSpec())).thenReturn(
-          Optional.of(mock(Part.class)));
+      @Test
+      @DisplayName("존재하는 partName, spec의 파트를 수정하려고 하면 오류가 발생한다.")
+      void partDuplicated() {
+        //given
+        UpdatePartServiceRequest request = UpdatePartServiceRequest.builder()
+            .partId(newPartId)
+            .partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
 
-      //then
-      assertThrows(PartDuplicatedException.class,
-          () -> partService.updatePart(request));
+        //when
+        when(partRepository.findById(newPartId)).thenReturn(Optional.of(part));
+        when(partRepository.findByPartNameAndSpec(request.getPartName(),
+            request.getSpec())).thenReturn(
+            Optional.of(mock(Part.class)));
 
+        //then
+        assertThrows(PartDuplicatedException.class,
+            () -> partService.updatePart(request));
+
+      }
     }
   }
 }
