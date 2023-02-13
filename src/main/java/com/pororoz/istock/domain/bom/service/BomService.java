@@ -7,9 +7,9 @@ import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
-import com.pororoz.istock.domain.bom.exception.NotExistedPartException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
+import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
@@ -29,7 +29,7 @@ public class BomService {
 
   public BomServiceResponse saveBom(SaveBomServiceRequest request) {
     Part part = partRepository.findById(request.getPartId())
-        .orElseThrow(NotExistedPartException::new);
+        .orElseThrow(PartNotFoundException::new);
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
     bomRepository.findByLocationNumberAndProductIdAndPartId(request.getLocationNumber(),
@@ -47,9 +47,11 @@ public class BomService {
   }
 
   public BomServiceResponse updateBom(UpdateBomServiceRequest request) {
-    Bom bom = bomRepository.findById(request.getBomId()).orElseThrow();
-    Part part = partRepository.findById(request.getPartId()).orElseThrow();
-    Product product = productRepository.findById(request.getProductId()).orElseThrow();
+    Bom bom = bomRepository.findById(request.getBomId()).orElseThrow(BomNotFoundException::new);
+    Part part = partRepository.findById(request.getPartId())
+        .orElseThrow(PartNotFoundException::new);
+    Product product = productRepository.findById(request.getProductId())
+        .orElseThrow(ProductNotFoundException::new);
     bomRepository.findByLocationNumberAndProductIdAndPartId(request.getLocationNumber(),
         request.getProductId(), request.getPartId()).ifPresent(p -> {
       throw new DuplicateBomException();
