@@ -60,6 +60,7 @@ public class PartServiceTest {
             .price(price).stock(stock)
             .build();
         PartServiceResponse response = PartServiceResponse.builder()
+            .partId(1L)
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
@@ -112,6 +113,7 @@ public class PartServiceTest {
         //given
         partId = 1L;
         PartServiceResponse response = PartServiceResponse.builder()
+            .partId(partId)
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
