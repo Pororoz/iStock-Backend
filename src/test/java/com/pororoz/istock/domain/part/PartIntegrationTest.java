@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.part;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,6 +11,8 @@ import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
+import com.pororoz.istock.domain.part.dto.request.UpdatePartRequest;
+import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -171,6 +174,69 @@ public class PartIntegrationTest extends IntegrationTest {
 
         //when
         ResultActions actions = getResultActions(url + "/" + partId, HttpMethod.DELETE);
+
+        //then
+        actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("PUT /v1/parts - 파트 수정 API")
+  class UpdatePart {
+    @BeforeEach
+    void setUp() {
+      databaseCleanup.execute();
+      Part part = Part.builder().id(1L)
+          .partName("sth").spec("sth").build();
+      partRepository.save(part);
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하는 파트의 정보 수정에 성공한다.")
+      void updatePart() throws Exception {
+        //given
+        UpdatePartRequest request = UpdatePartRequest.builder()
+            .partId(1L)
+            .partName("newPart").spec("newSpec")
+            .build();
+        PartResponse response = PartResponse.builder()
+            .partId(1L)
+            .partName("newPart").spec("newSpec")
+            .build();
+
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PART))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("인증되지 않은 사용자가 접근하면 FORBIDDEN을 반환한다.")
+      void forbidden() throws Exception {
+        //given
+        UpdatePartRequest request = UpdatePartRequest.builder()
+            .partId(1L)
+            .partName("newPart").spec("newSpec")
+            .build();
+
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.PUT);
 
         //then
         actions.andExpect(status().isForbidden())
