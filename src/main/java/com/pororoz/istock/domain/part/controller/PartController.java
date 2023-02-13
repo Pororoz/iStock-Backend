@@ -10,7 +10,7 @@ import com.pororoz.istock.domain.part.dto.request.UpdatePartRequest;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.service.PartService;
-import com.pororoz.istock.domain.part.swagger.exception.PartNameDuplicatedSwagger;
+import com.pororoz.istock.domain.part.swagger.exception.PartDuplicatedSwagger;
 import com.pororoz.istock.domain.part.swagger.exception.PartNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.part.swagger.response.DeletePartResponseSwagger;
 import com.pororoz.istock.domain.part.swagger.response.SavePartResponseSwagger;
@@ -46,8 +46,8 @@ public class PartController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_PART, content = {
           @Content(schema = @Schema(implementation = SavePartResponseSwagger.class))}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.PART_NAME_DUPLICATED, content = {
-          @Content(schema = @Schema(implementation = PartNameDuplicatedSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.PART_DUPLICATED, content = {
+          @Content(schema = @Schema(implementation = PartDuplicatedSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))})})
   @PostMapping

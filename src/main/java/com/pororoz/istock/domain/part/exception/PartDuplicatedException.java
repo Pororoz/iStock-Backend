@@ -6,6 +6,6 @@ import com.pororoz.istock.common.exception.ErrorCode;
 public class PartDuplicatedException extends CustomException {
 
   public PartDuplicatedException() {
-    super(ErrorCode.PART_NAME_DUPLICATED);
+    super(ErrorCode.PART_DUPLICATED);
   }
 }

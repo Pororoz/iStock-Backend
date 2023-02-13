@@ -14,7 +14,7 @@ public class ExceptionMessage {
   public static final String INTERNAL_SERVER_ERROR = "내부 서버 오류입니다.";
   public static final String INVALID_PAGE_REQUEST = "page는 0 이상, size는 1 이상을 입력해주세요.";
   public static final String INVALID_CATEGORY_NAME = "카테고리는 2자 이상, 15자 이하로 입력해주세요.";
-  public static final String PART_NAME_DUPLICATED = "이미 존재하는 part 입니다.";
+  public static final String PART_DUPLICATED = "이미 존재하는 part 입니다.";
   public static final String PART_NOT_FOUND = "존재하지 않는 part입니다.";
   public static final String FORBIDDEN = "사용이 거절되었습니다.";
   public static final String PRODUCT_NUMBER_DUPLICATED = "중복된 product number입니다.";
