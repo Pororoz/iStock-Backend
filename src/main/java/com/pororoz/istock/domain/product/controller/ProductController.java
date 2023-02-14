@@ -16,8 +16,9 @@ import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.service.ProductService;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNameDuplicatedSwagger;
-import com.pororoz.istock.domain.product.swagger.exception.ProductNotFoundSwagger;
+import com.pororoz.istock.domain.product.swagger.exception.ProductNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.product.swagger.response.DeleteProductResponseSwagger;
+import com.pororoz.istock.domain.product.swagger.response.FindProductResponseSwagger;
 import com.pororoz.istock.domain.product.swagger.response.SaveProductResponseSwagger;
 import com.pororoz.istock.domain.product.swagger.response.UpdateProductResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
@@ -78,7 +79,7 @@ public class ProductController {
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
-          @Content(schema = @Schema(implementation = ProductNotFoundSwagger.class))})})
+          @Content(schema = @Schema(implementation = ProductNotFoundExceptionSwagger.class))})})
   @PutMapping
   public ResponseEntity<ResultDTO<ProductResponse>> updateProduct(
       @Valid @RequestBody UpdateProductRequest updateProductRequest) {
@@ -96,7 +97,7 @@ public class ProductController {
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
-          @Content(schema = @Schema(implementation = ProductNotFoundSwagger.class))})})
+          @Content(schema = @Schema(implementation = ProductNotFoundExceptionSwagger.class))})})
   @DeleteMapping("/{productId}")
   public ResponseEntity<ResultDTO<ProductResponse>> deleteProduct(
       @Valid @PathVariable("productId") @Positive(message = ExceptionMessage.INVALID_PATH) Long productId) {
@@ -106,6 +107,14 @@ public class ProductController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_PRODUCT, response));
   }
 
+  @Operation(summary = "find products", description = "제품 조회 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.FIND_PRODUCT, content = {
+          @Content(schema = @Schema(implementation = FindProductResponseSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.CATEGORY_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = CategoryNotFoundExceptionSwagger.class))})})
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<FindProductResponse>>> findProducts(
       @Valid

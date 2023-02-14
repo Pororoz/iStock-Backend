@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-public class ProductNotFoundSwagger {
+public class ProductNotFoundExceptionSwagger {
 
   @Schema(description = "에러 명칭", example = ExceptionStatus.BAD_REQUEST)
   private String status;
