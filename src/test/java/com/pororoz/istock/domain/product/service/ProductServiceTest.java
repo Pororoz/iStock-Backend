@@ -326,7 +326,8 @@ class ProductServiceTest {
         assertThat(result.getTotalElements()).isEqualTo(10);
         long i = 0;
         for (FindProductServiceResponse findResponse : result.getContent()) {
-          assertThat(findResponse.getProductId()).isEqualTo(i++);
+          ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
+          assertThat(productResponse.getProductId()).isEqualTo(i++);
           assertThat(findResponse.getPartServiceResponses().size()).isEqualTo(1);
           assertThat(findResponse.getPartServiceResponses().get(0))
               .usingRecursiveComparison().isEqualTo(partResponse);
@@ -364,7 +365,8 @@ class ProductServiceTest {
         assertThat(result.getTotalElements()).isEqualTo(total);
         long i = 0;
         for (FindProductServiceResponse findResponse : result.getContent()) {
-          assertThat(findResponse.getProductId()).isEqualTo(i++);
+          ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
+          assertThat(productResponse.getProductId()).isEqualTo(i++);
           assertThat(findResponse.getPartServiceResponses().size()).isEqualTo(1);
           assertThat(findResponse.getPartServiceResponses().get(0))
               .usingRecursiveComparison().isEqualTo(partResponse);
@@ -402,7 +404,8 @@ class ProductServiceTest {
         assertThat(result.getTotalElements()).isEqualTo(total);
         long i = 0;
         for (FindProductServiceResponse findResponse : result.getContent()) {
-          assertThat(findResponse.getProductId()).isEqualTo(i++);
+          ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
+          assertThat(productResponse.getProductId()).isEqualTo(i++);
         }
       }
     }

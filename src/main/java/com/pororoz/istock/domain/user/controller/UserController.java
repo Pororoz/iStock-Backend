@@ -71,7 +71,7 @@ public class UserController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_USER, response));
   }
 
-  @Operation(summary = "delete user", description = "유저 삭제 API")
+  @Operation(summary = "put user", description = "유저 수정 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_USER,
           content = {@Content(schema = @Schema(implementation = DeleteUserResponseSwagger.class))}),
