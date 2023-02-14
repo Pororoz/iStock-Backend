@@ -18,7 +18,7 @@ public class BomServiceResponse {
   private Long partId;
   private Long productId;
   private LocalDateTime createdAt;
-  private LocalDateTime updateAt;
+  private LocalDateTime updatedAt;
 
   public static BomServiceResponse of(Bom bom) {
     return BomServiceResponse.builder()
@@ -30,7 +30,7 @@ public class BomServiceResponse {
         .partId(bom.getPart().getId())
         .productId(bom.getProduct().getId())
         .createdAt(bom.getCreatedAt())
-        .updateAt(bom.getUpdatedAt())
+        .updatedAt(bom.getUpdatedAt())
         .build();
   }
 
