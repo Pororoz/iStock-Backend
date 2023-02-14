@@ -3,7 +3,7 @@ name: cd
 on:
   push:
     branches:
-      - 'main'
+      - '54-fix-docker-deploy-수정'
 
 env:
   REPOSITORY: istock-backend-dev
