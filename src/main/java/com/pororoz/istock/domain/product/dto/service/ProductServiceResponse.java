@@ -3,11 +3,11 @@ package com.pororoz.istock.domain.product.dto.service;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.entity.Product;
 import java.time.LocalDateTime;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 @Getter
-@SuperBuilder
+@Builder
 public class ProductServiceResponse {
 
   private Long productId;
