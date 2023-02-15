@@ -111,9 +111,8 @@ public class PartServiceTest {
       @DisplayName("파트를 삭제한다.")
       void deletePart() {
         //given
-        partId = 1L;
         PartServiceResponse response = PartServiceResponse.builder()
-            .partId(partId)
+            .partId(1L)
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
@@ -122,7 +121,7 @@ public class PartServiceTest {
         when(partRepository.findById(partId)).thenReturn(Optional.of(part));
 
         //then
-        PartServiceResponse result = partService.deletePart(partId);
+        PartServiceResponse result = partService.deletePart(1L);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
 
       }
@@ -136,14 +135,13 @@ public class PartServiceTest {
       @DisplayName("존재하지 않는 파트를 삭제하려고 하면 오류가 발생한다.")
       void partNotFound() {
         //given
-        partId = 2L;
 
         //when
-        when(partRepository.findById(partId)).thenReturn(Optional.empty());
+        when(partRepository.findById(2L)).thenReturn(Optional.empty());
 
         //then
         assertThrows(PartNotFoundException.class,
-            () -> partService.deletePart(partId));
+            () -> partService.deletePart(2L));
       }
     }
   }
@@ -167,11 +165,6 @@ public class PartServiceTest {
       @DisplayName("파트를 수정한다.")
       void updatePart() {
         //given
-        Part updatedPart = part.builder()
-            .id(newPartId)
-            .partName(newPartName).spec(newSpec)
-            .price(newPrice).stock(newStock)
-            .build();
         UpdatePartServiceRequest request = UpdatePartServiceRequest.builder()
             .partId(newPartId)
             .partName(newPartName).spec(newSpec)

@@ -84,10 +84,8 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("partName을 적지 않으면 예외가 발생한다.")
       void partNameNullException() throws Exception {
         //given
-        partName = null;
-
         SavePartRequest request = SavePartRequest.builder()
-            .partName(partName).spec(spec)
+            .partName(null).spec(spec)
             .price(price).stock(stock)
             .build();
 
@@ -103,10 +101,8 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("spec 적지 않으면 예외가 발생한다.")
       void specNullException() throws Exception {
         //given
-        spec = null;
-
         SavePartRequest request = SavePartRequest.builder()
-            .partName(partName).spec(spec)
+            .partName(partName).spec(null)
             .price(price).stock(stock)
             .build();
 
@@ -165,10 +161,9 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("partId가 1이상의 정수가 아니면 bad request 오류가 발생한다.")
       void partIdInvalid() throws Exception {
         //given
-        partId = 0;
 
         //when
-        ResultActions actions = getResultActions(url + "/" + partId, HttpMethod.DELETE);
+        ResultActions actions = getResultActions(url + "/" + 0, HttpMethod.DELETE);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -243,9 +238,8 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("partId가 1이상의 정수가 아니면 bad request 오류가 발생한다.")
       void partIdInvalid() throws Exception {
         //given
-        partId = 0;
         UpdatePartRequest request = UpdatePartRequest.builder()
-            .partId(partId)
+            .partId(0L)
             .partName(partName).spec(spec)
             .price(price).stock(stock)
             .build();
@@ -279,14 +273,9 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("partName을 적지 않으면 bad request 오류가 발생한다.")
       void partNameNullException() throws Exception {
         //given
-        partName = null;
-        spec = "BRD|A2D";
-        price = 100000;
-        stock = 5;
-
         UpdatePartRequest request = UpdatePartRequest.builder()
             .partId(partId)
-            .partName(partName).spec(spec)
+            .partName(null).spec(spec)
             .price(price).stock(stock)
             .build();
 
@@ -302,14 +291,9 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("spec 적지 않으면 bad request 오류가 발생한다.")
       void specNullException() throws Exception {
         //given
-        partName = "BEAD";
-        spec = null;
-        price = 100000;
-        stock = 5;
-
         UpdatePartRequest request = UpdatePartRequest.builder()
             .partId(partId)
-            .partName(partName).spec(spec)
+            .partName(partName).spec(null)
             .price(price).stock(stock)
             .build();
 

@@ -32,10 +32,6 @@ public class PartIntegrationTest extends IntegrationTest {
   private final String url = "http://localhost:8080/v1/parts";
 
   private Long partId;
-  private String partName;
-  private String spec;
-  private long price;
-  private long stock;
 
   @Nested
   @DisplayName("POST /v1/parts - 파트 추가")
