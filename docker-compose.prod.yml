@@ -9,7 +9,7 @@ services:
       SERVER_MODE: spring1
       MYSQL_USERNAME: "${MYSQL_USERNAME}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-    platform: linux/amd64
+    platform: linux/arm64/v8
     ports:
       - "8081:8080"
     depends_on:
@@ -25,7 +25,7 @@ services:
       SERVER_MODE: spring2
       MYSQL_USERNAME: "${MYSQL_USERNAME}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-    platform: linux/amd64
+    platform: linux/arm64/v8
     ports:
       - "8082:8080"
     depends_on:
@@ -50,7 +50,7 @@ services:
   mysql:
     container_name: mysql
     image: mysql:8.0
-    platform: linux/x86_64
+    platform: linux/arm64/v8
     restart: always
     ports:
       - "3306:3306"
@@ -68,7 +68,7 @@ services:
   redis:
     container_name: redis
     image: redis
-    platform: linux/x86_64
+    platform: linux/arm64/v8
     restart: always
     ports:
       - "6379:6379"
