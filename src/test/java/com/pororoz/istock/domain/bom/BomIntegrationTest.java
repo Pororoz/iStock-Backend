@@ -284,50 +284,6 @@ public class BomIntegrationTest extends IntegrationTest {
       }
 
       @Test
-      @WithMockUser(roles = "ADMIN")
-      @DisplayName("API 요청 시, partId의 값으로 null을 전달하면 400 Bad Request를 반환한다.")
-      void badRequestPartId() throws Exception {
-        // given
-        SaveBomRequest request = SaveBomRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .partId(null)
-            .productId(productId)
-            .build();
-
-        // when
-        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
-
-        // then
-        actions.andExpect(status().isBadRequest())
-            .andDo(print());
-      }
-
-      @Test
-      @WithMockUser(roles = "ADMIN")
-      @DisplayName("API 요청 시, productId의 값으로 null을 전달하면 400 Bad Request를 반환한다.")
-      void badRequestProductId() throws Exception {
-        // given
-        SaveBomRequest request = SaveBomRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .partId(partId)
-            .productId(null)
-            .build();
-
-        // when
-        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
-
-        // then
-        actions.andExpect(status().isBadRequest())
-            .andDo(print());
-      }
-
-      @Test
       @DisplayName("인증되지 않은 사용자가 접근하면 403 Forbidden을 반환한다.")
       void forbidden() throws Exception {
         // given
@@ -345,6 +301,36 @@ public class BomIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "USER")
+      @DisplayName("Sub assay가 Sub assay를 BOM으로 저장하려하면 Bad Request가 발생한다.")
+      void saveSubAssayBom() throws Exception {
+        // given
+        Category category = categoryRepository.save(Category.builder()
+            .categoryName("c").build());
+        Product subProduct = productRepository.save(Product.builder()
+            .codeNumber("11").productNumber("superNumber")
+            .productName("superName")
+            .category(category).build());
+        SaveBomRequest request = SaveBomRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber("11")
+            .quantity(quantity)
+            .productNumber(subProduct.getProductNumber())
+            .memo(memo)
+            .productId(productId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.INVALID_SUB_ASSAY_BOM))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_SUB_ASSAY_BOM))
             .andDo(print());
       }
     }

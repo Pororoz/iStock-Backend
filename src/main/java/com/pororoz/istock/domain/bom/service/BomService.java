@@ -7,6 +7,7 @@ import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
+import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidSubAssayBomException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
@@ -28,11 +29,13 @@ public class BomService {
   private final PartRepository partRepository;
   private final ProductRepository productRepository;
   private final BomRepository bomRepository;
+
   private final String SUB_ASSAY_CODE_NUMBER = "11";
 
   public BomServiceResponse saveBom(SaveBomServiceRequest request) {
-    Part part = getValidPart(request.getCodeNumber(), request.getProductNumber(),
-        request.getPartId());
+    validateRequest(request.getCodeNumber(), request.getProductNumber(), request.getPartId());
+    Part part = request.getPartId() == null ? null : partRepository.findById(request.getPartId())
+        .orElseThrow(PartNotFoundException::new);
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
     bomRepository.findByLocationNumberAndProductIdAndPartId(request.getLocationNumber(),
@@ -68,14 +71,29 @@ public class BomService {
     return BomServiceResponse.of(bom);
   }
 
-  private Part getValidPart(String codeNumber, String productNumber, Long partId) {
+  private void validateRequest(String codeNumber, String productNumber, Long partId) {
     if (Objects.equals(codeNumber, SUB_ASSAY_CODE_NUMBER)) {
-      if (productNumber == null || partId != null) {
-        throw new InvalidSubAssayBomException();
-      }
-      return null;
+      validateSubAssayBom(productNumber, partId);
+      return;
     }
-    return partRepository.findById(partId)
-        .orElseThrow(PartNotFoundException::new);
+    validateProductBom(productNumber, partId);
+  }
+
+  // sub assay는 또다른 sub assay의 bom이 될 수 없다.
+  private void validateSubAssayBom(String productNumber, Long partId) {
+    if (productNumber == null || partId != null) {
+      throw new InvalidSubAssayBomException();
+    }
+    Product superProduct = productRepository.findByProductNumber(productNumber)
+        .orElseThrow(ProductNotFoundException::new);
+    if (Objects.equals(superProduct.getCodeNumber(), SUB_ASSAY_CODE_NUMBER)) {
+      throw new InvalidSubAssayBomException();
+    }
+  }
+
+  private void validateProductBom(String productNumber, Long partId) {
+    if (productNumber != null || partId == null) {
+      throw new InvalidProductBomException();
+    }
   }
 }

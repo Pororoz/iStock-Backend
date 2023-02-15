@@ -30,9 +30,10 @@ public enum ErrorCode {
       ExceptionMessage.DUPLICATE_BOM),
   BOM_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.BOM_NOT_FOUND,
       ExceptionMessage.BOM_NOT_FOUND),
-
   INVALID_SUB_ASSAY_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_SUB_ASSAY_BOM,
-      ExceptionMessage.INVALID_SUB_ASSAY_BOM);
+      ExceptionMessage.INVALID_SUB_ASSAY_BOM),
+  INVALID_PRODUCT_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_PRODUCT_BOM,
+      ExceptionMessage.INVALID_PRODUCT_BOM);
 
   private final HttpStatus statusCode;
 
