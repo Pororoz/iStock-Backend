@@ -26,7 +26,7 @@ public class BomResponse {
   @Schema(description = "제품 번호", example = "GS-IH-01")
   private String productNumber;
 
-  @Schema(description = "part 아이다", example = "1")
+  @Schema(description = "part 아이디", example = "1")
   private Long partId;
 
   @Schema(description = "product 아이디", example = "2")

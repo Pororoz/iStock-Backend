@@ -37,7 +37,6 @@ public class SaveBomRequest {
   private String memo;
 
   @Schema(description = "part 아이다", example = "1")
-  @NotNull
   private Long partId;
 
   @Schema(description = "product 아이디", example = "2")

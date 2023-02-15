@@ -129,6 +129,44 @@ public class BomIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
+
+      @Test
+      @WithMockUser(roles = "USER")
+      @DisplayName("Sub assay BOM을 저장하고 저장한 Bom Data를 반환한다.")
+      void saveSubAssayBom() throws Exception {
+        // given
+        Product superProduct = productRepository.save(Product.builder()
+            .productName("p").productNumber("p")
+            .category(category)
+            .build());
+        String subAssayCodeNumber = "11";
+        SaveBomRequest request = SaveBomRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(subAssayCodeNumber)
+            .quantity(quantity)
+            .productNumber(superProduct.getProductName())
+            .memo(memo)
+            .productId(productId)
+            .build();
+        BomResponse response = BomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(subAssayCodeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .productId(productId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
     }
 
     @Nested
