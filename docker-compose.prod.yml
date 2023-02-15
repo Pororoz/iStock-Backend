@@ -68,7 +68,7 @@ services:
   redis:
     container_name: redis
     image: redis
-    platform: linux/arm64/v8
+    platform: linux/x86_64
     restart: always
     ports:
       - "6379:6379"
