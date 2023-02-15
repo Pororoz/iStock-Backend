@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 openjdk:17
+FROM --platform=linux/amd64 openjdk:17
 
 WORKDIR /usr/src/app
 
