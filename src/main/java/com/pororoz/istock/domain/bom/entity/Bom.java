@@ -61,7 +61,6 @@ public class Bom extends TimeEntity {
   @Size(max = 50)
   private String memo;
 
-  @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Part part;
 
