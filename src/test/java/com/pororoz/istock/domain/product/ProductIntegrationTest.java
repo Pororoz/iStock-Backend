@@ -335,5 +335,18 @@ public class ProductIntegrationTest extends IntegrationTest {
           .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
           .andDo(print());
     }
+
+    @Test
+    @DisplayName("인증되지 않은 사용자는 forbidden이 발생한다.")
+    void forbiddenUser() throws Exception {
+      // given
+      String fullUri = uri + "?category-id=1&page=10&size=10";
+
+      //when
+      ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+      //then
+      actions.andExpect(status().isForbidden());
+    }
   }
 }
