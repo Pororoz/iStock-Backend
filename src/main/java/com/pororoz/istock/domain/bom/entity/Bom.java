@@ -38,9 +38,10 @@ public class Bom extends TimeEntity {
   private Long id;
 
   @NotNull
-  @Size(max = 200)
+  @Size(max = 100)
   @Builder.Default
-  @Column(name = "location_number", columnDefinition = "varchar(200) default '0'")
+  @Column(name = "location_number",
+      columnDefinition = "VARCHAR(100) default '0' CHARACTER SET utf8 COLLATE utf8_bin")
   private String locationNumber = "0";
 
   @Size(max = 20)
@@ -52,6 +53,10 @@ public class Bom extends TimeEntity {
   @Builder.Default
   @Column(columnDefinition = "INT(11) UNSIGNED default 0")
   private long quantity = 0;
+
+  @Size(max = 100)
+  @Column(columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin")
+  private String productNumber;
 
   @Size(max = 50)
   private String memo;

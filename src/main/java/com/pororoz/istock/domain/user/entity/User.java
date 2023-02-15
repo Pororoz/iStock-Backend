@@ -29,11 +29,12 @@ public class User extends TimeEntity implements Serializable {
 
   @NotNull
   @Size(min = 2, max = 20)
-  @Column(length = 50, unique = true)
+  @Column(unique = true, columnDefinition = "VARCHAR(20) CHARACTER SET utf8 COLLATE utf8_bin")
   private String username;
 
   @NotNull
   @Size(min = 2, max = 100)
+  @Column(columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin")
   private String password;
 
   @NotNull

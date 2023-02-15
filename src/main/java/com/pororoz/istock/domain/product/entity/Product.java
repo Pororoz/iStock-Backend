@@ -35,14 +35,16 @@ public class Product extends TimeEntity {
 
   @NotNull
   @Size(max = 100)
+  @Column(columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin")
   private String productName;
 
   @NotNull
-  @Size(max = 200)
-  @Column(unique = true)
+  @Size(max = 100)
+  @Column(unique = true, columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin")
   private String productNumber;
 
   @Size(max = 20)
+
   private String codeNumber;
 
   @NotNull
@@ -52,6 +54,7 @@ public class Product extends TimeEntity {
   private long stock = 0;
 
   @Size(max = 50)
+  @Column(columnDefinition = "VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_bin")
   private String companyName;
 
   @NotNull
