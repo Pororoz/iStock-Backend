@@ -15,6 +15,7 @@ public class BomServiceResponse {
   private String codeNumber;
   private Long quantity;
   private String memo;
+  private String productNumber;
   private Long partId;
   private Long productId;
   private LocalDateTime createdAt;
@@ -27,7 +28,8 @@ public class BomServiceResponse {
         .codeNumber(bom.getCodeNumber())
         .quantity(bom.getQuantity())
         .memo(bom.getMemo())
-        .partId(bom.getPart().getId())
+        .productNumber(bom.getProductNumber())
+        .partId(bom.getPart() == null ? null : bom.getPart().getId())
         .productId(bom.getProduct().getId())
         .createdAt(bom.getCreatedAt())
         .updatedAt(bom.getUpdatedAt())

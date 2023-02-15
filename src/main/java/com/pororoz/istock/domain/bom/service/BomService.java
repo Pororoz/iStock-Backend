@@ -1,12 +1,13 @@
 package com.pororoz.istock.domain.bom.service;
 
+import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
-import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
+import com.pororoz.istock.domain.bom.exception.InvalidSubAssayBomException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
@@ -14,6 +15,7 @@ import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,10 +28,11 @@ public class BomService {
   private final PartRepository partRepository;
   private final ProductRepository productRepository;
   private final BomRepository bomRepository;
+  private final String SUB_ASSAY_CODE_NUMBER = "11";
 
   public BomServiceResponse saveBom(SaveBomServiceRequest request) {
-    Part part = partRepository.findById(request.getPartId())
-        .orElseThrow(PartNotFoundException::new);
+    Part part = getValidPart(request.getCodeNumber(), request.getProductNumber(),
+        request.getPartId());
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
     bomRepository.findByLocationNumberAndProductIdAndPartId(request.getLocationNumber(),
@@ -63,5 +66,16 @@ public class BomService {
 
     bom.update(newPart, newProduct, request);
     return BomServiceResponse.of(bom);
+  }
+
+  private Part getValidPart(String codeNumber, String productNumber, Long partId) {
+    if (Objects.equals(codeNumber, SUB_ASSAY_CODE_NUMBER)) {
+      if (productNumber == null || partId != null) {
+        throw new InvalidSubAssayBomException();
+      }
+      return null;
+    }
+    return partRepository.findById(partId)
+        .orElseThrow(PartNotFoundException::new);
   }
 }

@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BomRepository extends JpaRepository<Bom, Long> {
 
-  Optional<Bom> findByLocationNumberAndProductIdAndPartId(String locationNumber, long productId,
-      long partId);
+  Optional<Bom> findByLocationNumberAndProductIdAndPartId(String locationNumber, Long productId,
+      Long partId);
 }
