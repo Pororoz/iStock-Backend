@@ -50,7 +50,7 @@ services:
   mysql:
     container_name: mysql
     image: mysql:8.0
-    platform: linux/arm64
+    platform: linux/x86_64
     restart: always
     ports:
       - "3306:3306"
