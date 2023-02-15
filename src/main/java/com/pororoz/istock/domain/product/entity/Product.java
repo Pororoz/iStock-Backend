@@ -44,7 +44,6 @@ public class Product extends TimeEntity {
   private String productNumber;
 
   @Size(max = 20)
-
   private String codeNumber;
 
   @NotNull

@@ -16,10 +16,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass
 public abstract class TimeEntity {
 
-  @Column(nullable = false, updatable = false, columnDefinition = "DEFAULT CURRENT_TIMESTAMP")
+  @Column(nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  @Column(nullable = false, columnDefinition = "DEFAULT CURRENT_TIMESTAMP")
+  @Column(nullable = false)
   private LocalDateTime updatedAt;
 
   @PrePersist

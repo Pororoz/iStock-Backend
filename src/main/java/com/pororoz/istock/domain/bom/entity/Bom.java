@@ -41,7 +41,7 @@ public class Bom extends TimeEntity {
   @Size(max = 100)
   @Builder.Default
   @Column(name = "location_number",
-      columnDefinition = "VARCHAR(100) default '0' CHARACTER SET utf8 COLLATE utf8_bin")
+      columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT '0'")
   private String locationNumber = "0";
 
   @Size(max = 20)
