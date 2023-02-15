@@ -7,11 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-public class DeletePartResponseSwagger {
+public class UpdatePartResponseSwagger {
   @Schema(description = "Result Code", example = ResponseStatus.OK)
   private String status;
 
-  @Schema(description = "Message", example = ResponseMessage.DELETE_PART)
+  @Schema(description = "Message", example = ResponseMessage.UPDATE_PART)
   private String message;
 
   private PartResponse data;
