@@ -29,7 +29,7 @@ public class ProductService {
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
 
-  private final String SUB_ASSY_LOCATION_NUMBER = "11";
+  private final String SUB_ASSY_CODE_NUMBER = "11";
 
   public ProductServiceResponse saveProduct(SaveProductServiceRequest request) {
     checkProductNumberDuplicated(null, request.getProductNumber());
@@ -64,7 +64,7 @@ public class ProductService {
     //subAssy만 필터링
     products.forEach(product -> product.setBoms(
         product.getBoms().stream()
-            .filter(bom -> bom.getLocationNumber().equals(SUB_ASSY_LOCATION_NUMBER)).toList()));
+            .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER)).toList()));
     return products.map(FindProductServiceResponse::of);
   }
 

@@ -7,26 +7,44 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
+import com.pororoz.istock.common.dto.PageResponse;
+import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
+import com.pororoz.istock.domain.part.entity.Part;
+import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
+import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
+import com.pororoz.istock.domain.product.dto.response.SubAssyResponse;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 
 public class ProductIntegrationTest extends IntegrationTest {
+
+  @Autowired
+  BomRepository bomRepository;
+
+  @Autowired
+  PartRepository partRepository;
 
   @Autowired
   ProductRepository productRepository;
@@ -228,6 +246,92 @@ public class ProductIntegrationTest extends IntegrationTest {
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.DELETE_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+  }
+
+  @Nested
+  @DisplayName("GET /v1/products?category-id={categoryId}&page={page}&size={size} - 제품 조회")
+  class FindProducts {
+
+    @Test
+    @WithMockUser(roles = "USER")
+    @DisplayName("제품을 subAssy와 함께 페이지네이션하여 1페이지를 조회한다.")
+    void findProductWithSubAssy() throws Exception {
+      //given
+      databaseCleanup.execute();
+      Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
+
+      //product 저장
+      List<Product> products = new ArrayList<>();
+      for (int i = 0; i < 11; i++) {
+        Product product = productRepository.save(Product.builder()
+            .productName("p" + i).productNumber("p" + i)
+            .category(category)
+            .build());
+        products.add(product);
+      }
+
+      //part 저장
+      Part part = partRepository.save(Part.builder()
+          .partName("p").spec("p")
+          .build());
+
+      //bom 저장
+      bomRepository.save(Bom.builder()
+          .codeNumber("11")
+          .part(part).product(products.get(5))
+          .quantity(10)
+          .build());
+      for (int i = 0; i < 7; i++) {
+        bomRepository.save(Bom.builder()
+            .codeNumber("11").locationNumber("" + i)
+            .part(part).product(products.get(i))
+            .quantity(10)
+            .build());
+      }
+      for (int i = 0; i < 10; i++) {
+        bomRepository.save(Bom.builder()
+            .codeNumber("10").locationNumber("" + i + 100)
+            .part(part).product(products.get(i))
+            .build());
+      }
+
+      int page = 1;
+      int size = 5;
+      String fullUri = uri + "?category-id=" + category.getId() + "&page=" + page + "&size=" + size;
+
+      //when
+      ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+      //then
+      SubAssyResponse subAssyService = SubAssyResponse.builder()
+          .partId(part.getId())
+          .partName("p").spec("p")
+          .quantity(10)
+          .build();
+      List<FindProductResponse> findProductResponses = new ArrayList<>();
+      for (int i = 5; i < 10; i++) {
+        Product product = products.get(i);
+        findProductResponses.add(FindProductResponse.builder()
+            .productId(product.getId())
+            .productName(product.getProductName())
+            .productNumber(product.getProductNumber())
+            .stock(product.getStock())
+            .companyName(product.getCompanyName())
+            .categoryId(product.getCategory().getId())
+            .createdAt(TimeEntity.formatTime(product.getCreatedAt()))
+            .updatedAt(TimeEntity.formatTime(product.getUpdatedAt()))
+            .subAssy(i > 6 ? List.of()
+                : (i == 6 ? List.of(subAssyService) : List.of(subAssyService, subAssyService)))
+            .build());
+      }
+      PageResponse<FindProductResponse> response = new PageResponse<>(
+          new PageImpl<>(findProductResponses, PageRequest.of(page, size), 11));
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))
           .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
           .andDo(print());
     }

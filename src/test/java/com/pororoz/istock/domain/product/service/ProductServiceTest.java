@@ -14,12 +14,12 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
-import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.product.dto.service.FindProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
+import com.pororoz.istock.domain.product.dto.service.SubAssyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
@@ -283,8 +283,8 @@ class ProductServiceTest {
   class FindProducts {
 
     Part part = Part.builder().build();
-    Bom assyBom = Bom.builder().locationNumber("11").part(part).build();
-    Bom otherBom = Bom.builder().locationNumber("0").part(part).build();
+    Bom assyBom = Bom.builder().codeNumber("11").part(part).build();
+    Bom otherBom = Bom.builder().codeNumber("0").part(part).build();
 
     @Nested
     @DisplayName("성공 케이스")
@@ -320,7 +320,7 @@ class ProductServiceTest {
         Page<FindProductServiceResponse> result = productService.findProducts(request);
 
         //then
-        PartServiceResponse partResponse = PartServiceResponse.builder().build();
+        SubAssyServiceResponse subAssyResponse = SubAssyServiceResponse.builder().build();
 
         assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
         assertThat(result.getTotalElements()).isEqualTo(10);
@@ -328,9 +328,9 @@ class ProductServiceTest {
         for (FindProductServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
-          assertThat(findResponse.getPartServiceResponses().size()).isEqualTo(1);
-          assertThat(findResponse.getPartServiceResponses().get(0))
-              .usingRecursiveComparison().isEqualTo(partResponse);
+          assertThat(findResponse.getSubAssyServiceResponses().size()).isEqualTo(1);
+          assertThat(findResponse.getSubAssyServiceResponses().get(0))
+              .usingRecursiveComparison().isEqualTo(subAssyResponse);
         }
       }
 
@@ -359,7 +359,7 @@ class ProductServiceTest {
         Page<FindProductServiceResponse> result = productService.findProducts(request);
 
         //then
-        PartServiceResponse partResponse = PartServiceResponse.builder().build();
+        SubAssyServiceResponse subAssyResponse = SubAssyServiceResponse.builder().build();
 
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getTotalElements()).isEqualTo(total);
@@ -367,9 +367,9 @@ class ProductServiceTest {
         for (FindProductServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
-          assertThat(findResponse.getPartServiceResponses().size()).isEqualTo(1);
-          assertThat(findResponse.getPartServiceResponses().get(0))
-              .usingRecursiveComparison().isEqualTo(partResponse);
+          assertThat(findResponse.getSubAssyServiceResponses().size()).isEqualTo(1);
+          assertThat(findResponse.getSubAssyServiceResponses().get(0))
+              .usingRecursiveComparison().isEqualTo(subAssyResponse);
         }
       }
 

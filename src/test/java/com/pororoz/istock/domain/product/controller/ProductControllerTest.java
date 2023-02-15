@@ -13,16 +13,16 @@ import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.entity.Category;
-import com.pororoz.istock.domain.part.dto.response.PartResponse;
-import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
 import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
+import com.pororoz.istock.domain.product.dto.response.SubAssyResponse;
 import com.pororoz.istock.domain.product.dto.service.FindProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
+import com.pororoz.istock.domain.product.dto.service.SubAssyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
 import com.pororoz.istock.domain.product.service.ProductService;
 import java.util.List;
@@ -332,11 +332,11 @@ class ProductControllerTest extends ControllerTest {
       PageRequest pageRequest = PageRequest.of(page, size);
       ProductServiceResponse productServiceResponse = ProductServiceResponse.builder()
           .productId(id).categoryId(categoryId).build();
-      PartServiceResponse partServiceResponse = PartServiceResponse.builder()
+      SubAssyServiceResponse subAssyServiceResponse = SubAssyServiceResponse.builder()
           .partId(partId).build();
       FindProductServiceResponse ServiceDto = FindProductServiceResponse.builder()
           .productServiceResponse(productServiceResponse)
-          .partServiceResponses(List.of(partServiceResponse))
+          .subAssyServiceResponses(List.of(subAssyServiceResponse))
           .build();
       Page<FindProductServiceResponse> dtoPage =
           new PageImpl<>(List.of(ServiceDto), pageRequest, 4);
@@ -347,10 +347,10 @@ class ProductControllerTest extends ControllerTest {
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
       //then
-      PartResponse partResponse = PartResponse.builder().partId(partId).build();
+      SubAssyResponse subAssyRespon = SubAssyResponse.builder().partId(partId).build();
       FindProductResponse findProductResponse = FindProductResponse.builder()
           .productId(id).categoryId(categoryId)
-          .subAssy(List.of(partResponse))
+          .subAssy(List.of(subAssyRespon))
           .build();
       PageResponse<FindProductResponse> response =
           new PageResponse<>(new PageImpl<>(List.of(findProductResponse), pageRequest, 4));
@@ -386,11 +386,11 @@ class ProductControllerTest extends ControllerTest {
       PageRequest pageRequest = PageRequest.of(page, size);
       ProductServiceResponse productServiceResponse = ProductServiceResponse.builder()
           .productId(id).categoryId(categoryId).build();
-      PartServiceResponse partServiceResponse = PartServiceResponse.builder()
+      SubAssyServiceResponse subAssyServiceResponse = SubAssyServiceResponse.builder()
           .partId(partId).build();
       FindProductServiceResponse ServiceDto = FindProductServiceResponse.builder()
           .productServiceResponse(productServiceResponse)
-          .partServiceResponses(List.of(partServiceResponse))
+          .subAssyServiceResponses(List.of(subAssyServiceResponse))
           .build();
       Page<FindProductServiceResponse> dtoPage =
           new PageImpl<>(List.of(ServiceDto), pageRequest, size);
@@ -401,10 +401,10 @@ class ProductControllerTest extends ControllerTest {
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
       //then
-      PartResponse partResponse = PartResponse.builder().partId(partId).build();
+      SubAssyResponse subAssyRespon = SubAssyResponse.builder().partId(partId).build();
       FindProductResponse findProductResponse = FindProductResponse.builder()
           .productId(id).categoryId(categoryId)
-          .subAssy(List.of(partResponse))
+          .subAssy(List.of(subAssyRespon))
           .build();
       PageResponse<FindProductResponse> response =
           new PageResponse<>(new PageImpl<>(List.of(findProductResponse), pageRequest, size));

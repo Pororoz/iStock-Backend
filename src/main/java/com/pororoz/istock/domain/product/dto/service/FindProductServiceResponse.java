@@ -1,7 +1,6 @@
 package com.pororoz.istock.domain.product.dto.service;
 
 import com.pororoz.istock.common.entity.TimeEntity;
-import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
 import com.pororoz.istock.domain.product.entity.Product;
 import java.util.List;
@@ -13,13 +12,14 @@ import lombok.Getter;
 public class FindProductServiceResponse {
 
   private ProductServiceResponse productServiceResponse;
-  private List<PartServiceResponse> partServiceResponses;
+  private List<SubAssyServiceResponse> subAssyServiceResponses;
 
   public static FindProductServiceResponse of(Product product) {
     return FindProductServiceResponse.builder()
         .productServiceResponse(ProductServiceResponse.of(product))
-        .partServiceResponses(
-            product.getBoms().stream().map(bom -> PartServiceResponse.of(bom.getPart())).toList())
+        .subAssyServiceResponses(
+            product.getBoms().stream()
+                .map(bom -> SubAssyServiceResponse.of(bom.getPart(), bom.getQuantity())).toList())
         .build();
   }
 
@@ -33,7 +33,7 @@ public class FindProductServiceResponse {
         .categoryId(productServiceResponse.getCategoryId())
         .createdAt(TimeEntity.formatTime(productServiceResponse.getCreatedAt()))
         .updatedAt(TimeEntity.formatTime(productServiceResponse.getUpdatedAt()))
-        .subAssy(partServiceResponses.stream()
-            .map(PartServiceResponse::toResponse).toList()).build();
+        .subAssy(subAssyServiceResponses.stream()
+            .map(SubAssyServiceResponse::toResponse).toList()).build();
   }
 }

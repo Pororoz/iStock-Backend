@@ -1,6 +1,5 @@
 package com.pororoz.istock.domain.product.dto.response;
 
-import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.Builder;
@@ -37,5 +36,5 @@ public class FindProductResponse {
   @Schema(description = "수정 시간", example = "2023-01-01 00:00:01")
   private String updatedAt;
 
-  private List<PartResponse> subAssy;
+  private List<SubAssyResponse> subAssy;
 }
