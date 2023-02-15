@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM arm64v8/openjdk:17
 
 WORKDIR /usr/src/app
 
