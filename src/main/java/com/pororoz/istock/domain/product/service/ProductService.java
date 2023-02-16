@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.product.service;
 
 import com.pororoz.istock.common.utils.Pagination;
+import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
@@ -26,10 +27,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProductService {
 
+  private final BomRepository bomRepository;
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
 
-  private final String SUB_ASSY_CODE_NUMBER = "11";
+  private final String SUB_ASSAY_CODE_NUMBER = "11";
 
   public ProductServiceResponse saveProduct(SaveProductServiceRequest request) {
     checkProductNumberDuplicated(null, request.getProductNumber());
@@ -42,6 +44,7 @@ public class ProductService {
   public ProductServiceResponse updateProduct(UpdateProductServiceRequest request) {
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
+    validateRequest(product, request.getProductNumber(), request.getCodeNumber());
     checkProductNumberDuplicated(product.getProductNumber(), request.getProductNumber());
     Category category = categoryRepository.findById(request.getCategoryId())
         .orElseThrow(CategoryNotFoundException::new);
@@ -64,8 +67,31 @@ public class ProductService {
     //subAssy만 필터링
     products.forEach(product -> product.setBoms(
         product.getBoms().stream()
-            .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER)).toList()));
+            .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSAY_CODE_NUMBER)).toList()));
     return products.map(FindProductServiceResponse::of);
+  }
+
+
+  private void validateRequest(Product existProduct, String newProductNumber,
+      String newCodeNumber) {
+    if (Objects.equals(existProduct.getProductNumber(), newProductNumber)) {
+      return;
+    }
+    // product->subassay
+    // bom에 subassay가 있으면 안된다.
+    if (Objects.equals(newCodeNumber, SUB_ASSAY_CODE_NUMBER)) {
+      bomRepository.findByProductId(existProduct.getId()).forEach(bom -> {
+        if (Objects.equals(bom.getCodeNumber(), SUB_ASSAY_CODE_NUMBER)) {
+          throw new RuntimeException("product->subassay");
+        }
+      });
+      return;
+    }
+    // subassay->product
+    // bom에 있으면 안된다
+    if (bomRepository.existsByProductNumber(existProduct.getProductNumber())) {
+      throw new RuntimeException("subassay->product");
+    }
   }
 
   private void checkProductNumberDuplicated(String oldNumber, String newNumber) {

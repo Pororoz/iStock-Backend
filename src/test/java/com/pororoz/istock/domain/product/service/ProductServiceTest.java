@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.common.utils.Pagination;
 import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
@@ -45,6 +46,9 @@ class ProductServiceTest {
 
   @InjectMocks
   ProductService productService;
+
+  @Mock
+  BomRepository bomRepository;
 
   @Mock
   ProductRepository productRepository;
@@ -138,22 +142,24 @@ class ProductServiceTest {
   @DisplayName("product 수정")
   class UpdateProduct {
 
+    Category newCategory = Category.builder()
+        .id(categoryId + 1).categoryName("new category")
+        .build();
+
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
+
 
       @Test
       @DisplayName("product를 수정한다.")
       void updateProduct() {
         //given
-        Category newCategory = Category.builder()
-            .id(categoryId + 1).categoryName("new category")
-            .build();
         UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
             .productId(id).productNumber("new pnumber")
             .productName("new pname").codeNumber("new cnumber")
             .stock(stock + 1).companyName("new cname")
-            .categoryId(categoryId + 1)
+            .categoryId(newCategory.getId())
             .build();
         ProductServiceResponse response = ProductServiceResponse.builder()
             .productId(id).productNumber("new pnumber")
@@ -164,6 +170,67 @@ class ProductServiceTest {
 
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
+        ProductServiceResponse result = productService.updateProduct(request);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+
+      @Test
+      @DisplayName("완성품을 sub asssay로 수정한다.")
+      void changeToSubAssay() {
+        //given
+        Bom bom = Bom.builder().productNumber("not sub assay").build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("11")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+        ProductServiceResponse response = ProductServiceResponse.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("11")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(bomRepository.findByProductId(id)).thenReturn(List.of(bom));
+        when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
+        ProductServiceResponse result = productService.updateProduct(request);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+
+      @Test
+      @DisplayName("Sub assay를 완성품으로 수정한다.")
+      void changeToProduct() {
+        //given
+        Product subAssay = Product.builder()
+            .id(id).productName(productName)
+            .productNumber(productNumber).codeNumber("11")
+            .stock(stock).companyName(companyName)
+            .category(category)
+            .build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+        ProductServiceResponse response = ProductServiceResponse.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(subAssay));
+        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(false);
         when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
         ProductServiceResponse result = productService.updateProduct(request);
 
@@ -230,6 +297,52 @@ class ProductServiceTest {
 
         //then
         assertThrows(CategoryNotFoundException.class, () -> productService.updateProduct(request));
+      }
+
+      @Test
+      @DisplayName("완성품을 sub assay로 수정하는데, bom에 sub assay가 존재하면 예외가 발생한다.")
+      void changeToSubAssayThenSubAssayBomExist() {
+        //given
+        Bom bom = Bom.builder().productNumber("not sub assay").build();
+        Bom subAssaybom = Bom.builder().productNumber("11").build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("11")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(bomRepository.findByProductId(id)).thenReturn(List.of(bom, subAssaybom));
+
+        //then
+        assertThrows(RuntimeException.class, () -> productService.updateProduct(request));
+      }
+
+      @Test
+      @DisplayName("Sub assay를 완성품으로 수정하는데, bom에 해당 제품이 있으면 예외가 발생한다.")
+      void changeToProductThenProductBomExist() {
+        //given
+        Product subAssay = Product.builder()
+            .id(id).productName(productName)
+            .productNumber(productNumber).codeNumber("11")
+            .stock(stock).companyName(companyName)
+            .category(category)
+            .build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(subAssay));
+        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(true);
+
+        //then
+        assertThrows(RuntimeException.class, () -> productService.updateProduct(request));
       }
     }
   }
