@@ -364,6 +364,7 @@ class ProductServiceTest {
         //given
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(false);
         doNothing().when(productRepository).delete(product);
 
         //then
@@ -389,7 +390,19 @@ class ProductServiceTest {
         when(productRepository.findById(any())).thenReturn(Optional.empty());
 
         //then
-        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(1L));
+        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(id));
+      }
+
+      @Test
+      @DisplayName("삭제하려는 sub assay가 다른 제품의 bom으로 등록되어 있다면 삭제할 수 없다.")
+      void deleteSubAssay() {
+        //given
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(true);
+
+        //then
+        assertThrows(RegisteredAsSubAssayException.class, () -> productService.deleteProduct(id));
       }
     }
   }

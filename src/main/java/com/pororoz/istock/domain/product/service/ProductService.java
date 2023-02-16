@@ -57,6 +57,9 @@ public class ProductService {
   public ProductServiceResponse deleteProduct(Long productId) {
     Product product = productRepository.findById(productId)
         .orElseThrow(ProductNotFoundException::new);
+    if (bomRepository.existsByProductNumber(product.getProductNumber())) {
+      throw new RegisteredAsSubAssayException();
+    }
     productRepository.delete(product);
     return ProductServiceResponse.of(product);
   }
