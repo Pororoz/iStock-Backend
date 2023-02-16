@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.user.service;
 
+import com.pororoz.istock.common.utils.Pagination;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.FindUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
@@ -60,6 +61,7 @@ public class UserService {
       List<User> users = userRepository.findAll();
       return new PageImpl<>(users).map(UserServiceResponse::of);
     }
-    return userRepository.findAll(request.toPageRequest()).map(UserServiceResponse::of);
+    return userRepository.findAll(Pagination.toPageRequest(request.getPage(), request.getSize()))
+        .map(UserServiceResponse::of);
   }
 }

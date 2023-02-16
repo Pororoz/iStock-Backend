@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.product.entity;
 
 import com.pororoz.istock.common.entity.TimeEntity;
+import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
 import jakarta.persistence.Column;
@@ -10,9 +11,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,6 +58,10 @@ public class Product extends TimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   private Category category;
 
+  @OneToMany(mappedBy = "product")
+  @Builder.Default
+  private List<Bom> boms = new ArrayList<>();
+
   public void update(UpdateProductServiceRequest request, Category category) {
     this.productName = request.getProductName();
     this.productNumber = request.getProductNumber();
@@ -61,5 +69,12 @@ public class Product extends TimeEntity {
     this.stock = request.getStock();
     this.companyName = request.getCompanyName();
     this.category = category;
+  }
+
+  public void setBoms(List<Bom> boms) {
+    this.boms = boms;
+    for (Bom b : boms) {
+      b.setProduct(this);
+    }
   }
 }

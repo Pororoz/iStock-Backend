@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -21,6 +22,14 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+  // @RequestParam valid
+  @ExceptionHandler(value = MissingServletRequestParameterException.class)
+  public ResponseEntity<ErrorResponse> missingServletRequestParameterException(
+      MissingServletRequestParameterException e) {
+    return getResponseEntity(ExceptionStatus.BAD_REQUEST, ExceptionMessage.PARAMETER_REQUIRED,
+        List.of(new ErrorBinder(e.getParameterName(), e.getMessage())), HttpStatus.BAD_REQUEST);
+  }
 
   // @RequestBody valid
   @ExceptionHandler(MethodArgumentNotValidException.class)

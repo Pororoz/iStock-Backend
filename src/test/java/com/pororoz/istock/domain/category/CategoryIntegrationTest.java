@@ -84,7 +84,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = getResultActions(url, params);
+        ResultActions actions = getResultActions(url, HttpMethod.GET, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -118,7 +118,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = getResultActions(url, params);
+        ResultActions actions = getResultActions(url, HttpMethod.GET, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -149,7 +149,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = getResultActions(url, params);
+        ResultActions actions = getResultActions(url, HttpMethod.GET, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -176,7 +176,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = getResultActions(url, params);
+        ResultActions actions = getResultActions(url, HttpMethod.GET, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -202,7 +202,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("categoryName", name);
 
         // when
-        ResultActions actions = getResultActions(url, params);
+        ResultActions actions = getResultActions(url, HttpMethod.GET, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -227,7 +227,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         int defaultSize = FindCategoryServiceRequest.DEFAULT_SIZE;
 
         // when
-        ResultActions actions = getResultActions(url, params);
+        ResultActions actions = getResultActions(url, HttpMethod.GET, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -261,7 +261,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", size);
 
         // when
-        ResultActions actions = getResultActions(url, params);
+        ResultActions actions = getResultActions(url, HttpMethod.GET, params);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -284,7 +284,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         params.add("size", Integer.toString(size));
 
         // when
-        ResultActions actions = getResultActions(url, params);
+        ResultActions actions = getResultActions(url, HttpMethod.GET, params);
 
         // then
         actions.andExpect(status().isForbidden());
@@ -313,7 +313,8 @@ public class CategoryIntegrationTest extends IntegrationTest {
     @DisplayName("카테고리를 수정한다.")
     void updateCategory() throws Exception {
       //given
-      UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId).categoryName(newName)
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId)
+          .categoryName(newName)
           .build();
 
       //when
@@ -332,7 +333,8 @@ public class CategoryIntegrationTest extends IntegrationTest {
     @DisplayName("로그인 하지 않으면 수정 API에 접근할 수 없다.")
     void updateCategoryAnonymous() throws Exception {
       //given
-      UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId).categoryName(newName)
+      UpdateCategoryRequest request = UpdateCategoryRequest.builder().categoryId(categoryId)
+          .categoryName(newName)
           .build();
 
       //when

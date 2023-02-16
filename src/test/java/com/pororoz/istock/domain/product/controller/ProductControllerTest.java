@@ -8,23 +8,33 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.ControllerTest;
+import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
+import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
+import com.pororoz.istock.domain.product.dto.response.SubAssyResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductServiceRequest;
+import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
+import com.pororoz.istock.domain.product.dto.service.SubAssyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
 import com.pororoz.istock.domain.product.service.ProductService;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -62,7 +72,7 @@ class ProductControllerTest extends ControllerTest {
           .productId(id).productName(name)
           .productNumber(number).codeNumber(codeNumber)
           .stock(stock).companyName(companyName)
-          .category(category)
+          .categoryId(categoryId)
           .build();
 
       //when
@@ -158,7 +168,7 @@ class ProductControllerTest extends ControllerTest {
           .productId(1L).productName(name)
           .productNumber(number).codeNumber(codeNumber)
           .stock(stock).companyName(companyName)
-          .category(category)
+          .categoryId(categoryId)
           .build();
 
       //when
@@ -254,7 +264,7 @@ class ProductControllerTest extends ControllerTest {
           .productId(1L).productName(name)
           .productNumber(number).codeNumber(codeNumber)
           .stock(stock).companyName(companyName)
-          .category(category)
+          .categoryId(category.getId())
           .build();
 
       //when
@@ -297,6 +307,111 @@ class ProductControllerTest extends ControllerTest {
 
       //then
       actions.andExpect(status().isBadRequest())
+          .andDo(print());
+    }
+  }
+
+  @Nested
+  @DisplayName("product 조회")
+  class findProducts {
+
+    String getUri(Long categoryId, Integer page, Integer size) {
+      return uri + "?category-id=" + (categoryId == null ? "" : categoryId)
+          + "&page=" + (page == null ? "" : page)
+          + "&size=" + (size == null ? "" : size);
+    }
+
+    @Test
+    @DisplayName("product를 조회한다.")
+    void findProduct() throws Exception {
+      //given
+      int page = 1;
+      int size = 3;
+      long partId = 2;
+      String uri = getUri(categoryId, page, size);
+      PageRequest pageRequest = PageRequest.of(page, size);
+      ProductServiceResponse productServiceResponse = ProductServiceResponse.builder()
+          .productId(id).categoryId(categoryId).build();
+      SubAssyServiceResponse subAssyServiceResponse = SubAssyServiceResponse.builder()
+          .partId(partId).build();
+      FindProductServiceResponse ServiceDto = FindProductServiceResponse.builder()
+          .productServiceResponse(productServiceResponse)
+          .subAssyServiceResponses(List.of(subAssyServiceResponse))
+          .build();
+      Page<FindProductServiceResponse> dtoPage =
+          new PageImpl<>(List.of(ServiceDto), pageRequest, 4);
+
+      //when
+      when(productService.findProducts(any(FindProductServiceRequest.class)))
+          .thenReturn(dtoPage);
+      ResultActions actions = getResultActions(uri, HttpMethod.GET);
+
+      //then
+      SubAssyResponse subAssyRespon = SubAssyResponse.builder().partId(partId).build();
+      FindProductResponse findProductResponse = FindProductResponse.builder()
+          .productId(id).categoryId(categoryId)
+          .subAssy(List.of(subAssyRespon))
+          .build();
+      PageResponse<FindProductResponse> response =
+          new PageResponse<>(new PageImpl<>(List.of(findProductResponse), pageRequest, 4));
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("categoryId가 null이면 bad request가 발생한다.")
+    void categoryIdNull() throws Exception {
+      //given
+      String uri = getUri(null, 1, 3);
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.GET);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("page관련 정보에 null이 들어갈 수 있다.")
+    void pageableNullable() throws Exception {
+      //given
+      int page = 0;
+      int size = 4;
+      long partId = 2;
+      String uri = getUri(categoryId, null, null);
+      PageRequest pageRequest = PageRequest.of(page, size);
+      ProductServiceResponse productServiceResponse = ProductServiceResponse.builder()
+          .productId(id).categoryId(categoryId).build();
+      SubAssyServiceResponse subAssyServiceResponse = SubAssyServiceResponse.builder()
+          .partId(partId).build();
+      FindProductServiceResponse ServiceDto = FindProductServiceResponse.builder()
+          .productServiceResponse(productServiceResponse)
+          .subAssyServiceResponses(List.of(subAssyServiceResponse))
+          .build();
+      Page<FindProductServiceResponse> dtoPage =
+          new PageImpl<>(List.of(ServiceDto), pageRequest, size);
+
+      //when
+      when(productService.findProducts(any(FindProductServiceRequest.class)))
+          .thenReturn(dtoPage);
+      ResultActions actions = getResultActions(uri, HttpMethod.GET);
+
+      //then
+      SubAssyResponse subAssyRespon = SubAssyResponse.builder().partId(partId).build();
+      FindProductResponse findProductResponse = FindProductResponse.builder()
+          .productId(id).categoryId(categoryId)
+          .subAssy(List.of(subAssyRespon))
+          .build();
+      PageResponse<FindProductResponse> response =
+          new PageResponse<>(new PageImpl<>(List.of(findProductResponse), pageRequest, size));
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
           .andDo(print());
     }
   }

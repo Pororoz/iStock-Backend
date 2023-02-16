@@ -391,7 +391,7 @@ public class BomIntegrationTest extends IntegrationTest {
         params.add("bomId", Long.toString(bomId));
 
         // when
-        ResultActions actions = deleteWithParams(uri, params);
+        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -414,7 +414,7 @@ public class BomIntegrationTest extends IntegrationTest {
         params.add("bomId", Long.toString(bomId));
 
         // when
-        ResultActions actions = deleteWithParams(uri, params);
+        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
 
         // then
         actions.andExpect(status().isNotFound())
@@ -431,7 +431,7 @@ public class BomIntegrationTest extends IntegrationTest {
         params.add("bomId", Long.toString(-1));
 
         // when
-        ResultActions actions = deleteWithParams(uri, params);
+        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -445,7 +445,7 @@ public class BomIntegrationTest extends IntegrationTest {
         params.add("bomId", Long.toString(bomId));
 
         // when
-        ResultActions actions = deleteWithParams(uri, params);
+        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
 
         // then
         actions.andExpect(status().isForbidden())

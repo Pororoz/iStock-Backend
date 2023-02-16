@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -61,6 +62,7 @@ public class Bom extends TimeEntity {
 
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "product_id")
   private Product product;
 
   public void update(Part part, Product product, UpdateBomServiceRequest request) {
@@ -69,6 +71,10 @@ public class Bom extends TimeEntity {
     this.quantity = request.getQuantity();
     this.memo = request.getMemo();
     this.part = part;
+    this.product = product;
+  }
+
+  public void setProduct(Product product) {
     this.product = product;
   }
 }

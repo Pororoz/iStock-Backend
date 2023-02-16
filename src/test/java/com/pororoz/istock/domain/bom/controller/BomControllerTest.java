@@ -196,7 +196,7 @@ class BomControllerTest extends ControllerTest {
 
         // when
         when(bomService.deleteBom(any(DeleteBomServiceRequest.class))).thenReturn(serviceResponse);
-        ResultActions actions = deleteWithParams(uri, params);
+        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
 
         // then
         actions.andExpect(status().isOk())
@@ -210,17 +210,18 @@ class BomControllerTest extends ControllerTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
-        @Test
-        @DisplayName("bomId가 null 값이면 400 Bad Request를 반환한다.")
-        void bomIdNull() throws Exception {
-          // given
-          // when
-          ResultActions actions = deleteWithParams(uri, params);
 
-          // then
-          actions.andExpect(status().isBadRequest())
-              .andDo(print());
-        }
+      @Test
+      @DisplayName("bomId가 null 값이면 400 Bad Request를 반환한다.")
+      void bomIdNull() throws Exception {
+        // given
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
 
       @Test
       @DisplayName("bomId가 숫자가 아닌 값이면 400 Bad Request를 반환한다.")
@@ -229,7 +230,7 @@ class BomControllerTest extends ControllerTest {
         params.add("bomId", "not-number");
 
         // when
-        ResultActions actions = deleteWithParams(uri, params);
+        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -243,7 +244,7 @@ class BomControllerTest extends ControllerTest {
         params.add("bomId", "-1");
 
         // when
-        ResultActions actions = deleteWithParams(uri, params);
+        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -269,6 +270,7 @@ class BomControllerTest extends ControllerTest {
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
+
       @Test
       @DisplayName("존재하는 BOM 값을 수정하면 200 OK를 반환한다.")
       void saveBom() throws Exception {
@@ -317,6 +319,7 @@ class BomControllerTest extends ControllerTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
       @Test
       @DisplayName("bomId가 null 값이면 400 Bad Request를 반환한다.")
       void bomIdNull() throws Exception {

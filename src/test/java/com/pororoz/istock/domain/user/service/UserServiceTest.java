@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.pororoz.istock.common.utils.Pagination;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.FindUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
@@ -385,7 +386,7 @@ class UserServiceTest {
         //given
         long totalUsers = 11L;
         int size = 2;
-        int defaultPage = FindUserServiceRequest.DEFAULT_PAGE;
+        int defaultPage = Pagination.DEFAULT_PAGE;
         FindUserServiceRequest request = FindUserServiceRequest.builder().size(size)
             .build();
         PageImpl<User> pages = new PageImpl<>(users, PageRequest.of(defaultPage, size), totalUsers);
@@ -413,7 +414,7 @@ class UserServiceTest {
         //given
         long totalUsers = 45L;
         int page = 1;
-        int defaultSize = FindUserServiceRequest.DEFAULT_SIZE;
+        int defaultSize = Pagination.DEFAULT_SIZE;
         List<User> findUsers = new ArrayList<>();
         for (int i = 0; i < defaultSize; i++) {
           findUsers.add(

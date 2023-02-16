@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.pororoz.istock.RepositoryTest;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import java.time.LocalDateTime;
@@ -12,16 +13,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class UserRepositoryTest {
+class UserRepositoryTest extends RepositoryTest {
 
-  @Autowired
-  TestEntityManager em;
   @Autowired
   RoleRepository roleRepository;
   @Autowired
@@ -33,10 +27,11 @@ class UserRepositoryTest {
   class TestEntitySaveTime {
 
     User user;
+    Role role;
 
     @BeforeEach
     void setUp() {
-      Role role = roleRepository.findByRoleName("ROLE_USER").orElseThrow();
+      role = roleRepository.findByRoleName("ROLE_USER").orElseThrow();
       user = User.builder().username("user1").password("12345678").role(role).build();
     }
 
@@ -75,6 +70,16 @@ class UserRepositoryTest {
       assertEquals(save.getUpdatedAt().getDayOfMonth(), LocalDateTime.now().getDayOfMonth());
       assertEquals(save.getUpdatedAt().getHour(), LocalDateTime.now().getHour());
       assertEquals(save.getUpdatedAt().getMinute(), LocalDateTime.now().getMinute());
+    }
+
+    @Test
+    @DisplayName("영속성 컨텍스트에 저장된 시간과 DB에 저장된 시간이 같다")
+    void persistentContextTimeSame() {
+      User save = em.persist(User.builder().role(role).username("nnn").password("ppp").build());
+      em.flush();
+      em.clear();
+      User find = userRepository.findById(save.getId()).orElseThrow();
+      assertEquals(save.getCreatedAt(), find.getCreatedAt());
     }
   }
 
