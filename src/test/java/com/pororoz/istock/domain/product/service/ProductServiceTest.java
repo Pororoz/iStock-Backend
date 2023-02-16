@@ -25,7 +25,7 @@ import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
-import com.pororoz.istock.domain.product.exception.RegisteredBySubAssayException;
+import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssayException;
 import com.pororoz.istock.domain.product.exception.SubAssayBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
@@ -344,7 +344,7 @@ class ProductServiceTest {
         when(bomRepository.existsByProductNumber(productNumber)).thenReturn(true);
 
         //then
-        assertThrows(RegisteredBySubAssayException.class,
+        assertThrows(RegisteredAsSubAssayException.class,
             () -> productService.updateProduct(request));
       }
     }

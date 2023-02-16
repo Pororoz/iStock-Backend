@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.pororoz.istock.IntegrationTest;
 import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.entity.TimeEntity;
+import com.pororoz.istock.common.utils.message.ExceptionMessage;
+import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -138,10 +140,10 @@ public class ProductIntegrationTest extends IntegrationTest {
   class UpdateProduct {
 
     long newStock = stock + 2;
-    String newName = "product name";
-    String newNumber = "product number";
-    String newCodeNumber = "code number";
-    String newCompanyName = "company name";
+    String newName = "new product name";
+    String newNumber = "new product number";
+    String newCodeNumber = "new code number";
+    String newCompanyName = "new company name";
     Product product;
     Category category1, category2;
 
@@ -212,6 +214,155 @@ public class ProductIntegrationTest extends IntegrationTest {
       actions.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
           .andExpect(jsonPath("$.data", equalTo(asParsedJson(response)))).andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("완성품을 sub assay로 수정한다.")
+    void changeToSubAssay() throws Exception {
+      //given
+      Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("1").product(product).part(part).build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("2").product(product).part(part).build());
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      ProductResponse response = ProductResponse.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      actions.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response)))).andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("Sub assay를 완제품으로 수정한다.")
+    void changeToProduct() throws Exception {
+      //given
+      product = productRepository.save(
+          Product.builder().productName(name)
+              .productNumber("sub assay").codeNumber("11")
+              .companyName(companyName).stock(stock)
+              .category(category1)
+              .build());
+      Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("1").product(product).part(part).build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("2").product(product).part(part).build());
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      ProductResponse response = ProductResponse.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      actions.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response)))).andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("완성품이 sub assay를 BOM으로 가지고 있다면, sub assay로 수정할 시 Bad Request가 발생한다.")
+    void changeToSubAssayException() throws Exception {
+      //given
+      Product subAssay = productRepository.save(
+          Product.builder().productName(name)
+              .productNumber("sub assay").codeNumber("11")
+              .companyName(companyName).stock(stock)
+              .category(category1)
+              .build());
+      Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
+      bomRepository.save(Bom.builder()
+          .productNumber(subAssay.getProductNumber())
+          .codeNumber("11").locationNumber("1")
+          .product(product)
+          .build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("2").product(product).part(part)
+          .build());
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber("11")
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.SUB_ASSAY_BOM_EXIST))
+          .andExpect(jsonPath("$.message").value(ExceptionMessage.SUB_ASSAY_BOM_EXIST))
+          .andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("Sub assay를 완성품으로 수정할 때, 해당 제품이 다른 제품의 BOM으로 등록되어 있다면 Bad Request가 발생한다.")
+    void changeToProductException() throws Exception {
+      //given
+      Product subAssay = productRepository.save(
+          Product.builder().productName(name)
+              .productNumber("sub assay").codeNumber("11")
+              .companyName(companyName).stock(stock)
+              .category(category1)
+              .build());
+      Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("1").product(subAssay).part(part)
+          .build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("2").product(subAssay).part(part)
+          .build());
+      bomRepository.save(Bom.builder()
+          .productNumber(subAssay.getProductNumber())
+          .codeNumber("11").locationNumber("1")
+          .product(product)
+          .build());
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(subAssay.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.REGISTERED_AS_SUB_ASSAY))
+          .andExpect(jsonPath("$.message").value(ExceptionMessage.REGISTERED_AS_SUB_ASSAY))
+          .andDo(print());
     }
   }
 

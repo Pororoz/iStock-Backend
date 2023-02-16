@@ -17,7 +17,7 @@ public class ExceptionStatus {
   public static final String INVALID_SUB_ASSAY_BOM = "INVALID_SUB_ASSAY_BOM";
   public static final String INVALID_PRODUCT_BOM = "INVALID_PRODUCT_BOM";
   public static final String SUB_ASSAY_BOM_EXIST = "SUB_ASSAY_BOM_EXIST";
-  public static final String REGISTERED_BY_SUB_ASSAY = "REGISTERED_BY_SUB_ASSAY";
+  public static final String REGISTERED_AS_SUB_ASSAY = "REGISTERED_BY_SUB_ASSAY";
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";
   public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";

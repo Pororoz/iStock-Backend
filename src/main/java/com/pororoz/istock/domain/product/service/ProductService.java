@@ -13,7 +13,7 @@ import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
-import com.pororoz.istock.domain.product.exception.RegisteredBySubAssayException;
+import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssayException;
 import com.pororoz.istock.domain.product.exception.SubAssayBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.List;
@@ -92,7 +92,7 @@ public class ProductService {
     // subassay->product
     // bom에 있으면 안된다
     if (bomRepository.existsByProductNumber(existProduct.getProductNumber())) {
-      throw new RegisteredBySubAssayException();
+      throw new RegisteredAsSubAssayException();
     }
   }
 
