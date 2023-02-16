@@ -52,9 +52,9 @@ public class UserController {
 
   private final UserService userService;
 
-  @Operation(summary = "delete user", description = "유저 삭제 API")
+  @Operation(summary = "put user", description = "유저 수정 API")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_USER,
+      @ApiResponse(responseCode = "200", description = ResponseMessage.UPDATE_USER,
           content = {@Content(schema = @Schema(implementation = DeleteUserResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.INVALID_PATH,
           content = {@Content(schema = @Schema(implementation = InvalidIDExceptionSwagger.class))}),
@@ -71,9 +71,9 @@ public class UserController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_USER, response));
   }
 
-  @Operation(summary = "put user", description = "유저 수정 API")
+  @Operation(summary = "delete user", description = "유저 삭제 API")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_USER,
+      @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_USER,
           content = {@Content(schema = @Schema(implementation = DeleteUserResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.INVALID_PATH,
           content = {
