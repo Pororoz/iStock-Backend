@@ -33,8 +33,11 @@ public enum ErrorCode {
   INVALID_SUB_ASSAY_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_SUB_ASSAY_BOM,
       ExceptionMessage.INVALID_SUB_ASSAY_BOM),
   INVALID_PRODUCT_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_PRODUCT_BOM,
-      ExceptionMessage.INVALID_PRODUCT_BOM);
-
+      ExceptionMessage.INVALID_PRODUCT_BOM),
+  SUB_ASSAY_BOM_EXIST(HttpStatus.BAD_REQUEST, ExceptionStatus.SUB_ASSAY_BOM_EXIST,
+      ExceptionMessage.SUB_ASSAY_BOM_EXIST),
+  REGISTERED_BY_SUB_ASSAY(HttpStatus.BAD_REQUEST, ExceptionStatus.REGISTERED_BY_SUB_ASSAY,
+      ExceptionMessage.REGISTERED_BY_SUB_ASSAY);
   private final HttpStatus statusCode;
 
   private final String status;

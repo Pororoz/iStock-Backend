@@ -13,6 +13,8 @@ import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
+import com.pororoz.istock.domain.product.exception.RegisteredBySubAssayException;
+import com.pororoz.istock.domain.product.exception.SubAssayBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.List;
 import java.util.Objects;
@@ -82,7 +84,7 @@ public class ProductService {
     if (Objects.equals(newCodeNumber, SUB_ASSAY_CODE_NUMBER)) {
       bomRepository.findByProductId(existProduct.getId()).forEach(bom -> {
         if (Objects.equals(bom.getCodeNumber(), SUB_ASSAY_CODE_NUMBER)) {
-          throw new RuntimeException("product->subassay");
+          throw new SubAssayBomExistException();
         }
       });
       return;
@@ -90,7 +92,7 @@ public class ProductService {
     // subassay->product
     // bom에 있으면 안된다
     if (bomRepository.existsByProductNumber(existProduct.getProductNumber())) {
-      throw new RuntimeException("subassay->product");
+      throw new RegisteredBySubAssayException();
     }
   }
 

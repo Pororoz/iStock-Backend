@@ -25,6 +25,8 @@ import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
+import com.pororoz.istock.domain.product.exception.RegisteredBySubAssayException;
+import com.pororoz.istock.domain.product.exception.SubAssayBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -181,7 +183,7 @@ class ProductServiceTest {
       @DisplayName("완성품을 sub asssay로 수정한다.")
       void changeToSubAssay() {
         //given
-        Bom bom = Bom.builder().productNumber("not sub assay").build();
+        Bom bom = Bom.builder().codeNumber("not sub assay").build();
         UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
             .productId(id).productNumber("new pnumber")
             .productName("new pname").codeNumber("11")
@@ -300,11 +302,11 @@ class ProductServiceTest {
       }
 
       @Test
-      @DisplayName("완성품을 sub assay로 수정하는데, bom에 sub assay가 존재하면 예외가 발생한다.")
+      @DisplayName("완성품을 sub assay로 수정하는데, 해당 bom에 sub assay가 존재하면 예외가 발생한다.")
       void changeToSubAssayThenSubAssayBomExist() {
         //given
-        Bom bom = Bom.builder().productNumber("not sub assay").build();
-        Bom subAssaybom = Bom.builder().productNumber("11").build();
+        Bom bom = Bom.builder().codeNumber("not sub assay").build();
+        Bom subAssaybom = Bom.builder().codeNumber("11").build();
         UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
             .productId(id).productNumber("new pnumber")
             .productName("new pname").codeNumber("11")
@@ -317,7 +319,7 @@ class ProductServiceTest {
         when(bomRepository.findByProductId(id)).thenReturn(List.of(bom, subAssaybom));
 
         //then
-        assertThrows(RuntimeException.class, () -> productService.updateProduct(request));
+        assertThrows(SubAssayBomExistException.class, () -> productService.updateProduct(request));
       }
 
       @Test
@@ -342,7 +344,8 @@ class ProductServiceTest {
         when(bomRepository.existsByProductNumber(productNumber)).thenReturn(true);
 
         //then
-        assertThrows(RuntimeException.class, () -> productService.updateProduct(request));
+        assertThrows(RegisteredBySubAssayException.class,
+            () -> productService.updateProduct(request));
       }
     }
   }
