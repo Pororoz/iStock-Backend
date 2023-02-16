@@ -50,7 +50,6 @@ services:
   mysql:
     container_name: mysql
     image: mysql:8.0
-    platform: linux/arm64/v8
     restart: always
     ports:
       - "3306:3306"
@@ -68,7 +67,6 @@ services:
   redis:
     container_name: redis
     image: redis
-    platform: linux/arm64/v8
     restart: always
     ports:
       - "6379:6379"
