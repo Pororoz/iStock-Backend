@@ -30,6 +30,8 @@ public enum ErrorCode {
       ExceptionMessage.DUPLICATE_BOM),
   BOM_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.BOM_NOT_FOUND,
       ExceptionMessage.BOM_NOT_FOUND),
+  SELF_DEMOTE_ROLE(HttpStatus.BAD_REQUEST, ExceptionStatus.SELF_DEMOTE_ROLE,
+      ExceptionMessage.SELF_DEMOTE_ROLE)
   ;
 
   private final HttpStatus statusCode;

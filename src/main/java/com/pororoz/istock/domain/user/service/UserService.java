@@ -9,6 +9,7 @@ import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
+import com.pororoz.istock.domain.user.exception.SelfDemoteRoleException;
 import com.pororoz.istock.domain.user.exception.UserNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
@@ -16,6 +17,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,11 +33,22 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
 
   public UserServiceResponse updateUser(UpdateUserServiceRequest updateUserServiceRequest) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Object myPrincipal = auth.getPrincipal();
+    Object myRole = auth.getAuthorities().iterator().next().toString();
+
     Role role = roleRepository.findByRoleName(updateUserServiceRequest.getRoleName())
         .orElseThrow(RoleNotFoundException::new);
     User targetUser = userRepository.findById(updateUserServiceRequest.getUserId())
         .orElseThrow(UserNotFoundException::new);
     String encodedPassword = passwordEncoder.encode(updateUserServiceRequest.getPassword());
+
+    if (myPrincipal.equals(targetUser.getUsername())
+        && myRole.equals("ROLE_ADMIN")
+        && role.getRoleName().equals("ROLE_USER")) {
+      throw new SelfDemoteRoleException();
+    }
+
     targetUser.update(encodedPassword, role);
     return UserServiceResponse.of(targetUser);
   }
