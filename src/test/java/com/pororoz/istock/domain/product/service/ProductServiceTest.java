@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -175,6 +176,9 @@ class ProductServiceTest {
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
         when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
+        when(productRepository.findByProductNumber(anyString())).thenReturn(Optional.empty());
+        doNothing().when(bomRepository).updateProductNumber(anyString(), anyString());
+
         ProductServiceResponse result = productService.updateProduct(request);
 
         //then
@@ -203,6 +207,9 @@ class ProductServiceTest {
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
         when(bomRepository.findByProductId(id)).thenReturn(List.of(bom));
         when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
+        when(productRepository.findByProductNumber(anyString())).thenReturn(Optional.empty());
+        doNothing().when(bomRepository).updateProductNumber(anyString(), anyString());
+
         ProductServiceResponse result = productService.updateProduct(request);
 
         //then
@@ -236,6 +243,36 @@ class ProductServiceTest {
         when(productRepository.findById(id)).thenReturn(Optional.of(subAssy));
         when(bomRepository.existsByProductNumber(productNumber)).thenReturn(false);
         when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
+        when(productRepository.findByProductNumber(anyString())).thenReturn(Optional.empty());
+        doNothing().when(bomRepository).updateProductNumber(anyString(), anyString());
+
+        ProductServiceResponse result = productService.updateProduct(request);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+
+      @Test
+      @DisplayName("product number의 변경이 없다.")
+      void notChangeProductNumber() {
+        //given
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber(productNumber)
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+        ProductServiceResponse response = ProductServiceResponse.builder()
+            .productId(id).productNumber(productNumber)
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
+
         ProductServiceResponse result = productService.updateProduct(request);
 
         //then

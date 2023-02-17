@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.product;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -286,6 +287,34 @@ public class ProductIntegrationTest extends IntegrationTest {
       actions.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
           .andExpect(jsonPath("$.data", equalTo(asParsedJson(response)))).andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("Product number를 수정하면 같은 product number를 가진 BOM도 수정한다.")
+    void changeProductNumberWithBom() throws Exception {
+      //given
+      bomRepository.save(Bom.builder().locationNumber("a")
+          .productNumber(product.getProductNumber())
+          .product(product).build());
+      bomRepository.save(Bom.builder().locationNumber("b")
+          .productNumber(product.getProductNumber())
+          .product(product).build());
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      actions.andExpect(status().isOk())
+          .andDo(print());
+      List<Bom> boms = bomRepository.findByProductNumber(newNumber);
+      boms.forEach(bom -> assertThat(bom.getProductNumber()).isEqualTo(newNumber));
     }
 
     @Test

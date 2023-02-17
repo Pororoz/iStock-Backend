@@ -52,10 +52,13 @@ public class ProductService {
     checkProductNumberDuplicated(product.getProductNumber(), request.getProductNumber());
     Category category = categoryRepository.findById(request.getCategoryId())
         .orElseThrow(CategoryNotFoundException::new);
+    //bom의 productNumber도 변경
+    changeBomProductNumber(product.getProductNumber(), request.getProductNumber());
     product.update(request, category);
     return ProductServiceResponse.of(product);
   }
 
+  // 관련 BOM을 삭제하는 기능도 필요한가?
   public ProductServiceResponse deleteProduct(Long productId) {
     Product product = productRepository.findById(productId)
         .orElseThrow(ProductNotFoundException::new);
@@ -98,11 +101,11 @@ public class ProductService {
           throw new SubAssyBomExistException();
         }
       });
-      return;
     }
     // subassy->product
     // bom에 있으면 안된다
-    if (bomRepository.existsByProductNumber(existProduct.getProductNumber())) {
+    else if (Objects.equals(existProduct.getCodeNumber(), SUB_ASSY_CODE_NUMBER) &&
+        bomRepository.existsByProductNumber(existProduct.getProductNumber())) {
       throw new RegisteredAsSubAssyException();
     }
   }
@@ -124,5 +127,11 @@ public class ProductService {
     }
     return productRepository.findByCategoryIdWithBoms(
         Pagination.toPageRequest(request.getPage(), request.getSize()), request.getCategoryId());
+  }
+
+  private void changeBomProductNumber(String oldNumber, String newNumber) {
+    if (!Objects.equals(oldNumber, newNumber)) {
+      bomRepository.updateProductNumber(oldNumber, newNumber);
+    }
   }
 }
