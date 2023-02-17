@@ -31,6 +31,7 @@ public class SaveBomRequest {
   private long quantity = 0;
 
   @Schema(description = "제품 번호", example = "GS-IH-01")
+  @Size(max = 200)
   private String productNumber;
 
   @Schema(description = "비고", example = "비고")
@@ -46,10 +47,10 @@ public class SaveBomRequest {
   public SaveBomServiceRequest toService() {
     return SaveBomServiceRequest.builder()
         .locationNumber(locationNumber)
+        .productNumber(productNumber)
         .codeNumber(codeNumber)
         .quantity(quantity)
         .memo(memo)
-        .productNumber(productNumber)
         .partId(partId)
         .productId(productId)
         .build();

@@ -71,6 +71,7 @@ public class Bom extends TimeEntity {
 
   public void update(Part part, Product product, UpdateBomServiceRequest request) {
     this.locationNumber = request.getLocationNumber();
+    this.productNumber = request.getProductNumber();
     this.codeNumber = request.getCodeNumber();
     this.quantity = request.getQuantity();
     this.memo = request.getMemo();

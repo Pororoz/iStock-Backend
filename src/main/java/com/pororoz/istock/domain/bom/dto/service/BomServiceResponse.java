@@ -12,10 +12,10 @@ public class BomServiceResponse {
 
   private Long bomId;
   private String locationNumber;
+  private String productNumber;
   private String codeNumber;
   private Long quantity;
   private String memo;
-  private String productNumber;
   private Long partId;
   private Long productId;
   private LocalDateTime createdAt;
@@ -40,6 +40,7 @@ public class BomServiceResponse {
     return BomResponse.builder()
         .bomId(bomId)
         .locationNumber(locationNumber)
+        .productNumber(productNumber)
         .codeNumber(codeNumber)
         .quantity(quantity)
         .memo(memo)

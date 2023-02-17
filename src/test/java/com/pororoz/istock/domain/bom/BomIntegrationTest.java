@@ -153,6 +153,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber(locationNumber)
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
+            .productNumber(superProduct.getProductName())
             .memo(memo)
             .productId(productId)
             .build();
@@ -663,6 +664,86 @@ public class BomIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
+
+      @Test
+      @WithMockUser
+      @DisplayName("code number를 11(sub assy)로 정상적을 변경한다.")
+      void updateToCodeNumber11() throws Exception {
+        // given
+        Product product = productRepository.save(Product.builder()
+            .codeNumber("number").productNumber("number")
+            .productName("name").category(category)
+            .build());
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .productNumber(product.getProductNumber())
+            .codeNumber("11")
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .productNumber(product.getProductNumber())
+            .productId(productId)
+            .build();
+        BomResponse response = BomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .productNumber(product.getProductNumber())
+            .codeNumber("11")
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .productNumber(product.getProductNumber())
+            .productId(productId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser
+      @DisplayName("Code number를 11(sub assy)에서 new code number로 정상적을 변경한다.")
+      void updateToCodeNumber0() throws Exception {
+        // given
+        Bom subAssyBom = bomRepository.save(Bom.builder()
+            .codeNumber("11").productNumber("sub assy number")
+            .product(product)
+            .build());
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(subAssyBom.getId())
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+        BomResponse response = BomResponse.builder()
+            .bomId(subAssyBom.getId())
+            .locationNumber(newLocationNumber)
+            .codeNumber(newCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .partId(newPartId)
+            .productId(newProductId)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
     }
 
     @Nested
@@ -897,52 +978,6 @@ public class BomIntegrationTest extends IntegrationTest {
         actions.andExpect(status().isBadRequest())
             .andExpect(jsonPath("$.status").value(ExceptionStatus.DUPLICATE_BOM))
             .andExpect(jsonPath("$.message").value(ExceptionMessage.DUPLICATE_BOM))
-            .andDo(print());
-      }
-
-      @Test
-      @WithMockUser(roles = "ADMIN")
-      @DisplayName("API 요청 시, partId의 값으로 null을 전달하면 400 Bad Request를 반환한다.")
-      void badRequestPartId() throws Exception {
-        // given
-        UpdateBomRequest request = UpdateBomRequest.builder()
-            .bomId(bomId)
-            .locationNumber(newLocationNumber)
-            .codeNumber(newCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .partId(null)
-            .productId(newProductId)
-            .build();
-
-        // when
-        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
-
-        // then
-        actions.andExpect(status().isBadRequest())
-            .andDo(print());
-      }
-
-      @Test
-      @WithMockUser(roles = "ADMIN")
-      @DisplayName("API 요청 시, productId의 값으로 null을 전달하면 400 Bad Request를 반환한다.")
-      void badRequestProductId() throws Exception {
-        // given
-        UpdateBomRequest request = UpdateBomRequest.builder()
-            .bomId(bomId)
-            .locationNumber(newLocationNumber)
-            .codeNumber(newCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .partId(newPartId)
-            .productId(null)
-            .build();
-
-        // when
-        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
-
-        // then
-        actions.andExpect(status().isBadRequest())
             .andDo(print());
       }
 

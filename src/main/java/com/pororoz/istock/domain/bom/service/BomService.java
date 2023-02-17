@@ -53,8 +53,9 @@ public class BomService {
   }
 
   public BomServiceResponse updateBom(UpdateBomServiceRequest request) {
+    validateRequest(request.getCodeNumber(), request.getProductNumber(), request.getPartId());
     Bom bom = bomRepository.findById(request.getBomId()).orElseThrow(BomNotFoundException::new);
-    Part newPart = partRepository.findById(request.getPartId())
+    Part newPart = request.getPartId() == null ? null : partRepository.findById(request.getPartId())
         .orElseThrow(PartNotFoundException::new);
     Product newProduct = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
