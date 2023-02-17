@@ -198,12 +198,14 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("자신의 role을 강등시키려고 하면 Self Demote Error가 발생하고 400 코드를 반환한다.")
       void selfDemote() throws Exception {
         // given
-        Role role = roleRepository.findByRoleName("ROLE_ADMIN").orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName("ROLE_ADMIN")
+            .orElseThrow(RoleNotFoundException::new);
         User user = User.builder().username(username).password(password).role(role).build();
 
         CustomUserDetailsDTO userDetail = new CustomUserDetailsDTO(user);
         SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(userDetail.getUsername(), userDetail.getPassword(), userDetail.getAuthorities()));
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(userDetail.getUsername(),
+            userDetail.getPassword(), userDetail.getAuthorities()));
         userRepository.save(user);
 
         UpdateUserRequest request = UpdateUserRequest.builder()
@@ -219,6 +221,8 @@ public class UserIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.status").value(ExceptionStatus.SELF_DEMOTE_ROLE))
             .andExpect(jsonPath("$.message").value(ExceptionMessage.SELF_DEMOTE_ROLE))
             .andDo(print());
+
+        SecurityContextHolder.clearContext();
       }
     }
   }

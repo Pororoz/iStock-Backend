@@ -25,6 +25,7 @@ import com.pororoz.istock.domain.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -86,6 +87,11 @@ class UserServiceTest {
       context.setAuthentication(
           new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(),
               user.getAuthorities()));
+    }
+
+    @AfterEach
+    void teatDown() {
+      SecurityContextHolder.clearContext();
     }
 
     @Nested
