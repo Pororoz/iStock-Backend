@@ -31,7 +31,7 @@ public class SaveBomRequest {
   private long quantity = 0;
 
   @Schema(description = "제품 번호", example = "GS-IH-01")
-  @Size(max = 200)
+  @Size(max = 100)
   private String productNumber;
 
   @Schema(description = "비고", example = "비고")
