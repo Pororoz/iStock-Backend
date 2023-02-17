@@ -336,7 +336,7 @@ class ProductControllerTest extends ControllerTest {
           .partId(partId).build();
       FindProductServiceResponse ServiceDto = FindProductServiceResponse.builder()
           .productServiceResponse(productServiceResponse)
-          .subAssyServiceResponses(List.of(subAssyServiceResponse))
+          .subAssyServiceRespons(List.of(subAssyServiceResponse))
           .build();
       Page<FindProductServiceResponse> dtoPage =
           new PageImpl<>(List.of(ServiceDto), pageRequest, 4);
@@ -390,7 +390,7 @@ class ProductControllerTest extends ControllerTest {
           .partId(partId).build();
       FindProductServiceResponse ServiceDto = FindProductServiceResponse.builder()
           .productServiceResponse(productServiceResponse)
-          .subAssyServiceResponses(List.of(subAssyServiceResponse))
+          .subAssyServiceRespons(List.of(subAssyServiceResponse))
           .build();
       Page<FindProductServiceResponse> dtoPage =
           new PageImpl<>(List.of(ServiceDto), pageRequest, size);

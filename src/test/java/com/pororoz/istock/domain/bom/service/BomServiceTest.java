@@ -16,7 +16,7 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
-import com.pororoz.istock.domain.bom.exception.InvalidSubAssayBomException;
+import com.pororoz.istock.domain.bom.exception.InvalidSubAssyBomException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
@@ -49,7 +49,7 @@ class BomServiceTest {
   @Mock
   ProductRepository productRepository;
 
-  String subAssayCodeNumber = "11";
+  String subAssyCodeNumber = "11";
 
   @Nested
   @DisplayName("제품 BOM 행 추가 로직 테스트")
@@ -127,11 +127,11 @@ class BomServiceTest {
       }
 
       @Test
-      @DisplayName("sub assay인 BOM을 저장한다.")
-      void saveSubAssayBom() {
+      @DisplayName("sub assy인 BOM을 저장한다.")
+      void saveSubAssyBom() {
         SaveBomServiceRequest request = SaveBomServiceRequest.builder()
             .locationNumber(locationNumber)
-            .codeNumber(subAssayCodeNumber)
+            .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
             .productNumber(productNumber)
@@ -140,7 +140,7 @@ class BomServiceTest {
         BomServiceResponse response = BomServiceResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
-            .codeNumber(subAssayCodeNumber)
+            .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
             .productNumber(productNumber)
@@ -152,7 +152,7 @@ class BomServiceTest {
         Bom bom = Bom.builder()
             .id(bomId)
             .locationNumber(locationNumber)
-            .codeNumber(subAssayCodeNumber)
+            .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
             .productNumber(productNumber)
@@ -257,11 +257,11 @@ class BomServiceTest {
       }
 
       @Test
-      @DisplayName("sub assay BOM에 partId가 들어오면 InvalidSubAssayBomException이 발생한다.")
-      void invalidSubAssayBomExceptionWithPartId() {
+      @DisplayName("sub assy BOM에 partId가 들어오면 InvalidSubAssyBomException이 발생한다.")
+      void invalidSubAssyBomExceptionWithPartId() {
         SaveBomServiceRequest request = SaveBomServiceRequest.builder()
             .locationNumber(locationNumber)
-            .codeNumber(subAssayCodeNumber)
+            .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
             .productNumber(productNumber)
@@ -271,15 +271,15 @@ class BomServiceTest {
 
         // when
         // then
-        assertThrows(InvalidSubAssayBomException.class, () -> bomService.saveBom(request));
+        assertThrows(InvalidSubAssyBomException.class, () -> bomService.saveBom(request));
       }
 
       @Test
-      @DisplayName("sub assay BOM에 productNumber가 없으면 InvalidSubAssayBomException이 발생한다.")
-      void invalidSubAssayBomExceptionWithoutProductNumber() {
+      @DisplayName("sub assy BOM에 productNumber가 없으면 InvalidSubAssyBomException이 발생한다.")
+      void invalidSubAssyBomExceptionWithoutProductNumber() {
         SaveBomServiceRequest request = SaveBomServiceRequest.builder()
             .locationNumber(locationNumber)
-            .codeNumber(subAssayCodeNumber)
+            .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
             .productId(productId)
@@ -287,15 +287,15 @@ class BomServiceTest {
 
         // when
         // then
-        assertThrows(InvalidSubAssayBomException.class, () -> bomService.saveBom(request));
+        assertThrows(InvalidSubAssyBomException.class, () -> bomService.saveBom(request));
       }
 
       @Test
-      @DisplayName("Sub assay로 저장할 BOM의 상위 제품도 sub assay이면 예외가 발생한다.")
-      void subAssay() {
+      @DisplayName("Sub assy로 저장할 BOM의 상위 제품도 sub assy이면 예외가 발생한다.")
+      void subAssy() {
         SaveBomServiceRequest request = SaveBomServiceRequest.builder()
             .locationNumber(locationNumber)
-            .codeNumber(subAssayCodeNumber)
+            .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
             .productNumber(productNumber)
@@ -309,7 +309,7 @@ class BomServiceTest {
             .thenReturn(Optional.of(superProduct));
 
         //then
-        assertThrows(InvalidSubAssayBomException.class, () -> bomService.saveBom(request));
+        assertThrows(InvalidSubAssyBomException.class, () -> bomService.saveBom(request));
       }
 
       @Test

@@ -25,8 +25,8 @@ import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
-import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssayException;
-import com.pororoz.istock.domain.product.exception.SubAssayBomExistException;
+import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
+import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -181,9 +181,9 @@ class ProductServiceTest {
 
       @Test
       @DisplayName("완성품을 sub asssay로 수정한다.")
-      void changeToSubAssay() {
+      void changeToSubAssy() {
         //given
-        Bom bom = Bom.builder().codeNumber("not sub assay").build();
+        Bom bom = Bom.builder().codeNumber("not sub assy").build();
         UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
             .productId(id).productNumber("new pnumber")
             .productName("new pname").codeNumber("11")
@@ -208,10 +208,10 @@ class ProductServiceTest {
       }
 
       @Test
-      @DisplayName("Sub assay를 완성품으로 수정한다.")
+      @DisplayName("Sub assy를 완성품으로 수정한다.")
       void changeToProduct() {
         //given
-        Product subAssay = Product.builder()
+        Product subAssy = Product.builder()
             .id(id).productName(productName)
             .productNumber(productNumber).codeNumber("11")
             .stock(stock).companyName(companyName)
@@ -231,7 +231,7 @@ class ProductServiceTest {
             .build();
 
         //when
-        when(productRepository.findById(id)).thenReturn(Optional.of(subAssay));
+        when(productRepository.findById(id)).thenReturn(Optional.of(subAssy));
         when(bomRepository.existsByProductNumber(productNumber)).thenReturn(false);
         when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
         ProductServiceResponse result = productService.updateProduct(request);
@@ -302,11 +302,11 @@ class ProductServiceTest {
       }
 
       @Test
-      @DisplayName("완성품을 sub assay로 수정하는데, 해당 bom에 sub assay가 존재하면 예외가 발생한다.")
-      void changeToSubAssayThenSubAssayBomExist() {
+      @DisplayName("완성품을 sub assy로 수정하는데, 해당 bom에 sub assy가 존재하면 예외가 발생한다.")
+      void changeToSubAssyThenSubAssyBomExist() {
         //given
-        Bom bom = Bom.builder().codeNumber("not sub assay").build();
-        Bom subAssaybom = Bom.builder().codeNumber("11").build();
+        Bom bom = Bom.builder().codeNumber("not sub assy").build();
+        Bom subAssybom = Bom.builder().codeNumber("11").build();
         UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
             .productId(id).productNumber("new pnumber")
             .productName("new pname").codeNumber("11")
@@ -316,17 +316,17 @@ class ProductServiceTest {
 
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        when(bomRepository.findByProductId(id)).thenReturn(List.of(bom, subAssaybom));
+        when(bomRepository.findByProductId(id)).thenReturn(List.of(bom, subAssybom));
 
         //then
-        assertThrows(SubAssayBomExistException.class, () -> productService.updateProduct(request));
+        assertThrows(SubAssyBomExistException.class, () -> productService.updateProduct(request));
       }
 
       @Test
-      @DisplayName("Sub assay를 완성품으로 수정하는데, bom에 해당 제품이 있으면 예외가 발생한다.")
+      @DisplayName("Sub assy를 완성품으로 수정하는데, bom에 해당 제품이 있으면 예외가 발생한다.")
       void changeToProductThenProductBomExist() {
         //given
-        Product subAssay = Product.builder()
+        Product subAssy = Product.builder()
             .id(id).productName(productName)
             .productNumber(productNumber).codeNumber("11")
             .stock(stock).companyName(companyName)
@@ -340,11 +340,11 @@ class ProductServiceTest {
             .build();
 
         //when
-        when(productRepository.findById(id)).thenReturn(Optional.of(subAssay));
+        when(productRepository.findById(id)).thenReturn(Optional.of(subAssy));
         when(bomRepository.existsByProductNumber(productNumber)).thenReturn(true);
 
         //then
-        assertThrows(RegisteredAsSubAssayException.class,
+        assertThrows(RegisteredAsSubAssyException.class,
             () -> productService.updateProduct(request));
       }
     }
@@ -394,15 +394,15 @@ class ProductServiceTest {
       }
 
       @Test
-      @DisplayName("삭제하려는 sub assay가 다른 제품의 bom으로 등록되어 있다면 삭제할 수 없다.")
-      void deleteSubAssay() {
+      @DisplayName("삭제하려는 sub assy가 다른 제품의 bom으로 등록되어 있다면 삭제할 수 없다.")
+      void deleteSubAssy() {
         //given
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
         when(bomRepository.existsByProductNumber(productNumber)).thenReturn(true);
 
         //then
-        assertThrows(RegisteredAsSubAssayException.class, () -> productService.deleteProduct(id));
+        assertThrows(RegisteredAsSubAssyException.class, () -> productService.deleteProduct(id));
       }
     }
   }
@@ -457,8 +457,8 @@ class ProductServiceTest {
         for (FindProductServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
-          assertThat(findResponse.getSubAssyServiceResponses().size()).isEqualTo(1);
-          assertThat(findResponse.getSubAssyServiceResponses().get(0))
+          assertThat(findResponse.getSubAssyServiceRespons().size()).isEqualTo(1);
+          assertThat(findResponse.getSubAssyServiceRespons().get(0))
               .usingRecursiveComparison().isEqualTo(subAssyResponse);
         }
       }
@@ -477,13 +477,13 @@ class ProductServiceTest {
         List<Product> products = new ArrayList<>();
         for (int i = 0; i < total; i++) {
           Product product = Product.builder().id((long) i).category(category).build();
-          product.setBoms(List.of(assyBom, otherBom));
+          product.setBoms(List.of(assyBom1, otherBom));
           products.add(product);
         }
 
         //when
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findProductsWithParts(categoryId))
+        when(productRepository.findProductsWithBoms(categoryId))
             .thenReturn(products);
         Page<FindProductServiceResponse> result = productService.findProducts(request);
 
@@ -496,8 +496,8 @@ class ProductServiceTest {
         for (FindProductServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
-          assertThat(findResponse.getSubAssyServiceResponses().size()).isEqualTo(1);
-          assertThat(findResponse.getSubAssyServiceResponses().get(0))
+          assertThat(findResponse.getSubAssyServiceRespons().size()).isEqualTo(1);
+          assertThat(findResponse.getSubAssyServiceRespons().get(0))
               .usingRecursiveComparison().isEqualTo(subAssyResponse);
         }
       }
@@ -524,7 +524,7 @@ class ProductServiceTest {
 
         //when
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findProductsWithParts(any(Pageable.class), eq(categoryId)))
+        when(productRepository.findProductsWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
         Page<FindProductServiceResponse> result = productService.findProducts(request);
 

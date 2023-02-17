@@ -13,8 +13,8 @@ import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
-import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssayException;
-import com.pororoz.istock.domain.product.exception.SubAssayBomExistException;
+import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
+import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.List;
 import java.util.Objects;
@@ -33,7 +33,7 @@ public class ProductService {
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
 
-  private final String SUB_ASSAY_CODE_NUMBER = "11";
+  private final String SUB_ASSY_CODE_NUMBER = "11";
 
   public ProductServiceResponse saveProduct(SaveProductServiceRequest request) {
     checkProductNumberDuplicated(null, request.getProductNumber());
@@ -58,7 +58,7 @@ public class ProductService {
     Product product = productRepository.findById(productId)
         .orElseThrow(ProductNotFoundException::new);
     if (bomRepository.existsByProductNumber(product.getProductNumber())) {
-      throw new RegisteredAsSubAssayException();
+      throw new RegisteredAsSubAssyException();
     }
     productRepository.delete(product);
     return ProductServiceResponse.of(product);
@@ -72,7 +72,7 @@ public class ProductService {
     //subAssy만 필터링
     products.forEach(product -> product.setBoms(
         product.getBoms().stream()
-            .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSAY_CODE_NUMBER)).toList()));
+            .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER)).toList()));
     return products.map(FindProductServiceResponse::of);
   }
 
@@ -82,20 +82,20 @@ public class ProductService {
     if (Objects.equals(existProduct.getProductNumber(), newProductNumber)) {
       return;
     }
-    // product->subassay
-    // bom에 subassay가 있으면 안된다.
-    if (Objects.equals(newCodeNumber, SUB_ASSAY_CODE_NUMBER)) {
+    // product->subassy
+    // bom에 subassy가 있으면 안된다.
+    if (Objects.equals(newCodeNumber, SUB_ASSY_CODE_NUMBER)) {
       bomRepository.findByProductId(existProduct.getId()).forEach(bom -> {
-        if (Objects.equals(bom.getCodeNumber(), SUB_ASSAY_CODE_NUMBER)) {
-          throw new SubAssayBomExistException();
+        if (Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER)) {
+          throw new SubAssyBomExistException();
         }
       });
       return;
     }
-    // subassay->product
+    // subassy->product
     // bom에 있으면 안된다
     if (bomRepository.existsByProductNumber(existProduct.getProductNumber())) {
-      throw new RegisteredAsSubAssayException();
+      throw new RegisteredAsSubAssyException();
     }
   }
 
@@ -110,11 +110,11 @@ public class ProductService {
 
   private Page<Product> getProductPage(FindProductServiceRequest request) {
     if (request.getPage() == null && request.getSize() == null) {
-      List<Product> products = productRepository.findProductsWithParts(
+      List<Product> products = productRepository.findProductsWithBoms(
           request.getCategoryId());
       return new PageImpl<>(products);
     }
-    return productRepository.findProductsWithParts(
+    return productRepository.findProductsWithBoms(
         Pagination.toPageRequest(request.getPage(), request.getSize()), request.getCategoryId());
   }
 }

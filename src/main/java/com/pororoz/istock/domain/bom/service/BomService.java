@@ -8,7 +8,7 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
-import com.pororoz.istock.domain.bom.exception.InvalidSubAssayBomException;
+import com.pororoz.istock.domain.bom.exception.InvalidSubAssyBomException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
@@ -30,7 +30,7 @@ public class BomService {
   private final ProductRepository productRepository;
   private final BomRepository bomRepository;
 
-  private final String SUB_ASSAY_CODE_NUMBER = "11";
+  private final String SUB_ASSY_CODE_NUMBER = "11";
 
   public BomServiceResponse saveBom(SaveBomServiceRequest request) {
     validateRequest(request.getCodeNumber(), request.getProductNumber(), request.getPartId());
@@ -72,22 +72,22 @@ public class BomService {
   }
 
   private void validateRequest(String codeNumber, String productNumber, Long partId) {
-    if (Objects.equals(codeNumber, SUB_ASSAY_CODE_NUMBER)) {
-      validateSubAssayBom(productNumber, partId);
+    if (Objects.equals(codeNumber, SUB_ASSY_CODE_NUMBER)) {
+      validateSubAssyBom(productNumber, partId);
       return;
     }
     validateProductBom(productNumber, partId);
   }
 
-  // sub assay는 또다른 sub assay의 bom이 될 수 없다.
-  private void validateSubAssayBom(String productNumber, Long partId) {
+  // sub assy는 또다른 sub assy의 bom이 될 수 없다.
+  private void validateSubAssyBom(String productNumber, Long partId) {
     if (productNumber == null || partId != null) {
-      throw new InvalidSubAssayBomException();
+      throw new InvalidSubAssyBomException();
     }
     Product superProduct = productRepository.findByProductNumber(productNumber)
         .orElseThrow(ProductNotFoundException::new);
-    if (Objects.equals(superProduct.getCodeNumber(), SUB_ASSAY_CODE_NUMBER)) {
-      throw new InvalidSubAssayBomException();
+    if (Objects.equals(superProduct.getCodeNumber(), SUB_ASSY_CODE_NUMBER)) {
+      throw new InvalidSubAssyBomException();
     }
   }
 

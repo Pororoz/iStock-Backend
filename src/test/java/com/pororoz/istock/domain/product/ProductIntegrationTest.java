@@ -218,8 +218,8 @@ public class ProductIntegrationTest extends IntegrationTest {
 
     @Test
     @WithMockUser
-    @DisplayName("완성품을 sub assay로 수정한다.")
-    void changeToSubAssay() throws Exception {
+    @DisplayName("완성품을 sub assy로 수정한다.")
+    void changeToSubAssy() throws Exception {
       //given
       Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
       bomRepository.save(Bom.builder()
@@ -251,12 +251,12 @@ public class ProductIntegrationTest extends IntegrationTest {
 
     @Test
     @WithMockUser
-    @DisplayName("Sub assay를 완제품으로 수정한다.")
+    @DisplayName("Sub assy를 완제품으로 수정한다.")
     void changeToProduct() throws Exception {
       //given
       product = productRepository.save(
           Product.builder().productName(name)
-              .productNumber("sub assay").codeNumber("11")
+              .productNumber("sub assy").codeNumber("11")
               .companyName(companyName).stock(stock)
               .category(category1)
               .build());
@@ -290,18 +290,18 @@ public class ProductIntegrationTest extends IntegrationTest {
 
     @Test
     @WithMockUser
-    @DisplayName("완성품이 sub assay를 BOM으로 가지고 있다면, sub assay로 수정할 시 Bad Request가 발생한다.")
-    void changeToSubAssayException() throws Exception {
+    @DisplayName("완성품이 sub assy를 BOM으로 가지고 있다면, sub assy로 수정할 시 Bad Request가 발생한다.")
+    void changeToSubAssyException() throws Exception {
       //given
-      Product subAssay = productRepository.save(
+      Product subAssy = productRepository.save(
           Product.builder().productName(name)
-              .productNumber("sub assay").codeNumber("11")
+              .productNumber("sub assy").codeNumber("11")
               .companyName(companyName).stock(stock)
               .category(category1)
               .build());
       Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
       bomRepository.save(Bom.builder()
-          .productNumber(subAssay.getProductNumber())
+          .productNumber(subAssy.getProductNumber())
           .codeNumber("11").locationNumber("1")
           .product(product)
           .build());
@@ -320,36 +320,36 @@ public class ProductIntegrationTest extends IntegrationTest {
 
       //then
       actions.andExpect(status().isBadRequest())
-          .andExpect(jsonPath("$.status").value(ExceptionStatus.SUB_ASSAY_BOM_EXIST))
-          .andExpect(jsonPath("$.message").value(ExceptionMessage.SUB_ASSAY_BOM_EXIST))
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.SUB_ASSY_BOM_EXIST))
+          .andExpect(jsonPath("$.message").value(ExceptionMessage.SUB_ASSY_BOM_EXIST))
           .andDo(print());
     }
 
     @Test
     @WithMockUser
-    @DisplayName("Sub assay를 완성품으로 수정할 때, 해당 제품이 다른 제품의 BOM으로 등록되어 있다면 Bad Request가 발생한다.")
+    @DisplayName("Sub assy를 완성품으로 수정할 때, 해당 제품이 다른 제품의 BOM으로 등록되어 있다면 Bad Request가 발생한다.")
     void changeToProductException() throws Exception {
       //given
-      Product subAssay = productRepository.save(
+      Product subAssy = productRepository.save(
           Product.builder().productName(name)
-              .productNumber("sub assay").codeNumber("11")
+              .productNumber("sub assy").codeNumber("11")
               .companyName(companyName).stock(stock)
               .category(category1)
               .build());
       Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
       bomRepository.save(Bom.builder()
-          .locationNumber("1").product(subAssay).part(part)
+          .locationNumber("1").product(subAssy).part(part)
           .build());
       bomRepository.save(Bom.builder()
-          .locationNumber("2").product(subAssay).part(part)
+          .locationNumber("2").product(subAssy).part(part)
           .build());
       bomRepository.save(Bom.builder()
-          .productNumber(subAssay.getProductNumber())
+          .productNumber(subAssy.getProductNumber())
           .codeNumber("11").locationNumber("1")
           .product(product)
           .build());
       UpdateProductRequest request = UpdateProductRequest.builder()
-          .productId(subAssay.getId()).productName(newName)
+          .productId(subAssy.getId()).productName(newName)
           .productNumber(newNumber).codeNumber(newCodeNumber)
           .stock(newStock).companyName(newCompanyName)
           .categoryId(category2.getId())
@@ -360,8 +360,8 @@ public class ProductIntegrationTest extends IntegrationTest {
 
       //then
       actions.andExpect(status().isBadRequest())
-          .andExpect(jsonPath("$.status").value(ExceptionStatus.REGISTERED_AS_SUB_ASSAY))
-          .andExpect(jsonPath("$.message").value(ExceptionMessage.REGISTERED_AS_SUB_ASSAY))
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.REGISTERED_AS_SUB_ASSY))
+          .andExpect(jsonPath("$.message").value(ExceptionMessage.REGISTERED_AS_SUB_ASSY))
           .andDo(print());
     }
   }

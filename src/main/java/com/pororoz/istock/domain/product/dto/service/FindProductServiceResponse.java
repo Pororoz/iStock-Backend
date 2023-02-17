@@ -12,12 +12,12 @@ import lombok.Getter;
 public class FindProductServiceResponse {
 
   private ProductServiceResponse productServiceResponse;
-  private List<SubAssyServiceResponse> subAssyServiceResponses;
+  private List<SubAssyServiceResponse> subAssyServiceRespons;
 
   public static FindProductServiceResponse of(Product product) {
     return FindProductServiceResponse.builder()
         .productServiceResponse(ProductServiceResponse.of(product))
-        .subAssyServiceResponses(
+        .subAssyServiceRespons(
             product.getBoms().stream()
                 .map(bom -> SubAssyServiceResponse.of(bom.getPart(), bom.getQuantity())).toList())
         .build();
@@ -33,7 +33,7 @@ public class FindProductServiceResponse {
         .categoryId(productServiceResponse.getCategoryId())
         .createdAt(TimeEntity.formatTime(productServiceResponse.getCreatedAt()))
         .updatedAt(TimeEntity.formatTime(productServiceResponse.getUpdatedAt()))
-        .subAssy(subAssyServiceResponses.stream()
+        .subAssy(subAssyServiceRespons.stream()
             .map(SubAssyServiceResponse::toResponse).toList()).build();
   }
 }

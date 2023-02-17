@@ -24,10 +24,10 @@ public class ExceptionMessage {
   public static final String PRODUCT_NOT_FOUND = "해당 제품을 찾을 수 없습니다.";
   public static final String DUPLICATE_BOM = "location_number, product_id, part_id의 조합이 중복됩니다.";
   public static final String BOM_NOT_FOUND = "존재하지 않는 BOM입니다.";
-  public static final String INVALID_SUB_ASSAY_BOM = "sub assay는 완제품의 productNumber가 필요하고 partId가 null이어야 합니다.";
+  public static final String INVALID_SUB_ASSY_BOM = "sub assy는 완제품의 productNumber가 필요하고 partId가 null이어야 합니다.";
   public static final String INVALID_PRODUCT_BOM = "product BOM은 partId가 필요하고 productNumber가 null이어야 합니다.";
-  public static final String SUB_ASSAY_BOM_EXIST = "해당 제품의 BOM에 sub assay가 존재합니다. Sub assay는 sub assay를 가질 수 없습니다.";
-  public static final String REGISTERED_AS_SUB_ASSAY = "다른 제품의 BOM에 sub assay로 등록되어 있습니다.";
+  public static final String SUB_ASSY_BOM_EXIST = "해당 제품의 BOM에 sub assy가 존재합니다. Sub assy는 sub assy를 가질 수 없습니다.";
+  public static final String REGISTERED_AS_SUB_ASSY = "다른 제품의 BOM에 sub assy로 등록되어 있습니다.";
 
   private ExceptionMessage() {
   }

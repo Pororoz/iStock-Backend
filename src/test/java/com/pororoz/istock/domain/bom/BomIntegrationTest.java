@@ -132,17 +132,17 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser(roles = "USER")
-      @DisplayName("Sub assay BOM을 저장하고 저장한 Bom Data를 반환한다.")
-      void saveSubAssayBom() throws Exception {
+      @DisplayName("Sub assy BOM을 저장하고 저장한 Bom Data를 반환한다.")
+      void saveSubAssyBom() throws Exception {
         // given
         Product superProduct = productRepository.save(Product.builder()
             .productName("p").productNumber("p")
             .category(category)
             .build());
-        String subAssayCodeNumber = "11";
+        String subAssyCodeNumber = "11";
         SaveBomRequest request = SaveBomRequest.builder()
             .locationNumber(locationNumber)
-            .codeNumber(subAssayCodeNumber)
+            .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .productNumber(superProduct.getProductName())
             .memo(memo)
@@ -151,7 +151,7 @@ public class BomIntegrationTest extends IntegrationTest {
         BomResponse response = BomResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
-            .codeNumber(subAssayCodeNumber)
+            .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
             .productId(productId)
@@ -306,8 +306,8 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser(roles = "USER")
-      @DisplayName("Sub assay가 Sub assay를 BOM으로 저장하려하면 Bad Request가 발생한다.")
-      void saveSubAssayBom() throws Exception {
+      @DisplayName("Sub assy가 Sub assy를 BOM으로 저장하려하면 Bad Request가 발생한다.")
+      void saveSubAssyBom() throws Exception {
         // given
         Category category = categoryRepository.save(Category.builder()
             .categoryName("c").build());
@@ -329,8 +329,8 @@ public class BomIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.INVALID_SUB_ASSAY_BOM))
-            .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_SUB_ASSAY_BOM))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.INVALID_SUB_ASSY_BOM))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_SUB_ASSY_BOM))
             .andDo(print());
       }
     }
