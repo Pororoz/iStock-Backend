@@ -14,15 +14,19 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   Optional<Product> findByProductNumber(String productNumber);
 
   @Query(value = "select p from Product p "
-      + "left join fetch p.boms b left join fetch b.part "
+      + "left join fetch p.boms b "
       + "where p.category.id = :categoryId "
-      + "order by p.id, b.id",
-      countQuery = "select count(p) from Product p where p.category.id = :categoryId")
-  Page<Product> findProductsWithParts(Pageable pageable, @Param("categoryId") Long categoryId);
+      + "order by p.id",
+      countQuery = "select count(p) from Product p where p.category.id = :categoryId ")
+  Page<Product> findProductsWithBoms(Pageable pageable,
+      @Param("categoryId") Long categoryId);
 
-  @Query(value = "select p from Product p "
-      + "left join fetch p.boms b left join fetch b.part "
+  @Query("select p from Product p "
+      + "left join fetch p.boms b "
       + "where p.category.id = :categoryId "
-      + "order by p.id, b.id")
-  List<Product> findProductsWithParts(@Param("categoryId") Long categoryId);
+      + "order by p.id")
+  List<Product> findProductsWithBoms(@Param("categoryId") Long categoryId);
+
+  @Query("select p from Product p where p.productNumber in :productNumbers")
+  List<Product> findByProductNumbers(@Param("productNumbers") List<String> productNumbers);
 }

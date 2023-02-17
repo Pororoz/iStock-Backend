@@ -25,7 +25,7 @@ class ProductRepositoryTest extends RepositoryTest {
   PartRepository partRepository;
 
   Category category1, category2;
-  Part part1, part2;
+  Part part;
 
   @BeforeEach
   void setUp() {
@@ -36,18 +36,15 @@ class ProductRepositoryTest extends RepositoryTest {
         .categoryName("c2").build());
 
     //part 저장
-    part1 = em.persist(Part.builder()
-        .partName("p1").spec("p1")
-        .build());
-    part2 = em.persist(Part.builder()
-        .partName("p2").spec("p2")
+    part = em.persist(Part.builder()
+        .partName("p").spec("p")
         .build());
     em.flush();
     em.clear();
   }
 
   @Test
-  @DisplayName("categoryId와 productName에 해당하는 product를 part와 함께 페이지네이션하여 조회")
+  @DisplayName("categoryId에 해당하는 product를 BOM과 함께 페이지네이션하여 조회")
   void findProductsWithParts() {
     //given
     PageRequest page = PageRequest.of(0, 3);
@@ -70,14 +67,14 @@ class ProductRepositoryTest extends RepositoryTest {
     for (int i = 0; i < products.size(); i++) {
       em.persist(Bom.builder()
           .locationNumber("l" + i).product(products.get(i))
-          .part(part1).build());
+          .part(part).build());
     }
     em.flush();
     em.clear();
 
     //when
     // product list에 있는 product만 조회된다.
-    Page<Product> pages = productRepository.findProductsWithParts(page,
+    Page<Product> pages = productRepository.findProductsWithBoms(page,
         category1.getId());
 
     //then
@@ -92,7 +89,6 @@ class ProductRepositoryTest extends RepositoryTest {
 
       Bom bom = product.getBoms().get(0);
       assertThat(bom.getLocationNumber()).isEqualTo("l" + j);
-      assertThat(bom.getPart()).usingRecursiveComparison().isEqualTo(part1);
     }
   }
 
@@ -107,7 +103,7 @@ class ProductRepositoryTest extends RepositoryTest {
         .build());
 
     //when
-    Page<Product> pages = productRepository.findProductsWithParts(page,
+    Page<Product> pages = productRepository.findProductsWithBoms(page,
         category1.getId());
 
     //then
@@ -127,7 +123,7 @@ class ProductRepositoryTest extends RepositoryTest {
         .build());
 
     //when
-    Page<Product> pages = productRepository.findProductsWithParts(page,
+    Page<Product> pages = productRepository.findProductsWithBoms(page,
         category1.getId());
 
     //then
@@ -135,5 +131,36 @@ class ProductRepositoryTest extends RepositoryTest {
     assertThat(pages.getTotalElements()).isEqualTo(1);
     assertThat(pages.getContent().size()).isEqualTo(1);
     assertThat(pages.getContent().get(0)).usingRecursiveComparison().isEqualTo(product);
+  }
+
+  @Test
+  @DisplayName("Product number list에 포함된 product만 조회한다.")
+  void findByProductNumbers() {
+    //given
+    Product a = em.persist(Product.builder()
+        .productNumber("a").productName("name")
+        .category(category1).build());
+    Product aa = em.persist(Product.builder()
+        .productNumber("aa").productName("name")
+        .category(category1).build());
+    Product aaa = em.persist(Product.builder()
+        .productNumber("aaa").productName("name")
+        .category(category1).build());
+    em.flush();
+    em.clear();
+
+    //when
+    List<Product> products = productRepository.findByProductNumbers(List.of("aaa", "a"));
+
+    //then
+    assertThat(products).hasSize(2);
+    assertThat(products).usingRecursiveComparison()
+        .ignoringFields("category")
+        .ignoringCollectionOrder()
+        .isEqualTo(List.of(aaa, a));
+    assertThat(products).usingRecursiveComparison()
+        .ignoringFields("category")
+        .ignoringCollectionOrder()
+        .isNotEqualTo(List.of(a, aa));
   }
 }
