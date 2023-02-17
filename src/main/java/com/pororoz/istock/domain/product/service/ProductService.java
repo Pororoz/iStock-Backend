@@ -16,8 +16,10 @@ import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedExcept
 import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -70,10 +72,17 @@ public class ProductService {
         .orElseThrow(CategoryNotFoundException::new);
     Page<Product> products = getProductPage(request);
     //subAssy만 필터링
-    products.forEach(product -> product.setBoms(
-        product.getBoms().stream()
-            .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER)).toList()));
-    return products.map(FindProductServiceResponse::of);
+    Set<String> subAssyNames = new HashSet<>();
+    products.forEach(product -> {
+      product.setBoms(
+          product.getBoms().stream()
+              .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER)).toList()
+      );
+      product.getBoms().forEach(bom -> subAssyNames.add(bom.getProductNumber()));
+    });
+
+    List<Product> subAssys = productRepository.findByProductNumbers(subAssyNames);
+    return products.map(product -> FindProductServiceResponse.of(product, subAssys));
   }
 
 
@@ -110,11 +119,11 @@ public class ProductService {
 
   private Page<Product> getProductPage(FindProductServiceRequest request) {
     if (request.getPage() == null && request.getSize() == null) {
-      List<Product> products = productRepository.findProductsWithBoms(
+      List<Product> products = productRepository.findByCategoryIdWithBoms(
           request.getCategoryId());
       return new PageImpl<>(products);
     }
-    return productRepository.findProductsWithBoms(
+    return productRepository.findByCategoryIdWithBoms(
         Pagination.toPageRequest(request.getPage(), request.getSize()), request.getCategoryId());
   }
 }

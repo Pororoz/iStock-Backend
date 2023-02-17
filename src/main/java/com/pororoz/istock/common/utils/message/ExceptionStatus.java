@@ -22,6 +22,7 @@ public class ExceptionStatus {
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";
   public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
   public static final String FORBIDDEN = "FORBIDDEN";
+  public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME";
 
   private ExceptionStatus() {
   }

@@ -37,7 +37,11 @@ public enum ErrorCode {
   SUB_ASSY_BOM_EXIST(HttpStatus.BAD_REQUEST, ExceptionStatus.SUB_ASSY_BOM_EXIST,
       ExceptionMessage.SUB_ASSY_BOM_EXIST),
   REGISTERED_AS_SUB_ASSY(HttpStatus.BAD_REQUEST, ExceptionStatus.REGISTERED_AS_SUB_ASSY,
-      ExceptionMessage.REGISTERED_AS_SUB_ASSY);
+      ExceptionMessage.REGISTERED_AS_SUB_ASSY),
+  SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME(HttpStatus.NOT_FOUND,
+      ExceptionStatus.SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME,
+      ExceptionMessage.SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME);
+
   private final HttpStatus statusCode;
 
   private final String status;

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -27,6 +28,7 @@ import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
 import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
+import com.pororoz.istock.domain.product.exception.SubAssyNotFoundByProductNameException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -411,8 +413,18 @@ class ProductServiceTest {
   @DisplayName("product 조회")
   class FindProducts {
 
+    Category subCategory = Category.builder().id(10L).build();
     Part part = Part.builder().build();
-    Bom assyBom = Bom.builder().codeNumber("11").part(part).build();
+    Product subAssy1 = Product.builder().productNumber("assy1").codeNumber("11")
+        .category(subCategory).build();
+    Product subAssy2 = Product.builder().productNumber("assy2").codeNumber("11")
+        .category(subCategory).build();
+    Bom assyBom1 = Bom.builder()
+        .locationNumber("assy1").quantity(1).productNumber("assy1")
+        .codeNumber("11").part(part).build();
+    Bom assyBom2 = Bom.builder()
+        .locationNumber("assy2").quantity(2).productNumber("assy2")
+        .codeNumber("11").part(part).build();
     Bom otherBom = Bom.builder().codeNumber("0").part(part).build();
 
     @Nested
@@ -435,21 +447,30 @@ class ProductServiceTest {
         List<Product> products = new ArrayList<>();
         for (int i = 0; i < size; i++) {
           Product product = Product.builder().id((long) i).category(category).build();
-          product.setBoms(List.of(assyBom, otherBom));
+          product.setBoms(List.of(assyBom1, assyBom2, otherBom));
           products.add(product);
         }
         PageImpl<Product> productPage = new PageImpl<>(products, PageRequest.of(page, size), total);
 
         //when
         //category 조회 -> categoryId, productName, page, size로 product 조회
-        // -> 각 product의 bom 조회(bom의 codeNumber가 11) -> bom의 part 조회
+        // -> 각 product의 bom 조회(bom의 codeNumber가 11)
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findProductsWithParts(any(Pageable.class), eq(categoryId)))
+        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
+        when(productRepository.findByProductNumbers(anySet())).thenReturn(
+            List.of(subAssy1, subAssy2));
         Page<FindProductServiceResponse> result = productService.findProducts(request);
 
         //then
-        SubAssyServiceResponse subAssyResponse = SubAssyServiceResponse.builder().build();
+        SubAssyServiceResponse subAssyResponse1 = SubAssyServiceResponse.builder()
+            .productServiceResponse(ProductServiceResponse.of(subAssy1))
+            .quantity(1)
+            .build();
+        SubAssyServiceResponse subAssyResponse2 = SubAssyServiceResponse.builder()
+            .productServiceResponse(ProductServiceResponse.of(subAssy2))
+            .quantity(2)
+            .build();
 
         assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
         assertThat(result.getTotalElements()).isEqualTo(10);
@@ -457,9 +478,11 @@ class ProductServiceTest {
         for (FindProductServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
-          assertThat(findResponse.getSubAssyServiceRespons().size()).isEqualTo(1);
-          assertThat(findResponse.getSubAssyServiceRespons().get(0))
-              .usingRecursiveComparison().isEqualTo(subAssyResponse);
+          assertThat(findResponse.getSubAssyServiceResponses()).hasSize(2);
+          assertThat(findResponse.getSubAssyServiceResponses())
+              .usingRecursiveComparison()
+              .ignoringCollectionOrder()
+              .isEqualTo(List.of(subAssyResponse1, subAssyResponse2));
         }
       }
 
@@ -477,28 +500,26 @@ class ProductServiceTest {
         List<Product> products = new ArrayList<>();
         for (int i = 0; i < total; i++) {
           Product product = Product.builder().id((long) i).category(category).build();
-          product.setBoms(List.of(assyBom1, otherBom));
+          product.setBoms(List.of(otherBom));
           products.add(product);
         }
 
         //when
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findProductsWithBoms(categoryId))
+        when(productRepository.findByCategoryIdWithBoms(categoryId))
             .thenReturn(products);
+        when(productRepository.findByProductNumbers(anySet())).thenReturn(List.of());
         Page<FindProductServiceResponse> result = productService.findProducts(request);
 
         //then
-        SubAssyServiceResponse subAssyResponse = SubAssyServiceResponse.builder().build();
-
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getTotalElements()).isEqualTo(total);
         long i = 0;
         for (FindProductServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
-          assertThat(findResponse.getSubAssyServiceRespons().size()).isEqualTo(1);
-          assertThat(findResponse.getSubAssyServiceRespons().get(0))
-              .usingRecursiveComparison().isEqualTo(subAssyResponse);
+          // sub assy는 없다.
+          assertThat(findResponse.getSubAssyServiceResponses()).hasSize(0);
         }
       }
 
@@ -524,7 +545,7 @@ class ProductServiceTest {
 
         //when
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findProductsWithBoms(any(Pageable.class), eq(categoryId)))
+        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
         Page<FindProductServiceResponse> result = productService.findProducts(request);
 
@@ -555,6 +576,39 @@ class ProductServiceTest {
 
         //then
         assertThrows(CategoryNotFoundException.class, () -> productService.findProducts(request));
+      }
+
+      @Test
+      @DisplayName("Sub assy 목록에 bom의 productNumber와 일치하는 product가 없다.")
+      void subAssyNotFoundByProductName() {
+        //given
+        int page = 0;
+        int size = 3;
+        long total = 10;
+
+        FindProductServiceRequest request = FindProductServiceRequest.builder()
+            .categoryId(categoryId)
+            .page(page).size(size)
+            .build();
+
+        List<Product> products = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+          Product product = Product.builder().id((long) i).category(category).build();
+          product.setBoms(List.of(assyBom1, assyBom2, otherBom));
+          products.add(product);
+        }
+        PageImpl<Product> productPage = new PageImpl<>(products, PageRequest.of(page, size), total);
+
+        //when
+        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
+        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
+            .thenReturn(productPage);
+        when(productRepository.findByProductNumbers(anySet())).thenReturn(
+            List.of(subAssy1));
+
+        //then
+        assertThrows(SubAssyNotFoundByProductNameException.class,
+            () -> productService.findProducts(request));
       }
     }
   }

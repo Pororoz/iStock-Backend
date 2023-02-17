@@ -458,8 +458,8 @@ public class ProductIntegrationTest extends IntegrationTest {
 
       //then
       SubAssyResponse subAssyService = SubAssyResponse.builder()
-          .partId(part.getId())
-          .partName("p").spec("p")
+          .productId(part.getId())
+          .productName("p").productNumber("p")
           .quantity(10)
           .build();
       List<FindProductResponse> findProductResponses = new ArrayList<>();

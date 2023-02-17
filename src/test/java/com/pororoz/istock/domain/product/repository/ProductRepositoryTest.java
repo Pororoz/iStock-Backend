@@ -10,6 +10,7 @@ import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -74,7 +75,7 @@ class ProductRepositoryTest extends RepositoryTest {
 
     //when
     // product list에 있는 product만 조회된다.
-    Page<Product> pages = productRepository.findProductsWithBoms(page,
+    Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
         category1.getId());
 
     //then
@@ -103,7 +104,7 @@ class ProductRepositoryTest extends RepositoryTest {
         .build());
 
     //when
-    Page<Product> pages = productRepository.findProductsWithBoms(page,
+    Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
         category1.getId());
 
     //then
@@ -123,7 +124,7 @@ class ProductRepositoryTest extends RepositoryTest {
         .build());
 
     //when
-    Page<Product> pages = productRepository.findProductsWithBoms(page,
+    Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
         category1.getId());
 
     //then
@@ -150,7 +151,7 @@ class ProductRepositoryTest extends RepositoryTest {
     em.clear();
 
     //when
-    List<Product> products = productRepository.findByProductNumbers(List.of("aaa", "a"));
+    List<Product> products = productRepository.findByProductNumbers(Set.of("aaa", "a"));
 
     //then
     assertThat(products).hasSize(2);
