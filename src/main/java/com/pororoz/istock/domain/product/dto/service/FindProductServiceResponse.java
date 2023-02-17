@@ -38,6 +38,7 @@ public class FindProductServiceResponse {
         .productId(productServiceResponse.getProductId())
         .productName(productServiceResponse.getProductName())
         .productNumber(productServiceResponse.getProductNumber())
+        .codeNumber(productServiceResponse.getCodeNumber())
         .stock(productServiceResponse.getStock())
         .companyName(productServiceResponse.getCompanyName())
         .categoryId(productServiceResponse.getCategoryId())

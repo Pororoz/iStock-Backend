@@ -416,12 +416,23 @@ public class ProductIntegrationTest extends IntegrationTest {
 
       //product 저장
       List<Product> products = new ArrayList<>();
-      for (int i = 0; i < 11; i++) {
+      for (int i = 0; i < 9; i++) {
         Product product = productRepository.save(Product.builder()
             .productName("p" + i).productNumber("p" + i)
-            .category(category)
+            .stock(i).category(category)
             .build());
         products.add(product);
+      }
+
+      //sub assy 저장
+      List<Product> subAssys = new ArrayList<>();
+      for (int i = 0; i < 9; i++) {
+        Product product = productRepository.save(Product.builder()
+            .productName("sub" + i).productNumber("sub" + i)
+            .codeNumber("11").category(category)
+            .build());
+        products.add(product);
+        subAssys.add(product);
       }
 
       //part 저장
@@ -430,19 +441,17 @@ public class ProductIntegrationTest extends IntegrationTest {
           .build());
 
       //bom 저장
-      bomRepository.save(Bom.builder()
-          .codeNumber("11")
-          .part(part).product(products.get(5))
-          .quantity(10)
-          .build());
+      //sub assy bom
       for (int i = 0; i < 7; i++) {
         bomRepository.save(Bom.builder()
             .codeNumber("11").locationNumber("" + i)
-            .part(part).product(products.get(i))
+            .productNumber(subAssys.get(i).getProductNumber())
+            .product(products.get(i))
             .quantity(10)
             .build());
       }
-      for (int i = 0; i < 10; i++) {
+      //일반 bom
+      for (int i = 0; i < 9; i++) {
         bomRepository.save(Bom.builder()
             .codeNumber("10").locationNumber("" + i + 100)
             .part(part).product(products.get(i))
@@ -457,29 +466,30 @@ public class ProductIntegrationTest extends IntegrationTest {
       ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
 
       //then
-      SubAssyResponse subAssyService = SubAssyResponse.builder()
-          .productId(part.getId())
-          .productName("p").productNumber("p")
-          .quantity(10)
-          .build();
       List<FindProductResponse> findProductResponses = new ArrayList<>();
       for (int i = 5; i < 10; i++) {
         Product product = products.get(i);
+        Product subAssy = i > 6 ? null : subAssys.get(i);
         findProductResponses.add(FindProductResponse.builder()
             .productId(product.getId())
             .productName(product.getProductName())
             .productNumber(product.getProductNumber())
+            .codeNumber(product.getCodeNumber())
             .stock(product.getStock())
             .companyName(product.getCompanyName())
             .categoryId(product.getCategory().getId())
             .createdAt(TimeEntity.formatTime(product.getCreatedAt()))
             .updatedAt(TimeEntity.formatTime(product.getUpdatedAt()))
             .subAssy(i > 6 ? List.of()
-                : (i == 6 ? List.of(subAssyService) : List.of(subAssyService, subAssyService)))
+                : List.of(SubAssyResponse.builder()
+                    .productId(subAssy.getId())
+                    .productName(subAssy.getProductName())
+                    .productNumber(subAssy.getProductNumber())
+                    .quantity(10).stock(0).build()))
             .build());
       }
       PageResponse<FindProductResponse> response = new PageResponse<>(
-          new PageImpl<>(findProductResponses, PageRequest.of(page, size), 11));
+          new PageImpl<>(findProductResponses, PageRequest.of(page, size), products.size()));
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))

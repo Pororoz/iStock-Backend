@@ -330,8 +330,15 @@ class ProductControllerTest extends ControllerTest {
       String uri = getUri(categoryId, page, size);
       PageRequest pageRequest = PageRequest.of(page, size);
       ProductServiceResponse productServiceResponse = ProductServiceResponse.builder()
-          .productId(id).categoryId(categoryId).build();
-      SubAssyServiceResponse subAssyServiceResponse = SubAssyServiceResponse.builder().build();
+          .productId(id).categoryId(categoryId).codeNumber("10").build();
+      SubAssyServiceResponse subAssyServiceResponse = SubAssyServiceResponse.builder()
+          .productServiceResponse(ProductServiceResponse.builder()
+              .productNumber("sub assy number")
+              .productName("sub assy name")
+              .productId(1L)
+              .companyName("company")
+              .stock(1).build())
+          .quantity(1).build();
       FindProductServiceResponse ServiceDto = FindProductServiceResponse.builder()
           .productServiceResponse(productServiceResponse)
           .subAssyServiceResponses(List.of(subAssyServiceResponse))
@@ -345,10 +352,16 @@ class ProductControllerTest extends ControllerTest {
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
       //then
-      SubAssyResponse subAssyRespon = SubAssyResponse.builder().build();
+      SubAssyResponse subAssyResponse = SubAssyResponse.builder()
+          .productNumber("sub assy number")
+          .productName("sub assy name")
+          .productId(1L)
+          .stock(1)
+          .quantity(1).build();
       FindProductResponse findProductResponse = FindProductResponse.builder()
           .productId(id).categoryId(categoryId)
-          .subAssy(List.of(subAssyRespon))
+          .codeNumber("10")
+          .subAssy(List.of(subAssyResponse))
           .build();
       PageResponse<FindProductResponse> response =
           new PageResponse<>(new PageImpl<>(List.of(findProductResponse), pageRequest, 4));
@@ -382,8 +395,14 @@ class ProductControllerTest extends ControllerTest {
       String uri = getUri(categoryId, null, null);
       PageRequest pageRequest = PageRequest.of(page, size);
       ProductServiceResponse productServiceResponse = ProductServiceResponse.builder()
-          .productId(id).categoryId(categoryId).build();
-      SubAssyServiceResponse subAssyServiceResponse = SubAssyServiceResponse.builder().build();
+          .productId(id).categoryId(categoryId).codeNumber("10").build();
+      SubAssyServiceResponse subAssyServiceResponse = SubAssyServiceResponse.builder()
+          .productServiceResponse(ProductServiceResponse.builder().productNumber("sub assy number")
+              .productName("sub assy name")
+              .productId(1L)
+              .companyName("company")
+              .stock(1).build())
+          .quantity(1).build();
       FindProductServiceResponse ServiceDto = FindProductServiceResponse.builder()
           .productServiceResponse(productServiceResponse)
           .subAssyServiceResponses(List.of(subAssyServiceResponse))
@@ -397,9 +416,15 @@ class ProductControllerTest extends ControllerTest {
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
       //then
-      SubAssyResponse subAssyRespon = SubAssyResponse.builder().build();
+      SubAssyResponse subAssyRespon = SubAssyResponse.builder()
+          .productNumber("sub assy number")
+          .productName("sub assy name")
+          .productId(1L)
+          .stock(1)
+          .quantity(1).build();
       FindProductResponse findProductResponse = FindProductResponse.builder()
           .productId(id).categoryId(categoryId)
+          .codeNumber("10")
           .subAssy(List.of(subAssyRespon))
           .build();
       PageResponse<FindProductResponse> response =

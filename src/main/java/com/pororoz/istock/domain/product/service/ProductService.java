@@ -80,7 +80,6 @@ public class ProductService {
       );
       product.getBoms().forEach(bom -> subAssyNames.add(bom.getProductNumber()));
     });
-
     List<Product> subAssys = productRepository.findByProductNumbers(subAssyNames);
     return products.map(product -> FindProductServiceResponse.of(product, subAssys));
   }
