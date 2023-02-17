@@ -11,6 +11,7 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.auth.dto.CustomUserDetailsDTO;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
 import com.pororoz.istock.domain.user.dto.request.UpdateUserRequest;
 import com.pororoz.istock.domain.user.entity.Role;
@@ -26,6 +27,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
@@ -187,6 +191,33 @@ public class UserIntegrationTest extends IntegrationTest {
         actions.andExpect(status().isNotFound())
             .andExpect(jsonPath("$.status").value(ExceptionStatus.ROLE_NOT_FOUND))
             .andExpect(jsonPath("$.message").value(ExceptionMessage.ROLE_NOT_FOUND))
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("자신의 role을 강등시키려고 하면 Self Demote Error가 발생하고 400 코드를 반환한다.")
+      void selfDemote() throws Exception {
+        // given
+        Role role = roleRepository.findByRoleName("ROLE_ADMIN").orElseThrow(RoleNotFoundException::new);
+        User user = User.builder().username(username).password(password).role(role).build();
+
+        CustomUserDetailsDTO userDetail = new CustomUserDetailsDTO(user);
+        SecurityContext context = SecurityContextHolder.getContext();
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(userDetail.getUsername(), userDetail.getPassword(), userDetail.getAuthorities()));
+        userRepository.save(user);
+
+        UpdateUserRequest request = UpdateUserRequest.builder()
+            .userId(userId)
+            .password(newPassword)
+            .roleName("ROLE_USER").build();
+
+        // when
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.SELF_DEMOTE_ROLE))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.SELF_DEMOTE_ROLE))
             .andDo(print());
       }
     }

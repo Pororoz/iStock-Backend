@@ -20,8 +20,8 @@ public enum ErrorCode {
       ExceptionMessage.CATEGORY_NOT_FOUND),
   PRODUCT_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_NUMBER_DUPLICATED,
       ExceptionMessage.PRODUCT_NUMBER_DUPLICATED),
-  PART_NAME_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NAME_DUPLICATED,
-      ExceptionMessage.PART_NAME_DUPLICATED),
+  PART_DUPLICATED(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_DUPLICATED,
+      ExceptionMessage.PART_DUPLICATED),
   PART_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PART_NOT_FOUND,
       ExceptionMessage.PART_NOT_FOUND),
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_NOT_FOUND,
@@ -40,7 +40,9 @@ public enum ErrorCode {
       ExceptionMessage.REGISTERED_AS_SUB_ASSY),
   SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME(HttpStatus.NOT_FOUND,
       ExceptionStatus.SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME,
-      ExceptionMessage.SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME);
+      ExceptionMessage.SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME),
+  SELF_DEMOTE_ROLE(HttpStatus.BAD_REQUEST, ExceptionStatus.SELF_DEMOTE_ROLE,
+      ExceptionMessage.SELF_DEMOTE_ROLE);
 
   private final HttpStatus statusCode;
 

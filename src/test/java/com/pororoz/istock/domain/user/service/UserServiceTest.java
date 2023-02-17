@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.common.utils.Pagination;
+import com.pororoz.istock.domain.auth.dto.CustomUserDetailsDTO;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.FindUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
@@ -17,6 +18,7 @@ import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
+import com.pororoz.istock.domain.user.exception.SelfDemoteRoleException;
 import com.pororoz.istock.domain.user.exception.UserNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
@@ -34,7 +36,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -61,16 +67,25 @@ class UserServiceTest {
     private String newPassword;
     private String roleName;
     private String newRoleName;
-    private final Role role = Role.builder().roleName("ROLE_USER").build();
+    private final Role roleAdmin = Role.builder().roleName("ROLE_ADMIN").build();
+    private final Role roleUser = Role.builder().roleName("ROLE_USER").build();
 
     @BeforeEach
     void setup() {
       userId = 1L;
-      username = "test";
+      username = "user";
       password = "ab1234";
       newPassword = "abc123";
-      roleName = "ROLE_USER";
-      newRoleName = "ROLE_ADMIN";
+      roleName = "ROLE_ADMIN";
+      newRoleName = "ROLE_USER";
+
+      User admin = User.builder().id(2L).username("admin").password("admin").role(roleAdmin)
+          .build();
+      CustomUserDetailsDTO user = new CustomUserDetailsDTO(admin);
+      SecurityContext context = SecurityContextHolder.getContext();
+      context.setAuthentication(
+          new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(),
+              user.getAuthorities()));
     }
 
     @Nested
@@ -78,10 +93,10 @@ class UserServiceTest {
     class SuccessCase {
 
       @Test
+      @WithMockUser
       @DisplayName("존재하는 유저를 업데이트한다.")
       void updateUser() {
         // given
-        String encodedPassword = "newEncoded0987";
         UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
             .userId(userId)
             .roleName(newRoleName)
@@ -92,18 +107,17 @@ class UserServiceTest {
             .id(userId)
             .username(username)
             .password(password)
-            .role(role)
+            .role(roleAdmin)
             .build();
 
         UserServiceResponse response = UserServiceResponse.builder()
             .userId(userId)
             .username(username)
-            .roleName(roleName)
+            .roleName(newRoleName)
             .build();
 
         // when
-        when(passwordEncoder.encode(newPassword)).thenReturn(encodedPassword);
-        when(roleRepository.findByRoleName(any())).thenReturn(Optional.of(role));
+        when(roleRepository.findByRoleName(any())).thenReturn(Optional.of(roleUser));
         when(userRepository.findById(userId)).thenReturn(Optional.of(targetUser));
         UserServiceResponse result = userService.updateUser(updateUserServiceRequest);
 
@@ -128,7 +142,7 @@ class UserServiceTest {
             .build();
 
         // when
-        when(roleRepository.findByRoleName(roleName)).thenReturn(Optional.of(role));
+        when(roleRepository.findByRoleName(roleName)).thenReturn(Optional.of(roleAdmin));
 
         // then
         assertThrows(UserNotFoundException.class,
@@ -150,6 +164,32 @@ class UserServiceTest {
 
         //then
         assertThrows(RoleNotFoundException.class,
+            () -> userService.updateUser(updateUserServiceRequest));
+      }
+
+      @Test
+      @DisplayName("자신의 role을 강등시키려고 하면 SelfDemoteException이 발생한다.")
+      void selfDemote() {
+        // given
+        UpdateUserServiceRequest updateUserServiceRequest = UpdateUserServiceRequest.builder()
+            .userId(2L)
+            .roleName(newRoleName)
+            .password(newPassword)
+            .build();
+
+        User targetUser = User.builder()
+            .id(2L)
+            .username("admin")
+            .password("admin")
+            .role(roleAdmin)
+            .build();
+
+        // when
+        when(roleRepository.findByRoleName(newRoleName)).thenReturn(Optional.of(roleUser));
+        when(userRepository.findById(2L)).thenReturn(Optional.of(targetUser));
+
+        //then
+        assertThrows(SelfDemoteRoleException.class,
             () -> userService.updateUser(updateUserServiceRequest));
       }
     }

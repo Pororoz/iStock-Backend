@@ -18,7 +18,7 @@ public class ExceptionMessage {
   public static final String INTERNAL_SERVER_ERROR = "내부 서버 오류입니다.";
   public static final String INVALID_PAGE_REQUEST = "page는 0 이상, size는 1 이상을 입력해주세요.";
   public static final String INVALID_CATEGORY_NAME = "카테고리는 2자 이상, 15자 이하로 입력해주세요.";
-  public static final String PART_NAME_DUPLICATED = "이미 존재하는 part 입니다.";
+  public static final String PART_DUPLICATED = "이미 존재하는 part 입니다.";
   public static final String PART_NOT_FOUND = "존재하지 않는 part입니다.";
   public static final String PRODUCT_NUMBER_DUPLICATED = "중복된 product number입니다.";
   public static final String PRODUCT_NOT_FOUND = "해당 제품을 찾을 수 없습니다.";
@@ -29,6 +29,7 @@ public class ExceptionMessage {
   public static final String SUB_ASSY_BOM_EXIST = "해당 제품의 BOM에 sub assy가 존재합니다. Sub assy는 sub assy를 가질 수 없습니다.";
   public static final String REGISTERED_AS_SUB_ASSY = "다른 제품의 BOM에 sub assy로 등록되어 있습니다.";
   public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "Sub assy 목록에 BOM의 productNumber와 일치하는 product가 없습니다.";
+  public static final String SELF_DEMOTE_ROLE = "본인의 권한을 강등시킬 수 없습니다.";
 
   private ExceptionMessage() {
   }
