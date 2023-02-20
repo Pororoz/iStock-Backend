@@ -81,7 +81,7 @@ jobs:
             mkdir -p nginx && cp -r ~/${{ env.REPOSITORY }}/nginx/prod/* ~/nginx && rm -rf ~/${{ env.REPOSITORY }}/nginx
             cd ~/${{ env.REPOSITORY }}
             echo ${{ secrets.ACCESS_TOKEN }} | docker login https://ghcr.io -u pororoz --password-stdin
-            sudo chmod +x ./script/*.sh
+            chmod +x ./script/*.sh
             ./script/deploy.sh ${{ env.ORGANIZATION }} ${{ env.REPOSITORY }} ${{ env.DOCKER_COMPOSE_FILE }}
             docker logout https://ghcr.io
             ./script/health.sh ${{ env.ORGANIZATION }} ${{ env.REPOSITORY }} ${{ env.DOCKER_COMPOSE_FILE }}
