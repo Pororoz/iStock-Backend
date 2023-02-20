@@ -11,7 +11,6 @@ services:
       SERVER_MODE: local
       MYSQL_USERNAME: "${MYSQL_USERNAME}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-    platform: linux/x86_64
     ports:
       - "8080:8080"
     depends_on:
@@ -41,7 +40,6 @@ services:
   mysql:
     container_name: mysql
     image: mysql:8.0
-    platform: linux/x86_64
     restart: always
     ports:
       - "3307:3306"
@@ -61,7 +59,6 @@ services:
   redis:
     container_name: redis
     image: redis
-    platform: linux/x86_64
     restart: always
     ports:
       - "6379:6379"

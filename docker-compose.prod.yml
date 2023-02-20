@@ -4,12 +4,11 @@ services:
   spring1:
     container_name: spring1
     restart: always
-    image: docker-image
+    image: 'ghcr.io/pororoz/istock-backend-dev:latest'
     environment:
       SERVER_MODE: spring1
       MYSQL_USERNAME: "${MYSQL_USERNAME}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-    platform: linux/x86_64
     ports:
       - "8081:8080"
     depends_on:
@@ -20,12 +19,11 @@ services:
   spring2:
     container_name: spring2
     restart: always
-    image: docker-image
+    image: 'ghcr.io/pororoz/istock-backend-dev:latest'
     environment:
       SERVER_MODE: spring2
       MYSQL_USERNAME: "${MYSQL_USERNAME}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
-    platform: linux/x86_64
     ports:
       - "8082:8080"
     depends_on:
@@ -50,7 +48,6 @@ services:
   mysql:
     container_name: mysql
     image: mysql:8.0
-    platform: linux/x86_64
     restart: always
     ports:
       - "3306:3306"
@@ -68,7 +65,6 @@ services:
   redis:
     container_name: redis
     image: redis
-    platform: linux/x86_64
     restart: always
     ports:
       - "6379:6379"
