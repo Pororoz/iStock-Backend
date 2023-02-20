@@ -9,6 +9,7 @@ import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
+import com.pororoz.istock.domain.user.exception.SelfDeleteAccountException;
 import com.pororoz.istock.domain.user.exception.SelfDemoteRoleException;
 import com.pororoz.istock.domain.user.exception.UserNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
@@ -54,9 +55,17 @@ public class UserService {
   }
 
   public UserServiceResponse deleteUser(DeleteUserServiceRequest deleteUserServiceRequest) {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Object myPrincipal = auth.getPrincipal();
+
     User user = userRepository.findById(deleteUserServiceRequest.getUserId())
         .orElseThrow(UserNotFoundException::new);
+
+    if (myPrincipal.equals(user.getUsername())) {
+      throw new SelfDeleteAccountException();
+    }
     userRepository.deleteById(deleteUserServiceRequest.getUserId());
+
     return UserServiceResponse.of(user);
   }
 

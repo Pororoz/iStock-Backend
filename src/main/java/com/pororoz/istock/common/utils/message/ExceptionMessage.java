@@ -30,6 +30,7 @@ public class ExceptionMessage {
   public static final String REGISTERED_AS_SUB_ASSY = "다른 제품의 BOM에 sub assy로 등록되어 있습니다.";
   public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "Sub assy 목록에 BOM의 productNumber와 일치하는 product가 없습니다.";
   public static final String SELF_DEMOTE_ROLE = "본인의 권한을 강등시킬 수 없습니다.";
+  public static final String SELF_DELETE_ACCOUNT = "본인의 계정을 삭제 할 수 없습니다.";
 
   private ExceptionMessage() {
   }

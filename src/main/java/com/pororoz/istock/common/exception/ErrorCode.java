@@ -42,7 +42,10 @@ public enum ErrorCode {
       ExceptionStatus.SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME,
       ExceptionMessage.SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME),
   SELF_DEMOTE_ROLE(HttpStatus.BAD_REQUEST, ExceptionStatus.SELF_DEMOTE_ROLE,
-      ExceptionMessage.SELF_DEMOTE_ROLE);
+      ExceptionMessage.SELF_DEMOTE_ROLE),
+  SELF_DELETE_ACCOUNT(HttpStatus.BAD_REQUEST, ExceptionStatus.SELF_DELETE_ACCOUNT,
+      ExceptionMessage.SELF_DELETE_ACCOUNT)
+  ;
 
   private final HttpStatus statusCode;
 
