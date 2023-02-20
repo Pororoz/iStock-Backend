@@ -26,6 +26,7 @@ import com.pororoz.istock.domain.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -34,16 +35,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -84,10 +81,18 @@ class UserServiceTest {
       roleName = "ROLE_ADMIN";
       newRoleName = "ROLE_USER";
 
-      User admin = User.builder().id(2L).username("admin").password("admin").role(roleAdmin).build();
+      User admin = User.builder().id(2L).username("admin").password("admin").role(roleAdmin)
+          .build();
       CustomUserDetailsDTO user = new CustomUserDetailsDTO(admin);
       SecurityContext context = SecurityContextHolder.getContext();
-      context.setAuthentication(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities()));
+      context.setAuthentication(
+          new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(),
+              user.getAuthorities()));
+    }
+
+    @AfterEach
+    void teatDown() {
+      SecurityContextHolder.clearContext();
     }
 
     @Nested

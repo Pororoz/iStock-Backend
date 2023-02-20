@@ -26,7 +26,7 @@ public class Category extends TimeEntity {
 
   @NotEmpty
   @Size(max = 15)
-  @Column(unique = true, nullable = false)
+  @Column(unique = true, nullable = false, columnDefinition = "VARCHAR(15) CHARACTER SET utf8 COLLATE utf8_bin")
   private String categoryName;
 
   public void update(String categoryName) {

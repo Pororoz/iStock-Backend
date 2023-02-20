@@ -83,4 +83,30 @@ class UserRepositoryTest extends RepositoryTest {
     }
   }
 
+  @Nested
+  @DisplayName("유저 저장")
+  class SaveUser {
+
+    Role role;
+
+    @BeforeEach
+    void setUp() {
+      role = roleRepository.findByRoleName("ROLE_USER").orElseThrow();
+    }
+
+    @Test
+    @DisplayName("username의 대소문자를 구분하여 저장한다.")
+    void saveUser() {
+      em.persist(User.builder().username("aa").password("1234").role(role).build());
+      em.persist(User.builder().username("Aa").password("1234").role(role).build());
+      em.flush();
+      em.clear();
+      User aa = (User) em.getEntityManager()
+          .createQuery("select u from User u where username = 'aa'").getSingleResult();
+      User Aa = (User) em.getEntityManager()
+          .createQuery("select u from User u where username = 'Aa'").getSingleResult();
+      assertEquals(aa.getUsername(), "aa");
+      assertEquals(Aa.getUsername(), "Aa");
+    }
+  }
 }

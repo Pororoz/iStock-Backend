@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.product;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -9,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.pororoz.istock.IntegrationTest;
 import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.entity.TimeEntity;
+import com.pororoz.istock.common.utils.message.ExceptionMessage;
+import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -138,10 +141,10 @@ public class ProductIntegrationTest extends IntegrationTest {
   class UpdateProduct {
 
     long newStock = stock + 2;
-    String newName = "product name";
-    String newNumber = "product number";
-    String newCodeNumber = "code number";
-    String newCompanyName = "company name";
+    String newName = "new product name";
+    String newNumber = "new product number";
+    String newCodeNumber = "new code number";
+    String newCompanyName = "new company name";
     Product product;
     Category category1, category2;
 
@@ -213,6 +216,183 @@ public class ProductIntegrationTest extends IntegrationTest {
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
           .andExpect(jsonPath("$.data", equalTo(asParsedJson(response)))).andDo(print());
     }
+
+    @Test
+    @WithMockUser
+    @DisplayName("완성품을 sub assy로 수정한다.")
+    void changeToSubAssy() throws Exception {
+      //given
+      Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("1").product(product).part(part).build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("2").product(product).part(part).build());
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      ProductResponse response = ProductResponse.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      actions.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response)))).andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("Sub assy를 완제품으로 수정한다.")
+    void changeToProduct() throws Exception {
+      //given
+      product = productRepository.save(
+          Product.builder().productName(name)
+              .productNumber("sub assy").codeNumber("11")
+              .companyName(companyName).stock(stock)
+              .category(category1)
+              .build());
+      Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("1").product(product).part(part).build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("2").product(product).part(part).build());
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      ProductResponse response = ProductResponse.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      actions.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response)))).andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("Product number를 수정하면 같은 product number를 가진 BOM도 수정한다.")
+    void changeProductNumberWithBom() throws Exception {
+      //given
+      bomRepository.save(Bom.builder().locationNumber("a")
+          .productNumber(product.getProductNumber())
+          .product(product).build());
+      bomRepository.save(Bom.builder().locationNumber("b")
+          .productNumber(product.getProductNumber())
+          .product(product).build());
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      actions.andExpect(status().isOk())
+          .andDo(print());
+      List<Bom> boms = bomRepository.findByProductNumber(newNumber);
+      boms.forEach(bom -> assertThat(bom.getProductNumber()).isEqualTo(newNumber));
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("완성품이 sub assy를 BOM으로 가지고 있다면, sub assy로 수정할 시 Bad Request가 발생한다.")
+    void changeToSubAssyException() throws Exception {
+      //given
+      Product subAssy = productRepository.save(
+          Product.builder().productName(name)
+              .productNumber("sub assy").codeNumber("11")
+              .companyName(companyName).stock(stock)
+              .category(category1)
+              .build());
+      Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
+      bomRepository.save(Bom.builder()
+          .productNumber(subAssy.getProductNumber())
+          .codeNumber("11").locationNumber("1")
+          .product(product)
+          .build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("2").product(product).part(part)
+          .build());
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(product.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber("11")
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.SUB_ASSY_BOM_EXIST))
+          .andExpect(jsonPath("$.message").value(ExceptionMessage.SUB_ASSY_BOM_EXIST))
+          .andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("Sub assy를 완성품으로 수정할 때, 해당 제품이 다른 제품의 BOM으로 등록되어 있다면 Bad Request가 발생한다.")
+    void changeToProductException() throws Exception {
+      //given
+      Product subAssy = productRepository.save(
+          Product.builder().productName(name)
+              .productNumber("sub assy").codeNumber("11")
+              .companyName(companyName).stock(stock)
+              .category(category1)
+              .build());
+      Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("1").product(subAssy).part(part)
+          .build());
+      bomRepository.save(Bom.builder()
+          .locationNumber("2").product(subAssy).part(part)
+          .build());
+      bomRepository.save(Bom.builder()
+          .productNumber(subAssy.getProductNumber())
+          .codeNumber("11").locationNumber("1")
+          .product(product)
+          .build());
+      UpdateProductRequest request = UpdateProductRequest.builder()
+          .productId(subAssy.getId()).productName(newName)
+          .productNumber(newNumber).codeNumber(newCodeNumber)
+          .stock(newStock).companyName(newCompanyName)
+          .categoryId(category2.getId())
+          .build();
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.REGISTERED_AS_SUB_ASSY))
+          .andExpect(jsonPath("$.message").value(ExceptionMessage.REGISTERED_AS_SUB_ASSY))
+          .andDo(print());
+    }
   }
 
   @Nested
@@ -265,12 +445,23 @@ public class ProductIntegrationTest extends IntegrationTest {
 
       //product 저장
       List<Product> products = new ArrayList<>();
-      for (int i = 0; i < 11; i++) {
+      for (int i = 0; i < 9; i++) {
         Product product = productRepository.save(Product.builder()
             .productName("p" + i).productNumber("p" + i)
-            .category(category)
+            .stock(i).category(category)
             .build());
         products.add(product);
+      }
+
+      //sub assy 저장
+      List<Product> subAssys = new ArrayList<>();
+      for (int i = 0; i < 9; i++) {
+        Product product = productRepository.save(Product.builder()
+            .productName("sub" + i).productNumber("sub" + i)
+            .codeNumber("11").category(category)
+            .build());
+        products.add(product);
+        subAssys.add(product);
       }
 
       //part 저장
@@ -279,19 +470,17 @@ public class ProductIntegrationTest extends IntegrationTest {
           .build());
 
       //bom 저장
-      bomRepository.save(Bom.builder()
-          .codeNumber("11")
-          .part(part).product(products.get(5))
-          .quantity(10)
-          .build());
+      //sub assy bom
       for (int i = 0; i < 7; i++) {
         bomRepository.save(Bom.builder()
             .codeNumber("11").locationNumber("" + i)
-            .part(part).product(products.get(i))
+            .productNumber(subAssys.get(i).getProductNumber())
+            .product(products.get(i))
             .quantity(10)
             .build());
       }
-      for (int i = 0; i < 10; i++) {
+      //일반 bom
+      for (int i = 0; i < 9; i++) {
         bomRepository.save(Bom.builder()
             .codeNumber("10").locationNumber("" + i + 100)
             .part(part).product(products.get(i))
@@ -306,29 +495,30 @@ public class ProductIntegrationTest extends IntegrationTest {
       ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
 
       //then
-      SubAssyResponse subAssyService = SubAssyResponse.builder()
-          .partId(part.getId())
-          .partName("p").spec("p")
-          .quantity(10)
-          .build();
       List<FindProductResponse> findProductResponses = new ArrayList<>();
       for (int i = 5; i < 10; i++) {
         Product product = products.get(i);
+        Product subAssy = i > 6 ? null : subAssys.get(i);
         findProductResponses.add(FindProductResponse.builder()
             .productId(product.getId())
             .productName(product.getProductName())
             .productNumber(product.getProductNumber())
+            .codeNumber(product.getCodeNumber())
             .stock(product.getStock())
             .companyName(product.getCompanyName())
             .categoryId(product.getCategory().getId())
             .createdAt(TimeEntity.formatTime(product.getCreatedAt()))
             .updatedAt(TimeEntity.formatTime(product.getUpdatedAt()))
             .subAssy(i > 6 ? List.of()
-                : (i == 6 ? List.of(subAssyService) : List.of(subAssyService, subAssyService)))
+                : List.of(SubAssyResponse.builder()
+                    .productId(subAssy.getId())
+                    .productName(subAssy.getProductName())
+                    .productNumber(subAssy.getProductNumber())
+                    .quantity(10).stock(0).build()))
             .build());
       }
       PageResponse<FindProductResponse> response = new PageResponse<>(
-          new PageImpl<>(findProductResponses, PageRequest.of(page, size), 11));
+          new PageImpl<>(findProductResponses, PageRequest.of(page, size), products.size()));
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))
