@@ -329,12 +329,13 @@ public class UserIntegrationTest extends IntegrationTest {
       @DisplayName("자신의 계정을 삭제하려고 하면 Self Delete Error가 발생하고 400 코드를 반환한다.")
       void selfDelete() throws Exception {
         // given
-        Role role = roleRepository.findByRoleName(roleName).orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName("ROLE_ADMIN").orElseThrow(RoleNotFoundException::new);
         User user = User.builder().username(username).password(password).role(role).build();
-        userRepository.save(user);
+
         CustomUserDetailsDTO userDetail = new CustomUserDetailsDTO(user);
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(new UsernamePasswordAuthenticationToken(userDetail.getUsername(), userDetail.getPassword(), userDetail.getAuthorities()));
+        userRepository.save(user);
 
         // when
         ResultActions actions = getResultActions(url(id), HttpMethod.DELETE);
