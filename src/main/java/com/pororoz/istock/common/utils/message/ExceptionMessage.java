@@ -25,6 +25,7 @@ public class ExceptionMessage {
   public static final String DUPLICATE_BOM = "location_number, product_id, part_id의 조합이 중복됩니다.";
   public static final String BOM_NOT_FOUND = "존재하지 않는 BOM입니다.";
   public static final String SELF_DEMOTE_ROLE = "본인의 권한을 강등시킬 수 없습니다.";
+  public static final String SELF_DELETE_ACCOUNT = "본인의 계정을 삭제 할 수 없습니다.";
 
   private ExceptionMessage() {
   }

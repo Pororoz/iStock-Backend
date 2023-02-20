@@ -15,6 +15,7 @@ public class ExceptionStatus {
   public static final String DUPLICATE_BOM = "DUPLICATE_BOM_COMBINATION";
   public static final String BOM_NOT_FOUND = "BOM_NOT_FOUND";
   public static final String SELF_DEMOTE_ROLE = "SELF_DEMOTE_ROLE";
+  public static final String SELF_DELETE_ACCOUNT = "SELF_DELETE_ACCOUNT";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";

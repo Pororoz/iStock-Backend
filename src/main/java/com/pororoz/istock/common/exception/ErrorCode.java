@@ -31,7 +31,9 @@ public enum ErrorCode {
   BOM_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.BOM_NOT_FOUND,
       ExceptionMessage.BOM_NOT_FOUND),
   SELF_DEMOTE_ROLE(HttpStatus.BAD_REQUEST, ExceptionStatus.SELF_DEMOTE_ROLE,
-      ExceptionMessage.SELF_DEMOTE_ROLE)
+      ExceptionMessage.SELF_DEMOTE_ROLE),
+  SELF_DELETE_ACCOUNT(HttpStatus.BAD_REQUEST, ExceptionStatus.SELF_DELETE_ACCOUNT,
+      ExceptionMessage.SELF_DELETE_ACCOUNT)
   ;
 
   private final HttpStatus statusCode;
