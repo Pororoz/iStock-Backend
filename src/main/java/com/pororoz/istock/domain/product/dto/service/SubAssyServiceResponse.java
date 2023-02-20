@@ -1,8 +1,7 @@
 package com.pororoz.istock.domain.product.dto.service;
 
-import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.product.dto.response.SubAssyResponse;
-import java.time.LocalDateTime;
+import com.pororoz.istock.domain.product.entity.Product;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,34 +9,22 @@ import lombok.Getter;
 @Builder
 public class SubAssyServiceResponse {
 
-  private Long partId;
-  private String partName;
-  private String spec;
-  private long price;
-  private long stock;
   private long quantity;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  ProductServiceResponse productServiceResponse;
 
-  public static SubAssyServiceResponse of(Part part, long quantity) {
+  public static SubAssyServiceResponse of(Product product, long quantity) {
     return SubAssyServiceResponse.builder()
-        .partId(part.getId())
-        .partName(part.getPartName())
-        .spec(part.getSpec())
-        .price(part.getPrice())
-        .stock(part.getStock())
+        .productServiceResponse(ProductServiceResponse.of(product))
         .quantity(quantity)
-        .createdAt(part.getCreatedAt())
-        .updatedAt(part.getUpdatedAt())
         .build();
   }
 
   public SubAssyResponse toResponse() {
     return SubAssyResponse.builder()
-        .partId(partId)
-        .partName(partName)
-        .spec(spec)
-        .stock(stock)
+        .productId(productServiceResponse.getProductId())
+        .productName(productServiceResponse.getProductName())
+        .productNumber(productServiceResponse.getProductNumber())
+        .stock(productServiceResponse.getStock())
         .quantity(quantity)
         .build();
   }

@@ -1,6 +1,5 @@
 package com.pororoz.istock.domain.part.dto.service;
 
-import com.pororoz.istock.domain.part.entity.Part;
 import lombok.Builder;
 import lombok.Getter;
 

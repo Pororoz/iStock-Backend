@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(
     uniqueConstraints =
-    @UniqueConstraint(columnNames = {"partName", "spec"})
+    @UniqueConstraint(columnNames = {"part_name", "spec"})
 )
 public class Part extends TimeEntity {
 
@@ -34,10 +34,12 @@ public class Part extends TimeEntity {
 
   @NotNull
   @Size(max = 100)
+  @Column(name = "part_name", columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin")
   private String partName;
 
   @NotNull
-  @Size(max = 255)
+  @Size(max = 100)
+  @Column(columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin")
   private String spec;
 
   @NotNull

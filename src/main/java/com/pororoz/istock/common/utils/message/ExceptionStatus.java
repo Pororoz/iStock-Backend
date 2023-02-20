@@ -14,7 +14,12 @@ public class ExceptionStatus {
   public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
   public static final String DUPLICATE_BOM = "DUPLICATE_BOM_COMBINATION";
   public static final String BOM_NOT_FOUND = "BOM_NOT_FOUND";
+  public static final String INVALID_SUB_ASSY_BOM = "INVALID_SUB_ASSY_BOM";
+  public static final String INVALID_PRODUCT_BOM = "INVALID_PRODUCT_BOM";
+  public static final String SUB_ASSY_BOM_EXIST = "SUB_ASSY_BOM_EXIST";
+  public static final String REGISTERED_AS_SUB_ASSY = "REGISTERED_BY_SUB_ASSY";
   public static final String SELF_DEMOTE_ROLE = "SELF_DEMOTE_ROLE";
+  public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";

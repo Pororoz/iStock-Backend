@@ -8,15 +8,14 @@ import lombok.Getter;
 @Builder
 public class SubAssyResponse {
 
-  @Schema(description = "part 아이디", example = "1")
-  private Long partId;
+  @Schema(description = "제품 아이디", example = "1")
+  private Long productId;
 
   @Schema(description = "품명", example = "BEAD")
-  private String partName;
+  private String productName;
 
-  @Schema(description = "규격", example = "BID/3216")
-
-  private String spec;
+  @Schema(description = "품번", example = "BEAD")
+  private String productNumber;
 
   @Schema(description = "재고", example = "5")
   private long stock;

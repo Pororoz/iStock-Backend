@@ -38,9 +38,10 @@ public class Bom extends TimeEntity {
   private Long id;
 
   @NotNull
-  @Size(max = 200)
+  @Size(max = 100)
   @Builder.Default
-  @Column(name = "location_number", columnDefinition = "varchar(200) default '0'")
+  @Column(name = "location_number",
+      columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT '0'")
   private String locationNumber = "0";
 
   @Size(max = 20)
@@ -53,10 +54,13 @@ public class Bom extends TimeEntity {
   @Column(columnDefinition = "INT(11) UNSIGNED default 0")
   private long quantity = 0;
 
+  @Size(max = 100)
+  @Column(columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin")
+  private String productNumber;
+
   @Size(max = 50)
   private String memo;
 
-  @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Part part;
 
@@ -67,6 +71,7 @@ public class Bom extends TimeEntity {
 
   public void update(Part part, Product product, UpdateBomServiceRequest request) {
     this.locationNumber = request.getLocationNumber();
+    this.productNumber = request.getProductNumber();
     this.codeNumber = request.getCodeNumber();
     this.quantity = request.getQuantity();
     this.memo = request.getMemo();

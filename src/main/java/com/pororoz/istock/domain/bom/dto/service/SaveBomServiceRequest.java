@@ -14,6 +14,7 @@ public class SaveBomServiceRequest {
   private String codeNumber;
   private Long quantity;
   private String memo;
+  private String productNumber;
   private Long partId;
   private Long productId;
 
@@ -23,6 +24,7 @@ public class SaveBomServiceRequest {
         .codeNumber(codeNumber)
         .quantity(quantity)
         .memo(memo)
+        .productNumber(productNumber)
         .part(part)
         .product(product)
         .build();

@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -11,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.common.utils.Pagination;
 import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
@@ -24,6 +27,9 @@ import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
+import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
+import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
+import com.pororoz.istock.domain.product.exception.SubAssyNotFoundByProductNameException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +51,9 @@ class ProductServiceTest {
 
   @InjectMocks
   ProductService productService;
+
+  @Mock
+  BomRepository bomRepository;
 
   @Mock
   ProductRepository productRepository;
@@ -138,22 +147,24 @@ class ProductServiceTest {
   @DisplayName("product 수정")
   class UpdateProduct {
 
+    Category newCategory = Category.builder()
+        .id(categoryId + 1).categoryName("new category")
+        .build();
+
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
+
 
       @Test
       @DisplayName("product를 수정한다.")
       void updateProduct() {
         //given
-        Category newCategory = Category.builder()
-            .id(categoryId + 1).categoryName("new category")
-            .build();
         UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
             .productId(id).productNumber("new pnumber")
             .productName("new pname").codeNumber("new cnumber")
             .stock(stock + 1).companyName("new cname")
-            .categoryId(categoryId + 1)
+            .categoryId(newCategory.getId())
             .build();
         ProductServiceResponse response = ProductServiceResponse.builder()
             .productId(id).productNumber("new pnumber")
@@ -165,6 +176,103 @@ class ProductServiceTest {
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
         when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
+        when(productRepository.findByProductNumber(anyString())).thenReturn(Optional.empty());
+        doNothing().when(bomRepository).updateProductNumber(anyString(), anyString());
+
+        ProductServiceResponse result = productService.updateProduct(request);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+
+      @Test
+      @DisplayName("완성품을 sub asssay로 수정한다.")
+      void changeToSubAssy() {
+        //given
+        Bom bom = Bom.builder().codeNumber("not sub assy").build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("11")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+        ProductServiceResponse response = ProductServiceResponse.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("11")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(bomRepository.findByProductId(id)).thenReturn(List.of(bom));
+        when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
+        when(productRepository.findByProductNumber(anyString())).thenReturn(Optional.empty());
+        doNothing().when(bomRepository).updateProductNumber(anyString(), anyString());
+
+        ProductServiceResponse result = productService.updateProduct(request);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+
+      @Test
+      @DisplayName("Sub assy를 완성품으로 수정한다.")
+      void changeToProduct() {
+        //given
+        Product subAssy = Product.builder()
+            .id(id).productName(productName)
+            .productNumber(productNumber).codeNumber("11")
+            .stock(stock).companyName(companyName)
+            .category(category)
+            .build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+        ProductServiceResponse response = ProductServiceResponse.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(subAssy));
+        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(false);
+        when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
+        when(productRepository.findByProductNumber(anyString())).thenReturn(Optional.empty());
+        doNothing().when(bomRepository).updateProductNumber(anyString(), anyString());
+
+        ProductServiceResponse result = productService.updateProduct(request);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+
+      @Test
+      @DisplayName("product number의 변경이 없다.")
+      void notChangeProductNumber() {
+        //given
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber(productNumber)
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+        ProductServiceResponse response = ProductServiceResponse.builder()
+            .productId(id).productNumber(productNumber)
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
+
         ProductServiceResponse result = productService.updateProduct(request);
 
         //then
@@ -231,6 +339,53 @@ class ProductServiceTest {
         //then
         assertThrows(CategoryNotFoundException.class, () -> productService.updateProduct(request));
       }
+
+      @Test
+      @DisplayName("완성품을 sub assy로 수정하는데, 해당 bom에 sub assy가 존재하면 예외가 발생한다.")
+      void changeToSubAssyThenSubAssyBomExist() {
+        //given
+        Bom bom = Bom.builder().codeNumber("not sub assy").build();
+        Bom subAssybom = Bom.builder().codeNumber("11").build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("11")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(bomRepository.findByProductId(id)).thenReturn(List.of(bom, subAssybom));
+
+        //then
+        assertThrows(SubAssyBomExistException.class, () -> productService.updateProduct(request));
+      }
+
+      @Test
+      @DisplayName("Sub assy를 완성품으로 수정하는데, bom에 해당 제품이 있으면 예외가 발생한다.")
+      void changeToProductThenProductBomExist() {
+        //given
+        Product subAssy = Product.builder()
+            .id(id).productName(productName)
+            .productNumber(productNumber).codeNumber("11")
+            .stock(stock).companyName(companyName)
+            .category(category)
+            .build();
+        UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
+            .productId(id).productNumber("new pnumber")
+            .productName("new pname").codeNumber("new cnumber")
+            .stock(stock + 1).companyName("new cname")
+            .categoryId(newCategory.getId())
+            .build();
+
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(subAssy));
+        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(true);
+
+        //then
+        assertThrows(RegisteredAsSubAssyException.class,
+            () -> productService.updateProduct(request));
+      }
     }
   }
 
@@ -248,6 +403,7 @@ class ProductServiceTest {
         //given
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(false);
         doNothing().when(productRepository).delete(product);
 
         //then
@@ -273,7 +429,19 @@ class ProductServiceTest {
         when(productRepository.findById(any())).thenReturn(Optional.empty());
 
         //then
-        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(1L));
+        assertThrows(ProductNotFoundException.class, () -> productService.deleteProduct(id));
+      }
+
+      @Test
+      @DisplayName("삭제하려는 sub assy가 다른 제품의 bom으로 등록되어 있다면 삭제할 수 없다.")
+      void deleteSubAssy() {
+        //given
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(true);
+
+        //then
+        assertThrows(RegisteredAsSubAssyException.class, () -> productService.deleteProduct(id));
       }
     }
   }
@@ -282,8 +450,18 @@ class ProductServiceTest {
   @DisplayName("product 조회")
   class FindProducts {
 
+    Category subCategory = Category.builder().id(10L).build();
     Part part = Part.builder().build();
-    Bom assyBom = Bom.builder().codeNumber("11").part(part).build();
+    Product subAssy1 = Product.builder().productNumber("assy1").codeNumber("11")
+        .category(subCategory).build();
+    Product subAssy2 = Product.builder().productNumber("assy2").codeNumber("11")
+        .category(subCategory).build();
+    Bom assyBom1 = Bom.builder()
+        .locationNumber("assy1").quantity(1).productNumber("assy1")
+        .codeNumber("11").part(part).build();
+    Bom assyBom2 = Bom.builder()
+        .locationNumber("assy2").quantity(2).productNumber("assy2")
+        .codeNumber("11").part(part).build();
     Bom otherBom = Bom.builder().codeNumber("0").part(part).build();
 
     @Nested
@@ -306,21 +484,30 @@ class ProductServiceTest {
         List<Product> products = new ArrayList<>();
         for (int i = 0; i < size; i++) {
           Product product = Product.builder().id((long) i).category(category).build();
-          product.setBoms(List.of(assyBom, otherBom));
+          product.setBoms(List.of(assyBom1, assyBom2, otherBom));
           products.add(product);
         }
         PageImpl<Product> productPage = new PageImpl<>(products, PageRequest.of(page, size), total);
 
         //when
         //category 조회 -> categoryId, productName, page, size로 product 조회
-        // -> 각 product의 bom 조회(bom의 codeNumber가 11) -> bom의 part 조회
+        // -> 각 product의 bom 조회(bom의 codeNumber가 11)
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findProductsWithParts(any(Pageable.class), eq(categoryId)))
+        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
+        when(productRepository.findByProductNumbers(anySet())).thenReturn(
+            List.of(subAssy1, subAssy2));
         Page<FindProductServiceResponse> result = productService.findProducts(request);
 
         //then
-        SubAssyServiceResponse subAssyResponse = SubAssyServiceResponse.builder().build();
+        SubAssyServiceResponse subAssyResponse1 = SubAssyServiceResponse.builder()
+            .productServiceResponse(ProductServiceResponse.of(subAssy1))
+            .quantity(1)
+            .build();
+        SubAssyServiceResponse subAssyResponse2 = SubAssyServiceResponse.builder()
+            .productServiceResponse(ProductServiceResponse.of(subAssy2))
+            .quantity(2)
+            .build();
 
         assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
         assertThat(result.getTotalElements()).isEqualTo(10);
@@ -328,9 +515,11 @@ class ProductServiceTest {
         for (FindProductServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
-          assertThat(findResponse.getSubAssyServiceResponses().size()).isEqualTo(1);
-          assertThat(findResponse.getSubAssyServiceResponses().get(0))
-              .usingRecursiveComparison().isEqualTo(subAssyResponse);
+          assertThat(findResponse.getSubAssyServiceResponses()).hasSize(2);
+          assertThat(findResponse.getSubAssyServiceResponses())
+              .usingRecursiveComparison()
+              .ignoringCollectionOrder()
+              .isEqualTo(List.of(subAssyResponse1, subAssyResponse2));
         }
       }
 
@@ -348,28 +537,26 @@ class ProductServiceTest {
         List<Product> products = new ArrayList<>();
         for (int i = 0; i < total; i++) {
           Product product = Product.builder().id((long) i).category(category).build();
-          product.setBoms(List.of(assyBom, otherBom));
+          product.setBoms(List.of(otherBom));
           products.add(product);
         }
 
         //when
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findProductsWithParts(categoryId))
+        when(productRepository.findByCategoryIdWithBoms(categoryId))
             .thenReturn(products);
+        when(productRepository.findByProductNumbers(anySet())).thenReturn(List.of());
         Page<FindProductServiceResponse> result = productService.findProducts(request);
 
         //then
-        SubAssyServiceResponse subAssyResponse = SubAssyServiceResponse.builder().build();
-
         assertThat(result.getTotalPages()).isEqualTo(1);
         assertThat(result.getTotalElements()).isEqualTo(total);
         long i = 0;
         for (FindProductServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
-          assertThat(findResponse.getSubAssyServiceResponses().size()).isEqualTo(1);
-          assertThat(findResponse.getSubAssyServiceResponses().get(0))
-              .usingRecursiveComparison().isEqualTo(subAssyResponse);
+          // sub assy는 없다.
+          assertThat(findResponse.getSubAssyServiceResponses()).hasSize(0);
         }
       }
 
@@ -395,7 +582,7 @@ class ProductServiceTest {
 
         //when
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findProductsWithParts(any(Pageable.class), eq(categoryId)))
+        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
         Page<FindProductServiceResponse> result = productService.findProducts(request);
 
@@ -426,6 +613,39 @@ class ProductServiceTest {
 
         //then
         assertThrows(CategoryNotFoundException.class, () -> productService.findProducts(request));
+      }
+
+      @Test
+      @DisplayName("Sub assy 목록에 bom의 productNumber와 일치하는 product가 없다.")
+      void subAssyNotFoundByProductName() {
+        //given
+        int page = 0;
+        int size = 3;
+        long total = 10;
+
+        FindProductServiceRequest request = FindProductServiceRequest.builder()
+            .categoryId(categoryId)
+            .page(page).size(size)
+            .build();
+
+        List<Product> products = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+          Product product = Product.builder().id((long) i).category(category).build();
+          product.setBoms(List.of(assyBom1, assyBom2, otherBom));
+          products.add(product);
+        }
+        PageImpl<Product> productPage = new PageImpl<>(products, PageRequest.of(page, size), total);
+
+        //when
+        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
+        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
+            .thenReturn(productPage);
+        when(productRepository.findByProductNumbers(anySet())).thenReturn(
+            List.of(subAssy1));
+
+        //then
+        assertThrows(SubAssyNotFoundByProductNameException.class,
+            () -> productService.findProducts(request));
       }
     }
   }
