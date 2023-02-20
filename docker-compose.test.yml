@@ -4,7 +4,6 @@ services:
   test-db:
     container_name: test-db
     image: mysql:8.0
-    platform: linux/x86_64
     restart: always
     ports:
       - "3399:3306"
@@ -22,7 +21,6 @@ services:
   test-redis:
     container_name: test-redis
     image: redis
-    platform: linux/x86_64
     restart: always
     ports:
       - "6399:6379"

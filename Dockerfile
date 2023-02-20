@@ -1,4 +1,4 @@
-FROM openjdk:17-alpine
+FROM --platform=linux/arm64 openjdk:17
 
 WORKDIR /usr/src/app
 
