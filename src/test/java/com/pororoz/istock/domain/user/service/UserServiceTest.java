@@ -18,6 +18,7 @@ import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
+import com.pororoz.istock.domain.user.exception.SelfDeleteAccountException;
 import com.pororoz.istock.domain.user.exception.SelfDemoteRoleException;
 import com.pororoz.istock.domain.user.exception.UserNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
@@ -205,6 +206,8 @@ class UserServiceTest {
     private String password;
     private String roleName;
     private Role role;
+    private User admin;
+    private final Role roleAdmin = Role.builder().roleName("ROLE_ADMIN").build();
 
     @BeforeEach
     void setup() {
@@ -213,6 +216,11 @@ class UserServiceTest {
       password = "1234";
       role = Role.builder().roleName("ROLE_ADMIN").build();
       roleName = "ROLE_ADMIN";
+
+      admin = User.builder().id(2L).username("admin").password("admin").role(roleAdmin).build();
+      CustomUserDetailsDTO user = new CustomUserDetailsDTO(admin);
+      SecurityContext context = SecurityContextHolder.getContext();
+      context.setAuthentication(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities()));
     }
 
     @Nested
@@ -265,6 +273,22 @@ class UserServiceTest {
 
         // then
         assertThrows(UserNotFoundException.class,
+            () -> userService.deleteUser(deleteUserServiceRequest));
+      }
+
+      @Test
+      @DisplayName("본인의 ID로 요청했을 때 SelfDeleteAccountException을 반환한다.")
+      void selfDeleteAccount() {
+        //given
+        DeleteUserServiceRequest deleteUserServiceRequest = DeleteUserServiceRequest.builder()
+            .userId(2L)
+            .build();
+
+        // when
+        when(userRepository.findById(2L)).thenReturn(Optional.of(admin));
+
+        // then
+        assertThrows(SelfDeleteAccountException.class,
             () -> userService.deleteUser(deleteUserServiceRequest));
       }
     }
