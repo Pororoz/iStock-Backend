@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  spring1:
+    container_name: spring1
+    restart: always
+    image: 'ghcr.io/pororoz/istock-backend-dev:latest'
+    environment:
+      SERVER_MODE: spring1,dev
+      MYSQL_USERNAME: "${MYSQL_USERNAME}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    ports:
+      - "8081:8080"
+    depends_on:
+      - mysql
+      - redis
+
+  spring2:
+    container_name: spring2
+    restart: always
+    image: 'ghcr.io/pororoz/istock-backend-dev:latest'
+    environment:
+      SERVER_MODE: spring2,dev
+      MYSQL_USERNAME: "${MYSQL_USERNAME}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    ports:
+      - "8082:8080"
+    depends_on:
+      - mysql
+      - redis
+
+  nginx:
+    container_name: nginx
+    image: nginx
+    restart: always
+    ports:
+      - "80:80/tcp"
+      - "443:443"
+    volumes:
+      - ~/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ~/nginx/conf.d/application.conf:/etc/nginx/conf.d/application.conf
+      - ~/nginx/conf.d/service-url.inc:/etc/nginx/conf.d/service-url.inc
+    environment:
+      - TZ=Asia/Seoul
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: istock
+      MYSQL_USER: "${MYSQL_USERNAME}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+    volumes:
+      - ~/istock-volume/mysql:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
