@@ -54,6 +54,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      # image 이름 붙여넣기
+      - name: Set ${{ env.DOCKER_COMPOSE_FILE }}
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ./${{ env.DOCKER_COMPOSE_FILE }}
+        env:
+          services.spring1.image: ghcr.io/${{ env.ORGANIZATION }}/${{ env.REPOSITORY }}:latest
+          services.spring2.image: ghcr.io/${{ env.ORGANIZATION }}/${{ env.REPOSITORY }}:latest
+
       - name: Make .env
         run: printf "MYSQL_USERNAME=${{ secrets.MYSQL_USERNAME }}\nMYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}\nMYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}" >> .env
 
