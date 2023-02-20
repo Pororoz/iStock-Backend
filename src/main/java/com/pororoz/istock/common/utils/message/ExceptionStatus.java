@@ -19,6 +19,7 @@ public class ExceptionStatus {
   public static final String SUB_ASSY_BOM_EXIST = "SUB_ASSY_BOM_EXIST";
   public static final String REGISTERED_AS_SUB_ASSY = "REGISTERED_BY_SUB_ASSY";
   public static final String SELF_DEMOTE_ROLE = "SELF_DEMOTE_ROLE";
+  public static final String SELF_DELETE_ACCOUNT = "SELF_DELETE_ACCOUNT";
   public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME";
 
   // Uncontrolled Range
