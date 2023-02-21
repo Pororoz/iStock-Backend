@@ -1,4 +1,4 @@
-package com.pororoz.istock.domain.product.dto;
+package com.pororoz.istock.domain.bom.dto.service;
 
 import com.pororoz.istock.domain.part.entity.Part;
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BomWithPartDto {
+public class FindBomServiceResponse {
 
   private Long bomId;
   private String locationNumber;
