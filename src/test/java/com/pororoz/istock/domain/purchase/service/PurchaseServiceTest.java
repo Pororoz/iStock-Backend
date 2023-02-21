@@ -1,7 +1,9 @@
 package com.pororoz.istock.domain.purchase.service;
 
-import static org.assertj.core.api.FactoryBasedNavigableListAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -14,7 +16,7 @@ import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseBulkServiceRequest;
-import com.pororoz.istock.domain.purchase.dto.service.PurchaseServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseBulkServiceResponse;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -47,14 +49,14 @@ public class PurchaseServiceTest {
     Long productId = 1L;
     Long partId = 1L;
     Long bomId = 1L;
+    Long partIoId = 1L;
     String locationNumber = "L5.L4";
     String codeNumber = "";
-    Long quantity = 3L;
+    long quantity = 3L;
     String memo = "";
     long amount = 100L;
-    Long partIoId = 1L;
 
-    PartStatus status = PartStatus.valueOf("구매 대기");
+    PartStatus status = PartStatus.구매대기;
 
     @Nested
     @DisplayName("성공 케이스")
@@ -63,15 +65,16 @@ public class PurchaseServiceTest {
       @Test
       @DisplayName("입력받은 Product에 포함된 Part에 대한 구매 대기 상태가 Part I/O에 추가된다.")
       void purchaseBulk() {
-        //given
+        // given
         PurchaseBulkServiceRequest request = PurchaseBulkServiceRequest.builder()
             .productId(productId)
             .amount(amount)
             .build();
-        PurchaseServiceResponse response = PurchaseServiceResponse.builder()
+        PurchaseBulkServiceResponse response = PurchaseBulkServiceResponse.builder()
             .productId(productId)
             .amount(amount)
             .build();
+
         Part part = Part.builder().id(partId).build();
         Product product = Product.builder().id(productId).build();
         Bom bom = Bom.builder()
@@ -85,7 +88,7 @@ public class PurchaseServiceTest {
             .build();
         PartIo partIo = PartIo.builder()
             .id(partIoId)
-            .quantity(quantity)
+            .quantity(amount)
             .status(status)
             .part(part)
             .build();
@@ -95,9 +98,9 @@ public class PurchaseServiceTest {
         when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
         when(partRepository.findById(any())).thenReturn(Optional.of(part));
         when(partIoRepository.save(any())).thenReturn(partIo);
-        PurchaseServiceResponse result = purchaseService.purchaseBulk(request);
+        PurchaseBulkServiceResponse result = purchaseService.purchaseBulk(request);
 
-        //then
+        // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
