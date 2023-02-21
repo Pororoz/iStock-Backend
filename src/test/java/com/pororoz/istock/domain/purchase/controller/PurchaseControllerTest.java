@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
+import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
@@ -54,10 +56,10 @@ public class PurchaseControllerTest extends ControllerTest {
             .productId(productId)
             .amount(amount)
             .build();
-        PurchaseProductResponse response = PurchaseProductService.builder()
+        PurchaseProductResponse response = PurchaseProductResponse.builder()
             .productId(productId)
             .amount(amount)
-            .buid();
+            .build();
 
         // when
         when(purchaseService.purchaseProduct(any(PurchaseProductServiceRequest.class))).thenReturn(serviceDto);
