@@ -11,14 +11,12 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.pororoz.istock.common.utils.Pagination;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.part.entity.Part;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
@@ -476,11 +474,6 @@ class ProductServiceTest {
         int size = 3;
         long total = 10;
 
-        FindProductServiceRequest request = FindProductServiceRequest.builder()
-            .categoryId(categoryId)
-            .page(page).size(size)
-            .build();
-
         List<Product> products = new ArrayList<>();
         for (int i = 0; i < size; i++) {
           Product product = Product.builder().id((long) i).category(category).build();
@@ -497,7 +490,8 @@ class ProductServiceTest {
             .thenReturn(productPage);
         when(productRepository.findByProductNumbers(anySet())).thenReturn(
             List.of(subAssy1, subAssy2));
-        Page<FindProductServiceResponse> result = productService.findProducts(request);
+        Page<FindProductServiceResponse> result =
+            productService.findProducts(categoryId, PageRequest.of(page, size));
 
         //then
         SubAssyServiceResponse subAssyResponse1 = SubAssyServiceResponse.builder()
@@ -522,42 +516,6 @@ class ProductServiceTest {
               .isEqualTo(List.of(subAssyResponse1, subAssyResponse2));
         }
       }
-
-      @Test
-      @DisplayName("page만 null이면 default 값으로 product를 페이지네이션하여 조회한다.")
-      void findProductWithPageNull() {
-        //given
-        int size = 3;
-        long total = 10;
-
-        FindProductServiceRequest request = FindProductServiceRequest.builder()
-            .categoryId(categoryId)
-            .page(null).size(size)
-            .build();
-
-        List<Product> products = new ArrayList<>();
-        for (int i = 0; i < total; i++) {
-          Product product = Product.builder().id((long) i).category(category).build();
-          products.add(product);
-        }
-        PageImpl<Product> productPage = new PageImpl<>(products,
-            PageRequest.of(Pagination.DEFAULT_PAGE, size), total);
-
-        //when
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
-            .thenReturn(productPage);
-        Page<FindProductServiceResponse> result = productService.findProducts(request);
-
-        //then
-        assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
-        assertThat(result.getTotalElements()).isEqualTo(total);
-        long i = 0;
-        for (FindProductServiceResponse findResponse : result.getContent()) {
-          ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
-          assertThat(productResponse.getProductId()).isEqualTo(i++);
-        }
-      }
     }
 
     @Nested
@@ -568,14 +526,14 @@ class ProductServiceTest {
       @DisplayName("categoryId에 해당하는 category가 없으면 예외가 발생한다.")
       void categoryNotFound() {
         //given
-        FindProductServiceRequest request = FindProductServiceRequest.builder()
-            .categoryId(1L).size(10).page(1)
-            .build();
+        PageRequest pageRequest = PageRequest.of(1, 10);
+
         //when
-        when(categoryRepository.findById(1L)).thenThrow(CategoryNotFoundException.class);
+        when(categoryRepository.findById(categoryId)).thenThrow(CategoryNotFoundException.class);
 
         //then
-        assertThrows(CategoryNotFoundException.class, () -> productService.findProducts(request));
+        assertThrows(CategoryNotFoundException.class,
+            () -> productService.findProducts(categoryId, pageRequest));
       }
 
       @Test
@@ -585,11 +543,6 @@ class ProductServiceTest {
         int page = 0;
         int size = 3;
         long total = 10;
-
-        FindProductServiceRequest request = FindProductServiceRequest.builder()
-            .categoryId(categoryId)
-            .page(page).size(size)
-            .build();
 
         List<Product> products = new ArrayList<>();
         for (int i = 0; i < size; i++) {
@@ -608,7 +561,7 @@ class ProductServiceTest {
 
         //then
         assertThrows(SubAssyNotFoundByProductNameException.class,
-            () -> productService.findProducts(request));
+            () -> productService.findProducts(categoryId, PageRequest.of(page, size)));
       }
     }
   }
