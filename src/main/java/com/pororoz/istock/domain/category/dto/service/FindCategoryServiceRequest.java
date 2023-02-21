@@ -8,8 +8,4 @@ import lombok.Getter;
 public class FindCategoryServiceRequest {
 
   private String categoryName;
-
-  private Integer page;
-
-  private Integer size;
 }

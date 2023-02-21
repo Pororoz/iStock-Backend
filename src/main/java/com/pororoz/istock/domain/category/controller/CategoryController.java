@@ -34,6 +34,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -64,8 +65,9 @@ public class CategoryController {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))})})
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<FindCategoryResponse>>> findCategories(
-      @Valid @ModelAttribute("request") FindCategoryRequest request) {
-    Page<FindCategoryResponse> categoryPage = categoryService.findCategories(request.toService())
+      @Valid @ModelAttribute("request") FindCategoryRequest request, Pageable pageable) {
+    Page<FindCategoryResponse> categoryPage = categoryService.findCategories(request.toService(),
+            pageable)
         .map(FindCategoryServiceResponse::toResponse);
     PageResponse<FindCategoryResponse> response = new PageResponse<>(categoryPage);
     return ResponseEntity.ok(new ResultDTO<>(ResponseStatus.OK, "", response));

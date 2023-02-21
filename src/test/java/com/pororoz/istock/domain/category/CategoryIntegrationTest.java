@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
-import com.pororoz.istock.common.utils.Pagination;
+import com.pororoz.istock.common.configuration.CustomPageableArgumentResolver;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
@@ -198,7 +198,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         // given
         int itemCount = 4;
         String name = "item";
-        int defaultSize = Pagination.DEFAULT_SIZE;
+        int defaultSize = CustomPageableArgumentResolver.DEFAULT_SIZE;
         params.add("categoryName", name);
 
         // when
@@ -224,7 +224,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
       void findCategoriesWithNull() throws Exception {
         // given
         int itemCount = 7;
-        int defaultSize = Pagination.DEFAULT_SIZE;
+        int defaultSize = CustomPageableArgumentResolver.DEFAULT_SIZE;
 
         // when
         ResultActions actions = getResultActions(url, HttpMethod.GET, params);
@@ -266,7 +266,8 @@ public class CategoryIntegrationTest extends IntegrationTest {
         // then
         actions.andExpect(status().isBadRequest())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.INVALID_PAGE_REQUEST))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_PAGE_REQUEST))
             .andDo(print());
       }
 

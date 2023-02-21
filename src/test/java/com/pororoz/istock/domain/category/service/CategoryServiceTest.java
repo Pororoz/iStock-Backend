@@ -1,7 +1,6 @@
 package com.pororoz.istock.domain.category.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -68,9 +67,9 @@ class CategoryServiceTest {
         int size = 2;
         int page = 3;
         String name = "item";
-
+        Pageable pageable = PageRequest.of(page, size);
         FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
-            .categoryName(name).page(page).size(size).build();
+            .categoryName(name).build();
         PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(page, size),
             totalCategories);
         List<FindCategoryServiceResponse> findCategoryServiceRespons = makeCategoryServiceResponses(
@@ -79,7 +78,7 @@ class CategoryServiceTest {
         // when
         when(categoryRepository.findAllByCategoryNameContaining(any(), any())).thenReturn(pages);
         Page<FindCategoryServiceResponse> result = categoryService.findCategories(
-            getCategoryServiceRequest);
+            getCategoryServiceRequest, pageable);
 
         // then
         assertThat(result.getTotalElements()).isEqualTo(totalCategories);
@@ -98,18 +97,18 @@ class CategoryServiceTest {
         totalCategories = 2L;
         int size = 2;
         int page = 0;
-
-        FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
-            .categoryName(null).page(page).size(size).build();
+        Pageable pageable = PageRequest.of(page, size);
+        FindCategoryServiceRequest categoryServiceRequest = FindCategoryServiceRequest.builder()
+            .categoryName(null).build();
         List<FindCategoryServiceResponse> findCategoryServiceResponses = makeCategoryServiceResponses(
             categories);
-        PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(0, 20),
+        PageImpl<Category> pages = new PageImpl<>(categories, pageable,
             totalCategories);
 
         // when
         when(categoryRepository.findAll(any(Pageable.class))).thenReturn(pages);
         Page<FindCategoryServiceResponse> result = categoryService.findCategories(
-            getCategoryServiceRequest);
+            categoryServiceRequest, pageable);
 
         // then
         assertThat(result.getTotalElements()).isEqualTo(totalCategories);
@@ -121,175 +120,127 @@ class CategoryServiceTest {
             .isEqualTo(findCategoryServiceResponses.get(1));
       }
 
-      @Test
-      @DisplayName("page와 size가 null이고 이름만 검색할 경우 이름값에 해당하는 전체 값을 준다.")
-      void getCategoryWithOnlyName() {
-        // given
-        String name = "item";
+      @Nested
+      @DisplayName("실패 케이스")
+      class FailCase {
 
-        FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
-            .categoryName(name).page(null).size(null).build();
-        List<FindCategoryServiceResponse> findCategoryServiceResponses = makeCategoryServiceResponses(
-            categories);
-        PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(0, 20),
-            totalCategories);
-
-        // when
-        when(categoryRepository.findAllByCategoryNameContaining(any(String.class),
-            any(Pageable.class))).thenReturn(pages);
-        Page<FindCategoryServiceResponse> result = categoryService.findCategories(
-            getCategoryServiceRequest);
-
-        // then
-        assertThat(result.getContent()).usingRecursiveComparison()
-            .isEqualTo(findCategoryServiceResponses);
-        assertEquals(result.getTotalElements(), result.getNumberOfElements());
-        assertEquals(result.getTotalPages(), 1);
       }
 
-      @Test
-      @DisplayName("page와 size가 null이면 default page설정(page=0, size=20)으로 전체를 조회한다.")
-      void getCategoryWithNull() {
-        // given
-        FindCategoryServiceRequest getCategoryServiceRequest = FindCategoryServiceRequest.builder()
-            .categoryName(null).page(null).size(null).build();
-        List<FindCategoryServiceResponse> findCategoryServiceResponses = makeCategoryServiceResponses(
-            categories);
-        PageImpl<Category> pages = new PageImpl<>(categories, PageRequest.of(0, 20),
-            totalCategories);
-
-        // when
-        when(categoryRepository.findAll(any(Pageable.class))).thenReturn(pages);
-        Page<FindCategoryServiceResponse> result = categoryService.findCategories(
-            getCategoryServiceRequest);
-
-        // then
-        assertThat(result.getContent()).usingRecursiveComparison()
-            .isEqualTo(findCategoryServiceResponses);
-        assertEquals(result.getTotalElements(), result.getNumberOfElements());
-        assertEquals(result.getTotalPages(), 1);
+      private List<FindCategoryServiceResponse> makeCategoryServiceResponses(
+          List<Category> categories) {
+        return categories.stream().map(
+            category -> FindCategoryServiceResponse.builder().categoryId(category.getId())
+                .categoryName(category.getCategoryName()).createdAt(category.getCreatedAt())
+                .updatedAt(category.getUpdatedAt()).build()).toList();
       }
     }
 
     @Nested
-    @DisplayName("실패 케이스")
-    class FailCase {
+    @DisplayName("카테고리 수정")
+    class CategoryUpdate {
+
+      String oldName = "이전이름";
+      String newName = "새이름";
+      Long id = 1L;
+
+      @Test
+      @DisplayName("저장된 카테고리 이름을 수정한다.")
+      void updateCategory() {
+        //given
+        Category category = Category.builder().id(id).categoryName(oldName).build();
+        UpdateCategoryServiceRequest request = UpdateCategoryServiceRequest.builder().categoryId(1L)
+            .categoryName(newName).build();
+        //when
+        when(categoryRepository.findById(id)).thenReturn(Optional.of(category));
+        CategoryServiceResponse response = categoryService.updateCategory(request);
+
+        //then
+        assertThat(response.getCategoryId()).isEqualTo(id);
+        assertThat(response.getCategoryName()).isEqualTo(newName);
+      }
+
+      @Test
+      @DisplayName("존재하지 않는 ID의 카테고리는 예외가 발생한다.")
+      void throwNotFoundCategoryId() {
+        //given
+        UpdateCategoryServiceRequest request = UpdateCategoryServiceRequest.builder().categoryId(1L)
+            .categoryName(newName).build();
+
+        //when
+        when(categoryRepository.findById(id)).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(CategoryNotFoundException.class,
+            () -> categoryService.updateCategory(request));
+      }
+
 
     }
 
-    private List<FindCategoryServiceResponse> makeCategoryServiceResponses(
-        List<Category> categories) {
-      return categories.stream().map(
-          category -> FindCategoryServiceResponse.builder().categoryId(category.getId())
-              .categoryName(category.getCategoryName()).createdAt(category.getCreatedAt())
-              .updatedAt(category.getUpdatedAt()).build()).toList();
-    }
-  }
+    @Nested
+    @DisplayName("카테고리 생성 API")
+    class SaveCategory {
 
-  @Nested
-  @DisplayName("카테고리 수정")
-  class CategoryUpdate {
+      @Test
+      @DisplayName("카테고리를 생성한다.")
+      void saveCategory() {
+        //given
+        String name = "착화기";
+        SaveCategoryServiceRequest saveCategoryServiceRequest = SaveCategoryServiceRequest.builder()
+            .categoryName(name).build();
+        Category category = Category.builder().id(1L).categoryName(name).build();
+        CategoryServiceResponse response = CategoryServiceResponse.builder().categoryId(1L)
+            .categoryName(name).build();
 
-    String oldName = "이전이름";
-    String newName = "새이름";
-    Long id = 1L;
+        //when
+        when(categoryRepository.save(any())).thenReturn(category);
+        CategoryServiceResponse result = categoryService.saveCategory(saveCategoryServiceRequest);
 
-    @Test
-    @DisplayName("저장된 카테고리 이름을 수정한다.")
-    void updateCategory() {
-      //given
-      Category category = Category.builder().id(id).categoryName(oldName).build();
-      UpdateCategoryServiceRequest request = UpdateCategoryServiceRequest.builder().categoryId(1L)
-          .categoryName(newName).build();
-      //when
-      when(categoryRepository.findById(id)).thenReturn(Optional.of(category));
-      CategoryServiceResponse response = categoryService.updateCategory(request);
-
-      //then
-      assertThat(response.getCategoryId()).isEqualTo(id);
-      assertThat(response.getCategoryName()).isEqualTo(newName);
+        //then
+        assertThat(result.getCategoryId()).isEqualTo(response.getCategoryId());
+        assertThat(result.getCategoryName()).isEqualTo(response.getCategoryName());
+      }
     }
 
-    @Test
-    @DisplayName("존재하지 않는 ID의 카테고리는 예외가 발생한다.")
-    void throwNotFoundCategoryId() {
-      //given
-      UpdateCategoryServiceRequest request = UpdateCategoryServiceRequest.builder().categoryId(1L)
-          .categoryName(newName).build();
-
-      //when
-      when(categoryRepository.findById(id)).thenReturn(Optional.empty());
-
-      //then
-      assertThrows(CategoryNotFoundException.class, () -> categoryService.updateCategory(request));
-    }
+    @Nested
+    @DisplayName("카테고리 삭제 API")
+    class DeleteCategory {
 
 
-  }
+      @Test
+      @DisplayName("카테고리를 삭제한다.")
+      void deleteCategory() {
+        //given
+        String name = "착화기";
+        DeleteCategoryServiceRequest deleteCategoryServiceRequest = DeleteCategoryServiceRequest.builder()
+            .categoryId(1L).build();
+        Category category = Category.builder().id(1L).categoryName(name).build();
+        CategoryServiceResponse response = CategoryServiceResponse.builder().categoryId(1L)
+            .categoryName(name).build();
 
-  @Nested
-  @DisplayName("카테고리 생성 API")
-  class SaveCategory {
+        //when
+        when(categoryRepository.findById(1L)).thenReturn(Optional.ofNullable(category));
+        CategoryServiceResponse result = categoryService.deleteCategory(
+            deleteCategoryServiceRequest);
 
-    @Test
-    @DisplayName("카테고리를 생성한다.")
-    void saveCategory() {
-      //given
-      String name = "착화기";
-      SaveCategoryServiceRequest saveCategoryServiceRequest = SaveCategoryServiceRequest.builder()
-          .categoryName(name).build();
-      Category category = Category.builder().id(1L).categoryName(name).build();
-      CategoryServiceResponse response = CategoryServiceResponse.builder().categoryId(1L)
-          .categoryName(name).build();
+        //then
+        assertThat(result.getCategoryId()).isEqualTo(response.getCategoryId());
+        assertThat(result.getCategoryName()).isEqualTo(response.getCategoryName());
+      }
 
-      //when
-      when(categoryRepository.save(any())).thenReturn(category);
-      CategoryServiceResponse result = categoryService.saveCategory(saveCategoryServiceRequest);
+      @Test
+      @DisplayName("존재하지 않는 category를 요청했을 경우, CategoryNotFoundException을 반환한다.")
+      void categoryNotFound() {
+        //given
+        DeleteCategoryServiceRequest deleteCategoryServiceRequest = DeleteCategoryServiceRequest.builder()
+            .categoryId(1L).build();
 
-      //then
-      assertThat(result.getCategoryId()).isEqualTo(response.getCategoryId());
-      assertThat(result.getCategoryName()).isEqualTo(response.getCategoryName());
-    }
-  }
+        //when
 
-  @Nested
-  @DisplayName("카테고리 삭제 API")
-  class DeleteCategory {
-
-
-    @Test
-    @DisplayName("카테고리를 삭제한다.")
-    void deleteCategory() {
-      //given
-      String name = "착화기";
-      DeleteCategoryServiceRequest deleteCategoryServiceRequest = DeleteCategoryServiceRequest.builder()
-          .categoryId(1L).build();
-      Category category = Category.builder().id(1L).categoryName(name).build();
-      CategoryServiceResponse response = CategoryServiceResponse.builder().categoryId(1L)
-          .categoryName(name).build();
-
-      //when
-      when(categoryRepository.findById(1L)).thenReturn(Optional.ofNullable(category));
-      CategoryServiceResponse result = categoryService.deleteCategory(
-          deleteCategoryServiceRequest);
-
-      //then
-      assertThat(result.getCategoryId()).isEqualTo(response.getCategoryId());
-      assertThat(result.getCategoryName()).isEqualTo(response.getCategoryName());
-    }
-
-    @Test
-    @DisplayName("존재하지 않는 category를 요청했을 경우, CategoryNotFoundException을 반환한다.")
-    void categoryNotFound() {
-      //given
-      DeleteCategoryServiceRequest deleteCategoryServiceRequest = DeleteCategoryServiceRequest.builder()
-          .categoryId(1L).build();
-
-      //when
-
-      //then
-      assertThrows(CategoryNotFoundException.class,
-          () -> categoryService.deleteCategory(deleteCategoryServiceRequest));
+        //then
+        assertThrows(CategoryNotFoundException.class,
+            () -> categoryService.deleteCategory(deleteCategoryServiceRequest));
+      }
     }
   }
 }

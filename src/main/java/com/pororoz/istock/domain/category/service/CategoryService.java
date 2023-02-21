@@ -1,7 +1,6 @@
 package com.pororoz.istock.domain.category.service;
 
 
-import com.pororoz.istock.common.utils.Pagination;
 import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
 import com.pororoz.istock.domain.category.dto.service.DeleteCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
@@ -13,6 +12,7 @@ import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,15 +24,13 @@ public class CategoryService {
   private final CategoryRepository categoryRepository;
 
   @Transactional(readOnly = true)
-  public Page<FindCategoryServiceResponse> findCategories(FindCategoryServiceRequest request) {
-    Integer page = request.getPage(), size = request.getSize();
+  public Page<FindCategoryServiceResponse> findCategories(FindCategoryServiceRequest request,
+      Pageable pageable) {
     if (request.getCategoryName() == null) {
-      return categoryRepository.findAll(Pagination.toPageable(page, size))
-          .map(FindCategoryServiceResponse::of);
+      return categoryRepository.findAll(pageable).map(FindCategoryServiceResponse::of);
     }
 
-    return categoryRepository.findAllByCategoryNameContaining(request.getCategoryName(),
-            Pagination.toPageable(page, size))
+    return categoryRepository.findAllByCategoryNameContaining(request.getCategoryName(), pageable)
         .map(FindCategoryServiceResponse::of);
   }
 
