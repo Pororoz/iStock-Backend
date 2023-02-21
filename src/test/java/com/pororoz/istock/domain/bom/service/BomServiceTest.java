@@ -10,6 +10,8 @@ import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -138,7 +140,7 @@ class BomServiceTest {
         // when
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(bomRepository.findByProductIdWithPart(any(Pageable.class), eq(productId)))
-            .thenReturn(Optional.of(bomPage));
+            .thenReturn(bomPage);
         Page<FindBomServiceResponse> result = bomService.findBomList(request);
 
         //then
