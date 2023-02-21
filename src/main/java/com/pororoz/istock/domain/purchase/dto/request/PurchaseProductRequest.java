@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.purchase.dto.request;
 
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -23,4 +24,10 @@ public class PurchaseProductRequest {
   @Positive
   private long amount;
 
+  public PurchaseProductServiceRequest toService() {
+    return PurchaseProductServiceRequest.builder()
+        .productId(productId)
+        .amount(amount)
+        .build();
+  }
 }

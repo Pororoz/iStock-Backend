@@ -24,7 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
 
-@WebMvcTest(value = PurchaseControllerTest.class, excludeAutoConfiguration = {
+@WebMvcTest(value = PurchaseController.class, excludeAutoConfiguration = {
     SecurityAutoConfiguration.class})
 public class PurchaseControllerTest extends ControllerTest {
 
@@ -43,7 +43,7 @@ public class PurchaseControllerTest extends ControllerTest {
     @DisplayName("성공 케이스")
     class SuccessCase {
 
-      String url = "https://localhost:8080/v1/purchase/product";
+      String url = "http://localhost:8080/v1/purchase/product";
       @Test
       @DisplayName("존재하는 Product와 1이상의 amount를 요청하면 구매 대기 내역을 생성한다.")
       void purchaseBulk() throws Exception {
@@ -69,7 +69,7 @@ public class PurchaseControllerTest extends ControllerTest {
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.PURCHASE_PRODUCT))
-            .andExpect(jsonPath("$.data"),equalTo(asParsedJson(response)))
+            .andExpect(jsonPath("$.data",equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }
