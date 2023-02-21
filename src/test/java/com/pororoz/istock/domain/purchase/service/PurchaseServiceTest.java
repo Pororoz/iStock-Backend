@@ -9,6 +9,7 @@ import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseBulkServiceRequest;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -31,13 +32,15 @@ public class PurchaseServiceTest {
   BomRepository bomRepository;
   @Mock
   PartRepository partRepository;
-
   @Mock
   PartIoRepository partIoRepository;
 
   @Nested
   @DisplayName("제품 자재 일괄 구매 테스트")
   class purchaseBulk {
+
+    Long productId = 1L;
+    long amount = 100L;
 
     @Nested
     @DisplayName("성공 케이스")
