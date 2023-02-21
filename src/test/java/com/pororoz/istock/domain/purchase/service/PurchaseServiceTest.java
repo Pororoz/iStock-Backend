@@ -4,12 +4,17 @@ import static org.assertj.core.api.FactoryBasedNavigableListAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
+import com.pororoz.istock.domain.part.entity.Part;
+import com.pororoz.istock.domain.part.entity.PartIo;
+import com.pororoz.istock.domain.part.entity.PartStatus;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseBulkServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseServiceResponse;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -40,7 +45,16 @@ public class PurchaseServiceTest {
   class purchaseBulk {
 
     Long productId = 1L;
+    Long partId = 1L;
+    Long bomId = 1L;
+    String locationNumber = "L5.L4";
+    String codeNumber = "";
+    Long quantity = 3L;
+    String memo = "";
     long amount = 100L;
+    Long partIoId = 1L;
+
+    PartStatus status = PartStatus.valueOf("구매 대기");
 
     @Nested
     @DisplayName("성공 케이스")
@@ -58,8 +72,22 @@ public class PurchaseServiceTest {
             .productId(productId)
             .amount(amount)
             .build();
-        Product product = Product.builder()
-            .id(productId)
+        Part part = Part.builder().id(partId).build();
+        Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+        PartIo partIo = PartIo.builder()
+            .id(partIoId)
+            .quantity(quantity)
+            .status(status)
+            .part(part)
             .build();
 
         // when
