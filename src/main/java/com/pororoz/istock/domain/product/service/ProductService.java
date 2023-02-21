@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -120,13 +119,8 @@ public class ProductService {
   }
 
   private Page<Product> getProductPage(FindProductServiceRequest request) {
-    if (request.getPage() == null && request.getSize() == null) {
-      List<Product> products = productRepository.findByCategoryIdWithBoms(
-          request.getCategoryId());
-      return new PageImpl<>(products);
-    }
     return productRepository.findByCategoryIdWithBoms(
-        Pagination.toPageRequest(request.getPage(), request.getSize()), request.getCategoryId());
+        Pagination.toPageable(request.getPage(), request.getSize()), request.getCategoryId());
   }
 
   private void changeBomProductNumber(String oldNumber, String newNumber) {

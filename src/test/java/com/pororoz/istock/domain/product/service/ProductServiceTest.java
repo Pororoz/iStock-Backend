@@ -524,43 +524,6 @@ class ProductServiceTest {
       }
 
       @Test
-      @DisplayName("page와 size가 null이면 product를 전체 조회한다.")
-      void findProductAllWithoutPageable() {
-        //given
-        long total = 10;
-
-        FindProductServiceRequest request = FindProductServiceRequest.builder()
-            .categoryId(categoryId)
-            .page(null).size(null)
-            .build();
-
-        List<Product> products = new ArrayList<>();
-        for (int i = 0; i < total; i++) {
-          Product product = Product.builder().id((long) i).category(category).build();
-          product.setBoms(List.of(otherBom));
-          products.add(product);
-        }
-
-        //when
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByCategoryIdWithBoms(categoryId))
-            .thenReturn(products);
-        when(productRepository.findByProductNumbers(anySet())).thenReturn(List.of());
-        Page<FindProductServiceResponse> result = productService.findProducts(request);
-
-        //then
-        assertThat(result.getTotalPages()).isEqualTo(1);
-        assertThat(result.getTotalElements()).isEqualTo(total);
-        long i = 0;
-        for (FindProductServiceResponse findResponse : result.getContent()) {
-          ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
-          assertThat(productResponse.getProductId()).isEqualTo(i++);
-          // sub assy는 없다.
-          assertThat(findResponse.getSubAssyServiceResponses()).hasSize(0);
-        }
-      }
-
-      @Test
       @DisplayName("page만 null이면 default 값으로 product를 페이지네이션하여 조회한다.")
       void findProductWithPageNull() {
         //given

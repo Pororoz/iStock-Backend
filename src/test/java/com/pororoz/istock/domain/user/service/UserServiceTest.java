@@ -38,6 +38,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -225,7 +226,9 @@ class UserServiceTest {
       admin = User.builder().id(2L).username("admin").password("admin").role(roleAdmin).build();
       CustomUserDetailsDTO user = new CustomUserDetailsDTO(admin);
       SecurityContext context = SecurityContextHolder.getContext();
-      context.setAuthentication(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities()));
+      context.setAuthentication(
+          new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(),
+              user.getAuthorities()));
     }
 
     @Nested
@@ -422,7 +425,7 @@ class UserServiceTest {
         List<UserServiceResponse> userServiceResponses = getUserServiceResponses(users);
 
         //when
-        when(userRepository.findAll()).thenReturn(users);
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(users));
         Page<UserServiceResponse> result = userService.findUsers(request);
 
         //then
@@ -440,7 +443,7 @@ class UserServiceTest {
         List<UserServiceResponse> userServiceResponses = List.of();
 
         //when
-        when(userRepository.findAll()).thenReturn(empty);
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(empty));
         Page<UserServiceResponse> result = userService.findUsers(request);
 
         //then

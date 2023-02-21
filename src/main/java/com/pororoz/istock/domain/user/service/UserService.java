@@ -14,10 +14,8 @@ import com.pororoz.istock.domain.user.exception.SelfDemoteRoleException;
 import com.pororoz.istock.domain.user.exception.UserNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -80,11 +78,8 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public Page<UserServiceResponse> findUsers(FindUserServiceRequest request) {
-    if (request.getPage() == null && request.getSize() == null) {
-      List<User> users = userRepository.findAll();
-      return new PageImpl<>(users).map(UserServiceResponse::of);
-    }
-    return userRepository.findAll(Pagination.toPageRequest(request.getPage(), request.getSize()))
+    Integer page = request.getPage(), size = request.getSize();
+    return userRepository.findAll(Pagination.toPageable(page, size))
         .map(UserServiceResponse::of);
   }
 }

@@ -27,12 +27,12 @@ public class CategoryService {
   public Page<FindCategoryServiceResponse> findCategories(FindCategoryServiceRequest request) {
     Integer page = request.getPage(), size = request.getSize();
     if (request.getCategoryName() == null) {
-      return categoryRepository.findAll(Pagination.toPageRequest(page, size))
+      return categoryRepository.findAll(Pagination.toPageable(page, size))
           .map(FindCategoryServiceResponse::of);
     }
 
     return categoryRepository.findAllByCategoryNameContaining(request.getCategoryName(),
-            Pagination.toPageRequest(page, size))
+            Pagination.toPageable(page, size))
         .map(FindCategoryServiceResponse::of);
   }
 
