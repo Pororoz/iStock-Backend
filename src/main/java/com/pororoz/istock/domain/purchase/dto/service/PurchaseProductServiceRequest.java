@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PurchaseBulkServiceRequest {
+public class PurchaseProductServiceRequest {
 
   private Long productId;
   private long amount;

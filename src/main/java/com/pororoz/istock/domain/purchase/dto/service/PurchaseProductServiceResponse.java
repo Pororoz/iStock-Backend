@@ -5,13 +5,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PurchaseBulkServiceResponse {
+public class PurchaseProductServiceResponse {
 
   private Long productId;
   private long amount;
 
-  public static PurchaseBulkServiceResponse of(PurchaseBulkServiceRequest request) {
-    return PurchaseBulkServiceResponse.builder()
+  public static PurchaseProductServiceResponse of(PurchaseProductServiceRequest request) {
+    return PurchaseProductServiceResponse.builder()
         .productId(request.getProductId())
         .amount(request.getAmount())
         .build();

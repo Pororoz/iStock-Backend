@@ -10,8 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
-import com.pororoz.istock.domain.purchase.dto.service.PurchaseBulkServiceRequest;
-import com.pororoz.istock.domain.purchase.dto.service.PurchaseBulkServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -46,27 +46,27 @@ public class PurchaseControllerTest extends ControllerTest {
       @DisplayName("존재하는 Product와 1이상의 amount를 요청하면 구매 대기 내역을 생성한다.")
       void purchaseBulk() throws Exception {
         // given
-        PurchaseBulkRequest request = PurchaseBulkRequest.builder()
+        PurchaseProductRequest request = PurchaseProductRequest.builder()
             .productId(productId)
             .amount(amount)
             .build();
-        PurchaseBulkServiceResponse serviceDto = PurchaseBulkServiceResponse.builder()
+        PurchaseProductServiceResponse serviceDto = PurchaseProductServiceResponse.builder()
             .productId(productId)
             .amount(amount)
             .build();
-        PurchaseBulkResponse response = PurchaseBulkService.builder()
+        PurchaseProductResponse response = PurchaseProductService.builder()
             .productId(productId)
             .amount(amount)
             .buid();
 
         // when
-        when(purchaseService.purchaseBulk(any(PurchaseBulkServiceRequest.class))).thenReturn(serviceDto);
+        when(purchaseService.purchaseProduct(any(PurchaseProductServiceRequest.class))).thenReturn(serviceDto);
         ResultActions actions = getResultActions(url, HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-            .andExpect(jsonPath("$.message").value(ResponseMessage.PURCHASE_BULK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.PURCHASE_PRODUCT))
             .andExpect(jsonPath("$.data"),equalTo(asParsedJson(response)))
             .andDo(print());
       }

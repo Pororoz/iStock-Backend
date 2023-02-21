@@ -8,8 +8,8 @@ import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import com.pororoz.istock.domain.purchase.dto.service.PurchaseBulkServiceRequest;
-import com.pororoz.istock.domain.purchase.dto.service.PurchaseBulkServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class PurchaseService {
   private final PartRepository partRepository;
   private final PartIoRepository partIoRepository;
 
-  public PurchaseBulkServiceResponse purchaseBulk(PurchaseBulkServiceRequest request) {
+  public PurchaseProductServiceResponse purchaseProduct(PurchaseProductServiceRequest request) {
     productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
     List<Bom> boms = bomRepository.findByProductId(request.getProductId());
@@ -35,6 +35,6 @@ public class PurchaseService {
       partIoRepository.save(request.toPartIo(part));
         }
     );
-    return PurchaseBulkServiceResponse.of(request);
+    return PurchaseProductServiceResponse.of(request);
   }
 }

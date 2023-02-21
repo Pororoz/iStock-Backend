@@ -15,8 +15,8 @@ import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import com.pororoz.istock.domain.purchase.dto.service.PurchaseBulkServiceRequest;
-import com.pororoz.istock.domain.purchase.dto.service.PurchaseBulkServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -66,11 +66,11 @@ public class PurchaseServiceTest {
       @DisplayName("입력받은 Product에 포함된 Part에 대한 구매 대기 상태가 Part I/O에 추가된다.")
       void purchaseBulk() {
         // given
-        PurchaseBulkServiceRequest request = PurchaseBulkServiceRequest.builder()
+        PurchaseProductServiceRequest request = PurchaseProductServiceRequest.builder()
             .productId(productId)
             .amount(amount)
             .build();
-        PurchaseBulkServiceResponse response = PurchaseBulkServiceResponse.builder()
+        PurchaseProductServiceResponse response = PurchaseProductServiceResponse.builder()
             .productId(productId)
             .amount(amount)
             .build();
@@ -98,7 +98,7 @@ public class PurchaseServiceTest {
         when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
         when(partRepository.findById(any())).thenReturn(Optional.of(part));
         when(partIoRepository.save(any())).thenReturn(partIo);
-        PurchaseBulkServiceResponse result = purchaseService.purchaseBulk(request);
+        PurchaseProductServiceResponse result = purchaseService.purchaseProduct(request);
 
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
