@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.category.service;
 
 
+import com.pororoz.istock.common.utils.Pagination;
 import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
 import com.pororoz.istock.domain.category.dto.service.DeleteCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
@@ -22,14 +23,16 @@ public class CategoryService {
 
   private final CategoryRepository categoryRepository;
 
-  @Transactional(readOnly=true)
+  @Transactional(readOnly = true)
   public Page<FindCategoryServiceResponse> findCategories(FindCategoryServiceRequest request) {
+    Integer page = request.getPage(), size = request.getSize();
     if (request.getCategoryName() == null) {
-      return categoryRepository.findAll(request.toPageRequest())
+      return categoryRepository.findAll(Pagination.toPageRequest(page, size))
           .map(FindCategoryServiceResponse::of);
     }
 
-    return categoryRepository.findAllByCategoryNameContaining(request.getCategoryName(), request.toPageRequest())
+    return categoryRepository.findAllByCategoryNameContaining(request.getCategoryName(),
+            Pagination.toPageRequest(page, size))
         .map(FindCategoryServiceResponse::of);
   }
 
