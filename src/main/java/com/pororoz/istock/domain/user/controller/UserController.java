@@ -20,6 +20,7 @@ import com.pororoz.istock.domain.user.swagger.response.DeleteUserResponseSwagger
 import com.pororoz.istock.domain.user.swagger.response.FindUserResponseSwagger;
 import com.pororoz.istock.domain.user.swagger.response.SaveUserResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -117,7 +118,8 @@ public class UserController {
   })
   @PageableAsQueryParam
   @GetMapping
-  public ResponseEntity<ResultDTO<PageResponse<FindUserResponse>>> findUsers(Pageable pageable) {
+  public ResponseEntity<ResultDTO<PageResponse<FindUserResponse>>> findUsers(
+      @Parameter(hidden = true) Pageable pageable) {
     Page<FindUserResponse> userPage = userService.findUsers(pageable).map(
         UserServiceResponse::toFindResponse);
     PageResponse<FindUserResponse> response = new PageResponse<>(userPage);
