@@ -411,11 +411,9 @@ public class PartControllerTest extends ControllerTest {
       @DisplayName("page, size에 null이 들어갈 수 있다.")
       void pageNullable() throws Exception {
         //given
-        long total = 1;
         String fullUri = uri + "?part-id=" + partId + "&part-name=" + partName + "&spec=" + spec;
 
-        Page<PartServiceResponse> partServiceResponses = new PageImpl<>(
-            List.of(serviceResponse), Pageable.unpaged(), total);
+        Page<PartServiceResponse> partServiceResponses = new PageImpl<>(List.of(serviceResponse));
         ArgumentCaptor<Pageable> argument =
             ArgumentCaptor.forClass(Pageable.class);
 
@@ -428,8 +426,8 @@ public class PartControllerTest extends ControllerTest {
         verify(partService).findParts(any(FindPartServiceRequest.class), argument.capture());
         assertThat(argument.getValue()).usingRecursiveComparison().isEqualTo(Pageable.unpaged());
 
-        PageResponse<PartResponse> partResponses = new PageResponse<>(new PageImpl<>(
-            List.of(serviceResponse.toResponse()), Pageable.unpaged(), total));
+        PageResponse<PartResponse> partResponses = new PageResponse<>(
+            new PageImpl<>(List.of(serviceResponse.toResponse())));
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PART))

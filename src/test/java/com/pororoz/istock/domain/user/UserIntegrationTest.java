@@ -562,7 +562,7 @@ public class UserIntegrationTest extends IntegrationTest {
 
         //then
         actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.INVALID_PAGE_REQUEST))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
             .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_PAGE_REQUEST))
             .andDo(print());
       }
@@ -582,7 +582,7 @@ public class UserIntegrationTest extends IntegrationTest {
 
         //then
         actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.INVALID_PAGE_REQUEST))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
             .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_PAGE_REQUEST))
             .andDo(print());
       }
