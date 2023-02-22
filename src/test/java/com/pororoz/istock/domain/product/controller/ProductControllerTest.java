@@ -1,7 +1,10 @@
 package com.pororoz.istock.domain.product.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -18,7 +21,6 @@ import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
 import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.dto.response.SubAssyResponse;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
@@ -29,12 +31,14 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -347,7 +351,7 @@ class ProductControllerTest extends ControllerTest {
           new PageImpl<>(List.of(ServiceDto), pageRequest, 4);
 
       //when
-      when(productService.findProducts(any(FindProductServiceRequest.class)))
+      when(productService.findProducts(eq(categoryId), any(Pageable.class)))
           .thenReturn(dtoPage);
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
@@ -409,13 +413,17 @@ class ProductControllerTest extends ControllerTest {
           .build();
       Page<FindProductServiceResponse> dtoPage =
           new PageImpl<>(List.of(ServiceDto), pageRequest, size);
+      ArgumentCaptor<Pageable> argument = ArgumentCaptor.forClass(Pageable.class);
 
       //when
-      when(productService.findProducts(any(FindProductServiceRequest.class)))
+      when(productService.findProducts(eq(categoryId), any(Pageable.class)))
           .thenReturn(dtoPage);
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
       //then
+      verify(productService).findProducts(eq(categoryId), argument.capture());
+      assertThat(argument.getValue()).usingRecursiveComparison().isEqualTo(Pageable.unpaged());
+
       SubAssyResponse subAssyRespon = SubAssyResponse.builder()
           .productNumber("sub assy number")
           .productName("sub assy name")

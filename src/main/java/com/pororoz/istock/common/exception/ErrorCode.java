@@ -44,8 +44,9 @@ public enum ErrorCode {
   SELF_DEMOTE_ROLE(HttpStatus.BAD_REQUEST, ExceptionStatus.SELF_DEMOTE_ROLE,
       ExceptionMessage.SELF_DEMOTE_ROLE),
   SELF_DELETE_ACCOUNT(HttpStatus.BAD_REQUEST, ExceptionStatus.SELF_DELETE_ACCOUNT,
-      ExceptionMessage.SELF_DELETE_ACCOUNT)
-  ;
+      ExceptionMessage.SELF_DELETE_ACCOUNT),
+  INVALID_PAGE_REQUEST(HttpStatus.BAD_REQUEST, ExceptionStatus.BAD_REQUEST,
+      ExceptionMessage.INVALID_PAGE_REQUEST);
 
   private final HttpStatus statusCode;
 

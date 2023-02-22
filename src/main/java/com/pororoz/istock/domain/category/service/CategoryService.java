@@ -12,6 +12,7 @@ import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,14 +23,14 @@ public class CategoryService {
 
   private final CategoryRepository categoryRepository;
 
-  @Transactional(readOnly=true)
-  public Page<FindCategoryServiceResponse> findCategories(FindCategoryServiceRequest request) {
+  @Transactional(readOnly = true)
+  public Page<FindCategoryServiceResponse> findCategories(FindCategoryServiceRequest request,
+      Pageable pageable) {
     if (request.getCategoryName() == null) {
-      return categoryRepository.findAll(request.toPageRequest())
-          .map(FindCategoryServiceResponse::of);
+      return categoryRepository.findAll(pageable).map(FindCategoryServiceResponse::of);
     }
 
-    return categoryRepository.findAllByCategoryNameContaining(request.getCategoryName(), request.toPageRequest())
+    return categoryRepository.findAllByCategoryNameContaining(request.getCategoryName(), pageable)
         .map(FindCategoryServiceResponse::of);
   }
 

@@ -3,16 +3,19 @@ package com.pororoz.istock.domain.part.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
+import com.pororoz.istock.domain.part.dto.request.FindPartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
+import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.UpdatePartServiceRequest;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartDuplicatedException;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartRepository;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,6 +24,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 public class PartServiceTest {
@@ -49,7 +56,7 @@ public class PartServiceTest {
 
     @Nested
     @DisplayName("성공 케이스")
-    class successCase {
+    class SuccessCase {
 
       @Test
       @DisplayName("파트를 추가한다.")
@@ -229,6 +236,55 @@ public class PartServiceTest {
             () -> partService.updatePart(request));
 
       }
+    }
+  }
+
+  @Nested
+  @DisplayName("파트 조회")
+  class FindParts {
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("파트를 조회한다.")
+      void findParts() {
+        //given
+        int page = 0;
+        int size = 3;
+        Pageable pageable = PageRequest.of(page, size);
+        FindPartServiceRequest request = FindPartServiceRequest.builder()
+            .partId(partId).partName(partName)
+            .spec(spec)
+            .build();
+        Part part = Part.builder()
+            .id(partId).partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+        PageImpl<Part> parts = new PageImpl<>(List.of(part), pageable, 1);
+        //when
+        when(partRepository.findByIdAndPartNameAndSpecIgnoreNull(eq(partId), eq(partName), eq(spec),
+            any(Pageable.class)))
+            .thenReturn(parts);
+        Page<PartServiceResponse> result = partService.findParts(request, pageable);
+
+        //then
+        PartServiceResponse partServiceResponse = PartServiceResponse.builder()
+            .partId(partId).partName(partName).spec(spec)
+            .price(price).stock(stock)
+            .build();
+        assertThat(result.getTotalElements()).isEqualTo(parts.getTotalElements());
+        assertThat(result.getTotalPages()).isEqualTo(parts.getTotalPages());
+        assertThat(result.getContent()).usingRecursiveComparison()
+            .isEqualTo(List.of(partServiceResponse));
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
     }
   }
 }
