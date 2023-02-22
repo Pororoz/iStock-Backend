@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 public class PartResponse {
 
-  @Schema(description = "part 아이디", example = "1")
+  @Schema(description = "부품 아이디", example = "1")
   private Long partId;
 
   @Schema(description = "품명", example = "BEAD")
