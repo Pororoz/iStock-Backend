@@ -29,10 +29,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
     response.setHeader("content-type", "application/json");
     response.setCharacterEncoding("UTF-8");
+    response.setStatus(HttpServletResponse.SC_OK);
     LoginResponse loginResponse = LoginResponse.builder()
         .username((String) authentication.getPrincipal())
         .roleName(authentication.getAuthorities().iterator().next().toString()).build();
-    ResponseEntity responseEntity = ResponseEntity.ok(
+    ResponseEntity<ResultDTO<LoginResponse>> responseEntity = ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.LOGIN, loginResponse));
     String result = objectMapper.writeValueAsString(responseEntity.getBody());
     response.getWriter().write(result);
