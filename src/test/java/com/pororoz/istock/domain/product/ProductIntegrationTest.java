@@ -164,7 +164,7 @@ public class ProductIntegrationTest extends IntegrationTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     @DisplayName("제품을 수정한다.")
-    void saveProduct() throws Exception {
+    void updateProduct() throws Exception {
       //given
       UpdateProductRequest request = UpdateProductRequest.builder()
           .productId(product.getId()).productName(newName)

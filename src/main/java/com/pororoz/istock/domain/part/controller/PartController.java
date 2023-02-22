@@ -1,10 +1,12 @@
 package com.pororoz.istock.domain.part.controller;
 
+import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.part.dto.request.FindPartServiceRequest;
 import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
 import com.pororoz.istock.domain.part.dto.request.UpdatePartRequest;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
@@ -24,14 +26,18 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Part", description = "Part API")
@@ -98,5 +104,22 @@ public class PartController {
     PartResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPDATE_PART, response));
+  }
+
+  @GetMapping
+  public ResponseEntity<ResultDTO<PageResponse<PartResponse>>> findParts(
+      @RequestParam(value = "part-id", required = false) Long partId,
+      @RequestParam(value = "part-name", required = false) String partName,
+      @RequestParam(value = "spec", required = false) String spec,
+      Pageable pageable) {
+    FindPartServiceRequest serviceRequest = FindPartServiceRequest.builder()
+        .partId(partId).partName(partName)
+        .spec(spec).build();
+    Page<PartServiceResponse> findPartPage = partService.findParts(
+        serviceRequest, pageable);
+    PageResponse<PartResponse> response = new PageResponse<>(
+        findPartPage.map(PartServiceResponse::toResponse));
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_PART, response));
   }
 }

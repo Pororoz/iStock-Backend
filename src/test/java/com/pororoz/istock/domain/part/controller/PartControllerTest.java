@@ -1,15 +1,19 @@
 package com.pororoz.istock.domain.part.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.ControllerTest;
+import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.part.dto.request.FindPartServiceRequest;
 import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
 import com.pororoz.istock.domain.part.dto.request.UpdatePartRequest;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
@@ -17,12 +21,19 @@ import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.UpdatePartServiceRequest;
 import com.pororoz.istock.domain.part.service.PartService;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -197,7 +208,7 @@ public class PartControllerTest extends ControllerTest {
 
       @Test
       @DisplayName("존재하는 파트를 수정하면 수정된 파트 값을 반환한다.")
-      void updatePart() throws Exception{
+      void updatePart() throws Exception {
         //given
         UpdatePartRequest request = UpdatePartRequest.builder()
             .partId(partId)
@@ -245,7 +256,7 @@ public class PartControllerTest extends ControllerTest {
             .build();
 
         //when
-        ResultActions actions = getResultActions(url,HttpMethod.PUT,request);
+        ResultActions actions = getResultActions(url, HttpMethod.PUT, request);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -302,6 +313,127 @@ public class PartControllerTest extends ControllerTest {
 
         //then
         actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("파트 조회")
+  class findParts {
+
+    String uri = "http://localhost:8080/v1/parts";
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      LocalDateTime now = LocalDateTime.now();
+      PartServiceResponse serviceResponse = PartServiceResponse.builder()
+          .partId(partId).partName(partName)
+          .spec(spec).stock(stock).price(price)
+          .createdAt(now).updatedAt(now)
+          .build();
+
+      @Test
+      @DisplayName("id, name, spec, page, size 정보가 인자로 전달된다.")
+      void allParamDelivered() throws Exception {
+        //given
+        int page = 0;
+        int size = 3;
+        long total = 1;
+        String fullUri = uri + "?part-id=" + partId + "&part-name=" + partName + "&spec=" + spec
+            + "&page=" + page + "&size=" + size;
+        Page<PartServiceResponse> partServiceResponses = new PageImpl<>(
+            List.of(serviceResponse), PageRequest.of(page, size), total);
+        ArgumentCaptor<FindPartServiceRequest> partArgument =
+            ArgumentCaptor.forClass(FindPartServiceRequest.class);
+        ArgumentCaptor<Pageable> pageArgument =
+            ArgumentCaptor.forClass(Pageable.class);
+
+        //when
+        when(partService.findParts(any(FindPartServiceRequest.class), any(Pageable.class)))
+            .thenReturn(partServiceResponses);
+        ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+        //then
+        verify(partService).findParts(partArgument.capture(), pageArgument.capture());
+        assertThat(partArgument.getValue().getPartId()).isEqualTo(partId);
+        assertThat(partArgument.getValue().getPartName()).isEqualTo(partName);
+        assertThat(partArgument.getValue().getSpec()).isEqualTo(spec);
+        assertThat(pageArgument.getValue()).usingRecursiveComparison()
+            .isEqualTo(PageRequest.of(page, size));
+
+        PageResponse<PartResponse> partResponses = new PageResponse<>(new PageImpl<>(
+            List.of(serviceResponse.toResponse()), PageRequest.of(page, size), total));
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PART))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(partResponses))))
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("id, name, spec에 null이 들어갈 수 있다.")
+      void partInfoNullable() throws Exception {
+        //given
+        int page = 0;
+        int size = 3;
+        long total = 1;
+        String fullUri = uri + "?page=" + page + "&size=" + size;
+
+        Page<PartServiceResponse> partServiceResponses = new PageImpl<>(
+            List.of(serviceResponse), PageRequest.of(page, size), total);
+        ArgumentCaptor<FindPartServiceRequest> argument =
+            ArgumentCaptor.forClass(FindPartServiceRequest.class);
+
+        //when
+        when(partService.findParts(any(FindPartServiceRequest.class), any(Pageable.class)))
+            .thenReturn(partServiceResponses);
+        ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+        //then
+        verify(partService).findParts(argument.capture(), any(Pageable.class));
+        assertThat(argument.getValue().getPartId()).isNull();
+        assertThat(argument.getValue().getPartName()).isNull();
+        assertThat(argument.getValue().getSpec()).isNull();
+
+        PageResponse<PartResponse> partResponses = new PageResponse<>(new PageImpl<>(
+            List.of(serviceResponse.toResponse()), PageRequest.of(page, size), total));
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PART))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(partResponses))))
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("page, size에 null이 들어갈 수 있다.")
+      void pageNullable() throws Exception {
+        //given
+        long total = 1;
+        String fullUri = uri + "?part-id=" + partId + "&part-name=" + partName + "&spec=" + spec;
+
+        Page<PartServiceResponse> partServiceResponses = new PageImpl<>(
+            List.of(serviceResponse), Pageable.unpaged(), total);
+        ArgumentCaptor<Pageable> argument =
+            ArgumentCaptor.forClass(Pageable.class);
+
+        //when
+        when(partService.findParts(any(FindPartServiceRequest.class), any(Pageable.class)))
+            .thenReturn(partServiceResponses);
+        ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+        //then
+        verify(partService).findParts(any(FindPartServiceRequest.class), argument.capture());
+        assertThat(argument.getValue()).usingRecursiveComparison().isEqualTo(Pageable.unpaged());
+
+        PageResponse<PartResponse> partResponses = new PageResponse<>(new PageImpl<>(
+            List.of(serviceResponse.toResponse()), Pageable.unpaged(), total));
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PART))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(partResponses))))
             .andDo(print());
       }
     }
