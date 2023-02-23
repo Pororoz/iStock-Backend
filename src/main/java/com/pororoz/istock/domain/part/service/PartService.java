@@ -35,9 +35,9 @@ public class PartService {
 
   public PartServiceResponse updatePart(UpdatePartServiceRequest request) {
     Part part = partRepository.findById(request.getPartId())
-            .orElseThrow(PartNotFoundException::new);
-    partRepository.findByPartNameAndSpec(request.getPartName(), request.getSpec()).ifPresent(p->{
-      if(!p.equals(part)) {
+        .orElseThrow(PartNotFoundException::new);
+    partRepository.findByPartNameAndSpec(request.getPartName(), request.getSpec()).ifPresent(p -> {
+      if (!p.equals(part)) {
         throw new PartDuplicatedException();
       }
     });

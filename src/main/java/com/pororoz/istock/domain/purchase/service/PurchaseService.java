@@ -6,7 +6,10 @@ import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
+import com.pororoz.istock.domain.product.entity.Product;
+import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
@@ -23,18 +26,22 @@ public class PurchaseService {
   private final ProductRepository productRepository;
   private final BomRepository bomRepository;
   private final PartRepository partRepository;
+  private final ProductIoRepository productIoRepository;
   private final PartIoRepository partIoRepository;
 
   public PurchaseProductServiceResponse purchaseProduct(PurchaseProductServiceRequest request) {
-    productRepository.findById(request.getProductId())
+    Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
+    ProductIo productIo = productIoRepository.save(request.toProductIo(product));
+
     List<Bom> boms = bomRepository.findByProductId(request.getProductId());
     boms.forEach(bom -> {
-      Part part =partRepository.findById(bom.getPart().getId())
-          .orElseThrow(PartNotFoundException::new);
-      partIoRepository.save(request.toPartIo(part));
+          Part part = partRepository.findById(bom.getPart().getId())
+              .orElseThrow(PartNotFoundException::new);
+          partIoRepository.save(request.toPartIo(part, productIo));
         }
     );
+
     return PurchaseProductServiceResponse.of(request);
   }
 }
