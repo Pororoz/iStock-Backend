@@ -91,7 +91,7 @@ public class ProductService {
   public Page<ProductServiceResponse> findProductsByPart(FindProductByPartServiceRequest request,
       Pageable pageable) {
     Page<Product> products = productRepository.findByPartIdAndPartNameIgnoreNull(
-        pageable, request.getPartId(), request.getPartName());
+        request.getPartId(), request.getPartName(), pageable);
     return products.map(ProductServiceResponse::of);
   }
 

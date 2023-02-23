@@ -598,8 +598,8 @@ class ProductServiceTest {
           .build();
 
       //when
-      when(productRepository.findByPartIdAndPartNameIgnoreNull(any(Pageable.class), eq(partId),
-          eq(partName)))
+      when(productRepository.findByPartIdAndPartNameIgnoreNull(eq(partId),
+          eq(partName), any(Pageable.class)))
           .thenReturn(products);
 
       //then

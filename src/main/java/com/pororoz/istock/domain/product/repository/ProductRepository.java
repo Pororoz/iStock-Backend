@@ -35,6 +35,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
           + "left join b.part pa "
           + "where ((:partId is null or pa.id = :partId) and "
           + "(:partName is null or pa.partName = :partName)) ")
-  Page<Product> findByPartIdAndPartNameIgnoreNull(Pageable pageable, @Param("partId") Long partId,
-      @Param("partName") String partName);
+  Page<Product> findByPartIdAndPartNameIgnoreNull(@Param("partId") Long partId,
+      @Param("partName") String partName, Pageable pageable);
 }

@@ -213,7 +213,7 @@ class ProductRepositoryTest extends RepositoryTest {
       //given
       //when
       Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
-          Pageable.unpaged(), part.getId(), part.getPartName());
+          part.getId(), part.getPartName(), Pageable.unpaged());
 
       //then
       assertThat(productPage.getTotalElements()).isEqualTo(2);
@@ -228,7 +228,7 @@ class ProductRepositoryTest extends RepositoryTest {
       //given
       //when
       Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
-          Pageable.unpaged(), null, part.getPartName());
+          null, part.getPartName(), Pageable.unpaged());
 
       //then
       assertThat(productPage.getTotalElements()).isEqualTo(3);
@@ -243,7 +243,7 @@ class ProductRepositoryTest extends RepositoryTest {
       //given
       //when
       Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
-          Pageable.unpaged(), part.getId(), null);
+          part.getId(), null, Pageable.unpaged());
 
       //then
       assertThat(productPage.getTotalElements()).isEqualTo(2);
@@ -258,7 +258,7 @@ class ProductRepositoryTest extends RepositoryTest {
       //given
       //when
       Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
-          Pageable.unpaged(), null, null);
+          null, null, Pageable.unpaged());
 
       //then
       assertThat(productPage.getTotalElements()).isEqualTo(4);
