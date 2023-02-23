@@ -71,7 +71,6 @@ public class ProductIntegrationTest extends IntegrationTest {
     @DisplayName("제품을 저장한다.")
     void saveProductAdmin() throws Exception {
       //given
-      databaseCleanup.execute();
       Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
       SaveProductRequest request = SaveProductRequest.builder()
           .productName(name).productNumber(number)
@@ -98,7 +97,6 @@ public class ProductIntegrationTest extends IntegrationTest {
     @DisplayName("user role로 제품을 저장한다.")
     void saveProductUser() throws Exception {
       //given
-      databaseCleanup.execute();
       Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
       SaveProductRequest request = SaveProductRequest.builder()
           .productName(name).productNumber(number)
@@ -150,7 +148,6 @@ public class ProductIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       category1 = categoryRepository.save(Category.builder().categoryName("카테고리1").build());
       category2 = categoryRepository.save(Category.builder().categoryName("카테고리2").build());
       product = productRepository.save(
@@ -404,7 +401,6 @@ public class ProductIntegrationTest extends IntegrationTest {
     @DisplayName("제품을 정상적으로 삭제한다.")
     void saveProduct() throws Exception {
       //given
-      databaseCleanup.execute();
       Category category = categoryRepository.save(
           Category.builder().categoryName("category").build());
       Product product = productRepository.save(Product.builder()
@@ -436,13 +432,12 @@ public class ProductIntegrationTest extends IntegrationTest {
   class FindProducts {
 
     String uri = "/v1/products/with/subassy";
-    
+
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("제품을 subAssy와 함께 페이지네이션하여 1페이지를 조회한다.")
     void findProductWithSubAssy() throws Exception {
       //given
-      databaseCleanup.execute();
       Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
 
       //product 저장

@@ -21,7 +21,6 @@ import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -44,11 +43,6 @@ public class BomIntegrationTest extends IntegrationTest {
 
   @Autowired
   CategoryRepository categoryRepository;
-
-  @AfterEach
-  void afterEach() {
-    databaseCleanup.execute();
-  }
 
   @Nested
   @DisplayName("POST /api/v1/bom - BOM 행 추가 API")

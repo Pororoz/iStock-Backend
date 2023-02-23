@@ -56,8 +56,6 @@ public class CategoryIntegrationTest extends IntegrationTest {
 
       @BeforeEach
       void setup() {
-        databaseCleanup.execute();
-
         Category category1 = Category.builder().categoryName("item1").build();
         Category category2 = Category.builder().categoryName("shop1").build();
         Category category3 = Category.builder().categoryName("shop2").build();
@@ -305,7 +303,6 @@ public class CategoryIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       categoryRepository.save(category);
     }
 
@@ -353,11 +350,6 @@ public class CategoryIntegrationTest extends IntegrationTest {
     private final String url = "http://localhost:8080/v1/categories";
 
     private String categoryName;
-
-    @BeforeEach
-    void setUp() {
-      databaseCleanup.execute();
-    }
 
     @Test
     @WithMockUser
@@ -413,7 +405,6 @@ public class CategoryIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       categoryName = "착화기";
       Category category = Category.builder().categoryName(categoryName).build();
       categoryRepository.save(category);

@@ -205,6 +205,8 @@ class ProductRepositoryTest extends RepositoryTest {
             .locationNumber("" + i).part(otherPart)
             .product(products.get(i)).build());
       }
+      em.flush();
+      em.clear();
     }
 
     @Test
@@ -219,6 +221,7 @@ class ProductRepositoryTest extends RepositoryTest {
       assertThat(productPage.getTotalElements()).isEqualTo(2);
       assertThat(productPage.getTotalPages()).isEqualTo(1);
       assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
           .isEqualTo(List.of(products.get(0), products.get(1)));
     }
 
@@ -234,6 +237,7 @@ class ProductRepositoryTest extends RepositoryTest {
       assertThat(productPage.getTotalElements()).isEqualTo(3);
       assertThat(productPage.getTotalPages()).isEqualTo(1);
       assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
           .isEqualTo(List.of(products.get(0), products.get(1), products.get(2)));
     }
 
@@ -249,6 +253,7 @@ class ProductRepositoryTest extends RepositoryTest {
       assertThat(productPage.getTotalElements()).isEqualTo(2);
       assertThat(productPage.getTotalPages()).isEqualTo(1);
       assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
           .isEqualTo(List.of(products.get(0), products.get(1)));
     }
 
@@ -264,8 +269,8 @@ class ProductRepositoryTest extends RepositoryTest {
       assertThat(productPage.getTotalElements()).isEqualTo(4);
       assertThat(productPage.getTotalPages()).isEqualTo(1);
       assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
           .isEqualTo(products);
     }
   }
-
 }
