@@ -105,7 +105,8 @@ public class ProductController {
           @Content(schema = @Schema(implementation = ProductNotFoundExceptionSwagger.class))})})
   @DeleteMapping("/{productId}")
   public ResponseEntity<ResultDTO<ProductResponse>> deleteProduct(
-      @Valid @PathVariable("productId") @Positive(message = ExceptionMessage.INVALID_PATH) Long productId) {
+      @Schema(description = "제품 아이디", example = "1")
+      @PathVariable("productId") @Positive(message = ExceptionMessage.INVALID_PATH) Long productId) {
     ProductServiceResponse serviceDto = productService.deleteProduct(productId);
     ProductResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(

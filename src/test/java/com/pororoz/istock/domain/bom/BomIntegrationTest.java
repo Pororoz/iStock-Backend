@@ -30,8 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 public class BomIntegrationTest extends IntegrationTest {
 
@@ -349,13 +347,7 @@ public class BomIntegrationTest extends IntegrationTest {
     Long partId = 1L;
     Long productId = 1L;
 
-    MultiValueMap<String, String> params;
-    String uri = "http://localhost:8080/v1/bom";
-
-    @BeforeEach
-    void setup() {
-      params = new LinkedMultiValueMap<>();
-    }
+    String uri = "http://localhost:8080/v1/bom/";
 
     @Nested
     @DisplayName("성공 케이스")
@@ -413,10 +405,8 @@ public class BomIntegrationTest extends IntegrationTest {
             .productId(productId)
             .build();
 
-        params.add("bomId", Long.toString(bomId));
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + bomId, HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isOk())
@@ -436,10 +426,8 @@ public class BomIntegrationTest extends IntegrationTest {
       @DisplayName("존재하지 않는 BOM 값을 삭제 시도하면 404 Not Found를 반환한다.")
       void bomNotFound() throws Exception {
         // given
-        params.add("bomId", Long.toString(bomId));
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + bomId, HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isNotFound())
@@ -453,10 +441,8 @@ public class BomIntegrationTest extends IntegrationTest {
       @DisplayName("bomId에 마이너스 값을 넣으면 400 Bad Request를 반환한다.")
       void bomIdMinus() throws Exception {
         // given
-        params.add("bomId", Long.toString(-1));
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + "-1", HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -467,10 +453,8 @@ public class BomIntegrationTest extends IntegrationTest {
       @DisplayName("인증되지 않은 사용자가 접근하면 403 Forbidden을 반환한다.")
       void forbidden() throws Exception {
         // given
-        params.add("bomId", Long.toString(bomId));
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + bomId, HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isForbidden())
