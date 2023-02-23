@@ -1,14 +1,20 @@
 package com.pororoz.istock.common.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pororoz.istock.common.dto.ResultDTO;
+import com.pororoz.istock.common.utils.message.ResponseMessage;
+import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.auth.handler.CustomAuthenticationFailureHandler;
 import com.pororoz.istock.domain.auth.handler.CustomAuthenticationManager;
 import com.pororoz.istock.domain.auth.handler.CustomAuthenticationSuccessHandler;
 import com.pororoz.istock.domain.auth.handler.JsonUsernamePasswordAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -54,8 +60,17 @@ public class SecurityConfiguration {
 
     http.logout()
         .logoutRequestMatcher(new AntPathRequestMatcher("/v1/auth/logout"))
-        .logoutSuccessUrl("/")
-        .deleteCookies();
+        .invalidateHttpSession(true)
+        .deleteCookies("JSESSIONID")
+        .logoutSuccessHandler((request, response, authentication) -> {
+          response.setStatus(HttpServletResponse.SC_OK);
+          response.setHeader("content-type", "application/json");
+          response.setCharacterEncoding("UTF-8");
+          ResponseEntity<ResultDTO<Object>> responseEntity = ResponseEntity.ok(
+              new ResultDTO<>(ResponseStatus.OK, ResponseMessage.LOGOUT, null));
+          String result = new ObjectMapper().writeValueAsString(responseEntity.getBody());
+          response.getWriter().write(result);
+        });
 
     http.sessionManagement()
         .maximumSessions(1)
