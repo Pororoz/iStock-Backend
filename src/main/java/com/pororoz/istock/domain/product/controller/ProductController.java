@@ -106,7 +106,8 @@ public class ProductController {
   @DeleteMapping("/{productId}")
   public ResponseEntity<ResultDTO<ProductResponse>> deleteProduct(
       @Schema(description = "제품 아이디", example = "1")
-      @PathVariable("productId") @Positive(message = ExceptionMessage.INVALID_PATH) Long productId) {
+      @PathVariable("productId") @Positive(message = ExceptionMessage.INVALID_PATH)
+      Long productId) {
     ProductServiceResponse serviceDto = productService.deleteProduct(productId);
     ProductResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
@@ -124,12 +125,9 @@ public class ProductController {
   @PageableAsQueryParam
   @GetMapping(params = "category-id")
   public ResponseEntity<ResultDTO<PageResponse<FindProductWithSubassyResponse>>> findProductsWithSubAssys(
-      @Valid
-      @Parameter(hidden = true)
-      Pageable pageable,
+      @Parameter(hidden = true) Pageable pageable,
       @Schema(description = "카테고리 아이디", example = "1")
-      @PositiveOrZero
-      @RequestParam("category-id")
+      @PositiveOrZero @RequestParam("category-id")
       Long categoryId) {
     Page<FindProductWithSubassyResponse> productPage = productService.findProductsWithSubAssys(
             categoryId,

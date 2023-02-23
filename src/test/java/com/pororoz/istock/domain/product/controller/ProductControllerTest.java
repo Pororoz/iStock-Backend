@@ -394,6 +394,20 @@ class ProductControllerTest extends ControllerTest {
     }
 
     @Test
+    @DisplayName("categoryId가 음수이면 bad request가 발생한다.")
+    void categoryIdNegative() throws Exception {
+      //given
+      String uri = getUri(-1L, 1, 3);
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.GET);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andDo(print());
+    }
+
+    @Test
     @DisplayName("page관련 정보에 null이 들어갈 수 있다.")
     void pageableNullable() throws Exception {
       //given
@@ -566,6 +580,21 @@ class ProductControllerTest extends ControllerTest {
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))
           .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("partId가 음수이면 Bad Request가 발생한다.")
+    void partIdNotNegative() throws Exception {
+      //given
+      String fullUri = uri + "?part-id=" + -1 + "&part-name=name&page=1&size=1";
+
+      //when
+      ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
           .andDo(print());
     }
   }
