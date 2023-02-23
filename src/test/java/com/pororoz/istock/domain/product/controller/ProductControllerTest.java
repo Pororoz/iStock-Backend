@@ -21,12 +21,14 @@ import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
 import com.pororoz.istock.domain.product.dto.response.FindProductWithSubassyResponse;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.dto.response.SubAssyResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductByPartServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.SubAssyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
 import com.pororoz.istock.domain.product.service.ProductService;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -316,8 +318,8 @@ class ProductControllerTest extends ControllerTest {
   }
 
   @Nested
-  @DisplayName("product 조회")
-  class findProducts {
+  @DisplayName("product와 subAssy 조회")
+  class findProductsWithSubassys {
 
     String getUri(Long categoryId, Integer page, Integer size) {
       return uri + "?category-id=" + (categoryId == null ? "" : categoryId)
@@ -439,6 +441,127 @@ class ProductControllerTest extends ControllerTest {
       PageResponse<FindProductWithSubassyResponse> response =
           new PageResponse<>(
               new PageImpl<>(List.of(findProductWithSubassyResponse), pageRequest, size));
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+  }
+
+  @Nested
+  @DisplayName("part 정보로 product 조회")
+  class FindProductsByPart {
+
+    @Test
+    @DisplayName("partId와 partName으로 product를 페이지네이션하여 조회한다.")
+    void findProductsByPart() throws Exception {
+      //given
+      long partId = 10L;
+      String partName = "part name";
+      int page = 0;
+      int size = 1;
+      String fullUri =
+          uri + "?part-id=" + partId + "&part-name=" + partName + "&page=" + page + "&size=" + size;
+      Pageable pageable = PageRequest.of(page, size);
+      ProductServiceResponse serviceResponse = ProductServiceResponse.builder()
+          .productId(id)
+          .productName(name).productNumber(number)
+          .companyName(companyName).codeNumber(codeNumber)
+          .stock(stock).createdAt(LocalDateTime.now()).updatedAt(LocalDateTime.now())
+          .build();
+      Page<ProductServiceResponse> pageResponse = new PageImpl<>(
+          List.of(serviceResponse), pageable, 1);
+      ArgumentCaptor<FindProductByPartServiceRequest> requestArgument =
+          ArgumentCaptor.forClass(FindProductByPartServiceRequest.class);
+      ArgumentCaptor<Pageable> pageArgument = ArgumentCaptor.forClass(Pageable.class);
+
+      //when
+      when(productService.findProductsByPart(any(FindProductByPartServiceRequest.class),
+          any(Pageable.class))).thenReturn(pageResponse);
+      ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+      //then
+      ProductResponse productResponse = ProductResponse.builder()
+          .productId(id)
+          .productName(name).productNumber(number)
+          .companyName(companyName).codeNumber(codeNumber)
+          .stock(stock).build();
+      PageResponse<ProductResponse> response = new PageResponse<>(
+          new PageImpl<>(List.of(productResponse), pageable, 1));
+
+      verify(productService).findProductsByPart(requestArgument.capture(), pageArgument.capture());
+      assertThat(requestArgument.getValue().getPartId()).isEqualTo(partId);
+      assertThat(requestArgument.getValue().getPartName()).isEqualTo(partName);
+      assertThat(pageArgument.getValue()).usingRecursiveComparison().isEqualTo(pageable);
+
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("part-id와 part-name에 null이 들어갈 수 있다")
+    void partIdAndPartNameNullable() throws Exception {
+      //given
+      int page = 0;
+      int size = 1;
+      String fullUri =
+          uri + "?part-id=&page=" + page + "&size=" + size;
+      Pageable pageable = PageRequest.of(page, size);
+      Page<ProductServiceResponse> pageResponse = new PageImpl<>(
+          List.of(), pageable, 1);
+      ArgumentCaptor<FindProductByPartServiceRequest> requestArgument =
+          ArgumentCaptor.forClass(FindProductByPartServiceRequest.class);
+
+      //when
+      when(productService.findProductsByPart(any(FindProductByPartServiceRequest.class),
+          any(Pageable.class))).thenReturn(pageResponse);
+      ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+      //then
+      PageResponse<ProductResponse> response = new PageResponse<>(
+          new PageImpl<>(List.of(), pageable, 1));
+
+      verify(productService).findProductsByPart(requestArgument.capture(), any(Pageable.class));
+      assertThat(requestArgument.getValue().getPartId()).isNull();
+      assertThat(requestArgument.getValue().getPartName()).isNull();
+
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("page 정보에 null이 들어갈 수 있다.")
+    void pageableNullable() throws Exception {
+      //given
+      long partId = 10L;
+      String partName = "part name";
+      String fullUri =
+          uri + "?part-id=" + partId + "&part-name=" + partName + "&size=";
+      Pageable pageable = Pageable.unpaged();
+      Page<ProductServiceResponse> pageResponse = new PageImpl<>(
+          List.of(), pageable, 1);
+      ArgumentCaptor<Pageable> pageArgument = ArgumentCaptor.forClass(Pageable.class);
+
+      //when
+      when(productService.findProductsByPart(any(FindProductByPartServiceRequest.class),
+          any(Pageable.class))).thenReturn(pageResponse);
+      ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+      //then
+      PageResponse<ProductResponse> response = new PageResponse<>(
+          new PageImpl<>(List.of(), pageable, 1));
+
+      verify(productService).findProductsByPart(any(FindProductByPartServiceRequest.class),
+          pageArgument.capture());
+      assertThat(pageArgument.getValue()).usingRecursiveComparison().isEqualTo(pageable);
+
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))

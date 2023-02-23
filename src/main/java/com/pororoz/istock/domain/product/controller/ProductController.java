@@ -7,6 +7,7 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.swagger.exception.CategoryNotFoundExceptionSwagger;
+import com.pororoz.istock.domain.product.dto.request.FindProductByPartRequest;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
 import com.pororoz.istock.domain.product.dto.response.FindProductWithSubassyResponse;
@@ -38,6 +39,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -118,7 +120,7 @@ public class ProductController {
       @ApiResponse(responseCode = "404", description = ExceptionMessage.CATEGORY_NOT_FOUND, content = {
           @Content(schema = @Schema(implementation = CategoryNotFoundExceptionSwagger.class))})})
   @PageableAsQueryParam
-  @GetMapping
+  @GetMapping(params = "category-id")
   public ResponseEntity<ResultDTO<PageResponse<FindProductWithSubassyResponse>>> findProductsWithSubAssys(
       @Valid
       @Parameter(hidden = true)
@@ -127,11 +129,30 @@ public class ProductController {
       @PositiveOrZero
       @RequestParam("category-id")
       Long categoryId) {
-    Page<FindProductWithSubassyResponse> findProductPage = productService.findProductsWithSubAssys(
+    Page<FindProductWithSubassyResponse> productPage = productService.findProductsWithSubAssys(
             categoryId,
             pageable)
         .map(FindProductWithSubassyServiceResponse::toResponse);
-    PageResponse<FindProductWithSubassyResponse> response = new PageResponse<>(findProductPage);
+    PageResponse<FindProductWithSubassyResponse> response = new PageResponse<>(productPage);
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_PRODUCT, response));
+  }
+
+  @Operation(summary = "find products", description = "제품 조회 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.FIND_PRODUCT, content = {
+          @Content(schema = @Schema(implementation = FindProductWithSubassyResponseSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))})})
+  @PageableAsQueryParam
+  @GetMapping
+  public ResponseEntity<ResultDTO<PageResponse<ProductResponse>>> findProductsByPart(
+      @Valid
+      @Parameter(hidden = true) Pageable pageable,
+      @ModelAttribute FindProductByPartRequest request) {
+    Page<ProductResponse> productPage = productService.findProductsByPart(
+        request.toService(), pageable).map(ProductServiceResponse::toResponse);
+    PageResponse<ProductResponse> response = new PageResponse<>(productPage);
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_PRODUCT, response));
   }
