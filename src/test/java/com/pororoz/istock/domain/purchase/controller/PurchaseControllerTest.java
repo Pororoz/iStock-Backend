@@ -32,20 +32,20 @@ public class PurchaseControllerTest extends ControllerTest {
   PurchaseService purchaseService;
 
   private Long productId = 1L;
-
   private long amount = 300L;
 
   @Nested
   @DisplayName("제품 자재 일괄 구매")
   class PurchaseBulk {
 
+    String url = "http://localhost:8080/v1/purchase/product";
+
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
 
-      String url = "http://localhost:8080/v1/purchase/product";
       @Test
-      @DisplayName("존재하는 Product와 1이상의 amount를 요청하면 구매 대기 내역을 생성한다.")
+      @DisplayName("일괄 구매를 요청하면 구매 대기 내역을 생성한다.")
       void purchaseBulk() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
@@ -77,7 +77,39 @@ public class PurchaseControllerTest extends ControllerTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+      @Test
+      @DisplayName("productId가 null이면 오류가 발생한다.")
+      void productIdNullException() throws Exception {
+        // given
+        PurchaseProductRequest request = PurchaseProductRequest.builder()
+            .productId(null)
+            .amount(amount)
+            .build();
 
+        // when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("amount가 1보다 작은면 오류가 발생한다.")
+      void amountNullException() throws Exception {
+        // given
+        PurchaseProductRequest request = PurchaseProductRequest.builder()
+            .productId(productId)
+            .amount(0L)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
     }
   }
 }

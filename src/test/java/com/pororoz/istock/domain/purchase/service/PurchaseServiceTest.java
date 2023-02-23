@@ -3,7 +3,6 @@ package com.pororoz.istock.domain.purchase.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -14,6 +13,10 @@ import com.pororoz.istock.domain.part.entity.PartStatus;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
+import com.pororoz.istock.domain.product.entity.ProductIo;
+import com.pororoz.istock.domain.product.entity.ProductStatus;
+import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
@@ -32,7 +35,6 @@ public class PurchaseServiceTest {
 
   @InjectMocks
   PurchaseService purchaseService;
-
   @Mock
   ProductRepository productRepository;
   @Mock
@@ -40,41 +42,40 @@ public class PurchaseServiceTest {
   @Mock
   PartRepository partRepository;
   @Mock
+  ProductIoRepository productIoRepository;
+  @Mock
   PartIoRepository partIoRepository;
+
+  Long productId = 1L;
+  Long bomId = 1L;
+  Long partId = 1L;
+  Long productIoId = 1L;
+  Long partIoId = 1L;
+  String locationNumber = "L5.L4";
+  String codeNumber = "";
+  long quantity = 3L;
+  String memo = "";
+  long amount = 100L;
+  ProductStatus productStatus = ProductStatus.구매대기;
+  PartStatus partStatus = PartStatus.구매대기;
 
   @Nested
   @DisplayName("제품 자재 일괄 구매 테스트")
   class purchaseBulk {
 
-    Long productId = 1L;
-    Long partId = 1L;
-    Long bomId = 1L;
-    Long partIoId = 1L;
-    String locationNumber = "L5.L4";
-    String codeNumber = "";
-    long quantity = 3L;
-    String memo = "";
-    long amount = 100L;
-
-    PartStatus status = PartStatus.구매대기;
+    PurchaseProductServiceRequest request = PurchaseProductServiceRequest.builder()
+        .productId(productId)
+        .amount(amount)
+        .build();
 
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
 
       @Test
-      @DisplayName("입력받은 Product에 포함된 Part에 대한 구매 대기 상태가 Part I/O에 추가된다.")
+      @DisplayName("입력받은 Product에 포함된 Part에 대한 구매 대기 상태가 ProductI/O와 PartI/O에 추가된다.")
       void purchaseBulk() {
         // given
-        PurchaseProductServiceRequest request = PurchaseProductServiceRequest.builder()
-            .productId(productId)
-            .amount(amount)
-            .build();
-        PurchaseProductServiceResponse response = PurchaseProductServiceResponse.builder()
-            .productId(productId)
-            .amount(amount)
-            .build();
-
         Part part = Part.builder().id(partId).build();
         Product product = Product.builder().id(productId).build();
         Bom bom = Bom.builder()
@@ -86,15 +87,27 @@ public class PurchaseServiceTest {
             .part(part)
             .product(product)
             .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(amount)
+            .status(productStatus)
+            .product(product)
+            .build();
         PartIo partIo = PartIo.builder()
             .id(partIoId)
             .quantity(amount)
-            .status(status)
+            .status(partStatus)
             .part(part)
             .build();
 
+        PurchaseProductServiceResponse response = PurchaseProductServiceResponse.builder()
+            .productId(productId)
+            .amount(amount)
+            .build();
+
         // when
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        when(productIoRepository.save(any())).thenReturn(productIo);
         when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
         when(partRepository.findById(any())).thenReturn(Optional.of(part));
         when(partIoRepository.save(any())).thenReturn(partIo);
@@ -108,6 +121,18 @@ public class PurchaseServiceTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
+      @Test
+      @DisplayName("존재하지 않는 Product를 요청하면 오류가 발생한다.")
+      void productNotFound() {
+        // given
+        // when
+        when(productRepository.findById(request.getProductId())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ProductNotFoundException.class,
+            () -> purchaseService.purchaseProduct(request));
+      }
     }
   }
 }
