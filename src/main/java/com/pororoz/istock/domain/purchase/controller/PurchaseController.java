@@ -1,13 +1,21 @@
 package com.pororoz.istock.domain.purchase.controller;
 
 import com.pororoz.istock.common.dto.ResultDTO;
+import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
+import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import com.pororoz.istock.domain.purchase.exception.response.PurchaseProductResponseSwagger;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +36,14 @@ public class PurchaseController {
   private final PurchaseService purchaseService;
 
   @Operation(summary = "purchase product", description = "제품 자재 일괄 구매 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.PURCHASE_PRODUCT, content = {
+          @Content(schema = @Schema(implementation = PurchaseProductResponseSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = ProductNotFoundException.class))})
+  })
   @PostMapping("/product")
   public ResponseEntity<ResultDTO<PurchaseProductResponse>> purchaseProduct(
       @Valid @RequestBody PurchaseProductRequest purchaseProductRequest) {
