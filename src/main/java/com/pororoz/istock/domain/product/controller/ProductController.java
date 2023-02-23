@@ -9,15 +9,15 @@ import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.swagger.exception.CategoryNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
-import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
+import com.pororoz.istock.domain.product.dto.response.FindProductWithSubassyResponse;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.service.ProductService;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNameDuplicatedSwagger;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.product.swagger.response.DeleteProductResponseSwagger;
-import com.pororoz.istock.domain.product.swagger.response.FindProductResponseSwagger;
+import com.pororoz.istock.domain.product.swagger.response.FindProductWithSubassyResponseSwagger;
 import com.pororoz.istock.domain.product.swagger.response.SaveProductResponseSwagger;
 import com.pororoz.istock.domain.product.swagger.response.UpdateProductResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
@@ -112,14 +112,14 @@ public class ProductController {
   @Operation(summary = "find products", description = "제품 조회 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.FIND_PRODUCT, content = {
-          @Content(schema = @Schema(implementation = FindProductResponseSwagger.class))}),
+          @Content(schema = @Schema(implementation = FindProductWithSubassyResponseSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.CATEGORY_NOT_FOUND, content = {
           @Content(schema = @Schema(implementation = CategoryNotFoundExceptionSwagger.class))})})
   @PageableAsQueryParam
   @GetMapping
-  public ResponseEntity<ResultDTO<PageResponse<FindProductResponse>>> findProducts(
+  public ResponseEntity<ResultDTO<PageResponse<FindProductWithSubassyResponse>>> findProductsWithSubAssys(
       @Valid
       @Parameter(hidden = true)
       Pageable pageable,
@@ -127,9 +127,11 @@ public class ProductController {
       @PositiveOrZero
       @RequestParam("category-id")
       Long categoryId) {
-    Page<FindProductResponse> findProductPage = productService.findProducts(categoryId, pageable)
-        .map(FindProductServiceResponse::toResponse);
-    PageResponse<FindProductResponse> response = new PageResponse<>(findProductPage);
+    Page<FindProductWithSubassyResponse> findProductPage = productService.findProductsWithSubAssys(
+            categoryId,
+            pageable)
+        .map(FindProductWithSubassyServiceResponse::toResponse);
+    PageResponse<FindProductWithSubassyResponse> response = new PageResponse<>(findProductPage);
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_PRODUCT, response));
   }

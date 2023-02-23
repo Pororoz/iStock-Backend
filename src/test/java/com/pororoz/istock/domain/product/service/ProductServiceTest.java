@@ -17,7 +17,7 @@ import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.part.entity.Part;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.SubAssyServiceResponse;
@@ -490,8 +490,8 @@ class ProductServiceTest {
             .thenReturn(productPage);
         when(productRepository.findByProductNumbers(anySet())).thenReturn(
             List.of(subAssy1, subAssy2));
-        Page<FindProductServiceResponse> result =
-            productService.findProducts(categoryId, PageRequest.of(page, size));
+        Page<FindProductWithSubassyServiceResponse> result =
+            productService.findProductsWithSubAssys(categoryId, PageRequest.of(page, size));
 
         //then
         SubAssyServiceResponse subAssyResponse1 = SubAssyServiceResponse.builder()
@@ -506,7 +506,7 @@ class ProductServiceTest {
         assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
         assertThat(result.getTotalElements()).isEqualTo(10);
         long i = 0;
-        for (FindProductServiceResponse findResponse : result.getContent()) {
+        for (FindProductWithSubassyServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
           assertThat(findResponse.getSubAssyServiceResponses()).hasSize(2);
@@ -533,7 +533,7 @@ class ProductServiceTest {
 
         //then
         assertThrows(CategoryNotFoundException.class,
-            () -> productService.findProducts(categoryId, pageRequest));
+            () -> productService.findProductsWithSubAssys(categoryId, pageRequest));
       }
 
       @Test
@@ -561,7 +561,7 @@ class ProductServiceTest {
 
         //then
         assertThrows(SubAssyNotFoundByProductNameException.class,
-            () -> productService.findProducts(categoryId, PageRequest.of(page, size)));
+            () -> productService.findProductsWithSubAssys(categoryId, PageRequest.of(page, size)));
       }
     }
   }

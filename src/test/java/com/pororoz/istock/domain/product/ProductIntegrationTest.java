@@ -22,7 +22,7 @@ import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
-import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
+import com.pororoz.istock.domain.product.dto.response.FindProductWithSubassyResponse;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.dto.response.SubAssyResponse;
 import com.pororoz.istock.domain.product.entity.Product;
@@ -495,11 +495,11 @@ public class ProductIntegrationTest extends IntegrationTest {
       ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
 
       //then
-      List<FindProductResponse> findProductResponses = new ArrayList<>();
+      List<FindProductWithSubassyResponse> findProductWithSubassyRespons = new ArrayList<>();
       for (int i = 5; i < 10; i++) {
         Product product = products.get(i);
         Product subAssy = i > 6 ? null : subAssys.get(i);
-        findProductResponses.add(FindProductResponse.builder()
+        findProductWithSubassyRespons.add(FindProductWithSubassyResponse.builder()
             .productId(product.getId())
             .productName(product.getProductName())
             .productNumber(product.getProductNumber())
@@ -517,8 +517,9 @@ public class ProductIntegrationTest extends IntegrationTest {
                     .quantity(10).stock(0).build()))
             .build());
       }
-      PageResponse<FindProductResponse> response = new PageResponse<>(
-          new PageImpl<>(findProductResponses, PageRequest.of(page, size), products.size()));
+      PageResponse<FindProductWithSubassyResponse> response = new PageResponse<>(
+          new PageImpl<>(findProductWithSubassyRespons, PageRequest.of(page, size),
+              products.size()));
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))

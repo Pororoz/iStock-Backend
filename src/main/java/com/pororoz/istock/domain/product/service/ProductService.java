@@ -4,7 +4,7 @@ import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
@@ -68,7 +68,8 @@ public class ProductService {
   }
 
   @Transactional(readOnly = true)
-  public Page<FindProductServiceResponse> findProducts(Long categoryId, Pageable pageable) {
+  public Page<FindProductWithSubassyServiceResponse> findProductsWithSubAssys(Long categoryId,
+      Pageable pageable) {
     categoryRepository.findById(categoryId)
         .orElseThrow(CategoryNotFoundException::new);
     Page<Product> products = productRepository.findByCategoryIdWithBoms(pageable, categoryId);
@@ -82,7 +83,7 @@ public class ProductService {
       product.getBoms().forEach(bom -> subAssyNames.add(bom.getProductNumber()));
     });
     List<Product> subAssys = productRepository.findByProductNumbers(subAssyNames);
-    return products.map(product -> FindProductServiceResponse.of(product, subAssys));
+    return products.map(product -> FindProductWithSubassyServiceResponse.of(product, subAssys));
   }
 
 

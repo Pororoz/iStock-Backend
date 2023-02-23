@@ -18,10 +18,10 @@ import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
-import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
+import com.pororoz.istock.domain.product.dto.response.FindProductWithSubassyResponse;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.dto.response.SubAssyResponse;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.SubAssyServiceResponse;
@@ -343,15 +343,15 @@ class ProductControllerTest extends ControllerTest {
               .companyName("company")
               .stock(1).build())
           .quantity(1).build();
-      FindProductServiceResponse ServiceDto = FindProductServiceResponse.builder()
+      FindProductWithSubassyServiceResponse ServiceDto = FindProductWithSubassyServiceResponse.builder()
           .productServiceResponse(productServiceResponse)
           .subAssyServiceResponses(List.of(subAssyServiceResponse))
           .build();
-      Page<FindProductServiceResponse> dtoPage =
+      Page<FindProductWithSubassyServiceResponse> dtoPage =
           new PageImpl<>(List.of(ServiceDto), pageRequest, 4);
 
       //when
-      when(productService.findProducts(eq(categoryId), any(Pageable.class)))
+      when(productService.findProductsWithSubAssys(eq(categoryId), any(Pageable.class)))
           .thenReturn(dtoPage);
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
@@ -362,13 +362,14 @@ class ProductControllerTest extends ControllerTest {
           .productId(1L)
           .stock(1)
           .quantity(1).build();
-      FindProductResponse findProductResponse = FindProductResponse.builder()
+      FindProductWithSubassyResponse findProductWithSubassyResponse = FindProductWithSubassyResponse.builder()
           .productId(id).categoryId(categoryId)
           .codeNumber("10")
           .subAssy(List.of(subAssyResponse))
           .build();
-      PageResponse<FindProductResponse> response =
-          new PageResponse<>(new PageImpl<>(List.of(findProductResponse), pageRequest, 4));
+      PageResponse<FindProductWithSubassyResponse> response =
+          new PageResponse<>(
+              new PageImpl<>(List.of(findProductWithSubassyResponse), pageRequest, 4));
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))
@@ -407,21 +408,21 @@ class ProductControllerTest extends ControllerTest {
               .companyName("company")
               .stock(1).build())
           .quantity(1).build();
-      FindProductServiceResponse ServiceDto = FindProductServiceResponse.builder()
+      FindProductWithSubassyServiceResponse ServiceDto = FindProductWithSubassyServiceResponse.builder()
           .productServiceResponse(productServiceResponse)
           .subAssyServiceResponses(List.of(subAssyServiceResponse))
           .build();
-      Page<FindProductServiceResponse> dtoPage =
+      Page<FindProductWithSubassyServiceResponse> dtoPage =
           new PageImpl<>(List.of(ServiceDto), pageRequest, size);
       ArgumentCaptor<Pageable> argument = ArgumentCaptor.forClass(Pageable.class);
 
       //when
-      when(productService.findProducts(eq(categoryId), any(Pageable.class)))
+      when(productService.findProductsWithSubAssys(eq(categoryId), any(Pageable.class)))
           .thenReturn(dtoPage);
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
       //then
-      verify(productService).findProducts(eq(categoryId), argument.capture());
+      verify(productService).findProductsWithSubAssys(eq(categoryId), argument.capture());
       assertThat(argument.getValue()).usingRecursiveComparison().isEqualTo(Pageable.unpaged());
 
       SubAssyResponse subAssyRespon = SubAssyResponse.builder()
@@ -430,13 +431,14 @@ class ProductControllerTest extends ControllerTest {
           .productId(1L)
           .stock(1)
           .quantity(1).build();
-      FindProductResponse findProductResponse = FindProductResponse.builder()
+      FindProductWithSubassyResponse findProductWithSubassyResponse = FindProductWithSubassyResponse.builder()
           .productId(id).categoryId(categoryId)
           .codeNumber("10")
           .subAssy(List.of(subAssyRespon))
           .build();
-      PageResponse<FindProductResponse> response =
-          new PageResponse<>(new PageImpl<>(List.of(findProductResponse), pageRequest, size));
+      PageResponse<FindProductWithSubassyResponse> response =
+          new PageResponse<>(
+              new PageImpl<>(List.of(findProductWithSubassyResponse), pageRequest, size));
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))
