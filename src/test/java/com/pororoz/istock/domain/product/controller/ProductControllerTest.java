@@ -321,6 +321,8 @@ class ProductControllerTest extends ControllerTest {
   @DisplayName("product와 subAssy 조회")
   class findProductsWithSubassys {
 
+    String uri = "/v1/products/with/subassy";
+
     String getUri(Long categoryId, Integer page, Integer size) {
       return uri + "?category-id=" + (categoryId == null ? "" : categoryId)
           + "&page=" + (page == null ? "" : page)

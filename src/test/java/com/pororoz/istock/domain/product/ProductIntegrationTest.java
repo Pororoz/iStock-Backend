@@ -432,9 +432,11 @@ public class ProductIntegrationTest extends IntegrationTest {
   }
 
   @Nested
-  @DisplayName("GET /v1/products?category-id={categoryId}&page={page}&size={size} - 제품 조회")
+  @DisplayName("GET /v1/products/with/subassy?category-id={categoryId}&page={page}&size={size} - 제품 조회")
   class FindProducts {
 
+    String uri = "/v1/products/with/subassy";
+    
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("제품을 subAssy와 함께 페이지네이션하여 1페이지를 조회한다.")

@@ -18,6 +18,7 @@ import com.pororoz.istock.domain.product.service.ProductService;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNameDuplicatedSwagger;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.product.swagger.response.DeleteProductResponseSwagger;
+import com.pororoz.istock.domain.product.swagger.response.FindProductByPartResponseSwagger;
 import com.pororoz.istock.domain.product.swagger.response.FindProductWithSubassyResponseSwagger;
 import com.pororoz.istock.domain.product.swagger.response.SaveProductResponseSwagger;
 import com.pororoz.istock.domain.product.swagger.response.UpdateProductResponseSwagger;
@@ -114,7 +115,7 @@ public class ProductController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_PRODUCT, response));
   }
 
-  @Operation(summary = "find products", description = "제품 조회 API")
+  @Operation(summary = "find with subassy", description = "제품 및 subassy 조회 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.FIND_PRODUCT, content = {
           @Content(schema = @Schema(implementation = FindProductWithSubassyResponseSwagger.class))}),
@@ -123,7 +124,7 @@ public class ProductController {
       @ApiResponse(responseCode = "404", description = ExceptionMessage.CATEGORY_NOT_FOUND, content = {
           @Content(schema = @Schema(implementation = CategoryNotFoundExceptionSwagger.class))})})
   @PageableAsQueryParam
-  @GetMapping(params = "category-id")
+  @GetMapping("/with/subassy")
   public ResponseEntity<ResultDTO<PageResponse<FindProductWithSubassyResponse>>> findProductsWithSubAssys(
       @Parameter(hidden = true) Pageable pageable,
       @Schema(description = "카테고리 아이디", example = "1")
@@ -141,14 +142,14 @@ public class ProductController {
   @Operation(summary = "find products", description = "제품 조회 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.FIND_PRODUCT, content = {
-          @Content(schema = @Schema(implementation = FindProductWithSubassyResponseSwagger.class))}),
+          @Content(schema = @Schema(implementation = FindProductByPartResponseSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))})})
   @PageableAsQueryParam
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<ProductResponse>>> findProductsByPart(
-      @Valid @Parameter(hidden = true) Pageable pageable,
-      @ParameterObject @ModelAttribute FindProductByPartRequest request) {
+      @Parameter(hidden = true) Pageable pageable,
+      @Valid @ParameterObject @ModelAttribute FindProductByPartRequest request) {
     Page<ProductResponse> productPage = productService.findProductsByPart(
         request.toService(), pageable).map(ProductServiceResponse::toResponse);
     PageResponse<ProductResponse> response = new PageResponse<>(productPage);
