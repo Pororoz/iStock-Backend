@@ -34,6 +34,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,9 +69,8 @@ public class CategoryController {
   @PageableAsQueryParam
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<FindCategoryResponse>>> findCategories(
-      @Valid @ModelAttribute("request") FindCategoryRequest request,
-      @Parameter(hidden = true)
-      Pageable pageable) {
+      @Valid @ParameterObject @ModelAttribute FindCategoryRequest request,
+      @Parameter(hidden = true) Pageable pageable) {
     Page<FindCategoryResponse> categoryPage = categoryService.findCategories(request.toService(),
             pageable)
         .map(FindCategoryServiceResponse::toResponse);

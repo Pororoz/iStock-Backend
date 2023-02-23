@@ -32,6 +32,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -147,9 +148,8 @@ public class ProductController {
   @PageableAsQueryParam
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<ProductResponse>>> findProductsByPart(
-      @Valid
-      @Parameter(hidden = true) Pageable pageable,
-      @ModelAttribute FindProductByPartRequest request) {
+      @Valid @Parameter(hidden = true) Pageable pageable,
+      @ParameterObject @ModelAttribute FindProductByPartRequest request) {
     Page<ProductResponse> productPage = productService.findProductsByPart(
         request.toService(), pageable).map(ProductServiceResponse::toResponse);
     PageResponse<ProductResponse> response = new PageResponse<>(productPage);

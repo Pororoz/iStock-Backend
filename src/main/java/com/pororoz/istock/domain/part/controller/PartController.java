@@ -29,6 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -122,7 +123,7 @@ public class PartController {
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<PartResponse>>> findParts(
       @Parameter(hidden = true) Pageable pageable,
-      @ModelAttribute FindPartRequest request) {
+      @ParameterObject @ModelAttribute FindPartRequest request) {
     Page<PartServiceResponse> findPartPage = partService.findParts(
         request.toService(), pageable);
     PageResponse<PartResponse> response = new PageResponse<>(
