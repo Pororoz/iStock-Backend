@@ -11,6 +11,7 @@ import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
+import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
@@ -138,6 +139,7 @@ public class PurchaseServiceTest {
       }
     }
   }
+
   @Nested
   @DisplayName("제품 자재 개별 구매")
   class PurchasePart {
@@ -180,7 +182,19 @@ public class PurchaseServiceTest {
 
     @Nested
     @DisplayName("실패 케이스")
-    class FailCase {}
+    class FailCase {
 
+      @Test
+      @DisplayName("존재하지 않는 Part를 요청하면 오류가 발생한다.")
+      void productNotFound() {
+        // given
+        // when
+        when(partRepository.findById(request.getPartId())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(PartNotFoundException.class,
+            () -> purchaseService.purchasePart(request));
+      }
+    }
   }
 }
