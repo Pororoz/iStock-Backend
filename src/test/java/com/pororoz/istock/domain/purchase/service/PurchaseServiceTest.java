@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.purchase.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,8 @@ import com.pororoz.istock.domain.product.entity.ProductStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import java.util.List;
@@ -61,7 +64,7 @@ public class PurchaseServiceTest {
 
   @Nested
   @DisplayName("제품 자재 일괄 구매 테스트")
-  class purchaseBulk {
+  class purchaseProduct {
 
     PurchaseProductServiceRequest request = PurchaseProductServiceRequest.builder()
         .productId(productId)
@@ -74,7 +77,7 @@ public class PurchaseServiceTest {
 
       @Test
       @DisplayName("입력받은 Product에 포함된 Part에 대한 구매 대기 상태가 ProductI/O와 PartI/O에 추가된다.")
-      void purchaseBulk() {
+      void purchaseProduct() {
         // given
         Part part = Part.builder().id(partId).build();
         Product product = Product.builder().id(productId).build();
@@ -134,5 +137,50 @@ public class PurchaseServiceTest {
             () -> purchaseService.purchaseProduct(request));
       }
     }
+  }
+  @Nested
+  @DisplayName("제품 자재 개별 구매")
+  class PurchasePart {
+
+    PurchasePartServiceRequest request = PurchasePartServiceRequest.builder()
+        .partId(partId)
+        .amount(amount)
+        .build();
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("개별 구매를 요청하면 partI/O에 구매 대기 내역을 생성한다.")
+      void purchasePart() {
+        // given
+        Part part = Part.builder().id(partId).build();
+        PartIo partIo = PartIo.builder()
+            .id(partIoId)
+            .quantity(amount)
+            .status(partStatus)
+            .part(part)
+            .build();
+
+        PurchasePartServiceResponse response = PurchasePartServiceResponse.builder()
+            .partId(partId)
+            .amount(amount)
+            .build();
+
+        // when
+        when(partRepository.findById(request.getPartId())).thenReturn(Optional.of(part));
+        when(partIoRepository.save(any())).thenReturn(partIo);
+        PurchasePartServiceResponse result = purchaseService.purchasePart(request);
+
+        // then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {}
+
   }
 }
