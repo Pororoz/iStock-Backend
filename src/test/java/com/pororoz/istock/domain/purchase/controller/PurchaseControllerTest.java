@@ -160,7 +160,41 @@ public class PurchaseControllerTest extends ControllerTest {
 
     @Nested
     @DisplayName("실패 케이스")
-    class FailCase {}
+    class FailCase {
+      @Test
+      @DisplayName("partId가 null이면 오류가 발생한다.")
+      void partIdNullException() throws Exception {
+        // given
+        PurchasePartRequest request = PurchasePartRequest.builder()
+            .partId(null)
+            .amount(amount)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("amount가 1보다 작은면 오류가 발생한다.")
+      void amountNullException() throws Exception {
+        // given
+        PurchasePartRequest request = PurchasePartRequest.builder()
+            .partId(partId)
+            .amount(0L)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
 
   }
 }
