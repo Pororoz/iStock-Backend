@@ -12,12 +12,13 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
-import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
+import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,42 +45,42 @@ public class PurchaseIntegrationTest extends IntegrationTest {
   @Autowired
   CategoryRepository categoryRepository;
 
+  @BeforeEach
+  void setUp() {
+    databaseCleanup.execute();
+    Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
+    //product 저장
+    List<Product> products = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+      Product product = productRepository.save(Product.builder()
+          .productName("p" + i).productNumber("p" + i)
+          .stock((int) (Math.random() * 100) + 1).category(category)
+          .build());
+      products.add(product);
+    }
+    //part 저장
+    List<Part> parts = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+      Part part = partRepository.save(Part.builder()
+          .partName("p" + i).spec("p" + i)
+          .build());
+      parts.add(part);
+    }
+    //일반 bom
+    for (int i = 0; i < 9; i++) {
+      bomRepository.save(Bom.builder()
+          .codeNumber("10").locationNumber("" + i + 100)
+          .part(parts.get((int) (Math.random() * 9) + 0))
+          .product(products.get((int) (Math.random() * 9) + 0))
+          .build());
+    }
+  }
+
   @Nested
   @DisplayName("POST /v1/purchase/product - 제품 자재 일괄 구매")
   class PurchaseProduct {
 
     private final String url = "http://localhost:8080/v1/purchase/product";
-
-    @BeforeEach
-    void setUp() {
-      databaseCleanup.execute();
-      Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
-      //product 저장
-      List<Product> products = new ArrayList<>();
-      for (int i = 0; i < 10; i++) {
-        Product product = productRepository.save(Product.builder()
-            .productName("p" + i).productNumber("p" + i)
-            .stock((int) (Math.random() * 100) + 1).category(category)
-            .build());
-        products.add(product);
-      }
-      //part 저장
-      List<Part> parts = new ArrayList<>();
-      for (int i = 0; i < 10; i++) {
-        Part part = partRepository.save(Part.builder()
-            .partName("p" + i).spec("p" + i)
-            .build());
-        parts.add(part);
-      }
-      //일반 bom
-      for (int i = 0; i < 9; i++) {
-        bomRepository.save(Bom.builder()
-            .codeNumber("10").locationNumber("" + i + 100)
-            .part(parts.get((int) (Math.random() * 9) + 0))
-            .product(products.get((int) (Math.random() * 9) + 0))
-            .build());
-      }
-    }
 
     @Nested
     @DisplayName("성공 케이스")
@@ -118,7 +119,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser(roles = "ADMIN")
-      @DisplayName("존재하지 않는 Product를 넘겨주면 구매 요청에 실패한다.")
+      @DisplayName("존재하지 않는 제품을 요청하면 구매 요청에 실패한다.")
       void productNotFound() throws Exception {
         //given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
@@ -140,6 +141,84 @@ public class PurchaseIntegrationTest extends IntegrationTest {
         //given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
             .productId(1L)
+            .amount(100L)
+            .build();
+
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("POST /v1/purchase/part - 제품 자재 개별 구매")
+  class PurchasePart {
+
+    private final String url = "http://localhost:8080/v1/purchase/part";
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("제품 자재 개별 구매 요청에 성공한다.")
+      void purchasePart() throws Exception {
+        //given
+        PurchasePartRequest request = PurchasePartRequest.builder()
+            .partId(1L)
+            .amount(100L)
+            .build();
+
+        PurchasePartResponse response = PurchasePartResponse.builder()
+            .partId(1L)
+            .amount(100L)
+            .build();
+
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.PURCHASE_PART))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하지 않는 부품을 요청하면 구매 요청에 실패한다.")
+      void productNotFound() throws Exception {
+        //given
+        PurchasePartRequest request = PurchasePartRequest.builder()
+            .partId(100L)
+            .amount(100L)
+            .build();
+
+        //when
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isNotFound())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("인증되지 않은 사용자가 접근하면 FORBIDDEN을 반환한다.")
+      void forbidden() throws Exception {
+        //given
+        PurchasePartRequest request = PurchasePartRequest.builder()
+            .partId(1L)
             .amount(100L)
             .build();
 
