@@ -6,8 +6,11 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
+import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import com.pororoz.istock.domain.purchase.exception.response.PurchaseProductResponseSwagger;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
@@ -52,5 +55,16 @@ public class PurchaseController {
     PurchaseProductResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.PURCHASE_PRODUCT, response));
+  }
+
+  @Operation(summary = "purchase part", description = "제품 자재 개별 구매 API")
+  @PostMapping("/part")
+  public ResponseEntity<ResultDTO<PurchasePartResponse>> purchasePart(
+      @Valid @RequestBody PurchasePartRequest purchasePartRequest) {
+    PurchasePartServiceResponse serviceDto = purchaseService.purchasePart(
+        purchasePartRequest.toService());
+    PurchasePartResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.PURCHASE_PART, response));
   }
 }
