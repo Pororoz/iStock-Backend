@@ -10,8 +10,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
+import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
@@ -32,6 +36,7 @@ public class PurchaseControllerTest extends ControllerTest {
   PurchaseService purchaseService;
 
   private Long productId = 1L;
+  private Long partId = 1L;
   private long amount = 300L;
 
   @Nested
@@ -125,17 +130,17 @@ public class PurchaseControllerTest extends ControllerTest {
 
       @Test
       @DisplayName("개별 구매를 요청하면 partI/O에 구매 대기 내역을 생성한다.")
-      void purchasePart() {
+      void purchasePart() throws Exception {
         // given
         PurchasePartRequest request = PurchasePartRequest.builder()
-            .partId(parttId)
+            .partId(partId)
             .amount(amount)
             .build();
         PurchasePartServiceResponse serviceDto = PurchasePartServiceResponse.builder()
             .partId(partId)
             .amount(amount)
             .build();
-        PurchasePArtResponse response = PurchasePartResponse.builder()
+        PurchasePartResponse response = PurchasePartResponse.builder()
             .partId(partId)
             .amount(amount)
             .build();
