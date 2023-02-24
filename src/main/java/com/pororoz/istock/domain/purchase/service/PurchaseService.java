@@ -11,6 +11,8 @@ import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import java.util.List;
@@ -43,5 +45,13 @@ public class PurchaseService {
     );
 
     return PurchaseProductServiceResponse.of(request);
+  }
+
+  public PurchasePartServiceResponse purchasePart(PurchasePartServiceRequest request) {
+    Part part = partRepository.findById(request.getPartId())
+        .orElseThrow(PartNotFoundException::new);
+    partIoRepository.save(request.toPartIo(part));
+
+    return PurchasePartServiceResponse.of(request);
   }
 }
