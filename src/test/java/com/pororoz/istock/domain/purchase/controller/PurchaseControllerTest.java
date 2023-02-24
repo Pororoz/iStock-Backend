@@ -36,7 +36,7 @@ public class PurchaseControllerTest extends ControllerTest {
 
   @Nested
   @DisplayName("제품 자재 일괄 구매")
-  class PurchaseBulk {
+  class PurchaseProduct {
 
     String url = "http://localhost:8080/v1/purchase/product";
 
@@ -45,8 +45,8 @@ public class PurchaseControllerTest extends ControllerTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("일괄 구매를 요청하면 구매 대기 내역을 생성한다.")
-      void purchaseBulk() throws Exception {
+      @DisplayName("일괄 구매를 요청하면 productI/O와 partI/O에 구매 대기 내역을 생성한다.")
+      void purchaseProduct() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
             .productId(productId)
@@ -111,5 +111,51 @@ public class PurchaseControllerTest extends ControllerTest {
             .andDo(print());
       }
     }
+  }
+
+  @Nested
+  @DisplayName("제품 자재 개별 구매")
+  class PurchasePart {
+
+    String url = "http://localhost:8008/v1/purchase/part";
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("개별 구매를 요청하면 partI/O에 구매 대기 내역을 생성한다.")
+      void purchasePart() {
+        // given
+        PurchasePartRequest request = PurchasePartRequest.builder()
+            .partId(parttId)
+            .amount(amount)
+            .build();
+        PurchasePartServiceResponse serviceDto = PurchasePartServiceResponse.builder()
+            .partId(partId)
+            .amount(amount)
+            .build();
+        PurchasePArtResponse response = PurchasePartResponse.builder()
+            .partId(partId)
+            .amount(amount)
+            .build();
+
+        // when
+        when(purchaseService.purchasePart(any(PurchasePartServiceRequest.class))).thenReturn(serviceDto);
+        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.PURCHASE_PART))
+            .andExpect(jsonPath("$.data",equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {}
+
   }
 }
