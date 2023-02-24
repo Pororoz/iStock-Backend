@@ -158,7 +158,9 @@ public class PurchaseIntegrationTest extends IntegrationTest {
   @DisplayName("POST /v1/purchase/part - 제품 자재 개별 구매")
   class PurchasePart {
 
-    private final String url = "http://localhost:8080/v1/purchase/part";
+    private String url(Long partId) {
+      return String.format("http://localhost:8080/v1/purchase/parts/%s/waiting", partId);
+    }
 
     @Nested
     @DisplayName("성공 케이스")
@@ -170,7 +172,6 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       void purchasePart() throws Exception {
         //given
         PurchasePartRequest request = PurchasePartRequest.builder()
-            .partId(1L)
             .amount(100L)
             .build();
 
@@ -180,7 +181,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
             .build();
 
         //when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(1L), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isOk())
@@ -201,12 +202,11 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       void productNotFound() throws Exception {
         //given
         PurchasePartRequest request = PurchasePartRequest.builder()
-            .partId(100L)
             .amount(100L)
             .build();
 
         //when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(100L), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isNotFound())
@@ -218,12 +218,11 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       void forbidden() throws Exception {
         //given
         PurchasePartRequest request = PurchasePartRequest.builder()
-            .partId(1L)
             .amount(100L)
             .build();
 
         //when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(1L), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isForbidden())

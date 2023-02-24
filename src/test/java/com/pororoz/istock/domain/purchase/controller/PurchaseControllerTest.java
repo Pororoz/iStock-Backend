@@ -122,8 +122,9 @@ public class PurchaseControllerTest extends ControllerTest {
   @DisplayName("제품 자재 개별 구매")
   class PurchasePart {
 
-    String url = "http://localhost:8008/v1/purchase/part";
-
+    private String url(Long partId) {
+      return String.format("http://localhost:8080/v1/purchase/parts/%s/waiting", partId);
+    }
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
@@ -133,7 +134,6 @@ public class PurchaseControllerTest extends ControllerTest {
       void purchasePart() throws Exception {
         // given
         PurchasePartRequest request = PurchasePartRequest.builder()
-            .partId(partId)
             .amount(amount)
             .build();
         PurchasePartServiceResponse serviceDto = PurchasePartServiceResponse.builder()
@@ -147,7 +147,7 @@ public class PurchaseControllerTest extends ControllerTest {
 
         // when
         when(purchaseService.purchasePart(any(PurchasePartServiceRequest.class))).thenReturn(serviceDto);
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(partId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isOk())
@@ -166,12 +166,11 @@ public class PurchaseControllerTest extends ControllerTest {
       void partIdNullException() throws Exception {
         // given
         PurchasePartRequest request = PurchasePartRequest.builder()
-            .partId(null)
             .amount(amount)
             .build();
 
         // when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -183,12 +182,11 @@ public class PurchaseControllerTest extends ControllerTest {
       void amountNullException() throws Exception {
         // given
         PurchasePartRequest request = PurchasePartRequest.builder()
-            .partId(partId)
             .amount(0L)
             .build();
 
         // when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isBadRequest())

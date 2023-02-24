@@ -15,17 +15,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PurchasePartRequest {
 
-  @Schema(description = "부품 아이디", example = "1")
-  @NotNull
-  private Long partId;
-
   @Schema(description = "구매량", example = "100")
   @Positive
   private long amount;
 
   public PurchasePartServiceRequest toService() {
     return PurchasePartServiceRequest.builder()
-        .partId(partId)
         .amount(amount)
         .build();
   }
