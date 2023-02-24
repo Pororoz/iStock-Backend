@@ -24,7 +24,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -87,7 +87,7 @@ public class BomController {
   @DeleteMapping("/{bomId}")
   public ResponseEntity<ResultDTO<BomResponse>> deleteBom(
       @Schema(description = "BOM 아이디", example = "1")
-      @PathVariable("bomId") @PositiveOrZero Long bomId) {
+      @PathVariable("bomId") @Positive Long bomId) {
     BomServiceResponse serviceDto = bomService.deleteBom(bomId);
     BomResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(

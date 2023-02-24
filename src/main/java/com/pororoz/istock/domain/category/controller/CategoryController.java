@@ -31,7 +31,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -123,8 +122,7 @@ public class CategoryController {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))})})
   @DeleteMapping("/{categoryId}")
   public ResponseEntity<ResultDTO<CategoryResponse>> deleteCategory(
-      @PathVariable("categoryId") @NotNull(message = ExceptionMessage.INVALID_PATH)
-      @Positive(message = ExceptionMessage.INVALID_PATH) Long categoryId) {
+      @PathVariable("categoryId") @Positive Long categoryId) {
     CategoryServiceResponse serviceDto = categoryService.deleteCategory(
         DeleteCategoryServiceRequest.builder().categoryId(categoryId).build());
     CategoryResponse response = serviceDto.toResponse();

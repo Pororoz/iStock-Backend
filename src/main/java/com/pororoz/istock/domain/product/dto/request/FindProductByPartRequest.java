@@ -2,7 +2,7 @@ package com.pororoz.istock.domain.product.dto.request;
 
 import com.pororoz.istock.domain.product.dto.service.FindProductByPartServiceRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 import java.beans.ConstructorProperties;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import lombok.Getter;
 public class FindProductByPartRequest {
 
   @Schema(description = "부품 아이디", example = "1")
-  @PositiveOrZero
+  @Positive
   private Long partId;
 
   @Schema(description = "부품명", example = "BEAD")
@@ -23,7 +23,7 @@ public class FindProductByPartRequest {
     this.partId = partId;
     this.partName = partName;
   }
-  
+
   public FindProductByPartServiceRequest toService() {
     return FindProductByPartServiceRequest.builder()
         .partId(partId).partName(partName)

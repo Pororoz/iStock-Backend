@@ -31,7 +31,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
@@ -128,7 +127,7 @@ public class ProductController {
   public ResponseEntity<ResultDTO<PageResponse<FindProductWithSubassyResponse>>> findProductsWithSubAssys(
       @Parameter(hidden = true) Pageable pageable,
       @Schema(description = "카테고리 아이디", example = "1")
-      @PositiveOrZero @RequestParam("category-id")
+      @Positive @RequestParam("category-id")
       Long categoryId) {
     Page<FindProductWithSubassyResponse> productPage = productService.findProductsWithSubAssys(
             categoryId,
