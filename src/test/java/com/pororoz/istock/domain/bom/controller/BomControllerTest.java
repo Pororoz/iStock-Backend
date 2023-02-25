@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.ControllerTest;
+import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
@@ -15,9 +16,15 @@ import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.service.BomService;
+import com.pororoz.istock.domain.part.entity.Part;
+import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,6 +32,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
@@ -36,6 +46,115 @@ class BomControllerTest extends ControllerTest {
 
   @MockBean
   BomService bomService;
+
+  @Nested
+  @DisplayName("제품 Bom 행 조회")
+  class FindBom {
+
+    Long bomId = 1L;
+    String locationNumber = "L5.L4";
+    String codeNumber = "";
+    long quantity = 3;
+    String memo = "";
+    Long productId = 2L;
+    String uri = "http://localhost:8080/v1/bom";
+    MultiValueMap<String, String> params;
+
+    @BeforeEach
+    void setup() {
+      params = new LinkedMultiValueMap<>();
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("Bom 정보를 넣으면 저장된다.")
+      void saveBom() throws Exception {
+        // given
+        int page = 1;
+        int size = 2;
+        LocalDateTime now = LocalDateTime.now();
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        Part part1 = Part.builder()
+            .id(1L)
+            .price(580)
+            .partName("part1")
+            .stock(2L)
+            .spec("spec1")
+            .build();
+        Part part2 = Part.builder()
+            .id(2L)
+            .price(580)
+            .partName("part2")
+            .stock(2L)
+            .spec("spec2")
+            .build();
+        FindBomServiceResponse serviceResponse1 = FindBomServiceResponse.builder()
+            .bomId(1L)
+            .locationNumber(locationNumber + "0")
+            .codeNumber(codeNumber + "0")
+            .quantity(quantity)
+            .memo(memo)
+            .createdAt(now)
+            .updatedAt(now)
+            .part(part1)
+            .build();
+        FindBomServiceResponse serviceResponse2 = FindBomServiceResponse.builder()
+            .bomId(2L)
+            .locationNumber(locationNumber + "1")
+            .codeNumber(codeNumber + "1")
+            .quantity(quantity)
+            .memo(memo)
+            .createdAt(now)
+            .updatedAt(now)
+            .part(part2)
+            .build();
+        Page<FindBomServiceResponse> dtoPage =
+            new PageImpl<>(List.of(serviceResponse1, serviceResponse2), pageRequest, 4);
+
+        FindBomResponse response1 = FindBomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber + "0")
+            .codeNumber(codeNumber + "0")
+            .quantity(quantity)
+            .memo(memo)
+            .part(part1)
+            .build();
+        FindBomResponse response2 = FindBomResponse.builder()
+            .bomId(bomId)
+            .locationNumber(locationNumber + "1")
+            .codeNumber(codeNumber + "1")
+            .quantity(quantity)
+            .memo(memo)
+            .part(part2)
+            .build();
+        PageResponse<FindProductResponse> responseList =
+            new PageResponse<>(new PageImpl<>(List.of(response1, response2), pageRequest, 4));
+
+        params.add("product-id", Long.toString(productId));
+
+        // when
+        when(bomService.findBomList(any(FindBomServiceRequest.class))).thenReturn(dtoPage);
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(responseList))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+    }
+  }
 
   @Nested
   @DisplayName("제품 Bom 행 추가")
