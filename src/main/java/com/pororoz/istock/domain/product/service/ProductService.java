@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.product.service;
 
+import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
@@ -14,9 +15,9 @@ import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedExcept
 import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -72,14 +73,11 @@ public class ProductService {
         .orElseThrow(CategoryNotFoundException::new);
     Page<Product> products = productRepository.findByCategoryIdWithBoms(pageable, categoryId);
     //subAssy만 필터링
-    List<String> subAssyNames = new ArrayList<>();
-    products.forEach(product -> {
-      product.setBoms(
-          product.getBoms().stream()
-              .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER)).toList()
-      );
-      product.getBoms().forEach(bom -> subAssyNames.add(bom.getProductNumber()));
-    });
+    List<String> subAssyNames = products.stream()
+        .flatMap(product -> product.getBoms().stream())
+        .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
+        .map(Bom::getProductNumber)
+        .collect(Collectors.toList());
     List<Product> subAssys = productRepository.findByProductNumberIn(subAssyNames);
     return products.map(product -> FindProductServiceResponse.of(product, subAssys));
   }
