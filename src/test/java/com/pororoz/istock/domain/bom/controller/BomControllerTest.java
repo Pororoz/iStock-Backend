@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.ControllerTest;
+import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
@@ -20,6 +21,7 @@ import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.service.BomService;
+import com.pororoz.istock.domain.part.dto.PartDto;
 import com.pororoz.istock.domain.part.entity.Part;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -71,7 +73,7 @@ class BomControllerTest extends ControllerTest {
         // given
         int page = 1;
         int size = 2;
-        LocalDateTime now = LocalDateTime.now();
+        String now = TimeEntity.formatTime(LocalDateTime.now());
         PageRequest pageRequest = PageRequest.of(page, size);
 
         Part part1 = Part.builder()
@@ -96,7 +98,7 @@ class BomControllerTest extends ControllerTest {
             .memo(memo)
             .createdAt(now)
             .updatedAt(now)
-            .part(part1)
+            .part(PartDto.of(part1))
             .build();
         FindBomServiceResponse serviceResponse2 = FindBomServiceResponse.builder()
             .bomId(2L)
@@ -106,7 +108,7 @@ class BomControllerTest extends ControllerTest {
             .memo(memo)
             .createdAt(now)
             .updatedAt(now)
-            .part(part2)
+            .part(PartDto.of(part2))
             .build();
         Page<FindBomServiceResponse> dtoPage =
             new PageImpl<>(List.of(serviceResponse1, serviceResponse2), pageRequest, 4);
