@@ -8,5 +8,5 @@ import lombok.Getter;
 public class SaveProductionServiceRequest {
 
   private Long productId;
-  private long amount;
+  private long quantity;
 }

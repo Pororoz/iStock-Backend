@@ -40,7 +40,7 @@ class ProductionControllerTest extends ControllerTest {
   class SaveWaitProduction {
 
     Long productId = 1L;
-    long amount = 10L;
+    long quantity = 10L;
 
     String getUri(Long productId) {
       return "/v1/production/products/" + productId + "/waiting";
@@ -51,9 +51,9 @@ class ProductionControllerTest extends ControllerTest {
     void saveWaitProduction() throws Exception {
       //given
       Map<String, String> request = new HashMap<>();
-      request.put("amount", "10");
+      request.put("quantity", "10");
       SaveProductionServiceResponse responseDto = SaveProductionServiceResponse.builder()
-          .productId(productId).amount(amount)
+          .productId(productId).quantity(quantity)
           .build();
       ArgumentCaptor<SaveProductionServiceRequest> argument =
           ArgumentCaptor.forClass(SaveProductionServiceRequest.class);
@@ -65,7 +65,7 @@ class ProductionControllerTest extends ControllerTest {
 
       //then
       SaveProductionServiceRequest requestDto = SaveProductionServiceRequest.builder()
-          .productId(productId).amount(amount)
+          .productId(productId).quantity(quantity)
           .build();
       verify(productionService).saveWaitingProduction(argument.capture());
       assertThat(argument.getValue()).usingRecursiveComparison().isEqualTo(requestDto);
@@ -81,7 +81,7 @@ class ProductionControllerTest extends ControllerTest {
     void productIdCannotZeroOrNegative() throws Exception {
       //given
       Map<String, String> request = new HashMap<>();
-      request.put("amount", "10");
+      request.put("quantity", "10");
 
       //when
       ResultActions actions = getResultActions(getUri(0L), HttpMethod.POST, request);
@@ -93,11 +93,11 @@ class ProductionControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("amount에 0 이하의 정수가 들어갈 수 없다.")
-    void amountCannotZeroOrNegative() throws Exception {
+    @DisplayName("quantity에 0 이하의 정수가 들어갈 수 없다.")
+    void quantityCannotZeroOrNegative() throws Exception {
       //given
       Map<String, String> request = new HashMap<>();
-      request.put("amount", "0");
+      request.put("quantity", "0");
 
       //when
       ResultActions actions = getResultActions(getUri(productId), HttpMethod.POST, request);
@@ -109,11 +109,11 @@ class ProductionControllerTest extends ControllerTest {
     }
 
     @Test
-    @DisplayName("amount에 null이 들어갈 수 없다.")
-    void amountNotNull() throws Exception {
+    @DisplayName("quantity에 null이 들어갈 수 없다.")
+    void quantityNotNull() throws Exception {
       //given
       Map<String, String> request = new HashMap<>();
-      request.put("amount", null);
+      request.put("quantity", null);
 
       //when
       ResultActions actions = getResultActions(getUri(productId), HttpMethod.POST, request);

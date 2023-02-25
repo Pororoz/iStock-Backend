@@ -51,14 +51,14 @@ class ProductionServiceTest {
   PartIoRepository partIoRepository;
 
   final Long productId = 1L;
-  final long amount = 100;
+  final long quantity = 100;
 
   @Nested
   @DisplayName("제품 생산 대기 생성")
   class SaveProduction {
 
     SaveProductionServiceRequest request = SaveProductionServiceRequest.builder()
-        .productId(productId).amount(amount)
+        .productId(productId).quantity(quantity)
         .build();
 
     @Nested
@@ -78,7 +78,7 @@ class ProductionServiceTest {
             .id(productId)
             .boms(List.of(bom)).build();
         ProductIo productIo = ProductIo.builder()
-            .quantity(amount).product(product).id(1L)
+            .quantity(quantity).product(product).id(1L)
             .build();
         ArgumentCaptor<List<PartIo>> listArgument = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<ProductIo> productIoArgument = ArgumentCaptor.forClass(ProductIo.class);
@@ -91,7 +91,7 @@ class ProductionServiceTest {
         //then
         ProductIo savingProductIo = ProductIo.builder()
             .status(ProductStatus.생산대기)
-            .quantity(amount).product(product)
+            .quantity(quantity).product(product)
             .build();
         PartIo savingPartIo = PartIo.builder()
             .status(PartStatus.생산대기).quantity(1)
@@ -104,7 +104,7 @@ class ProductionServiceTest {
         assertThat(listArgument.getValue()).usingRecursiveComparison()
             .isEqualTo(List.of(savingPartIo));
         assertThat(response.getProductId()).isEqualTo(productId);
-        assertThat(response.getAmount()).isEqualTo(amount);
+        assertThat(response.getQuantity()).isEqualTo(quantity);
       }
 
       @Test
@@ -123,7 +123,7 @@ class ProductionServiceTest {
             .productNumber(subAssyNumber)
             .stock(10).build();
         ProductIo productIo = ProductIo.builder()
-            .quantity(amount).product(product).id(1L)
+            .quantity(quantity).product(product).id(1L)
             .build();
         ArgumentCaptor<List<ProductIo>> listArgument = ArgumentCaptor.forClass(List.class);
 
@@ -143,7 +143,7 @@ class ProductionServiceTest {
         assertThat(listArgument.getValue()).usingRecursiveComparison()
             .isEqualTo(List.of(subAssyIo));
         assertThat(response.getProductId()).isEqualTo(productId);
-        assertThat(response.getAmount()).isEqualTo(amount);
+        assertThat(response.getQuantity()).isEqualTo(quantity);
       }
     }
 
@@ -179,7 +179,7 @@ class ProductionServiceTest {
             .id(productId)
             .boms(List.of(bom1, bom2)).build();
         ProductIo productIo = ProductIo.builder()
-            .quantity(amount).product(product).id(1L)
+            .quantity(quantity).product(product).id(1L)
             .build();
 
         //when
@@ -207,7 +207,7 @@ class ProductionServiceTest {
             .productNumber(subAssyNumber)
             .stock(1).build();
         ProductIo productIo = ProductIo.builder()
-            .quantity(amount).product(product).id(1L)
+            .quantity(quantity).product(product).id(1L)
             .build();
 
         //when
@@ -237,7 +237,7 @@ class ProductionServiceTest {
             .productNumber(subAssyNumber)
             .stock(1).build();
         ProductIo productIo = ProductIo.builder()
-            .quantity(amount).product(product).id(1L)
+            .quantity(quantity).product(product).id(1L)
             .build();
 
         //when
@@ -263,7 +263,7 @@ class ProductionServiceTest {
             .id(productId)
             .boms(List.of(subAssyBom)).build();
         ProductIo productIo = ProductIo.builder()
-            .quantity(amount).product(product).id(1L)
+            .quantity(quantity).product(product).id(1L)
             .build();
 
         //when

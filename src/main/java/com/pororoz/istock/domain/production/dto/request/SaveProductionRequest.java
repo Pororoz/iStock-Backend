@@ -18,11 +18,11 @@ public class SaveProductionRequest {
   @Schema(description = "수량", example = "100")
   @NotNull
   @Positive
-  private long amount;
+  private long quantity;
 
   public SaveProductionServiceRequest toService(Long productId) {
     return SaveProductionServiceRequest.builder()
-        .productId(productId).amount(amount)
+        .productId(productId).quantity(quantity)
         .build();
   }
 }

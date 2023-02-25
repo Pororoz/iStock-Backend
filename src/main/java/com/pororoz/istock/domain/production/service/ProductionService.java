@@ -34,19 +34,19 @@ public class ProductionService {
   public SaveProductionServiceResponse saveWaitingProduction(SaveProductionServiceRequest request) {
     Product product = productRepository.findByIdWithParts(request.getProductId())
         .orElseThrow(ProductOrBomNotFoundException::new);
-    ProductIo productIo = saveProductIo(request.getAmount(), product);
+    ProductIo productIo = saveProductIo(request.getQuantity(), product);
     savePartIoAll(product.getBoms(), productIo);
     saveSubAssyIoAll(product.getBoms(), productIo);
 
     return SaveProductionServiceResponse.builder()
         .productId(productIo.getProduct().getId())
-        .amount(productIo.getQuantity())
+        .quantity(productIo.getQuantity())
         .build();
   }
 
-  private ProductIo saveProductIo(long amount, Product product) {
+  private ProductIo saveProductIo(long quantity, Product product) {
     ProductIo productIo = ProductIo.builder()
-        .quantity(amount)
+        .quantity(quantity)
         .status(ProductStatus.생산대기)
         .product(product).build();
     return productIoRepository.save(productIo);

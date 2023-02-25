@@ -9,11 +9,11 @@ import lombok.Getter;
 public class SaveProductionServiceResponse {
 
   private Long productId;
-  private long amount;
+  private long quantity;
 
   public SaveProductionResponse toResponse() {
     return SaveProductionResponse.builder()
-        .productId(productId).amount(amount)
+        .productId(productId).quantity(quantity)
         .build();
   }
 }
