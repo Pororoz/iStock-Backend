@@ -15,9 +15,9 @@ import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceReq
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceResponse;
 import com.pororoz.istock.domain.production.exception.ProductOrBomNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,15 +68,12 @@ public class ProductionService {
   }
 
   private void saveSubAssyIoAll(List<Bom> boms, ProductIo productIo) {
-    List<String> subAssyNumbers = new ArrayList<>();
-    Map<String, Long> subAssyQuantityMap = new HashMap<>();
+    Map<String, Long> subAssyQuantityMap = boms.stream()
+        .filter(bom -> bom.getPart() == null)
+        .collect(Collectors.toMap(Bom::getProductNumber, Bom::getQuantity));
 
-    boms.stream().filter(bom -> bom.getPart() == null).forEach(bom -> {
-      subAssyNumbers.add(bom.getProductNumber());
-      subAssyQuantityMap.put(bom.getProductNumber(), bom.getQuantity());
-    });
-
-    List<ProductIo> subAssyIoList = findSubAssiesByProductNumberOrThrow(subAssyNumbers)
+    List<ProductIo> subAssyIoList = findSubAssiesByProductNumberOrThrow(
+        new ArrayList<>(subAssyQuantityMap.keySet()))
         .stream().map(subAssy -> {
           Long quantity = subAssyQuantityMap.get(subAssy.getProductNumber());
           subAssy.subtractStock(quantity);
