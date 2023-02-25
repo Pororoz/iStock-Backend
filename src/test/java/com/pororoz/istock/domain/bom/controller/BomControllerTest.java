@@ -8,13 +8,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.ControllerTest;
-import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
-import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
@@ -50,8 +48,6 @@ class BomControllerTest extends ControllerTest {
   @Nested
   @DisplayName("제품 Bom 행 조회")
   class FindBom {
-
-    Long bomId = 1L;
     String locationNumber = "L5.L4";
     String codeNumber = "";
     long quantity = 3;
@@ -115,25 +111,6 @@ class BomControllerTest extends ControllerTest {
         Page<FindBomServiceResponse> dtoPage =
             new PageImpl<>(List.of(serviceResponse1, serviceResponse2), pageRequest, 4);
 
-        FindBomResponse response1 = FindBomResponse.builder()
-            .bomId(bomId)
-            .locationNumber(locationNumber + "0")
-            .codeNumber(codeNumber + "0")
-            .quantity(quantity)
-            .memo(memo)
-            .part(part1)
-            .build();
-        FindBomResponse response2 = FindBomResponse.builder()
-            .bomId(bomId)
-            .locationNumber(locationNumber + "1")
-            .codeNumber(codeNumber + "1")
-            .quantity(quantity)
-            .memo(memo)
-            .part(part2)
-            .build();
-        PageResponse<FindBomResponse> responseList =
-            new PageResponse<>(new PageImpl<>(List.of(response1, response2), pageRequest, 4));
-
         params.add("product-id", Long.toString(productId));
 
         // when
@@ -143,8 +120,27 @@ class BomControllerTest extends ControllerTest {
         // then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_BOM))
-            .andExpect(jsonPath("$.data", equalTo(asParsedJson(responseList))))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_BOM))
+            .andExpect(jsonPath("$.data.contents[0].bomId").value(1))
+            .andExpect(jsonPath("$.data.contents[0].locationNumber").value(locationNumber + "0"))
+            .andExpect(jsonPath("$.data.contents[0].codeNumber").value(codeNumber + "0"))
+            .andExpect(jsonPath("$.data.contents[0].quantity").value(quantity))
+            .andExpect(jsonPath("$.data.contents[0].memo").value(memo))
+            .andExpect(jsonPath("$.data.contents[0].part.id").value(1))
+            .andExpect(jsonPath("$.data.contents[0].part.partName").value("part1"))
+            .andExpect(jsonPath("$.data.contents[0].part.spec").value("spec1"))
+            .andExpect(jsonPath("$.data.contents[0].part.price").value(580))
+            .andExpect(jsonPath("$.data.contents[0].part.stock").value(2))
+            .andExpect(jsonPath("$.data.contents[1].bomId").value(2))
+            .andExpect(jsonPath("$.data.contents[1].locationNumber").value(locationNumber + "1"))
+            .andExpect(jsonPath("$.data.contents[1].codeNumber").value(codeNumber + "1"))
+            .andExpect(jsonPath("$.data.contents[1].quantity").value(quantity))
+            .andExpect(jsonPath("$.data.contents[1].memo").value(memo))
+            .andExpect(jsonPath("$.data.contents[1].part.id").value(2))
+            .andExpect(jsonPath("$.data.contents[1].part.partName").value("part2"))
+            .andExpect(jsonPath("$.data.contents[1].part.spec").value("spec2"))
+            .andExpect(jsonPath("$.data.contents[1].part.price").value(580))
+            .andExpect(jsonPath("$.data.contents[1].part.stock").value(2))
             .andDo(print());
       }
     }

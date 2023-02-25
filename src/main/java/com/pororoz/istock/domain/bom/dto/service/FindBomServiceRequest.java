@@ -20,4 +20,12 @@ public class FindBomServiceRequest {
         page == null ? DEFAULT_PAGE : page,
         size == null ? DEFAULT_SIZE : size);
   }
+
+  public static FindBomServiceRequest of(Integer page, Integer size, Long productId) {
+    return FindBomServiceRequest.builder()
+        .page(page)
+        .size(size)
+        .productId(productId)
+        .build();
+  }
 }

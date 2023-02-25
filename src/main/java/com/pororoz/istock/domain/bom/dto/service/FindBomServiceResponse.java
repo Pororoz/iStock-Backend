@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.bom.dto.service;
 
+import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.part.entity.Part;
 import java.time.LocalDateTime;
@@ -33,6 +34,19 @@ public class FindBomServiceResponse {
         .createdAt(bom.getCreatedAt())
         .updatedAt(bom.getUpdatedAt())
         .part(bom.getPart())
+        .build();
+  }
+
+  public FindBomResponse toResponse() {
+    return FindBomResponse.builder()
+        .bomId(bomId)
+        .locationNumber(locationNumber)
+        .codeNumber(codeNumber)
+        .quantity(quantity)
+        .memo(memo)
+        .createdAt(createdAt)
+        .updatedAt(updatedAt)
+        .part(part)
         .build();
   }
 }
