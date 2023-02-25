@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.production.dto.service;
 
+import com.pororoz.istock.domain.production.dto.response.SaveProductionResponse;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,4 +10,10 @@ public class SaveProductionServiceResponse {
 
   private Long productId;
   private long amount;
+
+  public SaveProductionResponse toResponse() {
+    return SaveProductionResponse.builder()
+        .productId(productId).amount(amount)
+        .build();
+  }
 }

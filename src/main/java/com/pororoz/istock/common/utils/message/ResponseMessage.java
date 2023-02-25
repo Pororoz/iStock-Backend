@@ -23,6 +23,7 @@ public class ResponseMessage {
   public static final String SAVE_BOM = "BOM 행 추가";
   public static final String DELETE_BOM = "BOM 행 제거";
   public static final String UPDATE_BOM = "BOM 행 수정";
+  public static final String WAIT_PRODUCTION = "제품 생산 대기";
 
   private ResponseMessage() {
   }
