@@ -80,7 +80,7 @@ public class ProductionService {
           Long quantity = subAssyQuantityMap.get(subAssy.getProductNumber());
           subAssy.subtractStock(quantity);
           return ProductIo.builder()
-              .status(ProductStatus.생산대기)
+              .status(ProductStatus.외주생산대기)
               .quantity(quantity)
               .product(subAssy).superIo(productIo)
               .build();

@@ -134,7 +134,7 @@ class ProductionServiceTest {
 
         //then
         ProductIo subAssyIo = ProductIo.builder()
-            .status(ProductStatus.생산대기)
+            .status(ProductStatus.외주생산대기)
             .quantity(subAssyBom.getQuantity())
             .product(subAssy)
             .superIo(productIo).build();
