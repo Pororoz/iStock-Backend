@@ -52,7 +52,9 @@ public enum ErrorCode {
   PART_STOCK_MINUS(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_STOCK_MINUS,
       ExceptionMessage.PART_STOCK_MINUS),
   PRODUCT_OR_BOM_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_OR_BOM_NOT_FOUND,
-      ExceptionMessage.PRODUCT_OR_BOM_NOT_FOUND);
+      ExceptionMessage.PRODUCT_OR_BOM_NOT_FOUND),
+  BOM_AND_SUB_ASSY_NOT_MATCH(HttpStatus.BAD_REQUEST, ExceptionStatus.BOM_AND_SUB_ASSY_NOT_MATCH,
+      ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCH);
 
   private final HttpStatus statusCode;
 

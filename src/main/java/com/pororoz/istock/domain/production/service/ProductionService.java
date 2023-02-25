@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.production.service;
 
+import com.pororoz.istock.common.exception.BomAndSubAssyNotMatchException;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
@@ -75,8 +76,8 @@ public class ProductionService {
       subAssyQuantityMap.put(bom.getProductNumber(), bom.getQuantity());
     });
 
-    List<ProductIo> subAssyIoList = productRepository.findByProductNumberIn(subAssyNumbers).stream()
-        .map(subAssy -> {
+    List<ProductIo> subAssyIoList = findSubAssiesByProductNumberOrThrow(subAssyNumbers)
+        .stream().map(subAssy -> {
           Long quantity = subAssyQuantityMap.get(subAssy.getProductNumber());
           subAssy.subtractStock(quantity);
           return ProductIo.builder()
@@ -87,5 +88,13 @@ public class ProductionService {
         }).toList();
 
     productIoRepository.saveAll(subAssyIoList);
+  }
+
+  private List<Product> findSubAssiesByProductNumberOrThrow(List<String> subAssyNumbers) {
+    List<Product> subAssies = productRepository.findByProductNumberIn(subAssyNumbers);
+    if (subAssies.size() != subAssyNumbers.size()) {
+      throw new BomAndSubAssyNotMatchException();
+    }
+    return subAssies;
   }
 }

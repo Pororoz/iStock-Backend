@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.pororoz.istock.common.exception.BomAndSubAssyNotMatchException;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
@@ -218,6 +219,61 @@ class ProductionServiceTest {
         assertThrows(ProductStockMinusException.class,
             () -> productionService.saveProduction(request));
         verify(productIoRepository, times(0)).saveAll(anyList());
+      }
+
+      @Test
+      @DisplayName("SubAssy Bom의 productNumber로 product를 찾을 수 없으면 SubAssyNotFoundByProductNameException이 발생한다.")
+      void subAssyNotFoundByProductName() {
+        //given
+        String subAssyNumber = "product number";
+        Bom subAssyBom = Bom.builder()
+            .codeNumber("11").productNumber(subAssyNumber)
+            .quantity(2).build();
+        Product product = Product.builder()
+            .id(productId)
+            .boms(List.of(subAssyBom)).build();
+        Product subAssy = Product.builder()
+            .id(productId + 1L).codeNumber("11")
+            .productNumber(subAssyNumber)
+            .stock(1).build();
+        ProductIo productIo = ProductIo.builder()
+            .quantity(amount).product(product).id(1L)
+            .build();
+
+        //when
+        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
+        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
+        when(productRepository.findByProductNumberIn(anyList())).thenReturn(List.of(subAssy));
+
+        //then
+        assertThrows(ProductStockMinusException.class,
+            () -> productionService.saveProduction(request));
+        verify(productIoRepository, times(0)).saveAll(anyList());
+      }
+
+      @Test
+      @DisplayName("Sub assy로 등록된 BOM과 sub assy가 일치하지 않으면 예외가 발생한다.")
+      void bomAndSubAssyNotMatch() {
+        //given
+        String subAssyNumber = "product number";
+        Bom subAssyBom = Bom.builder()
+            .codeNumber("11").productNumber(subAssyNumber)
+            .quantity(1).build();
+        Product product = Product.builder()
+            .id(productId)
+            .boms(List.of(subAssyBom)).build();
+        ProductIo productIo = ProductIo.builder()
+            .quantity(amount).product(product).id(1L)
+            .build();
+
+        //when
+        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
+        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
+        when(productRepository.findByProductNumberIn(anyList())).thenReturn(List.of());
+
+        //then
+        assertThrows(BomAndSubAssyNotMatchException.class,
+            () -> productionService.saveProduction(request));
       }
     }
   }

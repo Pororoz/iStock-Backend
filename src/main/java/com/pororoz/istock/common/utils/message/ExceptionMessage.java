@@ -34,6 +34,9 @@ public class ExceptionMessage {
   public static final String PRODUCT_STOCK_MINUS = "제품의 재고가 부족합니다.";
   public static final String PART_STOCK_MINUS = "부품의 재고가 부족합니다.";
   public static final String PRODUCT_OR_BOM_NOT_FOUND = "제품을 찾을 수 없거나 연관된 BOM이 없습니다.";
+  public static final String BOM_AND_SUB_ASSY_NOT_MATCH =
+      "Sub assy로 등록된 BOM과 sub assy가 일치하지 않습니다.\n"
+          + "해당 제품에 sub assy로 등록된 BOM의 product number가 중복되었거나, BOM의 product number로 제품(sub assy)을 찾을 수 없습니다.";
 
   private ExceptionMessage() {
   }
