@@ -33,6 +33,7 @@ public class ExceptionMessage {
   public static final String SELF_DELETE_ACCOUNT = "본인의 계정을 삭제 할 수 없습니다.";
   public static final String PRODUCT_STOCK_MINUS = "제품의 재고가 부족합니다.";
   public static final String PART_STOCK_MINUS = "부품의 재고가 부족합니다.";
+  public static final String PRODUCT_OR_BOM_NOT_FOUND = "제품을 찾을 수 없거나 연관된 BOM이 없습니다.";
 
   private ExceptionMessage() {
   }

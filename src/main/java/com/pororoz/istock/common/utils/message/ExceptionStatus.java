@@ -23,6 +23,7 @@ public class ExceptionStatus {
   public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME";
   public static final String PRODUCT_STOCK_MINUS = "PRODUCT_STOCK_MINUS";
   public static final String PART_STOCK_MINUS = "PART_STOCK_MINUS";
+  public static final String PRODUCT_OR_BOM_NOT_FOUND = "PRODUCT_OR_BOM_NOT_FOUND";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";

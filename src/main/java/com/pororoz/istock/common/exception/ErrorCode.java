@@ -50,7 +50,9 @@ public enum ErrorCode {
   PRODUCT_STOCK_MINUS(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_STOCK_MINUS,
       ExceptionMessage.PRODUCT_STOCK_MINUS),
   PART_STOCK_MINUS(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_STOCK_MINUS,
-      ExceptionMessage.PART_STOCK_MINUS);
+      ExceptionMessage.PART_STOCK_MINUS),
+  PRODUCT_OR_BOM_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_OR_BOM_NOT_FOUND,
+      ExceptionMessage.PRODUCT_OR_BOM_NOT_FOUND);
 
   private final HttpStatus statusCode;
 
