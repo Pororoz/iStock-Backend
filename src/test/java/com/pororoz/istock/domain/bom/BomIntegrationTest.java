@@ -105,7 +105,7 @@ public class BomIntegrationTest extends IntegrationTest {
 
         for (int i = 0; i < 2; i++) {
           Category category = categoryRepository.save(
-              Category.builder().categoryName("카테고리" + (i+1)).build());
+              Category.builder().categoryName("카테고리" + (i + 1)).build());
           Product product = Product.builder()
               .productName(Integer.toString(i + 1))
               .productNumber(Integer.toString(i + 1))
@@ -204,6 +204,43 @@ public class BomIntegrationTest extends IntegrationTest {
         }
         PageResponse<FindBomResponse> response = new PageResponse<>(
             new PageImpl<>(findBomResponseArrayList, PageRequest.of(page, size), 3));
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("page와 size없이 productId를 통해 검색하면 default값으로 해당 productId에 연관된 모든 Bom 정보를 제공해준다.")
+      void findBomWithoutPageAndSize() throws Exception {
+        // given
+        int default_page = 0;
+        int default_size = 20;
+        params.add("product-id", "1");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        List<FindBomResponse> findBomResponseArrayList = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+          Bom bom = bomList.get(i);
+          findBomResponseArrayList.add(FindBomResponse.builder()
+              .bomId(bom.getId())
+              .locationNumber(bom.getLocationNumber())
+              .codeNumber(bom.getCodeNumber())
+              .quantity(bom.getQuantity())
+              .memo(bom.getMemo())
+              .part(PartDto.of(bom.getPart()))
+              .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
+              .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
+              .build());
+        }
+        PageResponse<FindBomResponse> response = new PageResponse<>(
+            new PageImpl<>(findBomResponseArrayList, PageRequest.of(default_page, default_size),
+                3));
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_BOM))
