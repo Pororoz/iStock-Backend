@@ -3,8 +3,8 @@ package com.pororoz.istock.domain.product.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -488,7 +488,7 @@ class ProductServiceTest {
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
         when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
-        when(productRepository.findByProductNumberIn(anySet())).thenReturn(
+        when(productRepository.findByProductNumberIn(anyList())).thenReturn(
             List.of(subAssy1, subAssy2));
         Page<FindProductServiceResponse> result =
             productService.findProducts(categoryId, PageRequest.of(page, size));
@@ -556,7 +556,7 @@ class ProductServiceTest {
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
         when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
-        when(productRepository.findByProductNumberIn(anySet())).thenReturn(
+        when(productRepository.findByProductNumberIn(anyList())).thenReturn(
             List.of(subAssy1));
 
         //then
