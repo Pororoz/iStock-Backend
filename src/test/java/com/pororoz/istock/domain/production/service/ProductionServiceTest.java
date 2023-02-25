@@ -86,7 +86,7 @@ class ProductionServiceTest {
         //when
         when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-        SaveProductionServiceResponse response = productionService.saveProduction(request);
+        SaveProductionServiceResponse response = productionService.saveWaitingProduction(request);
 
         //then
         ProductIo savingProductIo = ProductIo.builder()
@@ -131,7 +131,7 @@ class ProductionServiceTest {
         when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
         when(productRepository.findByProductNumberIn(anyList())).thenReturn(List.of(subAssy));
-        SaveProductionServiceResponse response = productionService.saveProduction(request);
+        SaveProductionServiceResponse response = productionService.saveWaitingProduction(request);
 
         //then
         ProductIo subAssyIo = ProductIo.builder()
@@ -160,7 +160,7 @@ class ProductionServiceTest {
 
         //then
         assertThrows(ProductOrBomNotFoundException.class, () ->
-            productionService.saveProduction(request));
+            productionService.saveWaitingProduction(request));
       }
 
       @Test
@@ -188,7 +188,7 @@ class ProductionServiceTest {
 
         //then
         assertThrows(PartStockMinusException.class,
-            () -> productionService.saveProduction(request));
+            () -> productionService.saveWaitingProduction(request));
       }
 
       @Test
@@ -217,7 +217,7 @@ class ProductionServiceTest {
 
         //then
         assertThrows(ProductStockMinusException.class,
-            () -> productionService.saveProduction(request));
+            () -> productionService.saveWaitingProduction(request));
         verify(productIoRepository, times(0)).saveAll(anyList());
       }
 
@@ -247,7 +247,7 @@ class ProductionServiceTest {
 
         //then
         assertThrows(ProductStockMinusException.class,
-            () -> productionService.saveProduction(request));
+            () -> productionService.saveWaitingProduction(request));
         verify(productIoRepository, times(0)).saveAll(anyList());
       }
 
@@ -273,7 +273,7 @@ class ProductionServiceTest {
 
         //then
         assertThrows(BomAndSubAssyNotMatchException.class,
-            () -> productionService.saveProduction(request));
+            () -> productionService.saveWaitingProduction(request));
       }
     }
   }

@@ -31,7 +31,7 @@ public class ProductionService {
   private final ProductRepository productRepository;
   private final ProductIoRepository productIoRepository;
 
-  public SaveProductionServiceResponse saveProduction(SaveProductionServiceRequest request) {
+  public SaveProductionServiceResponse saveWaitingProduction(SaveProductionServiceRequest request) {
     Product product = productRepository.findByIdWithParts(request.getProductId())
         .orElseThrow(ProductOrBomNotFoundException::new);
     ProductIo productIo = saveProductIo(request.getAmount(), product);
