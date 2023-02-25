@@ -23,4 +23,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
   @Query("select p from Product p where p.productNumber in :productNumbers")
   List<Product> findByProductNumberIn(@Param("productNumbers") List<String> productNumbers);
+
+  @Query("select distinct pr from Product pr "
+      + "join fetch pr.boms b left join fetch b.part ")
+  Optional<Product> findByIdWithParts(@Param("id") Long id);
 }
