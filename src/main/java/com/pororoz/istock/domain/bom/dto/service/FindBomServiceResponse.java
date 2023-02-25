@@ -1,9 +1,9 @@
 package com.pororoz.istock.domain.bom.dto.service;
 
+import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
-import com.pororoz.istock.domain.part.entity.Part;
-import java.time.LocalDateTime;
+import com.pororoz.istock.domain.part.dto.PartDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,9 +20,9 @@ public class FindBomServiceResponse {
   private String codeNumber;
   private Long quantity;
   private String memo;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
-  private Part part;
+  private String createdAt;
+  private String updatedAt;
+  private PartDto part;
 
   static public FindBomServiceResponse of(Bom bom) {
     return FindBomServiceResponse.builder()
@@ -31,9 +31,9 @@ public class FindBomServiceResponse {
         .codeNumber(bom.getCodeNumber())
         .quantity(bom.getQuantity())
         .memo(bom.getMemo())
-        .createdAt(bom.getCreatedAt())
-        .updatedAt(bom.getUpdatedAt())
-        .part(bom.getPart())
+        .createdAt(TimeEntity.formatTime(bom.getUpdatedAt()))
+        .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
+        .part(PartDto.of(bom.getPart()))
         .build();
   }
 

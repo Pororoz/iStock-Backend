@@ -1,11 +1,7 @@
 package com.pororoz.istock.domain.bom.dto.response;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import com.pororoz.istock.domain.part.entity.Part;
-import java.time.LocalDateTime;
+import com.pororoz.istock.domain.part.dto.PartDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,12 +18,10 @@ public class FindBomResponse {
   private Long quantity;
   private String memo;
 
-  @JsonSerialize(using = LocalDateTimeSerializer.class)
-  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  private LocalDateTime createdAt;
+  @Schema(description = "생성 시간", example = "2023-01-01 00:00:00")
+  private String createdAt;
 
-  @JsonSerialize(using = LocalDateTimeSerializer.class)
-  @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-  private LocalDateTime updatedAt;
-  private Part part;
+  @Schema(description = "수정 시간", example = "2023-01-01 00:00:01")
+  private String updatedAt;
+  private PartDto part;
 }
