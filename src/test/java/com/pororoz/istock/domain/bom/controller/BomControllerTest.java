@@ -14,6 +14,7 @@ import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
+import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
@@ -22,7 +23,6 @@ import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.service.BomService;
 import com.pororoz.istock.domain.part.entity.Part;
-import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -131,7 +131,7 @@ class BomControllerTest extends ControllerTest {
             .memo(memo)
             .part(part2)
             .build();
-        PageResponse<FindProductResponse> responseList =
+        PageResponse<FindBomResponse> responseList =
             new PageResponse<>(new PageImpl<>(List.of(response1, response2), pageRequest, 4));
 
         params.add("product-id", Long.toString(productId));
