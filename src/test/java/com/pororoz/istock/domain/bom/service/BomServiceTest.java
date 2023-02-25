@@ -154,7 +154,24 @@ class BomServiceTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+      @Test
+      @DisplayName("존재하지 않는 Product라면 ProductNotFoundException을 발생시킨다.")
+      void productNotFound() {
+        // given
+        int page = 0;
+        int size = 3;
 
+        FindBomServiceRequest request = FindBomServiceRequest.builder()
+            .page(page).size(size)
+            .productId(productId)
+            .build();
+
+        // when
+        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ProductNotFoundException.class, () -> bomService.findBomList(request));
+      }
     }
   }
 
