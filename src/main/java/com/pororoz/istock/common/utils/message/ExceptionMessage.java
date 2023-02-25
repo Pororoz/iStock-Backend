@@ -31,6 +31,8 @@ public class ExceptionMessage {
   public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "Sub assy 목록에 BOM의 productNumber와 일치하는 product가 없습니다.";
   public static final String SELF_DEMOTE_ROLE = "본인의 권한을 강등시킬 수 없습니다.";
   public static final String SELF_DELETE_ACCOUNT = "본인의 계정을 삭제 할 수 없습니다.";
+  public static final String PRODUCT_STOCK_MINUS = "제품의 재고가 부족합니다.";
+  public static final String PART_STOCK_MINUS = "부품의 재고가 부족합니다.";
 
   private ExceptionMessage() {
   }

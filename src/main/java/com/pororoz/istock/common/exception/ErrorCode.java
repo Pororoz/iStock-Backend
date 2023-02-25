@@ -46,7 +46,11 @@ public enum ErrorCode {
   SELF_DELETE_ACCOUNT(HttpStatus.BAD_REQUEST, ExceptionStatus.SELF_DELETE_ACCOUNT,
       ExceptionMessage.SELF_DELETE_ACCOUNT),
   INVALID_PAGE_REQUEST(HttpStatus.BAD_REQUEST, ExceptionStatus.BAD_REQUEST,
-      ExceptionMessage.INVALID_PAGE_REQUEST);
+      ExceptionMessage.INVALID_PAGE_REQUEST),
+  PRODUCT_STOCK_MINUS(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_STOCK_MINUS,
+      ExceptionMessage.PRODUCT_STOCK_MINUS),
+  PART_STOCK_MINUS(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_STOCK_MINUS,
+      ExceptionMessage.PART_STOCK_MINUS);
 
   private final HttpStatus statusCode;
 
