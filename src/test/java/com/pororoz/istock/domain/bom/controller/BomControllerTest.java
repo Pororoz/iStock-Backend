@@ -149,6 +149,36 @@ class BomControllerTest extends ControllerTest {
     @DisplayName("실패 케이스")
     class FailCase {
 
+      @Test
+      @DisplayName("productId가 비어있으면 Bad Request 오류를 반환한다.")
+      void emptyProductId() throws Exception {
+        // given
+        params.add("page", "2");
+        params.add("size", "2");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("productId가 문자열로 넘어오면 Bad Request 오류를 반환한다.")
+      void productIdString() throws Exception {
+        // given
+        params.add("page", "2");
+        params.add("size", "2");
+        params.add("product-id", "string");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
     }
   }
 
