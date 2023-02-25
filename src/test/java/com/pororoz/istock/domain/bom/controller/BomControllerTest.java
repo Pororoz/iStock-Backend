@@ -22,7 +22,6 @@ import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.service.BomService;
 import com.pororoz.istock.domain.part.dto.PartDto;
-import com.pororoz.istock.domain.part.entity.Part;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,14 +75,14 @@ class BomControllerTest extends ControllerTest {
         String now = TimeEntity.formatTime(LocalDateTime.now());
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        Part part1 = Part.builder()
+        PartDto part1 = PartDto.builder()
             .id(1L)
             .price(580)
             .partName("part1")
             .stock(2L)
             .spec("spec1")
             .build();
-        Part part2 = Part.builder()
+        PartDto part2 = PartDto.builder()
             .id(2L)
             .price(580)
             .partName("part2")
@@ -98,7 +97,7 @@ class BomControllerTest extends ControllerTest {
             .memo(memo)
             .createdAt(now)
             .updatedAt(now)
-            .part(PartDto.of(part1))
+            .part(part1)
             .build();
         FindBomServiceResponse serviceResponse2 = FindBomServiceResponse.builder()
             .bomId(2L)
@@ -108,7 +107,7 @@ class BomControllerTest extends ControllerTest {
             .memo(memo)
             .createdAt(now)
             .updatedAt(now)
-            .part(PartDto.of(part2))
+            .part(part2)
             .build();
         Page<FindBomServiceResponse> dtoPage =
             new PageImpl<>(List.of(serviceResponse1, serviceResponse2), pageRequest, 4);
