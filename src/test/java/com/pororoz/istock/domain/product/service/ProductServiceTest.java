@@ -488,7 +488,7 @@ class ProductServiceTest {
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
         when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
-        when(productRepository.findByProductNumbers(anySet())).thenReturn(
+        when(productRepository.findByProductNumberIn(anySet())).thenReturn(
             List.of(subAssy1, subAssy2));
         Page<FindProductServiceResponse> result =
             productService.findProducts(categoryId, PageRequest.of(page, size));
@@ -556,7 +556,7 @@ class ProductServiceTest {
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
         when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
-        when(productRepository.findByProductNumbers(anySet())).thenReturn(
+        when(productRepository.findByProductNumberIn(anySet())).thenReturn(
             List.of(subAssy1));
 
         //then
