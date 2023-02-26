@@ -1,6 +1,8 @@
 package com.pororoz.istock.domain.bom.service;
 
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
+import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -17,6 +19,8 @@ import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,12 @@ public class BomService {
   private final BomRepository bomRepository;
 
   private final String SUB_ASSY_CODE_NUMBER = "11";
+
+  public Page<FindBomServiceResponse> findBomList(FindBomServiceRequest request, Pageable pageable) {
+    productRepository.findById(request.getProductId()).orElseThrow(ProductNotFoundException::new);
+    return bomRepository.findByProductIdWithPart(pageable, request.getProductId())
+        .map(FindBomServiceResponse::of);
+  }
 
   public BomServiceResponse saveBom(SaveBomServiceRequest request) {
     validateRequest(request.getCodeNumber(), request.getProductNumber(), request.getPartId());
@@ -45,7 +55,7 @@ public class BomService {
     return BomServiceResponse.of(result);
   }
 
-  public BomServiceResponse deleteBom(Long bomId) {
+  public BomServiceResponse deleteBom(long bomId) {
     Bom result = bomRepository.findById(bomId).orElseThrow(BomNotFoundException::new);
     bomRepository.delete(result);
     return BomServiceResponse.of(result);
