@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class FindProductResponse {
+public class FindProductWithSubassyResponse {
 
   @Schema(description = "제품 아이디", example = "1")
   private Long productId;

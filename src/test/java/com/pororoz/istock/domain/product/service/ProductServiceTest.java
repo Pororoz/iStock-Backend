@@ -17,7 +17,8 @@ import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.part.entity.Part;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductByPartServiceRequest;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.SubAssyServiceResponse;
@@ -445,8 +446,8 @@ class ProductServiceTest {
   }
 
   @Nested
-  @DisplayName("product 조회")
-  class FindProducts {
+  @DisplayName("product와 subAssy 조회")
+  class FindProductsWithSubassys {
 
     Category subCategory = Category.builder().id(10L).build();
     Part part = Part.builder().build();
@@ -490,8 +491,8 @@ class ProductServiceTest {
             .thenReturn(productPage);
         when(productRepository.findByProductNumberIn(anyList())).thenReturn(
             List.of(subAssy1, subAssy2));
-        Page<FindProductServiceResponse> result =
-            productService.findProducts(categoryId, PageRequest.of(page, size));
+        Page<FindProductWithSubassyServiceResponse> result =
+            productService.findProductsWithSubAssies(categoryId, PageRequest.of(page, size));
 
         //then
         SubAssyServiceResponse subAssyResponse1 = SubAssyServiceResponse.builder()
@@ -506,7 +507,7 @@ class ProductServiceTest {
         assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
         assertThat(result.getTotalElements()).isEqualTo(10);
         long i = 0;
-        for (FindProductServiceResponse findResponse : result.getContent()) {
+        for (FindProductWithSubassyServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
           assertThat(findResponse.getSubAssyServiceResponses()).hasSize(2);
@@ -533,7 +534,7 @@ class ProductServiceTest {
 
         //then
         assertThrows(CategoryNotFoundException.class,
-            () -> productService.findProducts(categoryId, pageRequest));
+            () -> productService.findProductsWithSubAssies(categoryId, pageRequest));
       }
 
       @Test
@@ -561,8 +562,52 @@ class ProductServiceTest {
 
         //then
         assertThrows(SubAssyNotFoundByProductNameException.class,
-            () -> productService.findProducts(categoryId, PageRequest.of(page, size)));
+            () -> productService.findProductsWithSubAssies(categoryId, PageRequest.of(page, size)));
       }
+    }
+  }
+
+  @Nested
+  @DisplayName("part 정보로 product 조회")
+  class FindProductByPart {
+
+    Long partId = 1L;
+    String partName = "partName";
+
+    @Test
+    @DisplayName("part 정보로 product를 페이지네이션하여 조회한다.")
+    void findProductByPart() {
+      //given
+      int page = 0;
+      int size = 3;
+      FindProductByPartServiceRequest request = FindProductByPartServiceRequest.builder()
+          .partId(partId).partName(partName).build();
+      Pageable pageable = PageRequest.of(page, size);
+      Product product = Product.builder()
+          .id(1L).productName(productName)
+          .productNumber(productNumber).codeNumber(codeNumber)
+          .companyName(companyName).stock(stock)
+          .category(category).boms(List.of())
+          .build();
+      Page<Product> products = new PageImpl<>(List.of(product), pageable, 1);
+      ProductServiceResponse response = ProductServiceResponse.builder()
+          .productId(1L).productName(productName)
+          .productNumber(productNumber).codeNumber(codeNumber)
+          .companyName(companyName).stock(stock)
+          .categoryId(categoryId)
+          .build();
+
+      //when
+      when(productRepository.findByPartIdAndPartNameIgnoreNull(eq(partId),
+          eq(partName), any(Pageable.class)))
+          .thenReturn(products);
+
+      //then
+      Page<ProductServiceResponse> result = productService.findProductsByPart(request,
+          pageable);
+      assertThat(result.getTotalPages()).isEqualTo(1);
+      assertThat(result.getTotalElements()).isEqualTo(1);
+      assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(List.of(response));
     }
   }
 }

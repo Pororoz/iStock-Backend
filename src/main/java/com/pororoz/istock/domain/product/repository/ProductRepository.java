@@ -27,4 +27,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   @Query("select distinct pr from Product pr "
       + "join fetch pr.boms b left join fetch b.part ")
   Optional<Product> findByIdWithParts(@Param("id") Long id);
+
+  @Query(value = "select distinct pr from Product pr "
+      + "left join pr.boms b "
+      + "left join b.part pa "
+      + "where ((:partId is null or pa.id = :partId) and "
+      + "(:partName is null or pa.partName = :partName)) ",
+      countQuery = "select distinct pr from Product pr "
+          + "left join pr.boms b "
+          + "left join b.part pa "
+          + "where ((:partId is null or pa.id = :partId) and "
+          + "(:partName is null or pa.partName = :partName)) ")
+  Page<Product> findByPartIdAndPartNameIgnoreNull(@Param("partId") Long partId,
+      @Param("partName") String partName, Pageable pageable);
 }

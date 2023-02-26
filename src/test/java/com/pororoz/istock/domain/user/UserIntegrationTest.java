@@ -19,7 +19,6 @@ import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -43,11 +42,6 @@ public class UserIntegrationTest extends IntegrationTest {
 
   @Autowired
   RoleRepository roleRepository;
-
-  @AfterEach
-  public void afterEach() {
-    databaseCleanup.execute();
-  }
 
   @Nested
   @DisplayName("PUT /v1/users 계정 수정 API")

@@ -5,7 +5,8 @@ import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductByPartServiceRequest;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
@@ -68,7 +69,8 @@ public class ProductService {
   }
 
   @Transactional(readOnly = true)
-  public Page<FindProductServiceResponse> findProducts(Long categoryId, Pageable pageable) {
+  public Page<FindProductWithSubassyServiceResponse> findProductsWithSubAssies(Long categoryId,
+      Pageable pageable) {
     categoryRepository.findById(categoryId)
         .orElseThrow(CategoryNotFoundException::new);
     Page<Product> products = productRepository.findByCategoryIdWithBoms(pageable, categoryId);
@@ -78,8 +80,16 @@ public class ProductService {
         .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
         .map(Bom::getProductNumber)
         .collect(Collectors.toList());
-    List<Product> subAssys = productRepository.findByProductNumberIn(subAssyNames);
-    return products.map(product -> FindProductServiceResponse.of(product, subAssys));
+    List<Product> subAssies = productRepository.findByProductNumberIn(subAssyNames);
+    return products.map(product -> FindProductWithSubassyServiceResponse.of(product, subAssies));
+  }
+
+  @Transactional(readOnly = true)
+  public Page<ProductServiceResponse> findProductsByPart(FindProductByPartServiceRequest request,
+      Pageable pageable) {
+    Page<Product> products = productRepository.findByPartIdAndPartNameIgnoreNull(
+        request.getPartId(), request.getPartName(), pageable);
+    return products.map(ProductServiceResponse::of);
   }
 
 

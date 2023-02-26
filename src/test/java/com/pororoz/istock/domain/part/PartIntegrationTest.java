@@ -45,7 +45,6 @@ public class PartIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       Part part = Part.builder()
           .partName("oldPartName").spec("oldSpec")
           .build();
@@ -130,7 +129,6 @@ public class PartIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       Part part = Part.builder()
           .partName("oldPartName").spec("oldSpec")
           .build();
@@ -207,7 +205,6 @@ public class PartIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       Part part = Part.builder().id(1L)
           .partName("oldPartName").spec("oldSpec").build();
       Part part2 = Part.builder().id(2L)
@@ -319,7 +316,6 @@ public class PartIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       parts = new ArrayList<>();
       for (int i = 0; i < total; i++) {
         Part part = partRepository.save(Part.builder()

@@ -7,7 +7,7 @@ import com.pororoz.istock.common.swagger.exception.InvalidPageRequestExceptionSw
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
-import com.pororoz.istock.domain.part.dto.request.FindPartServiceRequest;
+import com.pororoz.istock.domain.part.dto.request.FindPartRequest;
 import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
 import com.pororoz.istock.domain.part.dto.request.UpdatePartRequest;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
@@ -29,6 +29,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,12 +37,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Part", description = "Part API")
@@ -121,19 +122,10 @@ public class PartController {
   @PageableAsQueryParam
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<PartResponse>>> findParts(
-      @Schema(description = "부품 아이디", example = "1")
-      @RequestParam(value = "part-id", required = false) Long partId,
-      @Schema(description = "품명", example = "BEAD")
-      @RequestParam(value = "part-name", required = false) String partName,
-      @Schema(description = "규격", example = "HBA3580PL")
-      @RequestParam(value = "spec", required = false) String spec,
-      @Parameter(hidden = true)
-      Pageable pageable) {
-    FindPartServiceRequest serviceRequest = FindPartServiceRequest.builder()
-        .partId(partId).partName(partName)
-        .spec(spec).build();
+      @Parameter(hidden = true) Pageable pageable,
+      @ParameterObject @ModelAttribute FindPartRequest request) {
     Page<PartServiceResponse> findPartPage = partService.findParts(
-        serviceRequest, pageable);
+        request.toService(), pageable);
     PageResponse<PartResponse> response = new PageResponse<>(
         findPartPage.map(PartServiceResponse::toResponse));
     return ResponseEntity.ok(

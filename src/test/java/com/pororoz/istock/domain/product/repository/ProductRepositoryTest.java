@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 class ProductRepositoryTest extends RepositoryTest {
 
@@ -170,6 +171,105 @@ class ProductRepositoryTest extends RepositoryTest {
           .ignoringFields("category")
           .ignoringCollectionOrder()
           .isNotEqualTo(List.of(a, aa));
+    }
+  }
+
+
+  @Nested
+  class FindByPartIdAndPartNameIgnoreNull {
+
+    List<Product> products;
+    Part otherPart;
+
+    @BeforeEach
+    void setUp() {
+      products = new ArrayList<>();
+      for (int i = 0; i < 4; i++) {
+        Product product = em.persist(Product.builder()
+            .productName("name" + i).productNumber("number" + i)
+            .codeNumber("code" + i).category(category1)
+            .build());
+        products.add(product);
+      }
+      otherPart = em.persist(Part.builder()
+          .partName("p").spec("x")
+          .build());
+      for (int i = 0; i < 2; i++) {
+        em.persist(Bom.builder()
+            .locationNumber("" + i).part(part)
+            .product(products.get(i)).build());
+      }
+      for (int i = 1; i < 3; i++) {
+        em.persist(Bom.builder()
+            .locationNumber("" + i).part(otherPart)
+            .product(products.get(i)).build());
+      }
+      em.flush();
+      em.clear();
+    }
+
+    @Test
+    @DisplayName("partId, partName으로 product를 조회한다.")
+    void findByPartIdAndPartName() {
+      //given
+      //when
+      Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
+          part.getId(), part.getPartName(), Pageable.unpaged());
+
+      //then
+      assertThat(productPage.getTotalElements()).isEqualTo(2);
+      assertThat(productPage.getTotalPages()).isEqualTo(1);
+      assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
+          .isEqualTo(List.of(products.get(0), products.get(1)));
+    }
+
+    @Test
+    @DisplayName("partId가 null이면 무시한다.")
+    void findProductsIgnorePartIdNull() {
+      //given
+      //when
+      Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
+          null, part.getPartName(), Pageable.unpaged());
+
+      //then
+      assertThat(productPage.getTotalElements()).isEqualTo(3);
+      assertThat(productPage.getTotalPages()).isEqualTo(1);
+      assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
+          .isEqualTo(List.of(products.get(0), products.get(1), products.get(2)));
+    }
+
+    @Test
+    @DisplayName("partName이 null이면 무시한다.")
+    void findProductsIgnorePartNameNull() {
+      //given
+      //when
+      Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
+          part.getId(), null, Pageable.unpaged());
+
+      //then
+      assertThat(productPage.getTotalElements()).isEqualTo(2);
+      assertThat(productPage.getTotalPages()).isEqualTo(1);
+      assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
+          .isEqualTo(List.of(products.get(0), products.get(1)));
+    }
+
+    @Test
+    @DisplayName("partId와 partName가 null이면 전체를 조회한다.")
+    void findProductsIgnorePartIdAndPartNameNull() {
+      //given
+      //when
+      Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
+          null, null, Pageable.unpaged());
+
+      //then
+      assertThat(productPage.getTotalElements()).isEqualTo(4);
+      assertThat(productPage.getTotalPages()).isEqualTo(1);
+      assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
+          .isEqualTo(products);
     }
   }
 

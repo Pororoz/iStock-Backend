@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
-import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -391,10 +390,6 @@ class BomServiceTest {
             .product(product)
             .build();
 
-        DeleteBomServiceRequest request = DeleteBomServiceRequest.builder()
-            .bomId(bomId)
-            .build();
-
         BomServiceResponse response = BomServiceResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
@@ -407,7 +402,7 @@ class BomServiceTest {
 
         // when
         when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
-        BomServiceResponse result = bomService.deleteBom(request);
+        BomServiceResponse result = bomService.deleteBom(bomId);
 
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
@@ -422,16 +417,12 @@ class BomServiceTest {
       @DisplayName("만약 존재하지 않는 BOM을 삭제하려고 하면 BomNotFoundException를 반환한다.")
       void bomNotFound() {
         // given
-        DeleteBomServiceRequest request = DeleteBomServiceRequest.builder()
-            .bomId(bomId)
-            .build();
-
         // when
         when(bomRepository.findById(bomId)).thenReturn(Optional.empty());
 
         // then
         assertThrows(BomNotFoundException.class,
-            () -> bomService.deleteBom(request));
+            () -> bomService.deleteBom(bomId));
       }
     }
   }
