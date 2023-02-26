@@ -96,6 +96,7 @@ public class ProductionService {
     productIoRepository.saveAll(subAssyIoList);
   }
 
+  //sub assy로 등록된 bom의 product number 개수와 product number로 찾은 sub assy의 개수가 같지 않으면 예외처리
   private List<Product> findSubAssiesByProductNumberOrThrow(List<String> subAssyNumbers) {
     List<Product> subAssies = productRepository.findByProductNumberIn(subAssyNumbers);
     if (subAssies.size() != subAssyNumbers.size()) {
