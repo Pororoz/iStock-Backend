@@ -20,6 +20,7 @@ import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,9 +35,9 @@ public class BomService {
 
   private final String SUB_ASSY_CODE_NUMBER = "11";
 
-  public Page<FindBomServiceResponse> findBomList(FindBomServiceRequest request) {
+  public Page<FindBomServiceResponse> findBomList(FindBomServiceRequest request, Pageable pageable) {
     productRepository.findById(request.getProductId()).orElseThrow(ProductNotFoundException::new);
-    return bomRepository.findByProductIdWithPart(request.toPageRequest(), request.getProductId())
+    return bomRepository.findByProductIdWithPart(pageable, request.getProductId())
         .map(FindBomServiceResponse::of);
   }
 

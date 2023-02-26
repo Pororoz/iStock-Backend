@@ -20,7 +20,7 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
-import com.pororoz.istock.domain.part.dto.PartDto;
+import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
@@ -197,7 +197,7 @@ public class BomIntegrationTest extends IntegrationTest {
               .codeNumber(bom.getCodeNumber())
               .quantity(bom.getQuantity())
               .memo(bom.getMemo())
-              .part(PartDto.of(bom.getPart()))
+              .part(PartResponse.of(bom.getPart()))
               .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
               .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
               .build());
@@ -233,7 +233,7 @@ public class BomIntegrationTest extends IntegrationTest {
               .codeNumber(bom.getCodeNumber())
               .quantity(bom.getQuantity())
               .memo(bom.getMemo())
-              .part(PartDto.of(bom.getPart()))
+              .part(PartResponse.of(bom.getPart()))
               .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
               .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
               .build());

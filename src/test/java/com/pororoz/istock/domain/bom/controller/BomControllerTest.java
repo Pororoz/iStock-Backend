@@ -9,19 +9,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.ControllerTest;
+import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
+import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.service.BomService;
-import com.pororoz.istock.domain.part.dto.PartDto;
+import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +36,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
@@ -49,6 +52,7 @@ class BomControllerTest extends ControllerTest {
   @Nested
   @DisplayName("제품 Bom 행 조회")
   class FindBom {
+
     String locationNumber = "L5.L4";
     String codeNumber = "";
     long quantity = 3;
@@ -67,7 +71,7 @@ class BomControllerTest extends ControllerTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("Bom 정보를 넣으면 저장된다.")
+      @DisplayName("productId로 Bom을 조회할 수 있다.")
       void saveBom() throws Exception {
         // given
         int page = 1;
@@ -75,15 +79,15 @@ class BomControllerTest extends ControllerTest {
         String now = TimeEntity.formatTime(LocalDateTime.now());
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        PartDto part1 = PartDto.builder()
-            .id(1L)
+        PartResponse part1 = PartResponse.builder()
+            .partId(1L)
             .price(580)
             .partName("part1")
             .stock(2L)
             .spec("spec1")
             .build();
-        PartDto part2 = PartDto.builder()
-            .id(2L)
+        PartResponse part2 = PartResponse.builder()
+            .partId(2L)
             .price(580)
             .partName("part2")
             .stock(2L)
@@ -113,35 +117,43 @@ class BomControllerTest extends ControllerTest {
             new PageImpl<>(List.of(serviceResponse1, serviceResponse2), pageRequest, 4);
 
         params.add("product-id", Long.toString(productId));
+        params.add("page", "0");
+        params.add("size", "2");
+
+        FindBomResponse findBomResponse1 = FindBomResponse.builder()
+            .bomId(1L)
+            .locationNumber(locationNumber + "0")
+            .codeNumber(codeNumber + "0")
+            .quantity(quantity)
+            .memo(memo)
+            .createdAt(now)
+            .updatedAt(now)
+            .part(part1)
+            .build();
+        FindBomResponse findBomResponse2 = FindBomResponse.builder()
+            .bomId(2L)
+            .locationNumber(locationNumber + "1")
+            .codeNumber(codeNumber + "1")
+            .quantity(quantity)
+            .memo(memo)
+            .createdAt(now)
+            .updatedAt(now)
+            .part(part2)
+            .build();
+        PageResponse<FindBomResponse> response =
+            new PageResponse<>(
+                new PageImpl<>(List.of(findBomResponse1, findBomResponse2), pageRequest, 4));
 
         // when
-        when(bomService.findBomList(any(FindBomServiceRequest.class))).thenReturn(dtoPage);
+        when(bomService.findBomList(any(FindBomServiceRequest.class),
+            any(Pageable.class))).thenReturn(dtoPage);
         ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
 
         // then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_BOM))
-            .andExpect(jsonPath("$.data.contents[0].bomId").value(1))
-            .andExpect(jsonPath("$.data.contents[0].locationNumber").value(locationNumber + "0"))
-            .andExpect(jsonPath("$.data.contents[0].codeNumber").value(codeNumber + "0"))
-            .andExpect(jsonPath("$.data.contents[0].quantity").value(quantity))
-            .andExpect(jsonPath("$.data.contents[0].memo").value(memo))
-            .andExpect(jsonPath("$.data.contents[0].part.id").value(1))
-            .andExpect(jsonPath("$.data.contents[0].part.partName").value("part1"))
-            .andExpect(jsonPath("$.data.contents[0].part.spec").value("spec1"))
-            .andExpect(jsonPath("$.data.contents[0].part.price").value(580))
-            .andExpect(jsonPath("$.data.contents[0].part.stock").value(2))
-            .andExpect(jsonPath("$.data.contents[1].bomId").value(2))
-            .andExpect(jsonPath("$.data.contents[1].locationNumber").value(locationNumber + "1"))
-            .andExpect(jsonPath("$.data.contents[1].codeNumber").value(codeNumber + "1"))
-            .andExpect(jsonPath("$.data.contents[1].quantity").value(quantity))
-            .andExpect(jsonPath("$.data.contents[1].memo").value(memo))
-            .andExpect(jsonPath("$.data.contents[1].part.id").value(2))
-            .andExpect(jsonPath("$.data.contents[1].part.partName").value("part2"))
-            .andExpect(jsonPath("$.data.contents[1].part.spec").value("spec2"))
-            .andExpect(jsonPath("$.data.contents[1].part.price").value(580))
-            .andExpect(jsonPath("$.data.contents[1].part.stock").value(2))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }

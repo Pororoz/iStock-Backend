@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
-import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
@@ -133,15 +132,15 @@ class BomServiceTest {
         PageImpl<Bom> bomPage = new PageImpl<>(bomList, PageRequest.of(page, size), total);
 
         FindBomServiceRequest request = FindBomServiceRequest.builder()
-            .page(page).size(size)
             .productId(productId)
             .build();
+        Pageable pageable = PageRequest.of(page, size);
 
         // when
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(bomRepository.findByProductIdWithPart(any(Pageable.class), eq(productId)))
             .thenReturn(bomPage);
-        Page<FindBomServiceResponse> result = bomService.findBomList(request);
+        Page<FindBomServiceResponse> result = bomService.findBomList(request, pageable);
 
         //then
         assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
@@ -154,6 +153,7 @@ class BomServiceTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
       @Test
       @DisplayName("존재하지 않는 Product라면 ProductNotFoundException을 발생시킨다.")
       void productNotFound() {
@@ -162,15 +162,16 @@ class BomServiceTest {
         int size = 3;
 
         FindBomServiceRequest request = FindBomServiceRequest.builder()
-            .page(page).size(size)
             .productId(productId)
             .build();
+        Pageable pageable = PageRequest.of(page, size);
 
         // when
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         // then
-        assertThrows(ProductNotFoundException.class, () -> bomService.findBomList(request));
+        assertThrows(ProductNotFoundException.class,
+            () -> bomService.findBomList(request, pageable));
       }
     }
   }
@@ -515,10 +516,6 @@ class BomServiceTest {
             .product(product)
             .build();
 
-        DeleteBomServiceRequest request = DeleteBomServiceRequest.builder()
-            .bomId(bomId)
-            .build();
-
         BomServiceResponse response = BomServiceResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
@@ -546,10 +543,6 @@ class BomServiceTest {
       @DisplayName("만약 존재하지 않는 BOM을 삭제하려고 하면 BomNotFoundException를 반환한다.")
       void bomNotFound() {
         // given
-        DeleteBomServiceRequest request = DeleteBomServiceRequest.builder()
-            .bomId(bomId)
-            .build();
-
         // when
         when(bomRepository.findById(bomId)).thenReturn(Optional.empty());
 

@@ -6,12 +6,12 @@ import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.bom.dto.request.FindBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
-import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.service.BomService;
 import com.pororoz.istock.domain.bom.swagger.exception.BomIdBadRequestExceptionSwagger;
@@ -25,6 +25,7 @@ import com.pororoz.istock.domain.bom.swagger.response.UpdateBomResponseSwagger;
 import com.pororoz.istock.domain.part.swagger.exception.PartNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNotFoundExceptionSwagger;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,19 +33,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "BOM", description = "BOM API")
@@ -73,19 +75,9 @@ public class BomController {
   })
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<FindBomResponse>>> findBomList(
-      @Valid
-      @Schema(description = "페이지 요청", example = "0")
-      @PositiveOrZero(message = ExceptionMessage.INVALID_PAGE_REQUEST)
-      @RequestParam(required = false)
-      Integer page,
-      @Schema(description = "사이즈 요청", example = "20")
-      @Positive(message = ExceptionMessage.INVALID_PAGE_REQUEST)
-      @RequestParam(required = false)
-      Integer size,
-      @PositiveOrZero
-      @RequestParam("product-id") Long productId) {
-    Page<FindBomResponse> responseDto = bomService.findBomList(
-            FindBomServiceRequest.of(page, size, productId))
+      @Parameter(hidden = true) Pageable pageable,
+      @Valid @ParameterObject @ModelAttribute FindBomRequest request) {
+    Page<FindBomResponse> responseDto = bomService.findBomList(request.toService(), pageable)
         .map(FindBomServiceResponse::toResponse);
     PageResponse<FindBomResponse> response = new PageResponse<>(responseDto);
     return ResponseEntity.ok(
