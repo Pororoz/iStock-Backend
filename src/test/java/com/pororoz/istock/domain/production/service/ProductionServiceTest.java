@@ -280,11 +280,11 @@ class ProductionServiceTest {
       @DisplayName("BOM을 partIo에 저장할 때 part가 null이라면 IllegalArgumentException이 발생한다.")
       void partNull() {
         //given
+        Product product = Product.builder()
+            .id(productId).build();
         Bom bom = Bom.builder()
             .quantity(1).build();
-        Product product = Product.builder()
-            .id(productId)
-            .boms(List.of(bom)).build();
+        product.setBoms(List.of(bom));
         ProductIo productIo = ProductIo.builder()
             .quantity(quantity).product(product).id(1L)
             .build();
