@@ -10,7 +10,6 @@ import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -160,7 +159,7 @@ class ProductRepositoryTest extends RepositoryTest {
       em.clear();
 
       //when
-      List<Product> products = productRepository.findByProductNumbers(Set.of("aaa", "a"));
+      List<Product> products = productRepository.findByProductNumberIn(List.of("aaa", "a"));
 
       //then
       assertThat(products).hasSize(2);

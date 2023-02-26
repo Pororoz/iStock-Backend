@@ -355,7 +355,7 @@ class ProductControllerTest extends ControllerTest {
           new PageImpl<>(List.of(ServiceDto), pageRequest, 4);
 
       //when
-      when(productService.findProductsWithSubAssys(eq(categoryId), any(Pageable.class)))
+      when(productService.findProductsWithSubAssies(eq(categoryId), any(Pageable.class)))
           .thenReturn(dtoPage);
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
@@ -435,12 +435,12 @@ class ProductControllerTest extends ControllerTest {
       ArgumentCaptor<Pageable> argument = ArgumentCaptor.forClass(Pageable.class);
 
       //when
-      when(productService.findProductsWithSubAssys(eq(categoryId), any(Pageable.class)))
+      when(productService.findProductsWithSubAssies(eq(categoryId), any(Pageable.class)))
           .thenReturn(dtoPage);
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
       //then
-      verify(productService).findProductsWithSubAssys(eq(categoryId), argument.capture());
+      verify(productService).findProductsWithSubAssies(eq(categoryId), argument.capture());
       assertThat(argument.getValue()).usingRecursiveComparison().isEqualTo(Pageable.unpaged());
 
       SubAssyResponse subAssyRespon = SubAssyResponse.builder()

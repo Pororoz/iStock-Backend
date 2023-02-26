@@ -129,7 +129,7 @@ public class ProductController {
       @Schema(description = "카테고리 아이디", example = "1")
       @Positive @RequestParam("category-id")
       Long categoryId) {
-    Page<FindProductWithSubassyResponse> productPage = productService.findProductsWithSubAssys(
+    Page<FindProductWithSubassyResponse> productPage = productService.findProductsWithSubAssies(
             categoryId,
             pageable)
         .map(FindProductWithSubassyServiceResponse::toResponse);
