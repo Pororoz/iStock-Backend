@@ -18,10 +18,13 @@ import com.pororoz.istock.domain.bom.service.BomService;
 import com.pororoz.istock.domain.bom.swagger.exception.BomIdBadRequestExceptionSwagger;
 import com.pororoz.istock.domain.bom.swagger.exception.BomNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.bom.swagger.exception.PartIdBadRequestExceptionSwagger;
+import com.pororoz.istock.domain.bom.swagger.exception.ProductIdBadRequestExceptionSwagger;
 import com.pororoz.istock.domain.bom.swagger.response.DeleteBomResponseSwagger;
+import com.pororoz.istock.domain.bom.swagger.response.FindBomResponseSwagger;
 import com.pororoz.istock.domain.bom.swagger.response.SaveBomResponseSwagger;
 import com.pororoz.istock.domain.bom.swagger.response.UpdateBomResponseSwagger;
 import com.pororoz.istock.domain.part.swagger.exception.PartNotFoundExceptionSwagger;
+import com.pororoz.istock.domain.product.swagger.exception.ProductNotFoundExceptionSwagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -54,7 +57,18 @@ public class BomController {
 
   @Operation(summary = "save bom", description = "BOM 행 조회 API")
   @ApiResponses({
-
+      @ApiResponse(responseCode = "200", description = ResponseMessage.FIND_BOM, content = {
+          @Content(schema = @Schema(implementation = FindBomResponseSwagger.class))}
+      ),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.BAD_REQUEST, content = {
+          @Content(schema = @Schema(implementation = ProductIdBadRequestExceptionSwagger.class))}
+      ),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}
+      ),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PART_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = ProductNotFoundExceptionSwagger.class))}
+      ),
   })
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<FindBomResponse>>> findBomList(
