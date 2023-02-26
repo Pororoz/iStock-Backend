@@ -1,6 +1,6 @@
 package com.pororoz.istock.domain.production.service;
 
-import com.pororoz.istock.common.exception.BomAndSubAssyNotMatchException;
+import com.pororoz.istock.common.exception.BomAndSubAssyNotMatchedException;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
@@ -62,8 +62,8 @@ public class ProductionService {
           Part part = bom.getPart();
           if (part == null) {
             throw new IllegalArgumentException(
-                "Bom에 Part가 없습니다.bomId:" + bom.getId() + ", locationNumber:"
-                    + bom.getLocationNumber());
+                "Bom에 Part가 없습니다. bomId: " + bom.getId() + ", locationNumber: "
+                    + bom.getLocationNumber() + ", productId: " + bom.getProduct().getId());
           }
           part.subtractStock(bom.getQuantity());
           return PartIo.builder()
@@ -99,7 +99,7 @@ public class ProductionService {
   private List<Product> findSubAssiesByProductNumberOrThrow(List<String> subAssyNumbers) {
     List<Product> subAssies = productRepository.findByProductNumberIn(subAssyNumbers);
     if (subAssies.size() != subAssyNumbers.size()) {
-      throw new BomAndSubAssyNotMatchException();
+      throw new BomAndSubAssyNotMatchedException();
     }
     return subAssies;
   }

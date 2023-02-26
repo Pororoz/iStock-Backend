@@ -29,7 +29,7 @@ public class ExceptionStatus {
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";
   public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
   public static final String FORBIDDEN = "FORBIDDEN";
-  public static final String BOM_AND_SUB_ASSY_NOT_MATCH = "BOM_AND_SUB_ASSY_NOT_MATCH";
+  public static final String BOM_AND_SUB_ASSY_NOT_MATCHED = "BOM_AND_SUB_ASSY_NOT_MATCH";
 
   private ExceptionStatus() {
   }

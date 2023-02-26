@@ -41,7 +41,7 @@ public class ProductionController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_PRODUCT, content = {
           @Content(schema = @Schema(implementation = SaveProductionResponseSwagger.class))}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCH, content = {
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCHED, content = {
           @Content(schema = @Schema(implementation = BomAndSubAssyNotMatchExceptionSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),

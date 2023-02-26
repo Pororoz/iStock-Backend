@@ -8,7 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.pororoz.istock.common.exception.BomAndSubAssyNotMatchException;
+import com.pororoz.istock.common.exception.BomAndSubAssyNotMatchedException;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
@@ -272,7 +272,7 @@ class ProductionServiceTest {
         when(productRepository.findByProductNumberIn(anyList())).thenReturn(List.of());
 
         //then
-        assertThrows(BomAndSubAssyNotMatchException.class,
+        assertThrows(BomAndSubAssyNotMatchedException.class,
             () -> productionService.saveWaitingProduction(request));
       }
 
