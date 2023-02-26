@@ -644,7 +644,7 @@ class BomServiceTest {
         Part newPart = Part.builder().id(newPartId).build();
         Product newProduct = Product.builder().id(newProductId).build();
         Bom ExistedBom = Bom.builder()
-            .id(bomId)
+            .id(bomId + 1)
             .locationNumber(newLocationNumber)
             .codeNumber(newCodeNumber)
             .quantity(newQuantity)

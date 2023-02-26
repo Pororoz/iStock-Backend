@@ -33,14 +33,11 @@ public class BomService {
 
   public BomServiceResponse saveBom(SaveBomServiceRequest request) {
     validateRequest(request.getCodeNumber(), request.getProductNumber(), request.getPartId());
-    Part part = request.getPartId() == null ? null : partRepository.findById(request.getPartId())
-        .orElseThrow(PartNotFoundException::new);
+    Part part = findPartById(request.getPartId());
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
-    bomRepository.findByLocationNumberAndProductIdAndPartId(request.getLocationNumber(),
-        request.getProductId(), request.getPartId()).ifPresent(p -> {
-      throw new DuplicateBomException();
-    });
+    checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getPartId(),
+        null);
     Bom result = bomRepository.save(request.toBom(part, product));
     return BomServiceResponse.of(result);
   }
@@ -53,22 +50,16 @@ public class BomService {
 
   public BomServiceResponse updateBom(UpdateBomServiceRequest request) {
     validateRequest(request.getCodeNumber(), request.getProductNumber(), request.getPartId());
-    Bom bom = bomRepository.findById(request.getBomId()).orElseThrow(BomNotFoundException::new);
-    Part newPart = request.getPartId() == null ? null : partRepository.findById(request.getPartId())
-        .orElseThrow(PartNotFoundException::new);
+    Bom existBom = bomRepository.findById(request.getBomId())
+        .orElseThrow(BomNotFoundException::new);
+    Part part = findPartById(request.getPartId());
     Product newProduct = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
 
-    // 인덱스로 묶여진 3가지 요소가 다를 때, 이미 해당 키로 구성된 요소가 있으면 예외처리를 해줘야 한다.
-    bomRepository.findByLocationNumberAndProductIdAndPartId(request.getLocationNumber(),
-        request.getProductId(), request.getPartId()).ifPresent(p -> {
-      if (!p.equals(bom)) {
-        throw new DuplicateBomException();
-      }
-    });
-
-    bom.update(newPart, newProduct, request);
-    return BomServiceResponse.of(bom);
+    checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getPartId(),
+        existBom.getId());
+    existBom.update(part, newProduct, request);
+    return BomServiceResponse.of(existBom);
   }
 
   private void validateRequest(String codeNumber, String productNumber, Long partId) {
@@ -95,5 +86,21 @@ public class BomService {
     if (productNumber != null || partId == null) {
       throw new InvalidProductBomException();
     }
+  }
+
+  private Part findPartById(Long partId) {
+    return partId == null ? null
+        : partRepository.findById(partId).orElseThrow(PartNotFoundException::new);
+  }
+
+  // 인덱스로 묶여진 3가지 요소가 다를 때, 이미 해당 키로 구성된 요소가 있으면 예외가 발생한다.
+  private void checkDuplicateBom(String locationNumber, Long productId, Long partId,
+      Long existBomId) {
+    bomRepository.findByLocationNumberAndProductIdAndPartId(locationNumber, productId, partId)
+        .ifPresent(bom -> {
+          if (existBomId == null || !existBomId.equals(bom.getId())) {
+            throw new DuplicateBomException();
+          }
+        });
   }
 }
