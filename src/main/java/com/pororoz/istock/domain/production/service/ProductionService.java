@@ -17,6 +17,7 @@ import com.pororoz.istock.domain.production.exception.ProductOrBomNotFoundExcept
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,8 @@ public class ProductionService {
   private final PartIoRepository partIoRepository;
   private final ProductRepository productRepository;
   private final ProductIoRepository productIoRepository;
+
+  private final String SUB_ASSY_CODE_NUMBER = "11";
 
   public SaveProductionServiceResponse saveWaitingProduction(SaveProductionServiceRequest request) {
     Product product = productRepository.findByIdWithParts(request.getProductId())
@@ -53,9 +56,15 @@ public class ProductionService {
   }
 
   private void savePartIoAll(List<Bom> boms, ProductIo productIo) {
-    List<PartIo> partIoList = boms.stream().filter(bom -> bom.getPart() != null)
+    List<PartIo> partIoList = boms.stream()
+        .filter(bom -> !Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
         .map(bom -> {
           Part part = bom.getPart();
+          if (part == null) {
+            throw new IllegalArgumentException(
+                "Bom에 Part가 없습니다.bomId:" + bom.getId() + ", locationNumber:"
+                    + bom.getLocationNumber());
+          }
           part.subtractStock(bom.getQuantity());
           return PartIo.builder()
               .quantity(bom.getQuantity())
@@ -69,7 +78,7 @@ public class ProductionService {
 
   private void saveSubAssyIoAll(List<Bom> boms, ProductIo productIo) {
     Map<String, Long> subAssyQuantityMap = boms.stream()
-        .filter(bom -> bom.getPart() == null)
+        .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
         .collect(Collectors.toMap(Bom::getProductNumber, Bom::getQuantity));
 
     List<ProductIo> subAssyIoList = findSubAssiesByProductNumberOrThrow(

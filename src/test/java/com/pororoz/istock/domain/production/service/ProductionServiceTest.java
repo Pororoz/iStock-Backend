@@ -275,6 +275,36 @@ class ProductionServiceTest {
         assertThrows(BomAndSubAssyNotMatchException.class,
             () -> productionService.saveWaitingProduction(request));
       }
+
+      @Test
+      @DisplayName("BOM을 partIo에 저장할 때 part가 null이라면 IllegalArgumentException이 발생한다.")
+      void partNull() {
+        //given
+        Bom bom = Bom.builder()
+            .quantity(1).build();
+        Product product = Product.builder()
+            .id(productId)
+            .boms(List.of(bom)).build();
+        ProductIo productIo = ProductIo.builder()
+            .quantity(quantity).product(product).id(1L)
+            .build();
+        ArgumentCaptor<ProductIo> productIoArgument = ArgumentCaptor.forClass(ProductIo.class);
+
+        //when
+        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
+        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
+
+        //then
+        assertThrows(IllegalArgumentException.class,
+            () -> productionService.saveWaitingProduction(request));
+        ProductIo savingProductIo = ProductIo.builder()
+            .status(ProductStatus.생산대기)
+            .quantity(quantity).product(product)
+            .build();
+        verify(productIoRepository).save(productIoArgument.capture());
+        assertThat(productIoArgument.getValue()).usingRecursiveComparison()
+            .isEqualTo(savingProductIo);
+      }
     }
   }
 }
