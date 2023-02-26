@@ -1,7 +1,6 @@
 package com.pororoz.istock.domain.bom.service;
 
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
-import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -46,8 +45,8 @@ public class BomService {
     return BomServiceResponse.of(result);
   }
 
-  public BomServiceResponse deleteBom(DeleteBomServiceRequest request) {
-    Bom result = bomRepository.findById(request.getBomId()).orElseThrow(BomNotFoundException::new);
+  public BomServiceResponse deleteBom(Long bomId) {
+    Bom result = bomRepository.findById(bomId).orElseThrow(BomNotFoundException::new);
     bomRepository.delete(result);
     return BomServiceResponse.of(result);
   }

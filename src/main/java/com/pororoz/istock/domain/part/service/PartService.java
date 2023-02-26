@@ -1,6 +1,6 @@
 package com.pororoz.istock.domain.part.service;
 
-import com.pororoz.istock.domain.part.dto.request.FindPartServiceRequest;
+import com.pororoz.istock.domain.part.dto.service.FindPartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.UpdatePartServiceRequest;

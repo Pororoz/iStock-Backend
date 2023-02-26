@@ -1,4 +1,4 @@
-package com.pororoz.istock.domain.part.dto.request;
+package com.pororoz.istock.domain.part.dto.service;
 
 import lombok.Builder;
 import lombok.Getter;

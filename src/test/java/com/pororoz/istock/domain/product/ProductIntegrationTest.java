@@ -22,7 +22,7 @@ import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
-import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
+import com.pororoz.istock.domain.product.dto.response.FindProductWithSubassyResponse;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.dto.response.SubAssyResponse;
 import com.pororoz.istock.domain.product.entity.Product;
@@ -71,7 +71,6 @@ public class ProductIntegrationTest extends IntegrationTest {
     @DisplayName("제품을 저장한다.")
     void saveProductAdmin() throws Exception {
       //given
-      databaseCleanup.execute();
       Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
       SaveProductRequest request = SaveProductRequest.builder()
           .productName(name).productNumber(number)
@@ -98,7 +97,6 @@ public class ProductIntegrationTest extends IntegrationTest {
     @DisplayName("user role로 제품을 저장한다.")
     void saveProductUser() throws Exception {
       //given
-      databaseCleanup.execute();
       Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
       SaveProductRequest request = SaveProductRequest.builder()
           .productName(name).productNumber(number)
@@ -150,7 +148,6 @@ public class ProductIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       category1 = categoryRepository.save(Category.builder().categoryName("카테고리1").build());
       category2 = categoryRepository.save(Category.builder().categoryName("카테고리2").build());
       product = productRepository.save(
@@ -404,7 +401,6 @@ public class ProductIntegrationTest extends IntegrationTest {
     @DisplayName("제품을 정상적으로 삭제한다.")
     void saveProduct() throws Exception {
       //given
-      databaseCleanup.execute();
       Category category = categoryRepository.save(
           Category.builder().categoryName("category").build());
       Product product = productRepository.save(Product.builder()
@@ -432,15 +428,16 @@ public class ProductIntegrationTest extends IntegrationTest {
   }
 
   @Nested
-  @DisplayName("GET /v1/products?category-id={categoryId}&page={page}&size={size} - 제품 조회")
+  @DisplayName("GET /v1/products/with/subassy?category-id={categoryId}&page={page}&size={size} - 제품 조회")
   class FindProducts {
+
+    String uri = "/v1/products/with/subassy";
 
     @Test
     @WithMockUser(roles = "USER")
     @DisplayName("제품을 subAssy와 함께 페이지네이션하여 1페이지를 조회한다.")
     void findProductWithSubAssy() throws Exception {
       //given
-      databaseCleanup.execute();
       Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
 
       //product 저장
@@ -495,11 +492,11 @@ public class ProductIntegrationTest extends IntegrationTest {
       ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
 
       //then
-      List<FindProductResponse> findProductResponses = new ArrayList<>();
+      List<FindProductWithSubassyResponse> findProductWithSubassyRespons = new ArrayList<>();
       for (int i = 5; i < 10; i++) {
         Product product = products.get(i);
         Product subAssy = i > 6 ? null : subAssys.get(i);
-        findProductResponses.add(FindProductResponse.builder()
+        findProductWithSubassyRespons.add(FindProductWithSubassyResponse.builder()
             .productId(product.getId())
             .productName(product.getProductName())
             .productNumber(product.getProductNumber())
@@ -517,8 +514,9 @@ public class ProductIntegrationTest extends IntegrationTest {
                     .quantity(10).stock(0).build()))
             .build());
       }
-      PageResponse<FindProductResponse> response = new PageResponse<>(
-          new PageImpl<>(findProductResponses, PageRequest.of(page, size), products.size()));
+      PageResponse<FindProductWithSubassyResponse> response = new PageResponse<>(
+          new PageImpl<>(findProductWithSubassyRespons, PageRequest.of(page, size),
+              products.size()));
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT))

@@ -3,7 +3,6 @@ package com.pororoz.istock.domain.product.repository;
 import com.pororoz.istock.domain.product.entity.Product;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,5 +22,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
       @Param("categoryId") Long categoryId);
 
   @Query("select p from Product p where p.productNumber in :productNumbers")
-  List<Product> findByProductNumbers(@Param("productNumbers") Set<String> productNumbers);
+  List<Product> findByProductNumberIn(@Param("productNumbers") List<String> productNumbers);
+
+  @Query(value = "select distinct pr from Product pr "
+      + "left join pr.boms b "
+      + "left join b.part pa "
+      + "where ((:partId is null or pa.id = :partId) and "
+      + "(:partName is null or pa.partName = :partName)) ",
+      countQuery = "select distinct pr from Product pr "
+          + "left join pr.boms b "
+          + "left join b.part pa "
+          + "where ((:partId is null or pa.id = :partId) and "
+          + "(:partName is null or pa.partName = :partName)) ")
+  Page<Product> findByPartIdAndPartNameIgnoreNull(@Param("partId") Long partId,
+      @Param("partName") String partName, Pageable pageable);
 }
