@@ -1,7 +1,7 @@
 package com.pororoz.istock.domain.product.dto.service;
 
 import com.pororoz.istock.common.entity.TimeEntity;
-import com.pororoz.istock.domain.product.dto.response.FindProductResponse;
+import com.pororoz.istock.domain.product.dto.response.FindProductWithSubassyResponse;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.SubAssyNotFoundByProductNameException;
 import java.util.List;
@@ -10,13 +10,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class FindProductServiceResponse {
+public class FindProductWithSubassyServiceResponse {
 
   private ProductServiceResponse productServiceResponse;
   private List<SubAssyServiceResponse> subAssyServiceResponses;
 
-  public static FindProductServiceResponse of(Product product, List<Product> subAssys) {
-    return FindProductServiceResponse.builder()
+  public static FindProductWithSubassyServiceResponse of(Product product, List<Product> subAssys) {
+    return FindProductWithSubassyServiceResponse.builder()
         .productServiceResponse(ProductServiceResponse.of(product))
         .subAssyServiceResponses(
             // bom의 code number가 11인 것의 product를 SubAssyServiceResponse로 만든다
@@ -33,8 +33,8 @@ public class FindProductServiceResponse {
         .build();
   }
 
-  public FindProductResponse toResponse() {
-    return FindProductResponse.builder()
+  public FindProductWithSubassyResponse toResponse() {
+    return FindProductWithSubassyResponse.builder()
         .productId(productServiceResponse.getProductId())
         .productName(productServiceResponse.getProductName())
         .productNumber(productServiceResponse.getProductNumber())

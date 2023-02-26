@@ -12,7 +12,7 @@ spring:
     activate:
       on-profile: "build"
   datasource:
-    url: "jdbc:mysql://localhost:3306/istock?serverTimezone=Asia/Seoul&useSSL=false"
+    url: "jdbc:mysql://localhost:3306/istock?serverTimezone=Asia/Seoul&useSSL=false&allowPublicKeyRetrieval=true"
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: true

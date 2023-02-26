@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
+import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
@@ -13,13 +14,18 @@ import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
 import com.pororoz.istock.domain.part.dto.request.UpdatePartRequest;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
+import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
@@ -39,7 +45,6 @@ public class PartIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       Part part = Part.builder()
           .partName("oldPartName").spec("oldSpec")
           .build();
@@ -124,7 +129,6 @@ public class PartIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       Part part = Part.builder()
           .partName("oldPartName").spec("oldSpec")
           .build();
@@ -198,9 +202,9 @@ public class PartIntegrationTest extends IntegrationTest {
   @Nested
   @DisplayName("PUT /v1/parts - 파트 수정 API")
   class UpdatePart {
+
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       Part part = Part.builder().id(1L)
           .partName("oldPartName").spec("oldSpec").build();
       Part part2 = Part.builder().id(2L)
@@ -238,6 +242,7 @@ public class PartIntegrationTest extends IntegrationTest {
             .andDo(print());
       }
     }
+
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
@@ -299,6 +304,97 @@ public class PartIntegrationTest extends IntegrationTest {
         actions.andExpect(status().isForbidden())
             .andDo(print());
       }
+    }
+  }
+
+  @Nested
+  @DisplayName("GET /v1/parts - 파트 조회 API")
+  class FindParts {
+
+    long total = 10;
+    List<Part> parts;
+
+    @BeforeEach
+    void setUp() {
+      parts = new ArrayList<>();
+      for (int i = 0; i < total; i++) {
+        Part part = partRepository.save(Part.builder()
+            .partName("name" + i).spec("spec" + i)
+            .price(i * 100L).stock(i)
+            .build());
+        parts.add(part);
+      }
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("모든 param이 없으면 부품을 전체 조회한다.")
+    void findPartAll() throws Exception {
+      //given
+      //when
+      ResultActions actions = getResultActions(url, HttpMethod.GET);
+
+      //then
+      List<PartResponse> partResponses = parts.stream()
+          .map(part -> PartServiceResponse.of(part).toResponse()).toList();
+      PageResponse<PartResponse> response = new PageResponse<>(new PageImpl<>(partResponses));
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PART))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("partId, partName, spec을 지정하여 부품을 조회한다.")
+    void findSpecificPart() throws Exception {
+      //given
+      Part part = parts.get(3);
+      String fullUri =
+          url + "?part-name=" + part.getPartName() + "&spec=" + part.getSpec() + "&part-id="
+              + part.getId();
+
+      //when
+      ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+      //then
+      PartResponse partResponse = PartServiceResponse.of(part).toResponse();
+      PageResponse<PartResponse> response = new PageResponse<>(
+          new PageImpl<>(List.of(partResponse)));
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PART))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("size 3에 3페이지의 부품을 조회한다(마지막).")
+    void findLastPage() throws Exception {
+      //given
+      int size = 3;
+      int page = 3;
+      Part part = parts.get(9);
+      String fullUri =
+          url + "?size=" + size + "&page=" + page;
+
+      //when
+      ResultActions actions = getResultActions(fullUri, HttpMethod.GET);
+
+      //then
+      PartResponse partResponse = PartServiceResponse.of(part).toResponse();
+      PageResponse<PartResponse> response = new PageResponse<>(
+          new PageImpl<>(List.of(partResponse), PageRequest.of(page, size), total));
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PART))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andExpect(jsonPath("$.data.last").value(true))
+          .andExpect(jsonPath("$.data.first").value(false))
+          .andDo(print());
+
     }
   }
 }

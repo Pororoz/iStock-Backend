@@ -1,12 +1,12 @@
 package com.pororoz.istock.domain.product.service;
 
-import com.pororoz.istock.common.utils.Pagination;
+import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceRequest;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductByPartServiceRequest;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
@@ -16,13 +16,12 @@ import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedExcept
 import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,21 +69,27 @@ public class ProductService {
   }
 
   @Transactional(readOnly = true)
-  public Page<FindProductServiceResponse> findProducts(FindProductServiceRequest request) {
-    categoryRepository.findById(request.getCategoryId())
+  public Page<FindProductWithSubassyServiceResponse> findProductsWithSubAssies(Long categoryId,
+      Pageable pageable) {
+    categoryRepository.findById(categoryId)
         .orElseThrow(CategoryNotFoundException::new);
-    Page<Product> products = getProductPage(request);
+    Page<Product> products = productRepository.findByCategoryIdWithBoms(pageable, categoryId);
     //subAssy만 필터링
-    Set<String> subAssyNames = new HashSet<>();
-    products.forEach(product -> {
-      product.setBoms(
-          product.getBoms().stream()
-              .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER)).toList()
-      );
-      product.getBoms().forEach(bom -> subAssyNames.add(bom.getProductNumber()));
-    });
-    List<Product> subAssys = productRepository.findByProductNumbers(subAssyNames);
-    return products.map(product -> FindProductServiceResponse.of(product, subAssys));
+    List<String> subAssyNames = products.stream()
+        .flatMap(product -> product.getBoms().stream())
+        .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
+        .map(Bom::getProductNumber)
+        .collect(Collectors.toList());
+    List<Product> subAssies = productRepository.findByProductNumberIn(subAssyNames);
+    return products.map(product -> FindProductWithSubassyServiceResponse.of(product, subAssies));
+  }
+
+  @Transactional(readOnly = true)
+  public Page<ProductServiceResponse> findProductsByPart(FindProductByPartServiceRequest request,
+      Pageable pageable) {
+    Page<Product> products = productRepository.findByPartIdAndPartNameIgnoreNull(
+        request.getPartId(), request.getPartName(), pageable);
+    return products.map(ProductServiceResponse::of);
   }
 
 
@@ -117,16 +122,6 @@ public class ProductService {
     productRepository.findByProductNumber(newNumber).ifPresent(p -> {
       throw new ProductNumberDuplicatedException();
     });
-  }
-
-  private Page<Product> getProductPage(FindProductServiceRequest request) {
-    if (request.getPage() == null && request.getSize() == null) {
-      List<Product> products = productRepository.findByCategoryIdWithBoms(
-          request.getCategoryId());
-      return new PageImpl<>(products);
-    }
-    return productRepository.findByCategoryIdWithBoms(
-        Pagination.toPageRequest(request.getPage(), request.getSize()), request.getCategoryId());
   }
 
   private void changeBomProductNumber(String oldNumber, String newNumber) {

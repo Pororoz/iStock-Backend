@@ -531,7 +531,7 @@ class BomServiceTest {
 
         // when
         when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
-        BomServiceResponse result = bomService.deleteBom(request);
+        BomServiceResponse result = bomService.deleteBom(bomId);
 
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
@@ -555,7 +555,7 @@ class BomServiceTest {
 
         // then
         assertThrows(BomNotFoundException.class,
-            () -> bomService.deleteBom(request));
+            () -> bomService.deleteBom(bomId));
       }
     }
   }

@@ -2,6 +2,7 @@ package com.pororoz.istock.domain.bom.controller;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,7 +16,6 @@ import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
-import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
@@ -308,7 +308,6 @@ class BomControllerTest extends ControllerTest {
             .partId(partId)
             .productId(productId)
             .build();
-        params.add("bomId", Long.toString(bomId));
         BomResponse response = BomResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
@@ -320,8 +319,8 @@ class BomControllerTest extends ControllerTest {
             .build();
 
         // when
-        when(bomService.deleteBom(any(DeleteBomServiceRequest.class))).thenReturn(serviceResponse);
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        when(bomService.deleteBom(anyLong())).thenReturn(serviceResponse);
+        ResultActions actions = getResultActions(uri + "/" + bomId, HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isOk())
@@ -337,25 +336,11 @@ class BomControllerTest extends ControllerTest {
     class FailCase {
 
       @Test
-      @DisplayName("bomId가 null 값이면 400 Bad Request를 반환한다.")
-      void bomIdNull() throws Exception {
-        // given
-        // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
-
-        // then
-        actions.andExpect(status().isBadRequest())
-            .andDo(print());
-      }
-
-      @Test
       @DisplayName("bomId가 숫자가 아닌 값이면 400 Bad Request를 반환한다.")
       void bomIdNotNumber() throws Exception {
         // given
-        params.add("bomId", "not-number");
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + "/" + "not-number", HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -366,10 +351,8 @@ class BomControllerTest extends ControllerTest {
       @DisplayName("bomId가 마이너스 값이면 400 Bad Request를 반환한다.")
       void bomIdMinusNumber() throws Exception {
         // given
-        params.add("bomId", "-1");
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + "/-1", HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isBadRequest())

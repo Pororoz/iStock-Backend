@@ -5,7 +5,6 @@ import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
-import com.pororoz.istock.domain.user.dto.request.FindUserRequest;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
 import com.pororoz.istock.domain.user.dto.request.UpdateUserRequest;
 import com.pororoz.istock.domain.user.dto.response.FindUserResponse;
@@ -21,6 +20,7 @@ import com.pororoz.istock.domain.user.swagger.response.DeleteUserResponseSwagger
 import com.pororoz.istock.domain.user.swagger.response.FindUserResponseSwagger;
 import com.pororoz.istock.domain.user.swagger.response.SaveUserResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,12 +30,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -115,10 +116,11 @@ public class UserController {
       @ApiResponse(responseCode = "200", description = ResponseMessage.FIND_USER,
           content = {@Content(schema = @Schema(implementation = FindUserResponseSwagger.class))})
   })
+  @PageableAsQueryParam
   @GetMapping
   public ResponseEntity<ResultDTO<PageResponse<FindUserResponse>>> findUsers(
-      @Valid @ModelAttribute("request") FindUserRequest request) {
-    Page<FindUserResponse> userPage = userService.findUsers(request.toService()).map(
+      @Parameter(hidden = true) Pageable pageable) {
+    Page<FindUserResponse> userPage = userService.findUsers(pageable).map(
         UserServiceResponse::toFindResponse);
     PageResponse<FindUserResponse> response = new PageResponse<>(userPage);
     return ResponseEntity.ok(

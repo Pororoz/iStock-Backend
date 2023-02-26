@@ -6,7 +6,6 @@ import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
-import com.pororoz.istock.domain.bom.dto.request.DeleteBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
@@ -37,9 +36,10 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "BOM", description = "BOM API")
+@Validated
 @RequiredArgsConstructor
 @RequestMapping("/v1/bom")
 @RestController
@@ -55,7 +56,7 @@ public class BomController {
 
   private final BomService bomService;
 
-  @Operation(summary = "save bom", description = "BOM 행 조회 API")
+  @Operation(summary = "find bom", description = "BOM 행 조회 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.FIND_BOM, content = {
           @Content(schema = @Schema(implementation = FindBomResponseSwagger.class))}
@@ -115,7 +116,7 @@ public class BomController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_BOM, response));
   }
 
-  @Operation(summary = "save bom", description = "BOM 행 추가 API")
+  @Operation(summary = "delete bom", description = "BOM 행 삭제 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_BOM, content = {
           @Content(schema = @Schema(implementation = DeleteBomResponseSwagger.class))}
@@ -130,16 +131,17 @@ public class BomController {
           @Content(schema = @Schema(implementation = BomNotFoundExceptionSwagger.class))}
       ),
   })
-  @DeleteMapping
+  @DeleteMapping("/{bomId}")
   public ResponseEntity<ResultDTO<BomResponse>> deleteBom(
-      @Valid @ModelAttribute("request") DeleteBomRequest request) {
-    BomServiceResponse serviceDto = bomService.deleteBom(request.toService());
+      @Schema(description = "BOM 아이디", example = "1")
+      @PathVariable("bomId") @Positive Long bomId) {
+    BomServiceResponse serviceDto = bomService.deleteBom(bomId);
     BomResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_BOM, response));
   }
 
-  @Operation(summary = "save bom", description = "BOM 행 수정 API")
+  @Operation(summary = "update bom", description = "BOM 행 수정 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.UPDATE_BOM, content = {
           @Content(schema = @Schema(implementation = UpdateBomResponseSwagger.class))}

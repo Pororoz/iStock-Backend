@@ -6,13 +6,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
+import com.pororoz.istock.common.configuration.CustomPageableArgumentResolver;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.dto.request.SaveCategoryRequest;
 import com.pororoz.istock.domain.category.dto.request.UpdateCategoryRequest;
-import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import java.util.List;
@@ -56,8 +56,6 @@ public class CategoryIntegrationTest extends IntegrationTest {
 
       @BeforeEach
       void setup() {
-        databaseCleanup.execute();
-
         Category category1 = Category.builder().categoryName("item1").build();
         Category category2 = Category.builder().categoryName("shop1").build();
         Category category3 = Category.builder().categoryName("shop2").build();
@@ -198,7 +196,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         // given
         int itemCount = 4;
         String name = "item";
-        int defaultSize = FindCategoryServiceRequest.DEFAULT_SIZE;
+        int defaultSize = CustomPageableArgumentResolver.DEFAULT_SIZE;
         params.add("categoryName", name);
 
         // when
@@ -224,7 +222,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
       void findCategoriesWithNull() throws Exception {
         // given
         int itemCount = 7;
-        int defaultSize = FindCategoryServiceRequest.DEFAULT_SIZE;
+        int defaultSize = CustomPageableArgumentResolver.DEFAULT_SIZE;
 
         // when
         ResultActions actions = getResultActions(url, HttpMethod.GET, params);
@@ -267,6 +265,7 @@ public class CategoryIntegrationTest extends IntegrationTest {
         actions.andExpect(status().isBadRequest())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_PAGE_REQUEST))
             .andDo(print());
       }
 
@@ -304,7 +303,6 @@ public class CategoryIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       categoryRepository.save(category);
     }
 
@@ -352,11 +350,6 @@ public class CategoryIntegrationTest extends IntegrationTest {
     private final String url = "http://localhost:8080/v1/categories";
 
     private String categoryName;
-
-    @BeforeEach
-    void setUp() {
-      databaseCleanup.execute();
-    }
 
     @Test
     @WithMockUser
@@ -412,7 +405,6 @@ public class CategoryIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       categoryName = "착화기";
       Category category = Category.builder().categoryName(categoryName).build();
       categoryRepository.save(category);

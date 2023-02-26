@@ -34,6 +34,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -92,8 +93,9 @@ class CategoryControllerTest extends ControllerTest {
         params.add("size", Integer.toString(countPerPages));
 
         //when
-        when(categoryService.findCategories(any(FindCategoryServiceRequest.class))).thenReturn(
-            responsePage);
+        when(categoryService.findCategories(any(FindCategoryServiceRequest.class),
+            any(Pageable.class)))
+            .thenReturn(responsePage);
         ResultActions actions = getResultActions(url, HttpMethod.GET, params);
 
         //then

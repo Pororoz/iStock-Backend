@@ -1,13 +1,16 @@
 package com.pororoz.istock.domain.part.service;
 
-import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
+import com.pororoz.istock.domain.part.dto.service.FindPartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
+import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.UpdatePartServiceRequest;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartDuplicatedException;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,14 +38,22 @@ public class PartService {
 
   public PartServiceResponse updatePart(UpdatePartServiceRequest request) {
     Part part = partRepository.findById(request.getPartId())
-            .orElseThrow(PartNotFoundException::new);
-    partRepository.findByPartNameAndSpec(request.getPartName(), request.getSpec()).ifPresent(p->{
-      if(!p.equals(part)) {
+        .orElseThrow(PartNotFoundException::new);
+    partRepository.findByPartNameAndSpec(request.getPartName(), request.getSpec()).ifPresent(p -> {
+      if (!p.equals(part)) {
         throw new PartDuplicatedException();
       }
     });
 
     part.update(request);
     return PartServiceResponse.of(part);
+  }
+
+  @Transactional(readOnly = true)
+  public Page<PartServiceResponse> findParts(FindPartServiceRequest request, Pageable pageable) {
+    Page<Part> parts = partRepository.findByIdAndPartNameAndSpecIgnoreNull(
+        request.getPartId(), request.getPartName(),
+        request.getSpec(), pageable);
+    return parts.map(PartServiceResponse::of);
   }
 }

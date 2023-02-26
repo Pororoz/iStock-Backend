@@ -1,38 +1,40 @@
 package com.pororoz.istock.domain.auth;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pororoz.istock.IntegrationTest;
+import com.pororoz.istock.common.utils.message.ResponseMessage;
+import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.auth.dto.CustomUserDetailsDTO;
 import com.pororoz.istock.domain.auth.dto.request.LoginRequest;
 import com.pororoz.istock.domain.user.entity.Role;
 import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.web.servlet.ResultActions;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-public class AuthIntegrationTest {
-
-  @Autowired
-  MockMvc mockMvc;
-
-  @Autowired
-  ObjectMapper objectMapper;
+public class AuthIntegrationTest extends IntegrationTest {
 
   @Autowired
   PasswordEncoder passwordEncoder;
@@ -42,6 +44,9 @@ public class AuthIntegrationTest {
 
   @Autowired
   RoleRepository roleRepository;
+
+  @Autowired
+  StringRedisTemplate redisTemplate;
 
   @Nested
   @DisplayName("GET /v1/auth/admin - 유저 role 확인")
@@ -172,5 +177,47 @@ public class AuthIntegrationTest {
         actions.andExpect(status().isUnauthorized());
       }
     }
+  }
+
+  @Nested
+  @DisplayName("POST /v1/auth/logout - 유저 로그아웃")
+  class Logout {
+
+    String uri = "/v1/auth/logout";
+    String username = "username";
+    String password = "12345678";
+
+    @Test
+    @DisplayName("세션을 지워서 로그아웃을 한다.")
+    void logout() throws Exception {
+      //given
+      Role role = roleRepository.findById(1L).orElseThrow();
+      User user = userRepository.save(
+          User.builder()
+              .username(username).password(passwordEncoder.encode(password))
+              .role(role).build());
+      CustomUserDetailsDTO details = new CustomUserDetailsDTO(user);
+      MockHttpSession session = new MockHttpSession();
+      SecurityContext sc = SecurityContextHolder.getContext();
+      sc.setAuthentication(new UsernamePasswordAuthenticationToken(username, password,
+          details.getAuthorities()));
+      session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, sc);
+
+      //when
+      ResultActions actions = mockMvc.perform(
+              post(uri).session(session))
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.LOGOUT))
+          .andDo(print());
+
+      //then
+      HttpSession logoutSession = actions.andExpect(status().isOk())
+          .andDo(print())
+          .andReturn().getRequest().getSession();
+      SecurityContext logoutSc = (SecurityContext) logoutSession.getAttribute(
+          HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+      assertThat(logoutSc.getAuthentication()).isNull();
+    }
+
   }
 }
