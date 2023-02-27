@@ -127,16 +127,17 @@ public class BomIntegrationTest extends IntegrationTest {
       @DisplayName("Sub assy BOM을 저장하고 저장한 Bom Data를 반환한다.")
       void saveSubAssyBom() throws Exception {
         // given
-        Product superProduct = productRepository.save(Product.builder()
-            .productName("p").productNumber("p")
-            .category(category)
-            .build());
         String subAssyCodeNumber = "11";
+
+        Product subAssy = productRepository.save(Product.builder()
+            .productName("p").productNumber("p")
+            .codeNumber(subAssyCodeNumber).category(category)
+            .build());
         SaveBomRequest request = SaveBomRequest.builder()
             .locationNumber(locationNumber)
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
-            .productNumber(superProduct.getProductName())
+            .productNumber(subAssy.getProductName())
             .memo(memo)
             .productId(productId)
             .build();
@@ -145,7 +146,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber(locationNumber)
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
-            .productNumber(superProduct.getProductName())
+            .productNumber(subAssy.getProductName())
             .memo(memo)
             .productId(productId)
             .build();
@@ -299,22 +300,26 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser(roles = "USER")
-      @DisplayName("Sub assy가 Sub assy를 BOM으로 저장하려하면 Bad Request가 발생한다.")
-      void saveSubAssyBom() throws Exception {
+      @DisplayName("Sub assy에 Sub assy를 BOM으로 저장하려하면 Bad Request가 발생한다.")
+      void subAssyCannotHaveSubAssy() throws Exception {
         // given
         Category category = categoryRepository.save(Category.builder()
             .categoryName("c").build());
-        Product subProduct = productRepository.save(Product.builder()
-            .codeNumber("11").productNumber("superNumber")
-            .productName("superName")
+        Product superSubAssy = productRepository.save(Product.builder()
+            .codeNumber("11").productNumber("supser sub assy number")
+            .productName("super sub assy name")
+            .category(category).build());
+        Product subAssy = productRepository.save(Product.builder()
+            .codeNumber("11").productNumber("sub assy number")
+            .productName("sub assy name")
             .category(category).build());
         SaveBomRequest request = SaveBomRequest.builder()
             .locationNumber(locationNumber)
             .codeNumber("11")
             .quantity(quantity)
-            .productNumber(subProduct.getProductNumber())
+            .productNumber(subAssy.getProductNumber())
             .memo(memo)
-            .productId(productId)
+            .productId(superSubAssy.getId())
             .build();
 
         // when
@@ -322,8 +327,8 @@ public class BomIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.INVALID_SUB_ASSY_BOM_REQUEST))
-            .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_SUB_ASSY_BOM_REQUEST))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.SUB_ASSY_CANNOT_HAVE_SUB_ASSY))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.SUB_ASSY_CANNOT_HAVE_SUB_ASSY))
             .andDo(print());
       }
     }
@@ -645,31 +650,30 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser
-      @DisplayName("code number를 11(sub assy)로 정상적을 변경한다.")
-      void updateToCodeNumber11() throws Exception {
+      @DisplayName("BOM을 sub assy BOM으로 변경한다.")
+      void updateToSubAssyBom() throws Exception {
         // given
-        Product product = productRepository.save(Product.builder()
-            .codeNumber("number").productNumber("number")
-            .productName("name").category(category)
+        Product subAssy = productRepository.save(Product.builder()
+            .codeNumber("11").productNumber("sub assy number")
+            .productName("sub assy name").category(category)
             .build());
         UpdateBomRequest request = UpdateBomRequest.builder()
             .bomId(bomId)
             .locationNumber(newLocationNumber)
-            .productNumber(product.getProductNumber())
+            .productNumber(subAssy.getProductNumber())
             .codeNumber("11")
             .quantity(newQuantity)
             .memo(newMemo)
-            .productNumber(product.getProductNumber())
             .productId(productId)
             .build();
         BomResponse response = BomResponse.builder()
             .bomId(bomId)
             .locationNumber(newLocationNumber)
-            .productNumber(product.getProductNumber())
+            .productNumber(subAssy.getProductNumber())
             .codeNumber("11")
             .quantity(newQuantity)
             .memo(newMemo)
-            .productNumber(product.getProductNumber())
+            .productNumber(subAssy.getProductNumber())
             .productId(productId)
             .build();
 
@@ -978,6 +982,104 @@ public class BomIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser
+      @DisplayName("Sub assy의 BOM을 part에서 sub assy로 수정하면 Bad Request가 발생한다.")
+      void subAssyCannotHaveSubAssy() throws Exception {
+        // given
+        Category category = categoryRepository.save(Category.builder()
+            .categoryName("c").build());
+        Product superSubAssy = productRepository.save(Product.builder()
+            .codeNumber("11").productNumber("supser sub assy number")
+            .productName("super sub assy name")
+            .category(category).build());
+        Part part = partRepository.save(Part.builder()
+            .partName("name").spec("spec")
+            .build());
+        Bom bom = bomRepository.save(Bom.builder()
+            .locationNumber(locationNumber)
+            .codeNumber("11")
+            .quantity(quantity)
+            .productNumber(superSubAssy.getProductNumber())
+            .product(superSubAssy).part(part)
+            .build());
+        Product subAssy = productRepository.save(Product.builder()
+            .codeNumber("11").productNumber("sub assy number")
+            .productName("sub assy name")
+            .category(category).build());
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bom.getId())
+            .locationNumber(locationNumber)
+            .codeNumber("11")
+            .quantity(quantity)
+            .productNumber(subAssy.getProductNumber())
+            .memo(memo)
+            .productId(superSubAssy.getId())
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.SUB_ASSY_CANNOT_HAVE_SUB_ASSY))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.SUB_ASSY_CANNOT_HAVE_SUB_ASSY))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser
+      @DisplayName("BOM에서 이미 존재하는 product number로 수정할 수 없다")
+      void cannotUpdateExistProductNumber() throws Exception {
+        // given
+        Category category = categoryRepository.save(Category.builder()
+            .categoryName("c").build());
+        Product product = productRepository.save(Product.builder()
+            .codeNumber("1").productNumber("number")
+            .productName("name")
+            .category(category).build());
+        Product subAssy1 = productRepository.save(Product.builder()
+            .codeNumber("11").productNumber("sub assy number1")
+            .productName("sub assy name1")
+            .category(category).build());
+        Product subAssy2 = productRepository.save(Product.builder()
+            .codeNumber("11").productNumber("sub assy number2")
+            .productName("sub assy name2")
+            .category(category).build());
+        Bom bom1 = bomRepository.save(Bom.builder()
+            .locationNumber(locationNumber)
+            .codeNumber("11")
+            .quantity(quantity)
+            .productNumber(subAssy1.getProductNumber())
+            .product(product)
+            .build());
+        bomRepository.save(Bom.builder()
+            .locationNumber(newLocationNumber)
+            .codeNumber("11")
+            .quantity(quantity)
+            .productNumber(subAssy2.getProductNumber())
+            .product(product)
+            .build());
+
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bom1.getId())
+            .locationNumber(locationNumber)
+            .codeNumber("11")
+            .quantity(quantity)
+            .productNumber(subAssy2.getProductNumber())
+            .productId(product.getId())
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.BOM_PRODUCT_NUMBER_DUPLICATED))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.BOM_PRODUCT_NUMBER_DUPLICATED))
             .andDo(print());
       }
     }
