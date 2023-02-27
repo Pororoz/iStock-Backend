@@ -38,7 +38,7 @@ public class PurchaseService {
     List<Bom> boms = bomRepository.findByProductId(request.getProductId());
     boms.forEach(bom -> {
           if (bom.getCodeNumber().equals("11")) {
-            productIoRepository.save(request.toProductIo(bom.getProduct(),
+            productIoRepository.save(request.toProductIo(product,
                 ProductStatus.valueOf("외주구매대기"), productIo));
           } else {
             partIoRepository.save(request.toPartIo(bom.getPart(), productIo));
