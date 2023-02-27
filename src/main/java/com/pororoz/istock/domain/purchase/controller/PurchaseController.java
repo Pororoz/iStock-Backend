@@ -55,7 +55,7 @@ public class PurchaseController {
       @Valid @RequestBody PurchaseProductRequest purchaseProductRequest) {
     PurchaseProductServiceResponse serviceDto = purchaseService.purchaseProduct(
         PurchaseProductServiceRequest.builder().productId(productId)
-            .amount(purchaseProductRequest.getAmount()).build());
+            .quantity(purchaseProductRequest.getQuantity()).build());
     PurchaseProductResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.PURCHASE_PRODUCT, response));

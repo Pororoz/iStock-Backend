@@ -32,7 +32,7 @@ public class PurchaseControllerTest extends ControllerTest {
   PurchaseService purchaseService;
 
   private Long productId = 1L;
-  private long amount = 300L;
+  private long quantity = 300L;
 
   @Nested
   @DisplayName("제품 자재 일괄 구매")
@@ -51,15 +51,15 @@ public class PurchaseControllerTest extends ControllerTest {
       void purchaseProduct() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .amount(amount)
+            .quantity(quantity)
             .build();
         PurchaseProductServiceResponse serviceDto = PurchaseProductServiceResponse.builder()
             .productId(productId)
-            .amount(amount)
+            .quantity(quantity)
             .build();
         PurchaseProductResponse response = PurchaseProductResponse.builder()
             .productId(productId)
-            .amount(amount)
+            .quantity(quantity)
             .build();
 
         // when
@@ -83,7 +83,7 @@ public class PurchaseControllerTest extends ControllerTest {
       void productIdNullException() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .amount(amount)
+            .quantity(quantity)
             .build();
 
         // when
@@ -95,11 +95,11 @@ public class PurchaseControllerTest extends ControllerTest {
       }
 
       @Test
-      @DisplayName("amount가 1보다 작은면 오류가 발생한다.")
-      void amountNullException() throws Exception {
+      @DisplayName("quantity가 1보다 작은면 오류가 발생한다.")
+      void quantityNullException() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .amount(0L)
+            .quantity(0L)
             .build();
 
         // when

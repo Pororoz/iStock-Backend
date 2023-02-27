@@ -52,7 +52,6 @@ public class PurchaseServiceTest {
   String codeNumber = "";
   long quantity = 3L;
   String memo = "";
-  long amount = 100L;
   ProductStatus productStatus = ProductStatus.구매대기;
   PartStatus partStatus = PartStatus.구매대기;
 
@@ -62,7 +61,7 @@ public class PurchaseServiceTest {
 
     PurchaseProductServiceRequest request = PurchaseProductServiceRequest.builder()
         .productId(productId)
-        .amount(amount)
+        .quantity(quantity)
         .build();
 
     @Nested
@@ -86,20 +85,20 @@ public class PurchaseServiceTest {
             .build();
         ProductIo productIo = ProductIo.builder()
             .id(productIoId)
-            .quantity(amount)
+            .quantity(quantity)
             .status(productStatus)
             .product(product)
             .build();
         PartIo partIo = PartIo.builder()
             .id(partIoId)
-            .quantity(amount)
+            .quantity(quantity)
             .status(partStatus)
             .part(part)
             .build();
 
         PurchaseProductServiceResponse response = PurchaseProductServiceResponse.builder()
             .productId(productId)
-            .amount(amount)
+            .quantity(quantity)
             .build();
 
         // when

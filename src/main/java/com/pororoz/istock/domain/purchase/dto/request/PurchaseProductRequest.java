@@ -15,6 +15,6 @@ public class PurchaseProductRequest {
 
   @Schema(description = "구매량", example = "100")
   @Positive
-  private long amount;
+  private long quantity;
 
 }

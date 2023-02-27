@@ -45,7 +45,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
   private Long productId = 1L;
 
-  private long amount = 300L;
+  private long quantity = 300L;
 
   @Nested
   @DisplayName("POST /v1/purchase/product - 제품 자재 일괄 구매")
@@ -95,12 +95,12 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       void purchaseProduct() throws Exception {
         //given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .amount(amount)
+            .quantity(quantity)
             .build();
 
         PurchaseProductResponse response = PurchaseProductResponse.builder()
             .productId(productId)
-            .amount(amount)
+            .quantity(quantity)
             .build();
 
         //when
@@ -125,7 +125,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       void productNotFound() throws Exception {
         //given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .amount(100L)
+            .quantity(100L)
             .build();
 
         //when
@@ -141,7 +141,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       void forbidden() throws Exception {
         //given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .amount(100L)
+            .quantity(100L)
             .build();
 
         //when

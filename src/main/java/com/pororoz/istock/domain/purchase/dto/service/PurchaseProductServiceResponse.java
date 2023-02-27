@@ -9,19 +9,19 @@ import lombok.Getter;
 public class PurchaseProductServiceResponse {
 
   private Long productId;
-  private long amount;
+  private long quantity;
 
   public static PurchaseProductServiceResponse of(PurchaseProductServiceRequest request) {
     return PurchaseProductServiceResponse.builder()
         .productId(request.getProductId())
-        .amount(request.getAmount())
+        .quantity(request.getQuantity())
         .build();
   }
 
   public PurchaseProductResponse toResponse() {
     return PurchaseProductResponse.builder()
         .productId(productId)
-        .amount(amount)
+        .quantity(quantity)
         .build();
   }
 }
