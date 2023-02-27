@@ -16,11 +16,12 @@ public class PurchaseProductServiceRequest {
   private Long productId;
   private long amount;
 
-  public ProductIo toProductIo(Product product) {
+  public ProductIo toProductIo(Product product, ProductStatus productStatus, ProductIo productIo) {
     return ProductIo.builder()
         .quantity(amount)
-        .status(ProductStatus.구매대기)
+        .status(productStatus)
         .product(product)
+        .superIo(productIo)
         .build();
   }
 

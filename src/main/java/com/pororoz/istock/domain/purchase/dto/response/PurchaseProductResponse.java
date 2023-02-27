@@ -11,12 +11,10 @@ import lombok.Getter;
 public class PurchaseProductResponse {
 
   @Schema(description = "제품 아이디", example = "1")
-  @NotNull
   private Long productId;
 
 
   @Schema(description = "구매량", example = "100")
-  @Positive
   private long amount;
 
 }
