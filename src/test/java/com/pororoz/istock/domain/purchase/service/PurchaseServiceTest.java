@@ -111,7 +111,51 @@ public class PurchaseServiceTest {
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
+
+
+    @Test
+    @DisplayName("입력받은 Product에 포함된 Part가 SubAssy이면 구매 대기 상태가 ProductI/O에만 추가된다.")
+    void purchaseProductIncludeSubAssy() {
+      // given
+      Part part = Part.builder().id(partId).build();
+      Product product = Product.builder().id(productId).build();
+      Bom bom = Bom.builder()
+          .id(bomId)
+          .locationNumber(locationNumber)
+          .codeNumber("11")
+          .quantity(quantity)
+          .memo(memo)
+          .part(part)
+          .product(product)
+          .build();
+      ProductIo productIo = ProductIo.builder()
+          .id(productIoId)
+          .quantity(quantity)
+          .status(productStatus)
+          .product(product)
+          .build();
+      PartIo partIo = PartIo.builder()
+          .id(partIoId)
+          .quantity(quantity)
+          .status(partStatus)
+          .part(part)
+          .build();
+
+      PurchaseProductServiceResponse response = PurchaseProductServiceResponse.builder()
+          .productId(productId)
+          .quantity(quantity)
+          .build();
+
+      // when
+      when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+      when(productIoRepository.save(any())).thenReturn(productIo);
+      when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
+      PurchaseProductServiceResponse result = purchaseService.purchaseProduct(request);
+
+      // then
+      assertThat(result).usingRecursiveComparison().isEqualTo(response);
     }
+  }
 
     @Nested
     @DisplayName("실패 케이스")
