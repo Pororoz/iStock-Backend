@@ -11,7 +11,6 @@ import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
-import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.entity.ProductStatus;
@@ -40,8 +39,6 @@ public class PurchaseServiceTest {
   @Mock
   BomRepository bomRepository;
   @Mock
-  PartRepository partRepository;
-  @Mock
   ProductIoRepository productIoRepository;
   @Mock
   PartIoRepository partIoRepository;
@@ -61,7 +58,7 @@ public class PurchaseServiceTest {
 
   @Nested
   @DisplayName("제품 자재 일괄 구매 테스트")
-  class purchaseBulk {
+  class purchaseProduct {
 
     PurchaseProductServiceRequest request = PurchaseProductServiceRequest.builder()
         .productId(productId)
@@ -74,7 +71,7 @@ public class PurchaseServiceTest {
 
       @Test
       @DisplayName("입력받은 Product에 포함된 Part에 대한 구매 대기 상태가 ProductI/O와 PartI/O에 추가된다.")
-      void purchaseBulk() {
+      void purchaseProduct() {
         // given
         Part part = Part.builder().id(partId).build();
         Product product = Product.builder().id(productId).build();
@@ -109,7 +106,6 @@ public class PurchaseServiceTest {
         when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
         when(productIoRepository.save(any())).thenReturn(productIo);
         when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
-        when(partRepository.findById(any())).thenReturn(Optional.of(part));
         when(partIoRepository.save(any())).thenReturn(partIo);
         PurchaseProductServiceResponse result = purchaseService.purchaseProduct(request);
 

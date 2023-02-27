@@ -36,9 +36,11 @@ public class PurchaseControllerTest extends ControllerTest {
 
   @Nested
   @DisplayName("제품 자재 일괄 구매")
-  class PurchaseBulk {
+  class PurchaseProduct {
 
-    String url = "http://localhost:8080/v1/purchase/product";
+    private final String url(Long productId) {
+      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting",productId);
+    }
 
     @Nested
     @DisplayName("성공 케이스")
@@ -46,10 +48,9 @@ public class PurchaseControllerTest extends ControllerTest {
 
       @Test
       @DisplayName("일괄 구매를 요청하면 구매 대기 내역을 생성한다.")
-      void purchaseBulk() throws Exception {
+      void purchaseProduct() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .productId(productId)
             .amount(amount)
             .build();
         PurchaseProductServiceResponse serviceDto = PurchaseProductServiceResponse.builder()
@@ -63,7 +64,7 @@ public class PurchaseControllerTest extends ControllerTest {
 
         // when
         when(purchaseService.purchaseProduct(any(PurchaseProductServiceRequest.class))).thenReturn(serviceDto);
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isOk())
@@ -82,12 +83,11 @@ public class PurchaseControllerTest extends ControllerTest {
       void productIdNullException() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .productId(null)
             .amount(amount)
             .build();
 
         // when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -99,12 +99,11 @@ public class PurchaseControllerTest extends ControllerTest {
       void amountNullException() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .productId(productId)
             .amount(0L)
             .build();
 
         // when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isBadRequest())

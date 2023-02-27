@@ -8,6 +8,7 @@ import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import com.pororoz.istock.domain.purchase.exception.response.PurchaseProductResponseSwagger;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
@@ -18,9 +19,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,13 +48,17 @@ public class PurchaseController {
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
           @Content(schema = @Schema(implementation = ProductNotFoundException.class))})
   })
-  @PostMapping("/product")
+  @PostMapping("/products/{productId}/waiting")
   public ResponseEntity<ResultDTO<PurchaseProductResponse>> purchaseProduct(
+      @PathVariable("productId") @NotNull(message = ExceptionMessage.INVALID_PATH)
+      @Positive(message = ExceptionMessage.INVALID_PATH) Long productId,
       @Valid @RequestBody PurchaseProductRequest purchaseProductRequest) {
     PurchaseProductServiceResponse serviceDto = purchaseService.purchaseProduct(
-        purchaseProductRequest.toService());
+        PurchaseProductServiceRequest.builder().productId(productId)
+            .amount(purchaseProductRequest.getAmount()).build());
     PurchaseProductResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.PURCHASE_PRODUCT, response));
   }
 }
+

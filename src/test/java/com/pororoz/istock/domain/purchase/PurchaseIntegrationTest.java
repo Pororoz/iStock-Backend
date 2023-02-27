@@ -12,7 +12,6 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
-import com.pororoz.istock.domain.part.dto.request.SavePartRequest;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
@@ -44,11 +43,16 @@ public class PurchaseIntegrationTest extends IntegrationTest {
   @Autowired
   CategoryRepository categoryRepository;
 
+  private Long productId = 1L;
+
+  private long amount = 300L;
+
   @Nested
   @DisplayName("POST /v1/purchase/product - 제품 자재 일괄 구매")
   class PurchaseProduct {
-
-    private final String url = "http://localhost:8080/v1/purchase/product";
+    private final String url(Long productId) {
+      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting",productId);
+    }
 
     @BeforeEach
     void setUp() {
@@ -91,17 +95,16 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       void purchaseProduct() throws Exception {
         //given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .productId(1L)
-            .amount(100L)
+            .amount(amount)
             .build();
 
         PurchaseProductResponse response = PurchaseProductResponse.builder()
-            .productId(1L)
-            .amount(100L)
+            .productId(productId)
+            .amount(amount)
             .build();
 
         //when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isOk())
@@ -122,12 +125,11 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       void productNotFound() throws Exception {
         //given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .productId(100L)
             .amount(100L)
             .build();
 
         //when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(100L), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isNotFound())
@@ -139,12 +141,11 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       void forbidden() throws Exception {
         //given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .productId(1L)
             .amount(100L)
             .build();
 
         //when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isForbidden())
