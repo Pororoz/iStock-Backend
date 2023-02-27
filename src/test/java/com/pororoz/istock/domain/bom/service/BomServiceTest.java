@@ -10,6 +10,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
+import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -20,12 +22,15 @@ import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidSubAssyBomException;
 import com.pororoz.istock.domain.bom.exception.SubAssyCannotHaveSubAssyException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
+import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -34,6 +39,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class BomServiceTest {
@@ -66,6 +75,102 @@ class BomServiceTest {
   final Long newProductId = 4L;
   final String newProductNumber = "new number";
   final String subAssyCodeNumber = "11";
+
+  @Nested
+  @DisplayName("제품 BOM 행 조회 로직 테스트")
+  class FindBom {
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("요청을 보내면 해당 프로덕트의 Bom List를 반환해준다.")
+      void findBom() {
+        // given
+        int page = 0;
+        int size = 3;
+        long total = 10;
+
+        Category category = Category.builder()
+            .id(1L)
+            .categoryName("category")
+            .build();
+        Product product = Product.builder()
+            .id(1L)
+            .codeNumber("1")
+            .productName("product")
+            .category(category)
+            .stock(3L)
+            .companyName("pororoz")
+            .build();
+
+        List<Bom> bomList = new ArrayList<>();
+        for (long i = 0; i < 3; i++) {
+          Part part = Part.builder()
+              .id(i + 1)
+              .spec("HBA3580PL" + i)
+              .stock(i + 1)
+              .price((i + 1) * 150)
+              .build();
+
+          bomList.add(Bom.builder()
+              .id(i + 1)
+              .locationNumber("L5.L" + i)
+              .codeNumber(Long.toString(i))
+              .quantity(quantity)
+              .part(part)
+              .product(product)
+              .memo(memo)
+              .build());
+        }
+        product.setBoms(bomList);
+        PageImpl<Bom> bomPage = new PageImpl<>(bomList, PageRequest.of(page, size), total);
+
+        FindBomServiceRequest request = FindBomServiceRequest.builder()
+            .productId(productId)
+            .build();
+        Pageable pageable = PageRequest.of(page, size);
+
+        // when
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        when(bomRepository.findByProductIdWithPart(any(Pageable.class), eq(productId)))
+            .thenReturn(bomPage);
+        Page<FindBomServiceResponse> result = bomService.findBomList(request, pageable);
+
+        //then
+        assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
+        assertThat(result.getTotalElements()).isEqualTo(10);
+        assertThat(result.isFirst()).isEqualTo(true);
+        assertThat(result.isLast()).isEqualTo(false);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("존재하지 않는 Product라면 ProductNotFoundException을 발생시킨다.")
+      void productNotFound() {
+        // given
+        int page = 0;
+        int size = 3;
+
+        FindBomServiceRequest request = FindBomServiceRequest.builder()
+            .productId(productId)
+            .build();
+        Pageable pageable = PageRequest.of(page, size);
+
+        // when
+        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ProductNotFoundException.class,
+            () -> bomService.findBomList(request, pageable));
+      }
+    }
+  }
 
   @Nested
   @DisplayName("제품 BOM 행 추가 로직 테스트")

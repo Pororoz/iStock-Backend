@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
+import com.pororoz.istock.common.dto.PageResponse;
+import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
@@ -13,22 +15,30 @@ import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
+import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
+import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 public class BomIntegrationTest extends IntegrationTest {
 
@@ -88,8 +98,245 @@ public class BomIntegrationTest extends IntegrationTest {
   }
 
   @Nested
+  @DisplayName("GET /api/v1/bom - BOM 행 조회 API")
+  class FindBom {
+
+    MultiValueMap<String, String> params;
+
+    @BeforeEach
+    void setup() {
+      params = new LinkedMultiValueMap<>();
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      List<Part> partList;
+
+      List<Product> productList;
+
+      List<Category> categoryList;
+
+      List<Bom> bomList;
+
+      @BeforeEach
+      void setup() {
+        long number = 1;
+        partList = new ArrayList<>();
+        productList = new ArrayList<>();
+        categoryList = new ArrayList<>();
+        bomList = new ArrayList<>();
+
+        for (int i = 0; i < 4; i++) {
+          Part part = Part.builder()
+              .partName(Integer.toString(i + 1))
+              .spec(Integer.toString(i + 1))
+              .stock(number)
+              .price(number)
+              .build();
+          partList.add(part);
+        }
+        partRepository.saveAll(partList);
+
+        for (int i = 0; i < 2; i++) {
+          Category category = categoryRepository.save(
+              Category.builder().categoryName("카테고리" + (i + 1)).build());
+          Product product = Product.builder()
+              .productName(Integer.toString(i + 1))
+              .productNumber(Integer.toString(i + 1))
+              .codeNumber(Integer.toString(i + 1))
+              .category(category)
+              .companyName(Integer.toString(i + 1))
+              .stock(number)
+              .build();
+          categoryList.add(category);
+          productList.add(product);
+        }
+        productRepository.saveAll(productList);
+
+        // bom1
+        bomList.add(Bom.builder()
+            .codeNumber("1")
+            .locationNumber("2")
+            .memo("")
+            .quantity(number)
+            .subAssyNumber("1")
+            .product(productList.get(0))
+            .part(partList.get(0))
+            .build());
+        // bom2
+        bomList.add(Bom.builder()
+            .codeNumber("2")
+            .locationNumber("2")
+            .memo("")
+            .quantity(number)
+            .subAssyNumber("1")
+            .product(productList.get(0))
+            .part(partList.get(1))
+            .build());
+        //bom3
+        bomList.add(Bom.builder()
+            .codeNumber("2")
+            .locationNumber("5")
+            .memo("")
+            .quantity(number)
+            .subAssyNumber("1")
+            .product(productList.get(0))
+            .part(partList.get(2))
+            .build());
+        // bom4
+        bomList.add(Bom.builder()
+            .codeNumber("3")
+            .locationNumber("7")
+            .memo("")
+            .quantity(number)
+            .subAssyNumber("1")
+            .product(productList.get(1))
+            .part(partList.get(2))
+            .build());
+        // bom5
+        bomList.add(Bom.builder()
+            .codeNumber("4")
+            .locationNumber("3")
+            .memo("")
+            .quantity(number)
+            .subAssyNumber("12")
+            .product(productList.get(1))
+            .part(partList.get(3))
+            .build());
+        bomRepository.saveAll(bomList);
+      }
+
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("productId를 통해 검색하면 해당 productId에 연관된 모든 Bom 정보를 제공해준다.")
+      void findBom() throws Exception {
+        // given
+        int page = 0;
+        int size = 2;
+        params.add("page", "0");
+        params.add("size", "2");
+        params.add("product-id", "1");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        List<FindBomResponse> findBomResponseArrayList = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+          Bom bom = bomList.get(i);
+          findBomResponseArrayList.add(FindBomResponse.builder()
+              .bomId(bom.getId())
+              .locationNumber(bom.getLocationNumber())
+              .codeNumber(bom.getCodeNumber())
+              .quantity(bom.getQuantity())
+              .memo(bom.getMemo())
+              .part(PartResponse.of(bom.getPart()))
+              .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
+              .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
+              .build());
+        }
+        PageResponse<FindBomResponse> response = new PageResponse<>(
+            new PageImpl<>(findBomResponseArrayList, PageRequest.of(page, size), 3));
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("page와 size없이 productId를 통해 검색하면 default값으로 해당 productId에 연관된 모든 Bom 정보를 제공해준다.")
+      void findBomWithoutPageAndSize() throws Exception {
+        // given
+        int default_page = 0;
+        int default_size = 20;
+        params.add("product-id", "1");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        List<FindBomResponse> findBomResponseArrayList = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+          Bom bom = bomList.get(i);
+          findBomResponseArrayList.add(FindBomResponse.builder()
+              .bomId(bom.getId())
+              .locationNumber(bom.getLocationNumber())
+              .codeNumber(bom.getCodeNumber())
+              .quantity(bom.getQuantity())
+              .memo(bom.getMemo())
+              .part(PartResponse.of(bom.getPart()))
+              .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
+              .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
+              .build());
+        }
+        PageResponse<FindBomResponse> response = new PageResponse<>(
+            new PageImpl<>(findBomResponseArrayList, PageRequest.of(default_page, default_size),
+                3));
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하지 않는 productId를 통해 검색하면 404 Not Found 에러가 발생한다.")
+      void productIdNotFound() throws Exception {
+        // given
+        params.add("page", "0");
+        params.add("size", "2");
+        params.add("product-id", "1");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        actions.andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.PRODUCT_NOT_FOUND))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.PRODUCT_NOT_FOUND))
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("인증되지 않은 사용자는 forbidden이 발생한다.")
+      void forbiddenUser() throws Exception {
+        // given
+        params.add("page", "0");
+        params.add("size", "2");
+        params.add("product-id", "1");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        actions.andExpect(status().isForbidden());
+      }
+    }
+  }
+
+  @Nested
   @DisplayName("POST /api/v1/bom - BOM 행 추가 API")
   class SaveBom {
+
+    Long bomId = 1L;
+    String locationNumber = "L5.L4";
+    String codeNumber = "";
+    long quantity = 3;
+    String memo = "";
+    Long partId = 1L;
+    Long productId = 1L;
+    String uri = "http://localhost:8080/v1/bom";
 
     @Nested
     @DisplayName("성공 케이스")
