@@ -322,8 +322,8 @@ public class BomIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.INVALID_SUB_ASSY_BOM))
-            .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_SUB_ASSY_BOM))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.INVALID_SUB_ASSY_BOM_REQUEST))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_SUB_ASSY_BOM_REQUEST))
             .andDo(print());
       }
     }

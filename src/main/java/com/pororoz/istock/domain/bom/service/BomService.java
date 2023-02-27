@@ -5,9 +5,11 @@ import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
+import com.pororoz.istock.domain.bom.exception.BomProductNumberDuplicatedException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidSubAssyBomException;
+import com.pororoz.istock.domain.bom.exception.SubAssyCannotHaveSubAssyException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
@@ -15,7 +17,6 @@ import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,12 @@ public class BomService {
         .orElseThrow(ProductNotFoundException::new);
     checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getPartId(),
         null);
+    if (SUB_ASSY_CODE_NUMBER.equals(request.getCodeNumber())) {
+      if (SUB_ASSY_CODE_NUMBER.equals(product.getCodeNumber())) {
+        throw new SubAssyCannotHaveSubAssyException();
+      }
+      checkDuplicateProductNumber(request.getProductNumber(), request.getProductId(), null);
+    }
     Bom result = bomRepository.save(request.toBom(part, product));
     return BomServiceResponse.of(result);
   }
@@ -55,29 +62,35 @@ public class BomService {
     Part part = findPartById(request.getPartId());
     Product newProduct = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
-
     checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getPartId(),
         existBom.getId());
+    if (SUB_ASSY_CODE_NUMBER.equals(request.getCodeNumber())) {
+      if (SUB_ASSY_CODE_NUMBER.equals(newProduct.getCodeNumber())) {
+        throw new SubAssyCannotHaveSubAssyException();
+      }
+      checkDuplicateProductNumber(request.getProductNumber(), request.getProductId(),
+          existBom.getId());
+    }
     existBom.update(part, newProduct, request);
     return BomServiceResponse.of(existBom);
   }
 
   private void validateRequest(String codeNumber, String productNumber, Long partId) {
-    if (Objects.equals(codeNumber, SUB_ASSY_CODE_NUMBER)) {
+    if (SUB_ASSY_CODE_NUMBER.equals(codeNumber)) {
       validateSubAssyBom(productNumber, partId);
       return;
     }
     validateProductBom(productNumber, partId);
   }
 
-  // sub assy는 또다른 sub assy의 bom이 될 수 없다.
+  // product number는 sub assy의 품명이어야 한다.
   private void validateSubAssyBom(String productNumber, Long partId) {
     if (productNumber == null || partId != null) {
       throw new InvalidSubAssyBomException();
     }
-    Product superProduct = productRepository.findByProductNumber(productNumber)
+    Product subAssy = productRepository.findByProductNumber(productNumber)
         .orElseThrow(ProductNotFoundException::new);
-    if (Objects.equals(superProduct.getCodeNumber(), SUB_ASSY_CODE_NUMBER)) {
+    if (!SUB_ASSY_CODE_NUMBER.equals(subAssy.getCodeNumber())) {
       throw new InvalidSubAssyBomException();
     }
   }
@@ -102,5 +115,14 @@ public class BomService {
             throw new DuplicateBomException();
           }
         });
+  }
+
+  //하나에 제품 내에서 bom의 product number(sub assy)가 겹치면 안된다.
+  private void checkDuplicateProductNumber(String productNumber, Long productId, Long existBomId) {
+    bomRepository.findByProductIdAndProductNumber(productId, productNumber).ifPresent(bom -> {
+      if (existBomId == null || !existBomId.equals(bom.getId())) {
+        throw new BomProductNumberDuplicatedException();
+      }
+    });
   }
 }
