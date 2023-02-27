@@ -69,7 +69,7 @@ public class BomController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.SAVE_BOM, response));
   }
 
-  @Operation(summary = "save bom", description = "BOM 행 추가 API")
+  @Operation(summary = "delete bom", description = "BOM 행 삭제 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.DELETE_BOM, content = {
           @Content(schema = @Schema(implementation = DeleteBomResponseSwagger.class))}
@@ -94,7 +94,7 @@ public class BomController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_BOM, response));
   }
 
-  @Operation(summary = "save bom", description = "BOM 행 수정 API")
+  @Operation(summary = "update bom", description = "BOM 행 수정 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.UPDATE_BOM, content = {
           @Content(schema = @Schema(implementation = UpdateBomResponseSwagger.class))}
