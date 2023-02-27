@@ -9,12 +9,10 @@ import com.pororoz.istock.common.dto.PageResponse;
 import com.pororoz.istock.common.dto.ResultDTO;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
-import com.pororoz.istock.domain.user.dto.request.FindUserRequest;
 import com.pororoz.istock.domain.user.dto.request.SaveUserRequest;
 import com.pororoz.istock.domain.user.dto.request.UpdateUserRequest;
 import com.pororoz.istock.domain.user.dto.response.FindUserResponse;
 import com.pororoz.istock.domain.user.dto.response.UserResponse;
-import com.pororoz.istock.domain.user.dto.service.FindUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
 import com.pororoz.istock.domain.user.service.UserService;
 import java.time.LocalDateTime;
@@ -32,6 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -215,23 +214,24 @@ class UserControllerTest {
       void findUsers() {
         //given
         long totalUsers = 11L;
-        int countPerPages = 2;
+        int size = 2;
+        int page = 3;
         LocalDateTime today = LocalDateTime.now();
-        FindUserRequest request = FindUserRequest.builder().page(3).size(countPerPages).build();
+        Pageable pageable = PageRequest.of(page, size);
         UserServiceResponse response1 = UserServiceResponse.builder().userId(1L).username("user1")
             .roleName("ROLE_USER").createdAt(today).updatedAt(today).build();
         UserServiceResponse response2 = UserServiceResponse.builder().userId(2L).username("user2")
             .roleName("ROLE_USER").createdAt(today).updatedAt(today).build();
         List<UserServiceResponse> userServiceResponses = List.of(response1, response2);
-        Page<UserServiceResponse> page = new PageImpl<>(userServiceResponses,
-            PageRequest.of(3, countPerPages), totalUsers);
+        Page<UserServiceResponse> pageServiceResponse = new PageImpl<>(userServiceResponses,
+            PageRequest.of(page, size), totalUsers);
         List<FindUserResponse> findUserResponse = List.of(response1.toFindResponse(),
             response2.toFindResponse());
 
         //when
-        when(userService.findUsers(any(FindUserServiceRequest.class))).thenReturn(page);
+        when(userService.findUsers(any(Pageable.class))).thenReturn(pageServiceResponse);
         ResponseEntity<ResultDTO<PageResponse<FindUserResponse>>> response = userController.findUsers(
-            request);
+            pageable);
 
         //then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -242,9 +242,9 @@ class UserControllerTest {
 
         PageResponse<FindUserResponse> data = Objects.requireNonNull(response.getBody()).getData();
         assertThat(data.getTotalPages()).isEqualTo(
-            (int) (totalUsers + countPerPages) / countPerPages);
+            (int) (totalUsers + size) / size);
         assertThat(data.getTotalElements()).isEqualTo(totalUsers);
-        assertThat(data.getCurrentSize()).isEqualTo(countPerPages);
+        assertThat(data.getCurrentSize()).isEqualTo(size);
         assertFalse(data.isFirst());
         assertFalse(data.isLast());
         assertThat(data.getContents()).usingRecursiveComparison().isEqualTo(findUserResponse);

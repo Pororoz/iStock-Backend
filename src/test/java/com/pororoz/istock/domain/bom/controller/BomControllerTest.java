@@ -2,22 +2,30 @@ package com.pororoz.istock.domain.bom.controller;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.ControllerTest;
+import com.pororoz.istock.common.dto.PageResponse;
+import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
+import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
-import com.pororoz.istock.domain.bom.dto.service.DeleteBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
+import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.service.BomService;
+import com.pororoz.istock.domain.part.dto.response.PartResponse;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,6 +33,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.util.LinkedMultiValueMap;
@@ -36,6 +48,152 @@ class BomControllerTest extends ControllerTest {
 
   @MockBean
   BomService bomService;
+
+  @Nested
+  @DisplayName("제품 Bom 행 조회")
+  class FindBom {
+
+    String locationNumber = "L5.L4";
+    String codeNumber = "";
+    long quantity = 3;
+    String memo = "";
+    Long productId = 2L;
+    String uri = "http://localhost:8080/v1/bom";
+    MultiValueMap<String, String> params;
+
+    @BeforeEach
+    void setup() {
+      params = new LinkedMultiValueMap<>();
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("productId로 Bom을 조회할 수 있다.")
+      void saveBom() throws Exception {
+        // given
+        int page = 1;
+        int size = 2;
+        String now = TimeEntity.formatTime(LocalDateTime.now());
+        PageRequest pageRequest = PageRequest.of(page, size);
+
+        PartResponse part1 = PartResponse.builder()
+            .partId(1L)
+            .price(580)
+            .partName("part1")
+            .stock(2L)
+            .spec("spec1")
+            .build();
+        PartResponse part2 = PartResponse.builder()
+            .partId(2L)
+            .price(580)
+            .partName("part2")
+            .stock(2L)
+            .spec("spec2")
+            .build();
+        FindBomServiceResponse serviceResponse1 = FindBomServiceResponse.builder()
+            .bomId(1L)
+            .locationNumber(locationNumber + "0")
+            .codeNumber(codeNumber + "0")
+            .quantity(quantity)
+            .memo(memo)
+            .createdAt(now)
+            .updatedAt(now)
+            .part(part1)
+            .build();
+        FindBomServiceResponse serviceResponse2 = FindBomServiceResponse.builder()
+            .bomId(2L)
+            .locationNumber(locationNumber + "1")
+            .codeNumber(codeNumber + "1")
+            .quantity(quantity)
+            .memo(memo)
+            .createdAt(now)
+            .updatedAt(now)
+            .part(part2)
+            .build();
+        Page<FindBomServiceResponse> dtoPage =
+            new PageImpl<>(List.of(serviceResponse1, serviceResponse2), pageRequest, 4);
+
+        params.add("product-id", Long.toString(productId));
+        params.add("page", "0");
+        params.add("size", "2");
+
+        FindBomResponse findBomResponse1 = FindBomResponse.builder()
+            .bomId(1L)
+            .locationNumber(locationNumber + "0")
+            .codeNumber(codeNumber + "0")
+            .quantity(quantity)
+            .memo(memo)
+            .createdAt(now)
+            .updatedAt(now)
+            .part(part1)
+            .build();
+        FindBomResponse findBomResponse2 = FindBomResponse.builder()
+            .bomId(2L)
+            .locationNumber(locationNumber + "1")
+            .codeNumber(codeNumber + "1")
+            .quantity(quantity)
+            .memo(memo)
+            .createdAt(now)
+            .updatedAt(now)
+            .part(part2)
+            .build();
+        PageResponse<FindBomResponse> response =
+            new PageResponse<>(
+                new PageImpl<>(List.of(findBomResponse1, findBomResponse2), pageRequest, 4));
+
+        // when
+        when(bomService.findBomList(any(FindBomServiceRequest.class),
+            any(Pageable.class))).thenReturn(dtoPage);
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("productId가 비어있으면 Bad Request 오류를 반환한다.")
+      void emptyProductId() throws Exception {
+        // given
+        params.add("page", "2");
+        params.add("size", "2");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("productId가 문자열로 넘어오면 Bad Request 오류를 반환한다.")
+      void productIdString() throws Exception {
+        // given
+        params.add("page", "2");
+        params.add("size", "2");
+        params.add("product-id", "string");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
+  }
 
   @Nested
   @DisplayName("제품 Bom 행 추가")
@@ -162,7 +320,6 @@ class BomControllerTest extends ControllerTest {
             .partId(partId)
             .productId(productId)
             .build();
-        params.add("bomId", Long.toString(bomId));
         BomResponse response = BomResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
@@ -174,8 +331,8 @@ class BomControllerTest extends ControllerTest {
             .build();
 
         // when
-        when(bomService.deleteBom(any(DeleteBomServiceRequest.class))).thenReturn(serviceResponse);
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        when(bomService.deleteBom(anyLong())).thenReturn(serviceResponse);
+        ResultActions actions = getResultActions(uri + "/" + bomId, HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isOk())
@@ -191,25 +348,11 @@ class BomControllerTest extends ControllerTest {
     class FailCase {
 
       @Test
-      @DisplayName("bomId가 null 값이면 400 Bad Request를 반환한다.")
-      void bomIdNull() throws Exception {
-        // given
-        // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
-
-        // then
-        actions.andExpect(status().isBadRequest())
-            .andDo(print());
-      }
-
-      @Test
       @DisplayName("bomId가 숫자가 아닌 값이면 400 Bad Request를 반환한다.")
       void bomIdNotNumber() throws Exception {
         // given
-        params.add("bomId", "not-number");
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + "/" + "not-number", HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -220,10 +363,8 @@ class BomControllerTest extends ControllerTest {
       @DisplayName("bomId가 마이너스 값이면 400 Bad Request를 반환한다.")
       void bomIdMinusNumber() throws Exception {
         // given
-        params.add("bomId", "-1");
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + "/-1", HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isBadRequest())

@@ -2,6 +2,7 @@
 
 ORGANIZATION=$1
 REPOSITORY=$2
+DOCKER_COMPOSE_FILE=$3
 ABS_PATH=$(readlink -f "$0")
 ABS_DIR=$(dirname "$ABS_PATH")
 source "$ABS_DIR"/profile.sh

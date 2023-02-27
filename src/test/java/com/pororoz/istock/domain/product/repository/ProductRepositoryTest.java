@@ -10,13 +10,14 @@ import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 class ProductRepositoryTest extends RepositoryTest {
 
@@ -44,124 +45,287 @@ class ProductRepositoryTest extends RepositoryTest {
     em.clear();
   }
 
-  @Test
-  @DisplayName("categoryId에 해당하는 product를 BOM과 함께 페이지네이션하여 조회")
-  void findProductsWithParts() {
-    //given
-    PageRequest page = PageRequest.of(0, 3);
+  @Nested
+  class FindByCategoryIdWithBoms {
 
-    //product 저장
-    em.persist(Product.builder()
-        .productName("name").productNumber("numberX")
-        .category(category2)
-        .build());
-    List<Product> products = new ArrayList<>();
-    for (int i = 0; i < 10; i++) {
+    @Test
+    @DisplayName("categoryId에 해당하는 product를 BOM과 함께 페이지네이션하여 조회")
+    void findProductsWithParts() {
+      //given
+      PageRequest page = PageRequest.of(0, 3);
+
+      //product 저장
+      em.persist(Product.builder()
+          .productName("name").productNumber("numberX")
+          .category(category2)
+          .build());
+      List<Product> products = new ArrayList<>();
+      for (int i = 0; i < 10; i++) {
+        Product product = em.persist(Product.builder()
+            .productName("name").productNumber("number" + i)
+            .category(category1)
+            .build());
+        products.add(product);
+      }
+
+      //bom 저장, product list에 있는 것은 하나의 bom를 갖는다.
+      for (int i = 0; i < products.size(); i++) {
+        em.persist(Bom.builder()
+            .locationNumber("l" + i).product(products.get(i))
+            .part(part).build());
+      }
+      em.flush();
+      em.clear();
+
+      //when
+      // product list에 있는 product만 조회된다.
+      Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
+          category1.getId());
+
+      //then
+      assertThat(pages.getTotalElements()).isEqualTo(products.size());
+      assertThat(pages.getTotalPages()).isEqualTo(4);
+      assertThat(pages.getContent().size()).isEqualTo(page.getPageSize());
+      List<Product> contents = pages.getContent();
+      for (int i = 0, j = 0; i < page.getPageSize(); i++, j++) {
+        Product product = contents.get(i);
+        assertThat(product.getProductNumber()).isEqualTo("number" + i);
+        assertThat(product.getBoms().size()).isEqualTo(1);
+
+        Bom bom = product.getBoms().get(0);
+        assertThat(bom.getLocationNumber()).isEqualTo("l" + j);
+      }
+    }
+
+    @Test
+    @DisplayName("조회할 product가 없다")
+    void productListEmpty() {
+      //given
+      PageRequest page = PageRequest.of(0, 10);
+      em.persist(Product.builder()
+          .productName("aa").productNumber("number")
+          .category(category2)
+          .build());
+
+      //when
+      Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
+          category1.getId());
+
+      //then
+      assertThat(pages.getTotalElements()).isEqualTo(0);
+      assertThat(pages.getTotalPages()).isEqualTo(0);
+      assertThat(pages.getContent().size()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("bom이 없으면 product만 조회된다.")
+    void findProductWithoutParts() {
+      //given
+      PageRequest page = PageRequest.of(0, 10);
       Product product = em.persist(Product.builder()
-          .productName("name").productNumber("number" + i)
+          .productName("xxx").productNumber("number")
           .category(category1)
           .build());
-      products.add(product);
-    }
 
-    //bom 저장, product list에 있는 것은 하나의 bom를 갖는다.
-    for (int i = 0; i < products.size(); i++) {
-      em.persist(Bom.builder()
-          .locationNumber("l" + i).product(products.get(i))
-          .part(part).build());
-    }
-    em.flush();
-    em.clear();
+      //when
+      Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
+          category1.getId());
 
-    //when
-    // product list에 있는 product만 조회된다.
-    Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
-        category1.getId());
-
-    //then
-    assertThat(pages.getTotalElements()).isEqualTo(products.size());
-    assertThat(pages.getTotalPages()).isEqualTo(4);
-    assertThat(pages.getContent().size()).isEqualTo(page.getPageSize());
-    List<Product> contents = pages.getContent();
-    for (int i = 0, j = 0; i < page.getPageSize(); i++, j++) {
-      Product product = contents.get(i);
-      assertThat(product.getProductNumber()).isEqualTo("number" + i);
-      assertThat(product.getBoms().size()).isEqualTo(1);
-
-      Bom bom = product.getBoms().get(0);
-      assertThat(bom.getLocationNumber()).isEqualTo("l" + j);
+      //then
+      assertThat(pages.getTotalPages()).isEqualTo(1);
+      assertThat(pages.getTotalElements()).isEqualTo(1);
+      assertThat(pages.getContent().size()).isEqualTo(1);
+      assertThat(pages.getContent().get(0)).usingRecursiveComparison().isEqualTo(product);
     }
   }
 
-  @Test
-  @DisplayName("조회할 product가 없다")
-  void productListEmpty() {
-    //given
-    PageRequest page = PageRequest.of(0, 10);
-    em.persist(Product.builder()
-        .productName("aa").productNumber("number")
-        .category(category2)
-        .build());
+  @Nested
+  class FindByProductNumberIn {
 
-    //when
-    Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
-        category1.getId());
+    @Test
+    @DisplayName("Product number list에 포함된 product만 조회한다.")
+    void findByProductNumbers() {
+      //given
+      Product a = em.persist(Product.builder()
+          .productNumber("a").productName("name")
+          .category(category1).build());
+      Product aa = em.persist(Product.builder()
+          .productNumber("aa").productName("name")
+          .category(category1).build());
+      Product aaa = em.persist(Product.builder()
+          .productNumber("aaa").productName("name")
+          .category(category1).build());
+      em.flush();
+      em.clear();
 
-    //then
-    assertThat(pages.getTotalElements()).isEqualTo(0);
-    assertThat(pages.getTotalPages()).isEqualTo(0);
-    assertThat(pages.getContent().size()).isEqualTo(0);
+      //when
+      List<Product> products = productRepository.findByProductNumberIn(List.of("aaa", "a"));
+
+      //then
+      assertThat(products).hasSize(2);
+      assertThat(products).usingRecursiveComparison()
+          .ignoringFields("category")
+          .ignoringCollectionOrder()
+          .isEqualTo(List.of(aaa, a));
+      assertThat(products).usingRecursiveComparison()
+          .ignoringFields("category")
+          .ignoringCollectionOrder()
+          .isNotEqualTo(List.of(a, aa));
+    }
   }
 
-  @Test
-  @DisplayName("bom이 없으면 product만 조회된다.")
-  void findProductWithoutParts() {
-    //given
-    PageRequest page = PageRequest.of(0, 10);
-    Product product = em.persist(Product.builder()
-        .productName("xxx").productNumber("number")
-        .category(category1)
-        .build());
 
-    //when
-    Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
-        category1.getId());
+  @Nested
+  class FindByPartIdAndPartNameIgnoreNull {
 
-    //then
-    assertThat(pages.getTotalPages()).isEqualTo(1);
-    assertThat(pages.getTotalElements()).isEqualTo(1);
-    assertThat(pages.getContent().size()).isEqualTo(1);
-    assertThat(pages.getContent().get(0)).usingRecursiveComparison().isEqualTo(product);
+    List<Product> products;
+    Part otherPart;
+
+    @BeforeEach
+    void setUp() {
+      products = new ArrayList<>();
+      for (int i = 0; i < 4; i++) {
+        Product product = em.persist(Product.builder()
+            .productName("name" + i).productNumber("number" + i)
+            .codeNumber("code" + i).category(category1)
+            .build());
+        products.add(product);
+      }
+      otherPart = em.persist(Part.builder()
+          .partName("p").spec("x")
+          .build());
+      for (int i = 0; i < 2; i++) {
+        em.persist(Bom.builder()
+            .locationNumber("" + i).part(part)
+            .product(products.get(i)).build());
+      }
+      for (int i = 1; i < 3; i++) {
+        em.persist(Bom.builder()
+            .locationNumber("" + i).part(otherPart)
+            .product(products.get(i)).build());
+      }
+      em.flush();
+      em.clear();
+    }
+
+    @Test
+    @DisplayName("partId, partName으로 product를 조회한다.")
+    void findByPartIdAndPartName() {
+      //given
+      //when
+      Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
+          part.getId(), part.getPartName(), Pageable.unpaged());
+
+      //then
+      assertThat(productPage.getTotalElements()).isEqualTo(2);
+      assertThat(productPage.getTotalPages()).isEqualTo(1);
+      assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
+          .isEqualTo(List.of(products.get(0), products.get(1)));
+    }
+
+    @Test
+    @DisplayName("partId가 null이면 무시한다.")
+    void findProductsIgnorePartIdNull() {
+      //given
+      //when
+      Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
+          null, part.getPartName(), Pageable.unpaged());
+
+      //then
+      assertThat(productPage.getTotalElements()).isEqualTo(3);
+      assertThat(productPage.getTotalPages()).isEqualTo(1);
+      assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
+          .isEqualTo(List.of(products.get(0), products.get(1), products.get(2)));
+    }
+
+    @Test
+    @DisplayName("partName이 null이면 무시한다.")
+    void findProductsIgnorePartNameNull() {
+      //given
+      //when
+      Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
+          part.getId(), null, Pageable.unpaged());
+
+      //then
+      assertThat(productPage.getTotalElements()).isEqualTo(2);
+      assertThat(productPage.getTotalPages()).isEqualTo(1);
+      assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
+          .isEqualTo(List.of(products.get(0), products.get(1)));
+    }
+
+    @Test
+    @DisplayName("partId와 partName가 null이면 전체를 조회한다.")
+    void findProductsIgnorePartIdAndPartNameNull() {
+      //given
+      //when
+      Page<Product> productPage = productRepository.findByPartIdAndPartNameIgnoreNull(
+          null, null, Pageable.unpaged());
+
+      //then
+      assertThat(productPage.getTotalElements()).isEqualTo(4);
+      assertThat(productPage.getTotalPages()).isEqualTo(1);
+      assertThat(productPage.getContent()).usingRecursiveComparison()
+          .ignoringFields("category", "boms")
+          .isEqualTo(products);
+    }
   }
 
-  @Test
-  @DisplayName("Product number list에 포함된 product만 조회한다.")
-  void findByProductNumbers() {
-    //given
-    Product a = em.persist(Product.builder()
-        .productNumber("a").productName("name")
-        .category(category1).build());
-    Product aa = em.persist(Product.builder()
-        .productNumber("aa").productName("name")
-        .category(category1).build());
-    Product aaa = em.persist(Product.builder()
-        .productNumber("aaa").productName("name")
-        .category(category1).build());
-    em.flush();
-    em.clear();
+  @Nested
+  class FindByIdWithParts {
 
-    //when
-    List<Product> products = productRepository.findByProductNumbers(Set.of("aaa", "a"));
+    @Test
+    @DisplayName("Product, Bom, Part를 join하여 조회한다.")
+    void productAndBomAndPartJoin() {
+      //given
+      Product product = em.persist(Product.builder()
+          .codeNumber("code1").productName("name1")
+          .productNumber("number").category(category1)
+          .build());
+      Bom bom1 = em.persist(Bom.builder()
+          .locationNumber("location1")
+          .product(product).part(part)
+          .build());
+      Bom bom2 = em.persist(Bom.builder()
+          .locationNumber("location2")
+          .product(product)
+          .build());
+      em.flush();
+      em.clear();
 
-    //then
-    assertThat(products).hasSize(2);
-    assertThat(products).usingRecursiveComparison()
-        .ignoringFields("category")
-        .ignoringCollectionOrder()
-        .isEqualTo(List.of(aaa, a));
-    assertThat(products).usingRecursiveComparison()
-        .ignoringFields("category")
-        .ignoringCollectionOrder()
-        .isNotEqualTo(List.of(a, aa));
+      //when
+      Product productWithParts = productRepository.findByIdWithParts(product.getId())
+          .orElse(null);
+
+      //then
+      assertThat(productWithParts).usingRecursiveComparison()
+          .ignoringFields("boms", "category")
+          .isEqualTo(product);
+
+      assert productWithParts != null;
+      assertThat(productWithParts.getBoms()).usingRecursiveComparison()
+          .ignoringCollectionOrder()
+          .ignoringFields("product")
+          .isEqualTo(List.of(bom1, bom2));
+    }
+
+    @Test
+    @DisplayName("연관된 Bom이 없으면 null이 조회된다.")
+    void findNullIfBomNotExist() {
+      //given
+      Product product = em.persist(Product.builder()
+          .codeNumber("code1").productName("name1")
+          .productNumber("number").category(category1)
+          .build());
+
+      //then
+      Product productWithParts = productRepository.findByIdWithParts(product.getId())
+          .orElse(null);
+
+      //then
+      assertThat(productWithParts).isNull();
+    }
   }
 }

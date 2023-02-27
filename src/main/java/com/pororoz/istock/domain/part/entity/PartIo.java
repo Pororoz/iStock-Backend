@@ -43,7 +43,6 @@ public class PartIo extends TimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   private Part part;
 
-  @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private ProductIo productIo;
 }
