@@ -61,7 +61,7 @@ public class ProductService {
   public ProductServiceResponse deleteProduct(Long productId) {
     Product product = productRepository.findById(productId)
         .orElseThrow(ProductNotFoundException::new);
-    if (bomRepository.existsByProductNumber(product.getProductNumber())) {
+    if (bomRepository.existsBySubAssyNumber(product.getProductNumber())) {
       throw new RegisteredAsSubAssyException();
     }
     productRepository.delete(product);
@@ -78,7 +78,7 @@ public class ProductService {
     List<String> subAssyNames = products.stream()
         .flatMap(product -> product.getBoms().stream())
         .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
-        .map(Bom::getProductNumber)
+        .map(Bom::getSubAssyNumber)
         .collect(Collectors.toList());
     List<Product> subAssies = productRepository.findByProductNumberIn(subAssyNames);
     return products.map(product -> FindProductWithSubassyServiceResponse.of(product, subAssies));
@@ -110,7 +110,7 @@ public class ProductService {
     // subassy->product
     // bom에 있으면 안된다
     else if (Objects.equals(existProduct.getCodeNumber(), SUB_ASSY_CODE_NUMBER) &&
-        bomRepository.existsByProductNumber(existProduct.getProductNumber())) {
+        bomRepository.existsBySubAssyNumber(existProduct.getProductNumber())) {
       throw new RegisteredAsSubAssyException();
     }
   }
@@ -126,7 +126,7 @@ public class ProductService {
 
   private void changeBomProductNumber(String oldNumber, String newNumber) {
     if (!Objects.equals(oldNumber, newNumber)) {
-      bomRepository.updateProductNumber(oldNumber, newNumber);
+      bomRepository.updateSubAssyNumber(oldNumber, newNumber);
     }
   }
 }

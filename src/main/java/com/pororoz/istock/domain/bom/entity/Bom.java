@@ -56,7 +56,7 @@ public class Bom extends TimeEntity {
 
   @Size(max = 100)
   @Column(columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin")
-  private String productNumber;
+  private String subAssyNumber;
 
   @Size(max = 50)
   private String memo;
@@ -71,7 +71,7 @@ public class Bom extends TimeEntity {
 
   public void update(Part part, Product product, UpdateBomServiceRequest request) {
     this.locationNumber = request.getLocationNumber();
-    this.productNumber = request.getProductNumber();
+    this.subAssyNumber = request.getSubAssyNumber();
     this.codeNumber = request.getCodeNumber();
     this.quantity = request.getQuantity();
     this.memo = request.getMemo();

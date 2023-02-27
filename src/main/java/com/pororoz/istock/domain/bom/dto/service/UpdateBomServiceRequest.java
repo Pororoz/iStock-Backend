@@ -9,7 +9,7 @@ public class UpdateBomServiceRequest {
 
   private Long bomId;
   private String locationNumber;
-  private String productNumber;
+  private String subAssyNumber;
   private String codeNumber;
   private Long quantity;
   private String memo;

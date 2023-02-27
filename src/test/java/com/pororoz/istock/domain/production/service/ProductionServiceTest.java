@@ -113,7 +113,7 @@ class ProductionServiceTest {
         //given
         String subAssyNumber = "product number";
         Bom subAssyBom = Bom.builder()
-            .codeNumber("11").productNumber(subAssyNumber)
+            .codeNumber("11").subAssyNumber(subAssyNumber)
             .quantity(1).build();
         Product product = Product.builder()
             .id(productId)
@@ -197,7 +197,7 @@ class ProductionServiceTest {
         //given
         String subAssyNumber = "product number";
         Bom subAssyBom = Bom.builder()
-            .codeNumber("11").productNumber(subAssyNumber)
+            .codeNumber("11").subAssyNumber(subAssyNumber)
             .quantity(2).build();
         Product product = Product.builder()
             .id(productId)
@@ -227,7 +227,7 @@ class ProductionServiceTest {
         //given
         String subAssyNumber = "product number";
         Bom subAssyBom = Bom.builder()
-            .codeNumber("11").productNumber(subAssyNumber)
+            .codeNumber("11").subAssyNumber(subAssyNumber)
             .quantity(2).build();
         Product product = Product.builder()
             .id(productId)
@@ -257,7 +257,7 @@ class ProductionServiceTest {
         //given
         String subAssyNumber = "product number";
         Bom subAssyBom = Bom.builder()
-            .codeNumber("11").productNumber(subAssyNumber)
+            .codeNumber("11").subAssyNumber(subAssyNumber)
             .quantity(1).build();
         Product product = Product.builder()
             .id(productId)

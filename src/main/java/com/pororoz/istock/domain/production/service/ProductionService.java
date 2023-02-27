@@ -79,7 +79,7 @@ public class ProductionService {
   private void saveSubAssyIoAll(List<Bom> boms, ProductIo productIo) {
     Map<String, Long> subAssyQuantityMap = boms.stream()
         .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
-        .collect(Collectors.toMap(Bom::getProductNumber, Bom::getQuantity));
+        .collect(Collectors.toMap(Bom::getSubAssyNumber, Bom::getQuantity));
 
     List<ProductIo> subAssyIoList = findSubAssiesByProductNumberOrThrow(
         new ArrayList<>(subAssyQuantityMap.keySet()))

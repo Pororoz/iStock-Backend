@@ -14,7 +14,7 @@ import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
-import com.pororoz.istock.domain.bom.exception.BomProductNumberDuplicatedException;
+import com.pororoz.istock.domain.bom.exception.BomSubAssyNumberDuplicatedException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidSubAssyBomException;
@@ -85,7 +85,7 @@ class BomServiceTest {
         .codeNumber(subAssyCodeNumber)
         .quantity(quantity)
         .memo(memo)
-        .productNumber(subAssyProductNumber)
+        .subAssyNumber(subAssyProductNumber)
         .productId(productId)
         .build();
 
@@ -141,7 +141,7 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .productNumber(subAssyProductNumber)
+            .subAssyNumber(subAssyProductNumber)
             .productId(productId)
             .build();
 
@@ -156,7 +156,7 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .productNumber(subAssyProductNumber)
+            .subAssyNumber(subAssyProductNumber)
             .product(product)
             .build();
 
@@ -166,7 +166,7 @@ class BomServiceTest {
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(bomRepository.findByLocationNumberAndProductIdAndPartId(locationNumber, productId,
             null)).thenReturn(Optional.empty());
-        when(bomRepository.findByProductIdAndProductNumber(productId,
+        when(bomRepository.findByProductIdAndSubAssyNumber(productId,
             subAssyProductNumber)).thenReturn(
             Optional.empty());
         when(bomRepository.save(any(Bom.class))).thenReturn(bom);
@@ -228,7 +228,7 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .productNumber(subAssyProductNumber)
+            .subAssyNumber(subAssyProductNumber)
             .partId(partId)
             .productId(productId)
             .build();
@@ -274,7 +274,7 @@ class BomServiceTest {
         //given
         SaveBomServiceRequest request = SaveBomServiceRequest.builder()
             .locationNumber(locationNumber)
-            .productNumber(subAssyProductNumber)
+            .subAssyNumber(subAssyProductNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
             .memo(memo)
@@ -315,12 +315,12 @@ class BomServiceTest {
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
             eq(null))).thenReturn(Optional.empty());
-        when(bomRepository.findByProductIdAndProductNumber(productId,
+        when(bomRepository.findByProductIdAndSubAssyNumber(productId,
             subAssyProductNumber)).thenReturn(
             Optional.of(mock(Bom.class)));
 
         //then
-        assertThrows(BomProductNumberDuplicatedException.class,
+        assertThrows(BomSubAssyNumberDuplicatedException.class,
             () -> bomService.saveBom(subAssyRequest));
       }
 
@@ -442,7 +442,7 @@ class BomServiceTest {
     UpdateBomServiceRequest subAssyRequest = UpdateBomServiceRequest.builder()
         .bomId(bomId)
         .locationNumber(newLocationNumber)
-        .productNumber(subAssyProductNumber)
+        .subAssyNumber(subAssyProductNumber)
         .codeNumber(subAssyCodeNumber)
         .quantity(newQuantity)
         .memo(newMemo)
@@ -492,7 +492,7 @@ class BomServiceTest {
         BomServiceResponse response = BomServiceResponse.builder()
             .bomId(bomId)
             .locationNumber(newLocationNumber)
-            .productNumber(subAssyProductNumber)
+            .subAssyNumber(subAssyProductNumber)
             .codeNumber(subAssyCodeNumber)
             .quantity(newQuantity)
             .memo(newMemo)
@@ -507,7 +507,7 @@ class BomServiceTest {
         when(
             bomRepository.findByLocationNumberAndProductIdAndPartId(newLocationNumber, newProductId,
                 null)).thenReturn(Optional.empty());
-        when(bomRepository.findByProductIdAndProductNumber(newProductId, subAssyProductNumber))
+        when(bomRepository.findByProductIdAndSubAssyNumber(newProductId, subAssyProductNumber))
             .thenReturn(Optional.empty());
         BomServiceResponse result = bomService.updateBom(subAssyRequest);
 
@@ -594,7 +594,7 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(newQuantity)
             .memo(newMemo)
-            .productNumber(newProductNumber)
+            .subAssyNumber(newProductNumber)
             .partId(newPartId)
             .productId(newProductId)
             .build();
@@ -644,7 +644,7 @@ class BomServiceTest {
             .codeNumber(codeNumber)
             .quantity(newQuantity)
             .memo(newMemo)
-            .productNumber(newProductNumber)
+            .subAssyNumber(newProductNumber)
             .partId(newPartId)
             .productId(newProductId)
             .build();
@@ -716,11 +716,11 @@ class BomServiceTest {
         when(
             bomRepository.findByLocationNumberAndProductIdAndPartId(newLocationNumber, newProductId,
                 null)).thenReturn(Optional.empty());
-        when(bomRepository.findByProductIdAndProductNumber(newProductId, subAssyProductNumber))
+        when(bomRepository.findByProductIdAndSubAssyNumber(newProductId, subAssyProductNumber))
             .thenReturn(Optional.of(mock(Bom.class)));
 
         // then
-        assertThrows(BomProductNumberDuplicatedException.class,
+        assertThrows(BomSubAssyNumberDuplicatedException.class,
             () -> bomService.updateBom(subAssyRequest));
       }
     }

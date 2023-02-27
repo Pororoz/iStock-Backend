@@ -58,9 +58,9 @@ public enum ErrorCode {
       ExceptionMessage.PRODUCT_OR_BOM_NOT_FOUND),
   BOM_AND_SUB_ASSY_NOT_MATCHED(HttpStatus.BAD_REQUEST, ExceptionStatus.BOM_AND_SUB_ASSY_NOT_MATCHED,
       ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCHED),
-  BOM_PRODUCT_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST,
-      ExceptionStatus.BOM_PRODUCT_NUMBER_DUPLICATED,
-      ExceptionMessage.BOM_PRODUCT_NUMBER_DUPLICATED);
+  BOM_SUB_ASSY_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST,
+      ExceptionStatus.BOM_SUB_ASSY_NUMBER_DUPLICATED,
+      ExceptionMessage.BOM_SUB_ASSY_NUMBER_DUPLICATED);
 
   private final HttpStatus statusCode;
 

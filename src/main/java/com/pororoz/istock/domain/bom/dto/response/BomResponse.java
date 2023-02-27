@@ -24,7 +24,7 @@ public class BomResponse {
   private String memo;
 
   @Schema(description = "제품 번호", example = "GS-IH-01")
-  private String productNumber;
+  private String subAssyNumber;
 
   @Schema(description = "part 아이디", example = "1")
   private Long partId;
