@@ -37,6 +37,8 @@ public class ExceptionMessage {
   public static final String BOM_AND_SUB_ASSY_NOT_MATCHED =
       "Sub assy로 등록된 BOM과 BOM의 product number로 찾은 sub assy의 개수가 일치하지 않습니다.\n"
           + "BOM의 product number로 찾을 수 없는 제품(sub assy)이 있습니다.";
+  public static final String BOM_PRODUCT_NUMBER_DUPLICATED =
+      "제품의 BOM에 이미 같은 product number가 존재합니다. 중복된 sub assy는 등록할 수 없습니다.";
 
   private ExceptionMessage() {
   }
