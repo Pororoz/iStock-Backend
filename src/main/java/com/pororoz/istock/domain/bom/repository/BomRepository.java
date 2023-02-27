@@ -26,4 +26,7 @@ public interface BomRepository extends JpaRepository<Bom, Long> {
   void updateProductNumber(@Param("oldProductNumber") String oldProductNumber,
       @Param("newProductNumber") String newProductNumber);
 
+  @Query("select b from Bom b where b.product.id = :productId and b.productNumber = :productNumber")
+  Optional<Bom> findByProductIdAndProductNumber(@Param("productId") Long productId,
+      @Param("productNumber") String productNumber);
 }
