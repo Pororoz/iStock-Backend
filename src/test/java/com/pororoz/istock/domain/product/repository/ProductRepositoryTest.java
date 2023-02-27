@@ -140,7 +140,7 @@ class ProductRepositoryTest extends RepositoryTest {
   }
 
   @Nested
-  class FindByProductNumbers {
+  class FindByProductNumberIn {
 
     @Test
     @DisplayName("Product number list에 포함된 product만 조회한다.")
@@ -270,6 +270,62 @@ class ProductRepositoryTest extends RepositoryTest {
       assertThat(productPage.getContent()).usingRecursiveComparison()
           .ignoringFields("category", "boms")
           .isEqualTo(products);
+    }
+  }
+
+  @Nested
+  class FindByIdWithParts {
+
+    @Test
+    @DisplayName("Product, Bom, Part를 join하여 조회한다.")
+    void productAndBomAndPartJoin() {
+      //given
+      Product product = em.persist(Product.builder()
+          .codeNumber("code1").productName("name1")
+          .productNumber("number").category(category1)
+          .build());
+      Bom bom1 = em.persist(Bom.builder()
+          .locationNumber("location1")
+          .product(product).part(part)
+          .build());
+      Bom bom2 = em.persist(Bom.builder()
+          .locationNumber("location2")
+          .product(product)
+          .build());
+      em.flush();
+      em.clear();
+
+      //when
+      Product productWithParts = productRepository.findByIdWithParts(product.getId())
+          .orElse(null);
+
+      //then
+      assertThat(productWithParts).usingRecursiveComparison()
+          .ignoringFields("boms", "category")
+          .isEqualTo(product);
+
+      assert productWithParts != null;
+      assertThat(productWithParts.getBoms()).usingRecursiveComparison()
+          .ignoringCollectionOrder()
+          .ignoringFields("product")
+          .isEqualTo(List.of(bom1, bom2));
+    }
+
+    @Test
+    @DisplayName("연관된 Bom이 없으면 null이 조회된다.")
+    void findNullIfBomNotExist() {
+      //given
+      Product product = em.persist(Product.builder()
+          .codeNumber("code1").productName("name1")
+          .productNumber("number").category(category1)
+          .build());
+
+      //then
+      Product productWithParts = productRepository.findByIdWithParts(product.getId())
+          .orElse(null);
+
+      //then
+      assertThat(productWithParts).isNull();
     }
   }
 }

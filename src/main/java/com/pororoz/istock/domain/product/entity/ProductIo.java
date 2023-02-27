@@ -41,4 +41,7 @@ public class ProductIo extends TimeEntity {
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Product product;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private ProductIo superIo;
 }

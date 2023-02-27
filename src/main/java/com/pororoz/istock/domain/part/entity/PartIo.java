@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.part.entity;
 
 import com.pororoz.istock.common.entity.TimeEntity;
+import com.pororoz.istock.domain.product.entity.ProductIo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -41,4 +42,7 @@ public class PartIo extends TimeEntity {
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private Part part;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private ProductIo productIo;
 }

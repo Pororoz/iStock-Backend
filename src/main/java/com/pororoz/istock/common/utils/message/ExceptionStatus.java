@@ -21,11 +21,15 @@ public class ExceptionStatus {
   public static final String SELF_DEMOTE_ROLE = "SELF_DEMOTE_ROLE";
   public static final String SELF_DELETE_ACCOUNT = "SELF_DELETE_ACCOUNT";
   public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME";
+  public static final String PRODUCT_STOCK_MINUS = "PRODUCT_STOCK_MINUS";
+  public static final String PART_STOCK_MINUS = "PART_STOCK_MINUS";
+  public static final String PRODUCT_OR_BOM_NOT_FOUND = "PRODUCT_OR_BOM_NOT_FOUND";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";
   public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
   public static final String FORBIDDEN = "FORBIDDEN";
+  public static final String BOM_AND_SUB_ASSY_NOT_MATCHED = "BOM_AND_SUB_ASSY_NOT_MATCH";
 
   private ExceptionStatus() {
   }
