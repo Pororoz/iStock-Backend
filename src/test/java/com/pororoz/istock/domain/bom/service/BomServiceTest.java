@@ -27,7 +27,6 @@ import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -51,20 +50,26 @@ class BomServiceTest {
   @Mock
   ProductRepository productRepository;
 
-  String subAssyCodeNumber = "11";
+  final Long bomId = 1L;
+  final String locationNumber = "L5.L4";
+  final String codeNumber = "";
+  final Long quantity = 3L;
+  final String memo = "";
+  final Long partId = 1L;
+  final Long productId = 2L;
+  final String subAssyProductNumber = "number";
+  final String newLocationNumber = "new location";
+  final String newCodeNumber = "new code";
+  final Long newQuantity = 5L;
+  final String newMemo = "new";
+  final Long newPartId = 3L;
+  final Long newProductId = 4L;
+  final String newProductNumber = "new number";
+  final String subAssyCodeNumber = "11";
 
   @Nested
   @DisplayName("제품 BOM 행 추가 로직 테스트")
   class SaveBom {
-
-    final Long bomId = 1L;
-    final String locationNumber = "L5.L4";
-    final String codeNumber = "";
-    final long quantity = 3L;
-    final String memo = "";
-    final String productNumber = "1";
-    final Long partId = 1L;
-    final Long productId = 2L;
 
     SaveBomServiceRequest request = SaveBomServiceRequest.builder()
         .locationNumber(locationNumber)
@@ -80,7 +85,7 @@ class BomServiceTest {
         .codeNumber(subAssyCodeNumber)
         .quantity(quantity)
         .memo(memo)
-        .productNumber(productNumber)
+        .productNumber(subAssyProductNumber)
         .productId(productId)
         .build();
 
@@ -136,14 +141,14 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .productNumber(productNumber)
+            .productNumber(subAssyProductNumber)
             .productId(productId)
             .build();
 
         Product subAssy = Product.builder()
             .id(productId + 10)
             .codeNumber(subAssyCodeNumber)
-            .productNumber(productNumber).build();
+            .productNumber(subAssyProductNumber).build();
 
         Bom bom = Bom.builder()
             .id(bomId)
@@ -151,17 +156,18 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .productNumber(productNumber)
+            .productNumber(subAssyProductNumber)
             .product(product)
             .build();
 
         // when
-        when(productRepository.findByProductNumber(productNumber)).thenReturn(
+        when(productRepository.findByProductNumber(subAssyProductNumber)).thenReturn(
             Optional.of(subAssy));
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(bomRepository.findByLocationNumberAndProductIdAndPartId(locationNumber, productId,
             null)).thenReturn(Optional.empty());
-        when(bomRepository.findByProductIdAndProductNumber(productId, productNumber)).thenReturn(
+        when(bomRepository.findByProductIdAndProductNumber(productId,
+            subAssyProductNumber)).thenReturn(
             Optional.empty());
         when(bomRepository.save(any(Bom.class))).thenReturn(bom);
         BomServiceResponse result = bomService.saveBom(subAssyRequest);
@@ -222,7 +228,7 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .productNumber(productNumber)
+            .productNumber(subAssyProductNumber)
             .partId(partId)
             .productId(productId)
             .build();
@@ -255,7 +261,7 @@ class BomServiceTest {
         Product notSubAssy = Product.builder().id(productId).codeNumber("1").build();
 
         //when
-        when(productRepository.findByProductNumber(productNumber))
+        when(productRepository.findByProductNumber(subAssyProductNumber))
             .thenReturn(Optional.of(notSubAssy));
 
         //then
@@ -268,7 +274,7 @@ class BomServiceTest {
         //given
         SaveBomServiceRequest request = SaveBomServiceRequest.builder()
             .locationNumber(locationNumber)
-            .productNumber(productNumber)
+            .productNumber(subAssyProductNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
             .memo(memo)
@@ -301,15 +307,16 @@ class BomServiceTest {
         //given
         Product subAssy = Product.builder().id(productId)
             .codeNumber(subAssyCodeNumber)
-            .productNumber(productNumber).build();
+            .productNumber(subAssyProductNumber).build();
 
         // when
-        when(productRepository.findByProductNumber(productNumber)).thenReturn(
+        when(productRepository.findByProductNumber(subAssyProductNumber)).thenReturn(
             Optional.of(subAssy));
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
         when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
             eq(null))).thenReturn(Optional.empty());
-        when(bomRepository.findByProductIdAndProductNumber(productId, productNumber)).thenReturn(
+        when(bomRepository.findByProductIdAndProductNumber(productId,
+            subAssyProductNumber)).thenReturn(
             Optional.of(mock(Bom.class)));
 
         //then
@@ -327,10 +334,10 @@ class BomServiceTest {
         Product subAssy = Product.builder()
             .id(productId + 10)
             .codeNumber(subAssyCodeNumber)
-            .productNumber(productNumber).build();
+            .productNumber(subAssyProductNumber).build();
 
         // when
-        when(productRepository.findByProductNumber(productNumber)).thenReturn(
+        when(productRepository.findByProductNumber(subAssyProductNumber)).thenReturn(
             Optional.of(subAssy));
         when(productRepository.findById(productId)).thenReturn(Optional.of(superSubAssy));
         when(bomRepository.findByLocationNumberAndProductIdAndPartId(locationNumber, productId,
@@ -346,25 +353,6 @@ class BomServiceTest {
   @Nested
   @DisplayName("제품 BOM 행 삭제 로직 테스트")
   class DeleteBom {
-
-    Long bomId;
-    String locationNumber;
-    String codeNumber;
-    Long quantity;
-    String memo;
-    Long partId;
-    Long productId;
-
-    @BeforeEach
-    void setup() {
-      bomId = 1L;
-      locationNumber = "L5.L4";
-      codeNumber = "";
-      quantity = 3L;
-      memo = "";
-      partId = 1L;
-      productId = 2L;
-    }
 
     @Nested
     @DisplayName("성공 케이스")
@@ -426,22 +414,6 @@ class BomServiceTest {
   @Nested
   @DisplayName("제품 BOM 행 수정 로직 테스트")
   class UpdateBom {
-
-    final Long bomId = 1L;
-    final String locationNumber = "L5.L4";
-    final String codeNumber = "";
-    final Long quantity = 3L;
-    final String memo = "";
-    final Long partId = 1L;
-    final Long productId = 2L;
-    final String subAssyProductNumber = "number";
-    final String newLocationNumber = "new location";
-    final String newCodeNumber = "new code";
-    final Long newQuantity = 5L;
-    final String newMemo = "new";
-    final Long newPartId = 3L;
-    final Long newProductId = 4L;
-    final String newProductNumber = "new number";
 
     Part part = Part.builder().id(partId).build();
     Product product = Product.builder().id(productId).build();
