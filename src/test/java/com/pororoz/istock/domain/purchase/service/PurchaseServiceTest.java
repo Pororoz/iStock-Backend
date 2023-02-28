@@ -10,6 +10,7 @@ import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
+import com.pororoz.istock.domain.part.exception.PartNullException;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
@@ -50,10 +51,12 @@ public class PurchaseServiceTest {
   Long partIoId = 1L;
   String locationNumber = "L5.L4";
   String codeNumber = "";
+  String productNumber = "GNS-TG01";
   long quantity = 3L;
   String memo = "";
   ProductStatus productStatus = ProductStatus.구매대기;
   PartStatus partStatus = PartStatus.구매대기;
+  String SUB_ASSY_CODE_NUMBER = "11";
 
   @Nested
   @DisplayName("제품 자재 일괄 구매 테스트")
@@ -79,6 +82,7 @@ public class PurchaseServiceTest {
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
+            .productNumber(productNumber)
             .memo(memo)
             .part(part)
             .product(product)
@@ -113,49 +117,46 @@ public class PurchaseServiceTest {
       }
 
 
-    @Test
-    @DisplayName("입력받은 Product에 포함된 Part가 SubAssy이면 구매 대기 상태가 ProductI/O에만 추가된다.")
-    void purchaseProductIncludeSubAssy() {
-      // given
-      Part part = Part.builder().id(partId).build();
-      Product product = Product.builder().id(productId).build();
-      Bom bom = Bom.builder()
-          .id(bomId)
-          .locationNumber(locationNumber)
-          .codeNumber("11")
-          .quantity(quantity)
-          .memo(memo)
-          .part(part)
-          .product(product)
-          .build();
-      ProductIo productIo = ProductIo.builder()
-          .id(productIoId)
-          .quantity(quantity)
-          .status(productStatus)
-          .product(product)
-          .build();
-      PartIo partIo = PartIo.builder()
-          .id(partIoId)
-          .quantity(quantity)
-          .status(partStatus)
-          .part(part)
-          .build();
+      @Test
+      @DisplayName("입력받은 Product에 포함된 Part가 SubAssy이면 구매 대기 상태가 ProductI/O에만 추가된다.")
+      void purchaseProductIncludeSubAssy() {
+        // given
+        Part part = Part.builder().id(partId).build();
+        Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(SUB_ASSY_CODE_NUMBER)
+            .quantity(quantity)
+            .productNumber(productNumber)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(quantity)
+            .status(productStatus)
+            .product(product)
+            .build();
 
-      PurchaseProductServiceResponse response = PurchaseProductServiceResponse.builder()
-          .productId(productId)
-          .quantity(quantity)
-          .build();
+        PurchaseProductServiceResponse response = PurchaseProductServiceResponse.builder()
+            .productId(productId)
+            .quantity(quantity)
+            .build();
 
-      // when
-      when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
-      when(productIoRepository.save(any())).thenReturn(productIo);
-      when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
-      PurchaseProductServiceResponse result = purchaseService.purchaseProduct(request);
+        // when
+        when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        when(productIoRepository.save(any())).thenReturn(productIo);
+        when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
+        when(productRepository.findByProductNumber(any())).thenReturn(
+            Optional.of(product));
+        PurchaseProductServiceResponse result = purchaseService.purchaseProduct(request);
 
-      // then
-      assertThat(result).usingRecursiveComparison().isEqualTo(response);
+        // then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
     }
-  }
 
     @Nested
     @DisplayName("실패 케이스")
@@ -170,6 +171,75 @@ public class PurchaseServiceTest {
 
         // then
         assertThrows(ProductNotFoundException.class,
+            () -> purchaseService.purchaseProduct(request));
+      }
+
+      @Test
+      @DisplayName("sub assy의 품번이 product 테이블에 존재하지 않으면 오류가 발생한다.")
+      void productWithSubAssyNotFound() {
+        // given
+        Part part = Part.builder().id(partId).build();
+        Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(SUB_ASSY_CODE_NUMBER)
+            .quantity(quantity)
+            .productNumber(productNumber)
+            .memo(memo)
+            .part(part)
+            .product(product)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(quantity)
+            .status(productStatus)
+            .product(product)
+            .build();
+
+        // when
+        when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        when(productIoRepository.save(any())).thenReturn(productIo);
+        when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
+        when(productRepository.findByProductNumber(any())).thenReturn(
+            Optional.empty());
+
+        // then
+        assertThrows(ProductNotFoundException.class,
+            () -> purchaseService.purchaseProduct(request));
+
+
+      }
+
+      @Test
+      @DisplayName("검색한 bom이 sub assy가 아닌 경우, 해당 bom의 part가 null이면 오류가 발생한다.")
+      void partNullException() {
+        // given
+        Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .productNumber(productNumber)
+            .memo(memo)
+            .product(product)
+            .part(null)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(quantity)
+            .status(productStatus)
+            .product(product)
+            .build();
+
+        // when
+        when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        when(productIoRepository.save(any())).thenReturn(productIo);
+        when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
+
+        //then
+        assertThrows(PartNullException.class,
             () -> purchaseService.purchaseProduct(request));
       }
     }

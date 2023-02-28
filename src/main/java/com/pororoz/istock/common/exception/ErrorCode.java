@@ -54,7 +54,9 @@ public enum ErrorCode {
   PRODUCT_OR_BOM_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_OR_BOM_NOT_FOUND,
       ExceptionMessage.PRODUCT_OR_BOM_NOT_FOUND),
   BOM_AND_SUB_ASSY_NOT_MATCHED(HttpStatus.BAD_REQUEST, ExceptionStatus.BOM_AND_SUB_ASSY_NOT_MATCHED,
-      ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCHED);
+      ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCHED),
+  PART_NULL(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NULL,
+      ExceptionMessage.PART_NULL);
 
   private final HttpStatus statusCode;
 
