@@ -56,7 +56,6 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
     @BeforeEach
     void setUp() {
-      databaseCleanup.execute();
       Category category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
       //product 저장
       List<Product> products = new ArrayList<>();

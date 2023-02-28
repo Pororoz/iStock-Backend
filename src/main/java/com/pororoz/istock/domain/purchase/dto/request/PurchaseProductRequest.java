@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 @Getter
 @Builder
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 public class PurchaseProductRequest {
 
   @Schema(description = "구매량", example = "100")
+  @NonNull
   @Positive
   private long quantity;
 

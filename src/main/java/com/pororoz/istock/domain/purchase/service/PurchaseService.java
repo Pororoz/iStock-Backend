@@ -38,10 +38,14 @@ public class PurchaseService {
     List<Bom> boms = bomRepository.findByProductId(request.getProductId());
     boms.forEach(bom -> {
           if (bom.getCodeNumber().equals("11")) {
-            productIoRepository.save(request.toProductIo(product,
+            productIoRepository.save(request.toProductIo(bom.getProduct(),
                 ProductStatus.valueOf("외주구매대기"), productIo));
           } else {
-            partIoRepository.save(request.toPartIo(bom.getPart(), productIo));
+            if (bom.getPart() == null) {
+              throw new PartNotFoundException();
+            } else {
+              partIoRepository.save(request.toPartIo(bom.getPart(), productIo));
+            }
           }
         }
     );
