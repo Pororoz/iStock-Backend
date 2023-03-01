@@ -20,11 +20,12 @@ public class ResponseMessage {
   public static final String UPDATE_PRODUCT = "제품 수정";
   public static final String DELETE_PRODUCT = "제품 삭제";
   public static final String FIND_PRODUCT = "제품 조회";
-  public static final String  FIND_BOM = "BOM 행 조회";
+  public static final String FIND_BOM = "BOM 행 조회";
   public static final String SAVE_BOM = "BOM 행 추가";
   public static final String DELETE_BOM = "BOM 행 제거";
   public static final String UPDATE_BOM = "BOM 행 수정";
   public static final String WAIT_PRODUCTION = "제품 생산 대기";
+  public static final String PURCHASE_PRODUCT = "제품 자재 일괄 구매 대기";
 
   private ResponseMessage() {
   }

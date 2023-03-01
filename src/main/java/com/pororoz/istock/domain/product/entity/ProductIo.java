@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.product.entity;
 
 import com.pororoz.istock.common.entity.TimeEntity;
+import com.pororoz.istock.domain.bom.entity.Bom;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -44,4 +45,18 @@ public class ProductIo extends TimeEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   private ProductIo superIo;
+
+  public static ProductIo createSubAssyIo(
+      Bom bom, ProductIo superIo, Long quantity, ProductStatus status) {
+    if (bom.getSubAssy() == null) {
+      throw new IllegalArgumentException(
+          "BOM에 SubAssy가 없습니다. bomId: " + bom.getId() + ", locationNumber: "
+              + bom.getLocationNumber() + ", productId: " + bom.getProduct().getId());
+    }
+    return ProductIo.builder()
+        .product(bom.getSubAssy())
+        .quantity(bom.getQuantity() * quantity)
+        .status(status)
+        .superIo(superIo).build();
+  }
 }

@@ -61,7 +61,7 @@ public class ProductionService {
           Part part = bom.getPart();
           if (part == null) {
             throw new IllegalArgumentException(
-                "Bom에 Part가 없습니다. bomId: " + bom.getId() + ", locationNumber: "
+                "BOM에 Part가 없습니다. bomId: " + bom.getId() + ", locationNumber: "
                     + bom.getLocationNumber() + ", productId: " + bom.getProduct().getId());
           }
           part.subtractStock(bom.getQuantity());
