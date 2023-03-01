@@ -159,7 +159,7 @@ class ProductRepositoryTest extends RepositoryTest {
       em.clear();
 
       //when
-      List<Product> products = productRepository.findByProductNumberIn(List.of("aaa", "a"));
+      List<Product> products = productRepository.findByIdIn(List.of("aaa", "a"));
 
       //then
       assertThat(products).hasSize(2);

@@ -25,7 +25,7 @@ public class FindProductWithSubassyServiceResponse {
                 .map(bom -> {
                   // bom의 product number와 같은 product를 subAssys에서 찾는다.
                   Product matchingSubAssy = subAssys.stream()
-                      .filter(subAssy -> subAssy.getProductNumber().equals(bom.getSubAssyNumber()))
+                      .filter(subAssy -> subAssy.getProductNumber().equals(bom.getSubAssy()))
                       .findAny().orElseThrow(SubAssyNotFoundByProductNameException::new);
                   return SubAssyServiceResponse.of(matchingSubAssy, bom.getQuantity());
                 }).toList()

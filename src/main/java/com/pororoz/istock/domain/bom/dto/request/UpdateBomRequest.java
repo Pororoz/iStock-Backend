@@ -43,10 +43,13 @@ public class UpdateBomRequest {
   @Schema(description = "비고", example = "비고")
   private String memo;
 
-  @Schema(description = "part 아이디", example = "1")
+  @Schema(description = "부품 아이디", example = "1")
   private Long partId;
 
-  @Schema(description = "product 아이디", example = "2")
+  @Schema(description = "부속품 번호", example = "2")
+  private Long subAssyId;
+
+  @Schema(description = "제품 아이디", example = "3")
   @NotNull
   private Long productId;
 
@@ -54,11 +57,11 @@ public class UpdateBomRequest {
     return UpdateBomServiceRequest.builder()
         .bomId(bomId)
         .locationNumber(locationNumber)
-        .subAssyNumber(subAssyNumber)
         .codeNumber(codeNumber)
         .quantity(quantity)
         .memo(memo)
         .partId(partId)
+        .subAssyId(subAssyId)
         .productId(productId)
         .build();
   }

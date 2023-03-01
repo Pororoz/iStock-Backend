@@ -77,14 +77,14 @@ public class ProductionService {
   }
 
   private void saveSubAssyIoAll(List<Bom> boms, ProductIo productIo) {
-    Map<String, Long> subAssyQuantityMap = boms.stream()
+    Map<Long, Long> subAssyQuantityMap = boms.stream()
         .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
-        .collect(Collectors.toMap(Bom::getSubAssyNumber, Bom::getQuantity));
+        .collect(Collectors.toMap(bom -> bom.getSubAssy().getId(), Bom::getQuantity));
 
-    List<ProductIo> subAssyIoList = findSubAssiesByProductNumberOrThrow(
+    List<ProductIo> subAssyIoList = findSubAssiesByIdOrThrow(
         new ArrayList<>(subAssyQuantityMap.keySet()))
         .stream().map(subAssy -> {
-          Long quantity = subAssyQuantityMap.get(subAssy.getProductNumber());
+          Long quantity = subAssyQuantityMap.get(subAssy.getId());
           subAssy.subtractStock(quantity);
           return ProductIo.builder()
               .status(ProductStatus.사내출고대기)
@@ -96,10 +96,10 @@ public class ProductionService {
     productIoRepository.saveAll(subAssyIoList);
   }
 
-  //sub assy로 등록된 bom의 product number 개수와 product number로 찾은 sub assy의 개수가 같지 않으면 예외처리
-  private List<Product> findSubAssiesByProductNumberOrThrow(List<String> subAssyNumbers) {
-    List<Product> subAssies = productRepository.findByProductNumberIn(subAssyNumbers);
-    if (subAssies.size() != subAssyNumbers.size()) {
+  //sub assy로 등록된 bom의 sub assy id 개수와 id로 찾은 sub assy의 개수가 같지 않으면 예외처리
+  private List<Product> findSubAssiesByIdOrThrow(List<Long> subAssyIds) {
+    List<Product> subAssies = productRepository.findByIdIn(subAssyIds);
+    if (subAssies.size() != subAssyIds.size()) {
       throw new BomAndSubAssyNotMatchedException();
     }
     return subAssies;

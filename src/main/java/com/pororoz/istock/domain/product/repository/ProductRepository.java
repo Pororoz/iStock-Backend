@@ -21,8 +21,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   Page<Product> findByCategoryIdWithBoms(Pageable pageable,
       @Param("categoryId") Long categoryId);
 
-  @Query("select p from Product p where p.productNumber in :productNumbers")
-  List<Product> findByProductNumberIn(@Param("productNumbers") List<String> productNumbers);
+  @Query("select p from Product p where p.id in :ids")
+  List<Product> findByIdIn(@Param("ids") List<Long> ids);
 
   @Query("select distinct pr from Product pr "
       + "join fetch pr.boms b left join fetch b.part ")

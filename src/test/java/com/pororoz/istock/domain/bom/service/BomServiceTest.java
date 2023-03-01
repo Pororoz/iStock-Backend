@@ -246,7 +246,7 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .subAssyNumber(subAssyProductNumber)
+            .subAssyId(subAssyProductNumber)
             .productId(productId)
             .build();
 
@@ -261,7 +261,7 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .subAssyNumber(subAssyProductNumber)
+            .subAssy(subAssyProductNumber)
             .product(product)
             .build();
 
@@ -597,7 +597,7 @@ class BomServiceTest {
         BomServiceResponse response = BomServiceResponse.builder()
             .bomId(bomId)
             .locationNumber(newLocationNumber)
-            .subAssyNumber(subAssyProductNumber)
+            .subAssyId(subAssyProductNumber)
             .codeNumber(subAssyCodeNumber)
             .quantity(newQuantity)
             .memo(newMemo)

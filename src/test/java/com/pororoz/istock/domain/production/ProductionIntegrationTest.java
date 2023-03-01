@@ -99,7 +99,7 @@ public class ProductionIntegrationTest extends IntegrationTest {
   Bom saveSubAssyBom(String locationNumber, long quantity, String productNumber) {
     return bomRepository.save(Bom.builder()
         .locationNumber(locationNumber).quantity(quantity)
-        .subAssyNumber(productNumber).codeNumber("11")
+        .subAssy(productNumber).codeNumber("11")
         .product(product1)
         .build());
   }

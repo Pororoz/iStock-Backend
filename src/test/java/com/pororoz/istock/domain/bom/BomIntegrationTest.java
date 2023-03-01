@@ -161,7 +161,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber("2")
             .memo("")
             .quantity(number)
-            .subAssyNumber("1")
+            .subAssy("1")
             .product(productList.get(0))
             .part(partList.get(0))
             .build());
@@ -171,7 +171,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber("2")
             .memo("")
             .quantity(number)
-            .subAssyNumber("1")
+            .subAssy("1")
             .product(productList.get(0))
             .part(partList.get(1))
             .build());
@@ -181,7 +181,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber("5")
             .memo("")
             .quantity(number)
-            .subAssyNumber("1")
+            .subAssy("1")
             .product(productList.get(0))
             .part(partList.get(2))
             .build());
@@ -191,7 +191,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber("7")
             .memo("")
             .quantity(number)
-            .subAssyNumber("1")
+            .subAssy("1")
             .product(productList.get(1))
             .part(partList.get(2))
             .build());
@@ -201,7 +201,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber("3")
             .memo("")
             .quantity(number)
-            .subAssyNumber("12")
+            .subAssy("12")
             .product(productList.get(1))
             .part(partList.get(3))
             .build());
@@ -397,7 +397,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber(locationNumber)
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
-            .subAssyNumber(subAssy.getProductNumber())
+            .subAssyId(subAssy.getProductNumber())
             .memo(memo)
             .productId(product.getId())
             .build();
@@ -548,7 +548,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber(locationNumber)
             .codeNumber("11")
             .quantity(quantity)
-            .subAssyNumber(subAssy.getProductNumber())
+            .subAssyId(subAssy.getProductNumber())
             .memo(memo)
             .productId(superSubAssy.getId())
             .build();
@@ -848,7 +848,7 @@ public class BomIntegrationTest extends IntegrationTest {
       void updateToCodeNumber0() throws Exception {
         // given
         Bom subAssyBom = bomRepository.save(Bom.builder()
-            .codeNumber("11").subAssyNumber("sub assy number")
+            .codeNumber("11").subAssy("sub assy number")
             .product(product)
             .build());
         UpdateBomRequest request = UpdateBomRequest.builder()
@@ -1099,7 +1099,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber(locationNumber)
             .codeNumber("11")
             .quantity(quantity)
-            .subAssyNumber(superSubAssy.getProductNumber())
+            .subAssy(superSubAssy.getProductNumber())
             .product(superSubAssy).part(part)
             .build());
         UpdateBomRequest request = UpdateBomRequest.builder()
@@ -1135,14 +1135,14 @@ public class BomIntegrationTest extends IntegrationTest {
             .locationNumber(locationNumber)
             .codeNumber("11")
             .quantity(quantity)
-            .subAssyNumber(subAssy1.getProductNumber())
+            .subAssy(subAssy1.getProductNumber())
             .product(product)
             .build());
         bomRepository.save(Bom.builder()
             .locationNumber(newLocationNumber)
             .codeNumber("11")
             .quantity(quantity)
-            .subAssyNumber(subAssy2.getProductNumber())
+            .subAssy(subAssy2.getProductNumber())
             .product(product)
             .build());
 

@@ -36,26 +36,29 @@ public class BomService {
 
   private final String SUB_ASSY_CODE_NUMBER = "11";
 
-  public Page<FindBomServiceResponse> findBomList(FindBomServiceRequest request, Pageable pageable) {
+  @Transactional(readOnly = true)
+  public Page<FindBomServiceResponse> findBomList(FindBomServiceRequest request,
+      Pageable pageable) {
     productRepository.findById(request.getProductId()).orElseThrow(ProductNotFoundException::new);
     return bomRepository.findByProductIdWithPart(pageable, request.getProductId())
         .map(FindBomServiceResponse::of);
   }
 
   public BomServiceResponse saveBom(SaveBomServiceRequest request) {
-    validateRequest(request.getCodeNumber(), request.getSubAssyNumber(), request.getPartId());
+    validateRequest(request.getCodeNumber(), request.getPartId(), request.getSubAssyId());
     Part part = findPartById(request.getPartId());
+    Product subAssy = findSubAssyById(request.getSubAssyId());
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
-    checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getPartId(),
-        null);
+    checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getSubAssyId(),
+        request.getPartId(), null);
     if (SUB_ASSY_CODE_NUMBER.equals(request.getCodeNumber())) {
       if (SUB_ASSY_CODE_NUMBER.equals(product.getCodeNumber())) {
         throw new SubAssyCannotHaveSubAssyException();
       }
-      checkDuplicateSubAssyNumber(request.getSubAssyNumber(), request.getProductId(), null);
+      checkDuplicateSubAssy(request.getProductId(), request.getSubAssyId(), null);
     }
-    Bom result = bomRepository.save(request.toBom(part, product));
+    Bom result = bomRepository.save(request.toBom(product, subAssy, part));
     return BomServiceResponse.of(result);
   }
 
@@ -66,47 +69,45 @@ public class BomService {
   }
 
   public BomServiceResponse updateBom(UpdateBomServiceRequest request) {
-    validateRequest(request.getCodeNumber(), request.getSubAssyNumber(), request.getPartId());
+    validateRequest(request.getCodeNumber(), request.getSubAssyId(), request.getPartId());
     Bom existBom = bomRepository.findById(request.getBomId())
         .orElseThrow(BomNotFoundException::new);
     Part part = findPartById(request.getPartId());
-    Product newProduct = productRepository.findById(request.getProductId())
+    Product subAssy = findSubAssyById(request.getSubAssyId());
+    Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
-    checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getPartId(),
-        existBom.getId());
+    checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getSubAssyId(),
+        request.getPartId(), existBom.getId());
     if (SUB_ASSY_CODE_NUMBER.equals(request.getCodeNumber())) {
-      if (SUB_ASSY_CODE_NUMBER.equals(newProduct.getCodeNumber())) {
+      if (SUB_ASSY_CODE_NUMBER.equals(product.getCodeNumber())) {
         throw new SubAssyCannotHaveSubAssyException();
       }
-      checkDuplicateSubAssyNumber(request.getSubAssyNumber(), request.getProductId(),
-          existBom.getId());
+      // subAssyId가 바뀔 경우 중복된 subAssy가 있는지 확인
+      if (!existBom.getSubAssy().getId().equals(subAssy.getId())) {
+        checkDuplicateSubAssy(request.getProductId(), request.getSubAssyId(), existBom.getId());
+      }
     }
-    existBom.update(part, newProduct, request);
+    existBom.update(product, subAssy, part, request);
     return BomServiceResponse.of(existBom);
   }
 
-  private void validateRequest(String codeNumber, String subAssyNumber, Long partId) {
+  private void validateRequest(String codeNumber, Long partId, Long subAssyId) {
     if (SUB_ASSY_CODE_NUMBER.equals(codeNumber)) {
-      validateSubAssyBom(subAssyNumber, partId);
+      validateSubAssyBom(subAssyId, partId);
       return;
     }
-    validateProductBom(subAssyNumber, partId);
+    validateProductBom(subAssyId, partId);
   }
 
   // product number는 sub assy의 품명이어야 한다.
-  private void validateSubAssyBom(String subAssyNumber, Long partId) {
-    if (subAssyNumber == null || partId != null) {
-      throw new InvalidSubAssyBomException();
-    }
-    Product subAssy = productRepository.findByProductNumber(subAssyNumber)
-        .orElseThrow(ProductNotFoundException::new);
-    if (!SUB_ASSY_CODE_NUMBER.equals(subAssy.getCodeNumber())) {
+  private void validateSubAssyBom(Long subAssyId, Long partId) {
+    if (subAssyId == null || partId != null) {
       throw new InvalidSubAssyBomException();
     }
   }
 
-  private void validateProductBom(String subAssyNumber, Long partId) {
-    if (subAssyNumber != null || partId == null) {
+  private void validateProductBom(Long subAssyId, Long partId) {
+    if (subAssyId != null || partId == null) {
       throw new InvalidProductBomException();
     }
   }
@@ -116,20 +117,32 @@ public class BomService {
         : partRepository.findById(partId).orElseThrow(PartNotFoundException::new);
   }
 
-  // 인덱스로 묶여진 3가지 요소가 다를 때, 이미 해당 키로 구성된 요소가 있으면 예외가 발생한다.
-  private void checkDuplicateBom(String locationNumber, Long productId, Long partId,
-      Long existBomId) {
-    bomRepository.findByLocationNumberAndProductIdAndPartId(locationNumber, productId, partId)
-        .ifPresent(bom -> {
-          if (existBomId == null || !existBomId.equals(bom.getId())) {
-            throw new DuplicateBomException();
-          }
-        });
+  private Product findSubAssyById(Long subAssyId) {
+    if (subAssyId == null) {
+      return null;
+    }
+    Product subAssy = productRepository.findById(subAssyId)
+        .orElseThrow(ProductNotFoundException::new);
+    if (!SUB_ASSY_CODE_NUMBER.equals(subAssy.getCodeNumber())) {
+      throw new InvalidSubAssyBomException();
+    }
+    return subAssy;
   }
 
-  //하나에 제품 내에서 bom의 product number(sub assy)가 겹치면 안된다.
-  private void checkDuplicateSubAssyNumber(String subAssyNumber, Long productId, Long existBomId) {
-    bomRepository.findByProductIdAndSubAssyNumber(productId, subAssyNumber).ifPresent(bom -> {
+  // 인덱스로 묶여진 4가지 요소가 다를 때, 이미 해당 키로 구성된 요소가 있으면 예외가 발생한다.
+  private void checkDuplicateBom(String locationNumber, Long productId, Long subAssyId, Long partId,
+      Long existBomId) {
+    bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(locationNumber,
+        productId, subAssyId, partId).ifPresent(bom -> {
+      if (existBomId == null || !existBomId.equals(bom.getId())) {
+        throw new DuplicateBomException();
+      }
+    });
+  }
+
+  //하나에 제품 내에서 bom의 sub assy가 겹치면 안된다.
+  private void checkDuplicateSubAssy(Long productId, Long subAssyId, Long existBomId) {
+    bomRepository.findByProductIdAndSubAssyId(productId, subAssyId).ifPresent(bom -> {
       if (existBomId == null || !existBomId.equals(bom.getId())) {
         throw new BomSubAssyNumberDuplicatedException();
       }

@@ -1,6 +1,5 @@
 package com.pororoz.istock.domain.product.service;
 
-import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
@@ -51,8 +50,6 @@ public class ProductService {
     checkProductNumberDuplicated(product.getProductNumber(), request.getProductNumber());
     Category category = categoryRepository.findById(request.getCategoryId())
         .orElseThrow(CategoryNotFoundException::new);
-    //bom의 productNumber도 변경
-    changeBomProductNumber(product.getProductNumber(), request.getProductNumber());
     product.update(request, category);
     return ProductServiceResponse.of(product);
   }
@@ -61,7 +58,7 @@ public class ProductService {
   public ProductServiceResponse deleteProduct(Long productId) {
     Product product = productRepository.findById(productId)
         .orElseThrow(ProductNotFoundException::new);
-    if (bomRepository.existsBySubAssyNumber(product.getProductNumber())) {
+    if (bomRepository.existsBySubAssyId(product.getId())) {
       throw new RegisteredAsSubAssyException();
     }
     productRepository.delete(product);
@@ -75,12 +72,12 @@ public class ProductService {
         .orElseThrow(CategoryNotFoundException::new);
     Page<Product> products = productRepository.findByCategoryIdWithBoms(pageable, categoryId);
     //subAssy만 필터링
-    List<String> subAssyNames = products.stream()
+    List<Long> subAssyIds = products.stream()
         .flatMap(product -> product.getBoms().stream())
         .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
-        .map(Bom::getSubAssyNumber)
+        .map(bom -> bom.getSubAssy().getId())
         .collect(Collectors.toList());
-    List<Product> subAssies = productRepository.findByProductNumberIn(subAssyNames);
+    List<Product> subAssies = productRepository.findByIdIn(subAssyIds);
     return products.map(product -> FindProductWithSubassyServiceResponse.of(product, subAssies));
   }
 
@@ -110,7 +107,7 @@ public class ProductService {
     // subassy->product
     // bom에 있으면 안된다
     else if (Objects.equals(existProduct.getCodeNumber(), SUB_ASSY_CODE_NUMBER) &&
-        bomRepository.existsBySubAssyNumber(existProduct.getProductNumber())) {
+        bomRepository.existsBySubAssyId(existProduct.getId())) {
       throw new RegisteredAsSubAssyException();
     }
   }
@@ -122,11 +119,5 @@ public class ProductService {
     productRepository.findByProductNumber(newNumber).ifPresent(p -> {
       throw new ProductNumberDuplicatedException();
     });
-  }
-
-  private void changeBomProductNumber(String oldNumber, String newNumber) {
-    if (!Objects.equals(oldNumber, newNumber)) {
-      bomRepository.updateSubAssyNumber(oldNumber, newNumber);
-    }
   }
 }

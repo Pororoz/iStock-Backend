@@ -292,10 +292,10 @@ public class ProductIntegrationTest extends IntegrationTest {
     void changeProductNumberWithBom() throws Exception {
       //given
       bomRepository.save(Bom.builder().locationNumber("a")
-          .subAssyNumber(product.getProductNumber())
+          .subAssy(product.getProductNumber())
           .product(product).build());
       bomRepository.save(Bom.builder().locationNumber("b")
-          .subAssyNumber(product.getProductNumber())
+          .subAssy(product.getProductNumber())
           .product(product).build());
       UpdateProductRequest request = UpdateProductRequest.builder()
           .productId(product.getId()).productName(newName)
@@ -311,7 +311,7 @@ public class ProductIntegrationTest extends IntegrationTest {
       actions.andExpect(status().isOk())
           .andDo(print());
       List<Bom> boms = bomRepository.findBySubAssyNumber(newNumber);
-      boms.forEach(bom -> assertThat(bom.getSubAssyNumber()).isEqualTo(newNumber));
+      boms.forEach(bom -> assertThat(bom.getSubAssy()).isEqualTo(newNumber));
     }
 
     @Test
@@ -327,7 +327,7 @@ public class ProductIntegrationTest extends IntegrationTest {
               .build());
       Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
       bomRepository.save(Bom.builder()
-          .subAssyNumber(subAssy.getProductNumber())
+          .subAssy(subAssy.getProductNumber())
           .codeNumber("11").locationNumber("1")
           .product(product)
           .build());
@@ -370,7 +370,7 @@ public class ProductIntegrationTest extends IntegrationTest {
           .locationNumber("2").product(subAssy).part(part)
           .build());
       bomRepository.save(Bom.builder()
-          .subAssyNumber(subAssy.getProductNumber())
+          .subAssy(subAssy.getProductNumber())
           .codeNumber("11").locationNumber("1")
           .product(product)
           .build());
@@ -471,7 +471,7 @@ public class ProductIntegrationTest extends IntegrationTest {
       for (int i = 0; i < 7; i++) {
         bomRepository.save(Bom.builder()
             .codeNumber("11").locationNumber("" + i)
-            .subAssyNumber(subAssys.get(i).getProductNumber())
+            .subAssy(subAssys.get(i).getProductNumber())
             .product(products.get(i))
             .quantity(10)
             .build());
