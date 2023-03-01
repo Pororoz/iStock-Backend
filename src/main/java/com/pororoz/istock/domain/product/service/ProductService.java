@@ -15,9 +15,7 @@ import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedExcept
 import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -70,15 +68,8 @@ public class ProductService {
       Pageable pageable) {
     categoryRepository.findById(categoryId)
         .orElseThrow(CategoryNotFoundException::new);
-    Page<Product> products = productRepository.findByCategoryIdWithBoms(pageable, categoryId);
-    //subAssy만 필터링
-    List<Long> subAssyIds = products.stream()
-        .flatMap(product -> product.getBoms().stream())
-        .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
-        .map(bom -> bom.getSubAssy().getId())
-        .collect(Collectors.toList());
-    List<Product> subAssies = productRepository.findByIdIn(subAssyIds);
-    return products.map(product -> FindProductWithSubAssyServiceResponse.of(product, subAssies));
+    Page<Product> products = productRepository.findByCategoryIdWithSubAssies(pageable, categoryId);
+    return products.map(FindProductWithSubAssyServiceResponse::of);
   }
 
   @Transactional(readOnly = true)

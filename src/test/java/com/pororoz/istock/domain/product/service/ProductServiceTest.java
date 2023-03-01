@@ -3,7 +3,6 @@ package com.pororoz.istock.domain.product.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,7 +27,6 @@ import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
 import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
-import com.pororoz.istock.domain.product.exception.SubAssyNotFoundByProductNameException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -483,11 +481,9 @@ class ProductServiceTest {
         //when
         //category 조회 -> categoryId, productName, page, size로 product 조회
         // -> 각 product의 bom 조회(bom의 codeNumber가 11)
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+        when(productRepository.findByCategoryIdWithSubAssies(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
-        when(productRepository.findByIdIn(anyList())).thenReturn(
-            List.of(subAssy1, subAssy2));
         Page<FindProductWithSubAssyServiceResponse> result =
             productService.findProductsWithSubAssies(categoryId, PageRequest.of(page, size));
 
@@ -532,34 +528,6 @@ class ProductServiceTest {
         //then
         assertThrows(CategoryNotFoundException.class,
             () -> productService.findProductsWithSubAssies(categoryId, pageRequest));
-      }
-
-      @Test
-      @DisplayName("Sub assy 목록에 bom의 productNumber와 일치하는 product가 없다.")
-      void subAssyNotFoundByProductName() {
-        //given
-        int page = 0;
-        int size = 3;
-        long total = 10;
-
-        List<Product> products = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-          Product product = Product.builder().id((long) i).category(category).build();
-          product.setBoms(List.of(assyBom1, assyBom2, otherBom));
-          products.add(product);
-        }
-        PageImpl<Product> productPage = new PageImpl<>(products, PageRequest.of(page, size), total);
-
-        //when
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
-            .thenReturn(productPage);
-        when(productRepository.findByIdIn(anyList())).thenReturn(
-            List.of(subAssy1));
-
-        //then
-        assertThrows(SubAssyNotFoundByProductNameException.class,
-            () -> productService.findProductsWithSubAssies(categoryId, PageRequest.of(page, size)));
       }
     }
   }

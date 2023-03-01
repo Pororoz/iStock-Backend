@@ -401,7 +401,7 @@ public class ProductIntegrationTest extends IntegrationTest {
     String uri = "/v1/products/with/subassy";
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockUser
     @DisplayName("제품을 subAssy와 함께 페이지네이션하여 1페이지를 조회한다.")
     void findProductWithSubAssy() throws Exception {
       //given
@@ -418,14 +418,14 @@ public class ProductIntegrationTest extends IntegrationTest {
       }
 
       //sub assy 저장
-      List<Product> subAssys = new ArrayList<>();
+      List<Product> subAssies = new ArrayList<>();
       for (int i = 0; i < 9; i++) {
         Product product = productRepository.save(Product.builder()
             .productName("sub" + i).productNumber("sub" + i)
             .codeNumber("11").category(category)
             .build());
         products.add(product);
-        subAssys.add(product);
+        subAssies.add(product);
       }
 
       //part 저장
@@ -438,7 +438,7 @@ public class ProductIntegrationTest extends IntegrationTest {
       for (int i = 0; i < 7; i++) {
         bomRepository.save(Bom.builder()
             .codeNumber("11").locationNumber("" + i)
-            .subAssy(subAssys.get(i))
+            .subAssy(subAssies.get(i))
             .product(products.get(i))
             .quantity(10)
             .build());
@@ -462,7 +462,7 @@ public class ProductIntegrationTest extends IntegrationTest {
       List<FindProductWithSubassyResponse> findProductWithSubassyRespons = new ArrayList<>();
       for (int i = 5; i < 10; i++) {
         Product product = products.get(i);
-        Product subAssy = i > 6 ? null : subAssys.get(i);
+        Product subAssy = i > 6 ? null : subAssies.get(i);
         findProductWithSubassyRespons.add(FindProductWithSubassyResponse.builder()
             .productId(product.getId())
             .productName(product.getProductName())

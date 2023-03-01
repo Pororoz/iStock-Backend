@@ -79,7 +79,7 @@ class ProductRepositoryTest extends RepositoryTest {
 
       //when
       // product list에 있는 product만 조회된다.
-      Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
+      Page<Product> pages = productRepository.findByCategoryIdWithSubAssies(page,
           category1.getId());
 
       //then
@@ -108,7 +108,7 @@ class ProductRepositoryTest extends RepositoryTest {
           .build());
 
       //when
-      Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
+      Page<Product> pages = productRepository.findByCategoryIdWithSubAssies(page,
           category1.getId());
 
       //then
@@ -128,7 +128,7 @@ class ProductRepositoryTest extends RepositoryTest {
           .build());
 
       //when
-      Page<Product> pages = productRepository.findByCategoryIdWithBoms(page,
+      Page<Product> pages = productRepository.findByCategoryIdWithSubAssies(page,
           category1.getId());
 
       //then

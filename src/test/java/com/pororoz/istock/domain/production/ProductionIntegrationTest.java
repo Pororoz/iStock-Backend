@@ -120,7 +120,6 @@ public class ProductionIntegrationTest extends IntegrationTest {
   @DisplayName("POST - v1/production/products/{productId}/waiting 제품 생산 대기 저장")
   class SaveWaitProduction {
 
-    Long productId = 1L;
     long quantity = 5L;
 
     @Test
@@ -135,10 +134,10 @@ public class ProductionIntegrationTest extends IntegrationTest {
       SaveProductionRequest request = SaveProductionRequest.builder().quantity(quantity).build();
 
       //when
-      ResultActions actions = getResultActions(getUri(productId), HttpMethod.POST, request);
+      ResultActions actions = getResultActions(getUri(product1.getId()), HttpMethod.POST, request);
 
       //then
-      SaveProductionResponse response = SaveProductionResponse.builder().productId(productId)
+      SaveProductionResponse response = SaveProductionResponse.builder().productId(product1.getId())
           .quantity(quantity).build();
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
@@ -174,7 +173,7 @@ public class ProductionIntegrationTest extends IntegrationTest {
       SaveProductionRequest request = SaveProductionRequest.builder().quantity(quantity).build();
 
       //when
-      ResultActions actions = getResultActions(getUri(productId), HttpMethod.POST, request);
+      ResultActions actions = getResultActions(getUri(product1.getId()), HttpMethod.POST, request);
 
       //then
       actions.andExpect(status().isBadRequest())
