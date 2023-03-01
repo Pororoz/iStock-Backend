@@ -24,6 +24,7 @@ public class ExceptionStatus {
   public static final String PRODUCT_STOCK_MINUS = "PRODUCT_STOCK_MINUS";
   public static final String PART_STOCK_MINUS = "PART_STOCK_MINUS";
   public static final String PRODUCT_OR_BOM_NOT_FOUND = "PRODUCT_OR_BOM_NOT_FOUND";
+  public static final String PART_NULL = "PART_NULL";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";
