@@ -5,7 +5,7 @@ import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.product.dto.service.FindProductByPartServiceRequest;
-import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubAssyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
@@ -58,7 +58,7 @@ public class ProductService {
   public ProductServiceResponse deleteProduct(Long productId) {
     Product product = productRepository.findById(productId)
         .orElseThrow(ProductNotFoundException::new);
-    if (bomRepository.existsBySubAssyId(product.getId())) {
+    if (bomRepository.existsByProductId(product.getId())) {
       throw new RegisteredAsSubAssyException();
     }
     productRepository.delete(product);
@@ -66,7 +66,7 @@ public class ProductService {
   }
 
   @Transactional(readOnly = true)
-  public Page<FindProductWithSubassyServiceResponse> findProductsWithSubAssies(Long categoryId,
+  public Page<FindProductWithSubAssyServiceResponse> findProductsWithSubAssies(Long categoryId,
       Pageable pageable) {
     categoryRepository.findById(categoryId)
         .orElseThrow(CategoryNotFoundException::new);
@@ -78,7 +78,7 @@ public class ProductService {
         .map(bom -> bom.getSubAssy().getId())
         .collect(Collectors.toList());
     List<Product> subAssies = productRepository.findByIdIn(subAssyIds);
-    return products.map(product -> FindProductWithSubassyServiceResponse.of(product, subAssies));
+    return products.map(product -> FindProductWithSubAssyServiceResponse.of(product, subAssies));
   }
 
   @Transactional(readOnly = true)
@@ -107,7 +107,7 @@ public class ProductService {
     // subassy->product
     // bom에 있으면 안된다
     else if (Objects.equals(existProduct.getCodeNumber(), SUB_ASSY_CODE_NUMBER) &&
-        bomRepository.existsBySubAssyId(existProduct.getId())) {
+        bomRepository.existsByProductId(existProduct.getId())) {
       throw new RegisteredAsSubAssyException();
     }
   }

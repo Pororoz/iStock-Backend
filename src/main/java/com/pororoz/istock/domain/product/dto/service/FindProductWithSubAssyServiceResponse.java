@@ -10,13 +10,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class FindProductWithSubassyServiceResponse {
+public class FindProductWithSubAssyServiceResponse {
 
   private ProductServiceResponse productServiceResponse;
   private List<SubAssyServiceResponse> subAssyServiceResponses;
 
-  public static FindProductWithSubassyServiceResponse of(Product product, List<Product> subAssys) {
-    return FindProductWithSubassyServiceResponse.builder()
+  public static FindProductWithSubAssyServiceResponse of(Product product, List<Product> subAssies) {
+    return FindProductWithSubAssyServiceResponse.builder()
         .productServiceResponse(ProductServiceResponse.of(product))
         .subAssyServiceResponses(
             // bom의 code number가 11인 것의 product를 SubAssyServiceResponse로 만든다
@@ -24,8 +24,8 @@ public class FindProductWithSubassyServiceResponse {
                 .filter(bom -> bom.getCodeNumber().equals("11"))
                 .map(bom -> {
                   // bom의 product number와 같은 product를 subAssys에서 찾는다.
-                  Product matchingSubAssy = subAssys.stream()
-                      .filter(subAssy -> subAssy.getProductNumber().equals(bom.getSubAssy()))
+                  Product matchingSubAssy = subAssies.stream()
+                      .filter(subAssy -> subAssy.equals(bom.getSubAssy()))
                       .findAny().orElseThrow(SubAssyNotFoundByProductNameException::new);
                   return SubAssyServiceResponse.of(matchingSubAssy, bom.getQuantity());
                 }).toList()

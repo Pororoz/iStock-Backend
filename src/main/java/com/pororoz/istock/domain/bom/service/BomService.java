@@ -69,7 +69,7 @@ public class BomService {
   }
 
   public BomServiceResponse updateBom(UpdateBomServiceRequest request) {
-    validateRequest(request.getCodeNumber(), request.getSubAssyId(), request.getPartId());
+    validateRequest(request.getCodeNumber(), request.getPartId(), request.getSubAssyId());
     Bom existBom = bomRepository.findById(request.getBomId())
         .orElseThrow(BomNotFoundException::new);
     Part part = findPartById(request.getPartId());
@@ -82,8 +82,8 @@ public class BomService {
       if (SUB_ASSY_CODE_NUMBER.equals(product.getCodeNumber())) {
         throw new SubAssyCannotHaveSubAssyException();
       }
-      // subAssyId가 바뀔 경우 중복된 subAssy가 있는지 확인
-      if (!existBom.getSubAssy().getId().equals(subAssy.getId())) {
+      // subAssy가 바뀔 경우 중복된 subAssy가 있는지 확인
+      if (!subAssy.equals(existBom.getSubAssy())) {
         checkDuplicateSubAssy(request.getProductId(), request.getSubAssyId(), existBom.getId());
       }
     }
@@ -93,20 +93,20 @@ public class BomService {
 
   private void validateRequest(String codeNumber, Long partId, Long subAssyId) {
     if (SUB_ASSY_CODE_NUMBER.equals(codeNumber)) {
-      validateSubAssyBom(subAssyId, partId);
+      validateSubAssyBom(partId, subAssyId);
       return;
     }
-    validateProductBom(subAssyId, partId);
+    validateProductBom(partId, subAssyId);
   }
 
   // product number는 sub assy의 품명이어야 한다.
-  private void validateSubAssyBom(Long subAssyId, Long partId) {
+  private void validateSubAssyBom(Long partId, Long subAssyId) {
     if (subAssyId == null || partId != null) {
       throw new InvalidSubAssyBomException();
     }
   }
 
-  private void validateProductBom(Long subAssyId, Long partId) {
+  private void validateProductBom(Long partId, Long subAssyId) {
     if (subAssyId != null || partId == null) {
       throw new InvalidProductBomException();
     }

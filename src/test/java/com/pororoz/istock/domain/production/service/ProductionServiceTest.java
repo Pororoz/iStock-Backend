@@ -8,7 +8,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.pororoz.istock.common.exception.BomAndSubAssyNotMatchedException;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
@@ -112,16 +111,16 @@ class ProductionServiceTest {
       void saveSubAssyProductIo() {
         //given
         String subAssyNumber = "product number";
-        Bom subAssyBom = Bom.builder()
-            .codeNumber("11").subAssy(subAssyNumber)
-            .quantity(1).build();
-        Product product = Product.builder()
-            .id(productId)
-            .boms(List.of(subAssyBom)).build();
         Product subAssy = Product.builder()
             .id(productId + 1L).codeNumber("11")
             .productNumber(subAssyNumber)
             .stock(10).build();
+        Bom subAssyBom = Bom.builder()
+            .codeNumber("11").subAssy(subAssy)
+            .quantity(1).build();
+        Product product = Product.builder()
+            .id(productId)
+            .boms(List.of(subAssyBom)).build();
         ProductIo productIo = ProductIo.builder()
             .quantity(quantity).product(product).id(1L)
             .build();
@@ -130,7 +129,7 @@ class ProductionServiceTest {
         //when
         when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-        when(productRepository.findByProductNumberIn(anyList())).thenReturn(List.of(subAssy));
+        when(productRepository.findByIdIn(anyList())).thenReturn(List.of(subAssy));
         SaveProductionServiceResponse response = productionService.saveWaitingProduction(request);
 
         //then
@@ -196,16 +195,16 @@ class ProductionServiceTest {
       void productStockMinus() {
         //given
         String subAssyNumber = "product number";
-        Bom subAssyBom = Bom.builder()
-            .codeNumber("11").subAssy(subAssyNumber)
-            .quantity(2).build();
-        Product product = Product.builder()
-            .id(productId)
-            .boms(List.of(subAssyBom)).build();
         Product subAssy = Product.builder()
             .id(productId + 1L).codeNumber("11")
             .productNumber(subAssyNumber)
             .stock(1).build();
+        Bom subAssyBom = Bom.builder()
+            .codeNumber("11").subAssy(subAssy)
+            .quantity(2).build();
+        Product product = Product.builder()
+            .id(productId)
+            .boms(List.of(subAssyBom)).build();
         ProductIo productIo = ProductIo.builder()
             .quantity(quantity).product(product).id(1L)
             .build();
@@ -213,7 +212,7 @@ class ProductionServiceTest {
         //when
         when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-        when(productRepository.findByProductNumberIn(anyList())).thenReturn(List.of(subAssy));
+        when(productRepository.findByIdIn(anyList())).thenReturn(List.of(subAssy));
 
         //then
         assertThrows(ProductStockMinusException.class,
@@ -226,16 +225,16 @@ class ProductionServiceTest {
       void subAssyNotFoundByProductName() {
         //given
         String subAssyNumber = "product number";
-        Bom subAssyBom = Bom.builder()
-            .codeNumber("11").subAssy(subAssyNumber)
-            .quantity(2).build();
-        Product product = Product.builder()
-            .id(productId)
-            .boms(List.of(subAssyBom)).build();
         Product subAssy = Product.builder()
             .id(productId + 1L).codeNumber("11")
             .productNumber(subAssyNumber)
             .stock(1).build();
+        Bom subAssyBom = Bom.builder()
+            .codeNumber("11").subAssy(subAssy)
+            .quantity(2).build();
+        Product product = Product.builder()
+            .id(productId)
+            .boms(List.of(subAssyBom)).build();
         ProductIo productIo = ProductIo.builder()
             .quantity(quantity).product(product).id(1L)
             .build();
@@ -243,37 +242,12 @@ class ProductionServiceTest {
         //when
         when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-        when(productRepository.findByProductNumberIn(anyList())).thenReturn(List.of(subAssy));
+        when(productRepository.findByIdIn(anyList())).thenReturn(List.of(subAssy));
 
         //then
         assertThrows(ProductStockMinusException.class,
             () -> productionService.saveWaitingProduction(request));
         verify(productIoRepository, times(0)).saveAll(anyList());
-      }
-
-      @Test
-      @DisplayName("Sub assy로 등록된 BOM과 sub assy가 일치하지 않으면 예외가 발생한다.")
-      void bomAndSubAssyNotMatch() {
-        //given
-        String subAssyNumber = "product number";
-        Bom subAssyBom = Bom.builder()
-            .codeNumber("11").subAssy(subAssyNumber)
-            .quantity(1).build();
-        Product product = Product.builder()
-            .id(productId)
-            .boms(List.of(subAssyBom)).build();
-        ProductIo productIo = ProductIo.builder()
-            .quantity(quantity).product(product).id(1L)
-            .build();
-
-        //when
-        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
-        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-        when(productRepository.findByProductNumberIn(anyList())).thenReturn(List.of());
-
-        //then
-        assertThrows(BomAndSubAssyNotMatchedException.class,
-            () -> productionService.saveWaitingProduction(request));
       }
 
       @Test

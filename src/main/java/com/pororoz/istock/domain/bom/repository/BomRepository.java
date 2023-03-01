@@ -23,9 +23,7 @@ public interface BomRepository extends JpaRepository<Bom, Long> {
 
   List<Bom> findByProductId(Long productId);
 
-  Boolean existsBySubAssyId(Long subAssyId);
-
-  List<Bom> findBySubAssyId(Long subAssyId);
+  Boolean existsByProductId(Long subAssyId);
 
   Optional<Bom> findByProductIdAndSubAssyId(Long productId, Long subAssyId);
 }

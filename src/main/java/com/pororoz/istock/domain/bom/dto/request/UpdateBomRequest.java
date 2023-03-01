@@ -27,10 +27,6 @@ public class UpdateBomRequest {
   @Builder.Default
   private String locationNumber = "0";
 
-  @Schema(description = "하위 제품 번호", example = "GS-IH-01")
-  @Size(max = 100)
-  private String subAssyNumber;
-
   @Schema(description = "코드 번호", example = "0A")
   @Size(max = 20)
   private String codeNumber;

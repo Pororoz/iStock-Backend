@@ -22,7 +22,7 @@ import com.pororoz.istock.domain.product.dto.response.FindProductWithSubassyResp
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.dto.response.SubAssyResponse;
 import com.pororoz.istock.domain.product.dto.service.FindProductByPartServiceRequest;
-import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubAssyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.SubAssyServiceResponse;
@@ -347,11 +347,11 @@ class ProductControllerTest extends ControllerTest {
               .companyName("company")
               .stock(1).build())
           .quantity(1).build();
-      FindProductWithSubassyServiceResponse ServiceDto = FindProductWithSubassyServiceResponse.builder()
+      FindProductWithSubAssyServiceResponse ServiceDto = FindProductWithSubAssyServiceResponse.builder()
           .productServiceResponse(productServiceResponse)
           .subAssyServiceResponses(List.of(subAssyServiceResponse))
           .build();
-      Page<FindProductWithSubassyServiceResponse> dtoPage =
+      Page<FindProductWithSubAssyServiceResponse> dtoPage =
           new PageImpl<>(List.of(ServiceDto), pageRequest, 4);
 
       //when
@@ -426,11 +426,11 @@ class ProductControllerTest extends ControllerTest {
               .companyName("company")
               .stock(1).build())
           .quantity(1).build();
-      FindProductWithSubassyServiceResponse ServiceDto = FindProductWithSubassyServiceResponse.builder()
+      FindProductWithSubAssyServiceResponse ServiceDto = FindProductWithSubAssyServiceResponse.builder()
           .productServiceResponse(productServiceResponse)
           .subAssyServiceResponses(List.of(subAssyServiceResponse))
           .build();
-      Page<FindProductWithSubassyServiceResponse> dtoPage =
+      Page<FindProductWithSubAssyServiceResponse> dtoPage =
           new PageImpl<>(List.of(ServiceDto), pageRequest, size);
       ArgumentCaptor<Pageable> argument = ArgumentCaptor.forClass(Pageable.class);
 

@@ -1,6 +1,5 @@
 package com.pororoz.istock.domain.production.service;
 
-import com.pororoz.istock.common.exception.BomAndSubAssyNotMatchedException;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
@@ -81,8 +80,8 @@ public class ProductionService {
         .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
         .collect(Collectors.toMap(bom -> bom.getSubAssy().getId(), Bom::getQuantity));
 
-    List<ProductIo> subAssyIoList = findSubAssiesByIdOrThrow(
-        new ArrayList<>(subAssyQuantityMap.keySet()))
+    List<ProductIo> subAssyIoList = productRepository.findByIdIn(
+            new ArrayList<>(subAssyQuantityMap.keySet()))
         .stream().map(subAssy -> {
           Long quantity = subAssyQuantityMap.get(subAssy.getId());
           subAssy.subtractStock(quantity);
@@ -94,14 +93,5 @@ public class ProductionService {
         }).toList();
 
     productIoRepository.saveAll(subAssyIoList);
-  }
-
-  //sub assy로 등록된 bom의 sub assy id 개수와 id로 찾은 sub assy의 개수가 같지 않으면 예외처리
-  private List<Product> findSubAssiesByIdOrThrow(List<Long> subAssyIds) {
-    List<Product> subAssies = productRepository.findByIdIn(subAssyIds);
-    if (subAssies.size() != subAssyIds.size()) {
-      throw new BomAndSubAssyNotMatchedException();
-    }
-    return subAssies;
   }
 }

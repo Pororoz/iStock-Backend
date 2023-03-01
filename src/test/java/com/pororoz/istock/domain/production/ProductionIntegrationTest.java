@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
-import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
@@ -96,10 +95,10 @@ public class ProductionIntegrationTest extends IntegrationTest {
         .build());
   }
 
-  Bom saveSubAssyBom(String locationNumber, long quantity, String productNumber) {
+  Bom saveSubAssyBom(String locationNumber, long quantity, Product subAssy) {
     return bomRepository.save(Bom.builder()
         .locationNumber(locationNumber).quantity(quantity)
-        .subAssy(productNumber).codeNumber("11")
+        .subAssy(subAssy).codeNumber("11")
         .product(product1)
         .build());
   }
@@ -130,8 +129,8 @@ public class ProductionIntegrationTest extends IntegrationTest {
       //given
       Bom bom1 = saveBom("location1", 1, part1);
       Bom bom2 = saveBom("location2", 2, part2);
-      Bom subAssyBom1 = saveSubAssyBom("location3", 1, subAssy1.getProductNumber());
-      Bom subAssyBom2 = saveSubAssyBom("location4", 2, subAssy2.getProductNumber());
+      Bom subAssyBom1 = saveSubAssyBom("location3", 1, subAssy1);
+      Bom subAssyBom2 = saveSubAssyBom("location4", 2, subAssy2);
 
       SaveProductionRequest request = SaveProductionRequest.builder().quantity(quantity).build();
 
@@ -180,25 +179,6 @@ public class ProductionIntegrationTest extends IntegrationTest {
       //then
       actions.andExpect(status().isBadRequest())
           .andExpect(jsonPath("$.status").value(ExceptionStatus.RUNTIME_ERROR))
-          .andDo(print());
-    }
-
-    @Test
-    @DisplayName("제품의 BOM으로 등록된 sub assy를 모두 찾을 수 없으면 Bad Resquest가 발생한다.")
-    void bomAndSubAssyNotMatching() throws Exception {
-      //given
-      saveSubAssyBom("location3", 1, subAssy1.getProductNumber());
-      saveSubAssyBom("location4", 2, "not saved number");
-
-      SaveProductionRequest request = SaveProductionRequest.builder().quantity(quantity).build();
-
-      //when
-      ResultActions actions = getResultActions(getUri(productId), HttpMethod.POST, request);
-
-      //then
-      actions.andExpect(status().isBadRequest())
-          .andExpect(jsonPath("$.status").value(ExceptionStatus.BOM_AND_SUB_ASSY_NOT_MATCHED))
-          .andExpect(jsonPath("$.message").value(ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCHED))
           .andDo(print());
     }
   }
