@@ -7,7 +7,7 @@ import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
-import com.pororoz.istock.domain.bom.exception.BomSubAssyNumberDuplicatedException;
+import com.pororoz.istock.domain.bom.exception.BomSubAssyDuplicatedException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidSubAssyBomException;
@@ -18,6 +18,7 @@ import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+import com.pororoz.istock.domain.product.exception.SubAssyNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -83,6 +84,7 @@ public class BomService {
         throw new SubAssyCannotHaveSubAssyException();
       }
       // subAssy가 바뀔 경우 중복된 subAssy가 있는지 확인
+      // codeNumber가 11이기 때문에 subAssy는 null이 아닌지는 위에서 확인.
       if (!subAssy.equals(existBom.getSubAssy())) {
         checkDuplicateSubAssy(request.getProductId(), request.getSubAssyId(), existBom.getId());
       }
@@ -122,7 +124,7 @@ public class BomService {
       return null;
     }
     Product subAssy = productRepository.findById(subAssyId)
-        .orElseThrow(ProductNotFoundException::new);
+        .orElseThrow(SubAssyNotFoundException::new);
     if (!SUB_ASSY_CODE_NUMBER.equals(subAssy.getCodeNumber())) {
       throw new InvalidSubAssyBomException();
     }
@@ -144,7 +146,7 @@ public class BomService {
   private void checkDuplicateSubAssy(Long productId, Long subAssyId, Long existBomId) {
     bomRepository.findByProductIdAndSubAssyId(productId, subAssyId).ifPresent(bom -> {
       if (existBomId == null || !existBomId.equals(bom.getId())) {
-        throw new BomSubAssyNumberDuplicatedException();
+        throw new BomSubAssyDuplicatedException();
       }
     });
   }

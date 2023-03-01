@@ -15,7 +15,7 @@ import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
-import com.pororoz.istock.domain.bom.exception.BomSubAssyNumberDuplicatedException;
+import com.pororoz.istock.domain.bom.exception.BomSubAssyDuplicatedException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidSubAssyBomException;
@@ -415,7 +415,7 @@ class BomServiceTest {
             Optional.of(mock(Bom.class)));
 
         //then
-        assertThrows(BomSubAssyNumberDuplicatedException.class,
+        assertThrows(BomSubAssyDuplicatedException.class,
             () -> bomService.saveBom(subAssyRequest));
       }
 
@@ -799,7 +799,7 @@ class BomServiceTest {
             Optional.of(mock(Bom.class)));
 
         // then
-        assertThrows(BomSubAssyNumberDuplicatedException.class,
+        assertThrows(BomSubAssyDuplicatedException.class,
             () -> bomService.updateBom(subAssyRequest));
       }
     }

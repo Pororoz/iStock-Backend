@@ -26,7 +26,8 @@ public class ExceptionStatus {
   public static final String PART_STOCK_MINUS = "PART_STOCK_MINUS";
   public static final String PRODUCT_OR_BOM_NOT_FOUND = "PRODUCT_OR_BOM_NOT_FOUND";
   public static final String BOM_AND_SUB_ASSY_NOT_MATCHED = "BOM_AND_SUB_ASSY_NOT_MATCH";
-  public static final String BOM_SUB_ASSY_NUMBER_DUPLICATED = "BOM_SUB_ASSY_NUMBER_DUPLICATED";
+  public static final String BOM_SUB_ASSY_DUPLICATED = "BOM_SUB_ASSY_DUPLICATED";
+  public static final String SUB_ASSY_NOT_FOUND = "SUB_ASSY_NOT_FOUND";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";

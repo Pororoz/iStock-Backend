@@ -1150,8 +1150,8 @@ public class BomIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.BOM_SUB_ASSY_NUMBER_DUPLICATED))
-            .andExpect(jsonPath("$.message").value(ExceptionMessage.BOM_SUB_ASSY_NUMBER_DUPLICATED))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.BOM_SUB_ASSY_DUPLICATED))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.BOM_SUB_ASSY_DUPLICATED))
             .andDo(print());
       }
     }
