@@ -21,7 +21,6 @@ import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -111,7 +110,7 @@ public class PurchaseServiceTest {
         when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
         when(productIoRepository.save(any())).thenReturn(productIo);
         when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
-        when(partIoRepository.saveAll(anyList())).thenReturn(new ArrayList<>());
+        when(partIoRepository.saveAll(anyList())).thenReturn(List.of(partIo));
         PurchaseProductServiceResponse result = purchaseService.purchaseProduct(request);
 
         // then
@@ -146,6 +145,14 @@ public class PurchaseServiceTest {
             .status(productStatus)
             .product(product)
             .build();
+        ProductIo subAssyIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(quantity)
+            .status(ProductStatus.외주구매대기)
+            .product(product)
+            .superIo(productIo)
+            .product(subAssy)
+            .build();
 
         PurchaseProductServiceResponse response = PurchaseProductServiceResponse.builder()
             .productId(productId)
@@ -157,7 +164,7 @@ public class PurchaseServiceTest {
         when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
         when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
-        when(productIoRepository.saveAll(anyList())).thenReturn(new ArrayList<>());
+        when(productIoRepository.saveAll(anyList())).thenReturn(List.of(subAssyIo));
         PurchaseProductServiceResponse result = purchaseService.purchaseProduct(request);
 
         // then
@@ -195,7 +202,36 @@ public class PurchaseServiceTest {
             .quantity(quantity)
             .memo(memo)
             .product(product)
-            .part(null)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(quantity)
+            .status(productStatus)
+            .product(product)
+            .build();
+
+        // when
+        when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        when(productIoRepository.save(any())).thenReturn(productIo);
+        when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
+
+        //then
+        assertThrows(IllegalArgumentException.class,
+            () -> purchaseService.purchaseProduct(request));
+      }
+
+      @Test
+      @DisplayName("검색한 bom이 sub assy인 경우, 해당 bom의 subAssy가 null이면 오류가 발생한다.")
+      void subAssyNullException() {
+        // given
+        Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(SUB_ASSY_CODE_NUMBER)
+            .quantity(quantity)
+            .memo(memo)
+            .product(product)
             .build();
         ProductIo productIo = ProductIo.builder()
             .id(productIoId)
