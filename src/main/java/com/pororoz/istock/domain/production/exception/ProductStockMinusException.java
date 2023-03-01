@@ -9,4 +9,8 @@ public class ProductStockMinusException extends CustomException {
     super(ErrorCode.PRODUCT_STOCK_MINUS);
   }
 
+  public ProductStockMinusException(String detail) {
+    super(ErrorCode.PRODUCT_STOCK_MINUS, detail);
+  }
+
 }

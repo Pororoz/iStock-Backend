@@ -8,4 +8,8 @@ public class PartStockMinusException extends CustomException {
   public PartStockMinusException() {
     super(ErrorCode.PART_STOCK_MINUS);
   }
+
+  public PartStockMinusException(String detail) {
+    super(ErrorCode.PART_STOCK_MINUS, detail);
+  }
 }

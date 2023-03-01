@@ -140,42 +140,6 @@ class ProductRepositoryTest extends RepositoryTest {
   }
 
   @Nested
-  class FindByProductNumberIn {
-
-    @Test
-    @DisplayName("Product number list에 포함된 product만 조회한다.")
-    void findByProductNumbers() {
-      //given
-      Product a = em.persist(Product.builder()
-          .productNumber("a").productName("name")
-          .category(category1).build());
-      Product aa = em.persist(Product.builder()
-          .productNumber("aa").productName("name")
-          .category(category1).build());
-      Product aaa = em.persist(Product.builder()
-          .productNumber("aaa").productName("name")
-          .category(category1).build());
-      em.flush();
-      em.clear();
-
-      //when
-      List<Product> products = productRepository.findByIdIn(List.of(aaa.getId(), a.getId()));
-
-      //then
-      assertThat(products).hasSize(2);
-      assertThat(products).usingRecursiveComparison()
-          .ignoringFields("category")
-          .ignoringCollectionOrder()
-          .isEqualTo(List.of(aaa, a));
-      assertThat(products).usingRecursiveComparison()
-          .ignoringFields("category")
-          .ignoringCollectionOrder()
-          .isNotEqualTo(List.of(a, aa));
-    }
-  }
-
-
-  @Nested
   class FindByPartIdAndPartNameIgnoreNull {
 
     List<Product> products;
@@ -277,38 +241,42 @@ class ProductRepositoryTest extends RepositoryTest {
   class FindByIdWithParts {
 
     @Test
-    @DisplayName("Product, Bom, Part를 join하여 조회한다.")
+    @DisplayName("Product, Bom, Part, SubAssy를 join하여 조회한다.")
     void productAndBomAndPartJoin() {
       //given
       Product product = em.persist(Product.builder()
           .codeNumber("code1").productName("name1")
           .productNumber("number").category(category1)
           .build());
+      Product subAssy = em.persist(Product.builder()
+          .codeNumber("11").productName("name2")
+          .productNumber("subAssyNumber").category(category1)
+          .build());
       Bom bom1 = em.persist(Bom.builder()
           .locationNumber("location1")
           .product(product).part(part)
           .build());
       Bom bom2 = em.persist(Bom.builder()
-          .locationNumber("location2")
+          .locationNumber("location2").codeNumber("11")
+          .product(product).subAssy(subAssy)
+          .build());
+      Bom bom3 = em.persist(Bom.builder()
+          .locationNumber("location3")
           .product(product)
           .build());
+      product.setBoms(List.of(bom1, bom2, bom3));
       em.flush();
       em.clear();
 
       //when
-      Product productWithParts = productRepository.findByIdWithParts(product.getId())
+      Product productWithPartsAndSubAssies = productRepository.findByIdWithPartsAndSubAssies(
+              product.getId())
           .orElse(null);
 
       //then
-      assertThat(productWithParts).usingRecursiveComparison()
-          .ignoringFields("boms", "category")
+      assertThat(productWithPartsAndSubAssies).usingRecursiveComparison()
+          .ignoringFields("category", "boms.product.category", "boms.subAssy.category")
           .isEqualTo(product);
-
-      assert productWithParts != null;
-      assertThat(productWithParts.getBoms()).usingRecursiveComparison()
-          .ignoringCollectionOrder()
-          .ignoringFields("product")
-          .isEqualTo(List.of(bom1, bom2));
     }
 
     @Test
@@ -321,7 +289,7 @@ class ProductRepositoryTest extends RepositoryTest {
           .build());
 
       //then
-      Product productWithParts = productRepository.findByIdWithParts(product.getId())
+      Product productWithParts = productRepository.findByIdWithPartsAndSubAssies(product.getId())
           .orElse(null);
 
       //then

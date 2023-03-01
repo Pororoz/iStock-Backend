@@ -1,7 +1,6 @@
 package com.pororoz.istock.domain.product.repository;
 
 import com.pororoz.istock.domain.product.entity.Product;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,12 +21,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   Page<Product> findByCategoryIdWithSubAssies(Pageable pageable,
       @Param("categoryId") Long categoryId);
 
-  @Query("select p from Product p where p.id in :ids")
-  List<Product> findByIdIn(@Param("ids") List<Long> ids);
-
   @Query("select distinct pr from Product pr "
-      + "join fetch pr.boms b left join fetch b.part ")
-  Optional<Product> findByIdWithParts(@Param("id") Long id);
+      + "join fetch pr.boms b left join fetch b.part left join fetch b.subAssy")
+  Optional<Product> findByIdWithPartsAndSubAssies(@Param("id") Long id);
 
   @Query(value = "select distinct pr from Product pr "
       + "left join pr.boms b "

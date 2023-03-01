@@ -1,7 +1,6 @@
 package com.pororoz.istock.domain.production.service;
 
 import com.pororoz.istock.domain.bom.entity.Bom;
-import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
@@ -15,9 +14,6 @@ import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceRes
 import com.pororoz.istock.domain.production.exception.ProductOrBomNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,11 +30,10 @@ public class ProductionService {
   private final String SUB_ASSY_CODE_NUMBER = "11";
 
   public SaveProductionServiceResponse saveWaitingProduction(SaveProductionServiceRequest request) {
-    Product product = productRepository.findByIdWithParts(request.getProductId())
+    Product product = productRepository.findByIdWithPartsAndSubAssies(request.getProductId())
         .orElseThrow(ProductOrBomNotFoundException::new);
     ProductIo productIo = saveProductIo(request.getQuantity(), product);
-    savePartIoAll(product.getBoms(), productIo);
-    saveSubAssyIoAll(product.getBoms(), productIo);
+    savePartIoAndSubAssyAll(request.getQuantity(), product.getBoms(), productIo);
 
     return SaveProductionServiceResponse.builder()
         .productId(productIo.getProduct().getId())
@@ -54,44 +49,23 @@ public class ProductionService {
     return productIoRepository.save(productIo);
   }
 
-  private void savePartIoAll(List<Bom> boms, ProductIo productIo) {
-    List<PartIo> partIoList = boms.stream()
-        .filter(bom -> !Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
-        .map(bom -> {
-          Part part = bom.getPart();
-          if (part == null) {
-            throw new IllegalArgumentException(
-                "BOM에 Part가 없습니다. bomId: " + bom.getId() + ", locationNumber: "
-                    + bom.getLocationNumber() + ", productId: " + bom.getProduct().getId());
-          }
-          part.subtractStock(bom.getQuantity());
-          return PartIo.builder()
-              .quantity(bom.getQuantity())
-              .status(PartStatus.생산대기)
-              .part(part).productIo(productIo)
-              .build();
-        }).toList();
+  private void savePartIoAndSubAssyAll(Long quantity, List<Bom> boms, ProductIo productIo) {
+    List<PartIo> partIoList = new ArrayList<>();
+    List<ProductIo> subAssyIoList = new ArrayList<>();
 
+    for (Bom bom : boms) {
+      if (SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
+        ProductIo subAssyIo = ProductIo.createSubAssyIo(bom, productIo, quantity,
+            ProductStatus.사내출고대기);
+        bom.getSubAssy().subtractStock(bom.getQuantity() * quantity);
+        subAssyIoList.add(subAssyIo);
+      } else {
+        PartIo partIo = PartIo.createPartIo(bom, productIo, quantity, PartStatus.생산대기);
+        bom.getPart().subtractStock(bom.getQuantity() * quantity);
+        partIoList.add(partIo);
+      }
+    }
     partIoRepository.saveAll(partIoList);
-  }
-
-  private void saveSubAssyIoAll(List<Bom> boms, ProductIo productIo) {
-    Map<Long, Long> subAssyQuantityMap = boms.stream()
-        .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
-        .collect(Collectors.toMap(bom -> bom.getSubAssy().getId(), Bom::getQuantity));
-
-    List<ProductIo> subAssyIoList = productRepository.findByIdIn(
-            new ArrayList<>(subAssyQuantityMap.keySet()))
-        .stream().map(subAssy -> {
-          Long quantity = subAssyQuantityMap.get(subAssy.getId());
-          subAssy.subtractStock(quantity);
-          return ProductIo.builder()
-              .status(ProductStatus.사내출고대기)
-              .quantity(quantity)
-              .product(subAssy).superIo(productIo)
-              .build();
-        }).toList();
-
     productIoRepository.saveAll(subAssyIoList);
   }
 }

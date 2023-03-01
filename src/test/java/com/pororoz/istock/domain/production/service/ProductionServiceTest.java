@@ -50,7 +50,7 @@ class ProductionServiceTest {
   PartIoRepository partIoRepository;
 
   final Long productId = 1L;
-  final long quantity = 100;
+  final long quantity = 10;
 
   @Nested
   @DisplayName("제품 생산 대기 생성")
@@ -69,9 +69,9 @@ class ProductionServiceTest {
       void saveProduction() {
         //given
         Part part = Part.builder()
-            .stock(2).build();
+            .stock(20).build();
         Bom bom = Bom.builder()
-            .quantity(1)
+            .quantity(2)
             .part(part).build();
         Product product = Product.builder()
             .id(productId)
@@ -83,7 +83,8 @@ class ProductionServiceTest {
         ArgumentCaptor<ProductIo> productIoArgument = ArgumentCaptor.forClass(ProductIo.class);
 
         //when
-        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
+            Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
         SaveProductionServiceResponse response = productionService.saveWaitingProduction(request);
 
@@ -93,7 +94,7 @@ class ProductionServiceTest {
             .quantity(quantity).product(product)
             .build();
         PartIo savingPartIo = PartIo.builder()
-            .status(PartStatus.생산대기).quantity(1)
+            .status(PartStatus.생산대기).quantity(quantity * bom.getQuantity())
             .productIo(productIo).part(part)
             .build();
         verify(productIoRepository).save(productIoArgument.capture());
@@ -104,6 +105,7 @@ class ProductionServiceTest {
             .isEqualTo(List.of(savingPartIo));
         assertThat(response.getProductId()).isEqualTo(productId);
         assertThat(response.getQuantity()).isEqualTo(quantity);
+        assertThat(part.getStock()).isZero();
       }
 
       @Test
@@ -114,10 +116,10 @@ class ProductionServiceTest {
         Product subAssy = Product.builder()
             .id(productId + 1L).codeNumber("11")
             .productNumber(subAssyNumber)
-            .stock(10).build();
+            .stock(20).build();
         Bom subAssyBom = Bom.builder()
             .codeNumber("11").subAssy(subAssy)
-            .quantity(1).build();
+            .quantity(2).build();
         Product product = Product.builder()
             .id(productId)
             .boms(List.of(subAssyBom)).build();
@@ -127,15 +129,15 @@ class ProductionServiceTest {
         ArgumentCaptor<List<ProductIo>> listArgument = ArgumentCaptor.forClass(List.class);
 
         //when
-        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
+            Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-        when(productRepository.findByIdIn(anyList())).thenReturn(List.of(subAssy));
         SaveProductionServiceResponse response = productionService.saveWaitingProduction(request);
 
         //then
         ProductIo subAssyIo = ProductIo.builder()
             .status(ProductStatus.사내출고대기)
-            .quantity(subAssyBom.getQuantity())
+            .quantity(subAssyBom.getQuantity() * quantity)
             .product(subAssy)
             .superIo(productIo).build();
         verify(productIoRepository, times(1)).saveAll(listArgument.capture());
@@ -143,6 +145,7 @@ class ProductionServiceTest {
             .isEqualTo(List.of(subAssyIo));
         assertThat(response.getProductId()).isEqualTo(productId);
         assertThat(response.getQuantity()).isEqualTo(quantity);
+        assertThat(subAssy.getStock()).isZero();
       }
     }
 
@@ -155,7 +158,8 @@ class ProductionServiceTest {
       void ProductNotFound() {
         //given
         //when
-        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.empty());
+        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
+            Optional.empty());
 
         //then
         assertThrows(ProductOrBomNotFoundException.class, () ->
@@ -182,7 +186,8 @@ class ProductionServiceTest {
             .build();
 
         //when
-        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
+            Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
 
         //then
@@ -210,9 +215,9 @@ class ProductionServiceTest {
             .build();
 
         //when
-        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
+            Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-        when(productRepository.findByIdIn(anyList())).thenReturn(List.of(subAssy));
 
         //then
         assertThrows(ProductStockMinusException.class,
@@ -240,9 +245,9 @@ class ProductionServiceTest {
             .build();
 
         //when
-        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
+            Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-        when(productRepository.findByIdIn(anyList())).thenReturn(List.of(subAssy));
 
         //then
         assertThrows(ProductStockMinusException.class,
@@ -265,7 +270,8 @@ class ProductionServiceTest {
         ArgumentCaptor<ProductIo> productIoArgument = ArgumentCaptor.forClass(ProductIo.class);
 
         //when
-        when(productRepository.findByIdWithParts(productId)).thenReturn(Optional.of(product));
+        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
+            Optional.of(product));
         when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
 
         //then

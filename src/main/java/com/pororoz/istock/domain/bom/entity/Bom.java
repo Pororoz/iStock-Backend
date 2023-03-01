@@ -58,13 +58,13 @@ public class Bom extends TimeEntity {
   @Size(max = 50)
   private String memo;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  private Part part;
-
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id")
   private Product product;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Part part;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private Product subAssy;
