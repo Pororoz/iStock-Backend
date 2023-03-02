@@ -170,7 +170,7 @@ public class PurchaseControllerTest extends ControllerTest {
             .build();
 
         // when
-        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -186,7 +186,7 @@ public class PurchaseControllerTest extends ControllerTest {
             .build();
 
         // when
-        ResultActions actions = getResultActions(url(null), HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isBadRequest())
