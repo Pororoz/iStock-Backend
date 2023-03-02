@@ -27,6 +27,7 @@ import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+import com.pororoz.istock.domain.product.exception.SubAssyNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -436,6 +437,25 @@ class BomServiceTest {
         // then
         assertThrows(SubAssyCannotHaveSubAssyException.class,
             () -> bomService.saveBom(subAssyRequest));
+      }
+
+      @Test
+      @DisplayName("존재하지 않는 sub assy id를 요청하면 SubAssyNotFound가 발생한다.")
+      void subAssyNotFound() {
+        SaveBomServiceRequest subAssyRequest = SaveBomServiceRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(subAssyCodeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .subAssyId(10000L)
+            .productId(productId)
+            .build();
+
+        // when
+        when(productRepository.findById(10000L)).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(SubAssyNotFoundException.class, () -> bomService.saveBom(subAssyRequest));
       }
     }
   }

@@ -31,7 +31,7 @@ public class PartIo extends TimeEntity {
   private Long id;
 
   @NotNull
-  @Positive
+  @Positive(message = "partIo의 수량은 1 이상이어야 합니다. BOM과 요청 수량을 확인해주세요")
   @Column(columnDefinition = "INT(11) UNSIGNED")
   private long quantity;
 

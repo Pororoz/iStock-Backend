@@ -12,7 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +30,7 @@ public class ProductIo extends TimeEntity {
   private Long id;
 
   @NotNull
-  @PositiveOrZero
+  @Positive(message = "productIo의 수량은 1 이상이어야 합니다. BOM과 요청 수량을 확인해주세요")
   @Column(columnDefinition = "INT(11) UNSIGNED")
   private long quantity;
 
