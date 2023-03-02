@@ -78,6 +78,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       //일반 bom
       for (int i = 0; i < 9; i++) {
         bomRepository.save(Bom.builder()
+            .quantity(1)
             .codeNumber("10").locationNumber("" + i + 100)
             .part(parts.get((int) (Math.random() * 9)))
             .product(products.get((int) (Math.random() * 9)))
