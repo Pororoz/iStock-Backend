@@ -12,7 +12,7 @@ import com.pororoz.istock.domain.product.dto.request.SaveProductRequest;
 import com.pororoz.istock.domain.product.dto.request.UpdateProductRequest;
 import com.pororoz.istock.domain.product.dto.response.FindProductWithSubassyResponse;
 import com.pororoz.istock.domain.product.dto.response.ProductResponse;
-import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubAssyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.service.ProductService;
 import com.pororoz.istock.domain.product.swagger.exception.ProductNameDuplicatedSwagger;
@@ -132,7 +132,7 @@ public class ProductController {
     Page<FindProductWithSubassyResponse> productPage = productService.findProductsWithSubAssies(
             categoryId,
             pageable)
-        .map(FindProductWithSubassyServiceResponse::toResponse);
+        .map(FindProductWithSubAssyServiceResponse::toResponse);
     PageResponse<FindProductWithSubassyResponse> response = new PageResponse<>(productPage);
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_PRODUCT, response));

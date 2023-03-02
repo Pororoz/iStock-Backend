@@ -1,12 +1,11 @@
 package com.pororoz.istock.domain.product.service;
 
-import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.product.dto.service.FindProductByPartServiceRequest;
-import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubAssyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
@@ -16,9 +15,7 @@ import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedExcept
 import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -51,8 +48,6 @@ public class ProductService {
     checkProductNumberDuplicated(product.getProductNumber(), request.getProductNumber());
     Category category = categoryRepository.findById(request.getCategoryId())
         .orElseThrow(CategoryNotFoundException::new);
-    //bom의 productNumber도 변경
-    changeBomProductNumber(product.getProductNumber(), request.getProductNumber());
     product.update(request, category);
     return ProductServiceResponse.of(product);
   }
@@ -61,7 +56,7 @@ public class ProductService {
   public ProductServiceResponse deleteProduct(Long productId) {
     Product product = productRepository.findById(productId)
         .orElseThrow(ProductNotFoundException::new);
-    if (bomRepository.existsByProductNumber(product.getProductNumber())) {
+    if (bomRepository.existsByProductId(product.getId())) {
       throw new RegisteredAsSubAssyException();
     }
     productRepository.delete(product);
@@ -69,19 +64,12 @@ public class ProductService {
   }
 
   @Transactional(readOnly = true)
-  public Page<FindProductWithSubassyServiceResponse> findProductsWithSubAssies(Long categoryId,
+  public Page<FindProductWithSubAssyServiceResponse> findProductsWithSubAssies(Long categoryId,
       Pageable pageable) {
     categoryRepository.findById(categoryId)
         .orElseThrow(CategoryNotFoundException::new);
-    Page<Product> products = productRepository.findByCategoryIdWithBoms(pageable, categoryId);
-    //subAssy만 필터링
-    List<String> subAssyNames = products.stream()
-        .flatMap(product -> product.getBoms().stream())
-        .filter(bom -> Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER))
-        .map(Bom::getProductNumber)
-        .collect(Collectors.toList());
-    List<Product> subAssies = productRepository.findByProductNumberIn(subAssyNames);
-    return products.map(product -> FindProductWithSubassyServiceResponse.of(product, subAssies));
+    Page<Product> products = productRepository.findByCategoryIdWithSubAssies(pageable, categoryId);
+    return products.map(FindProductWithSubAssyServiceResponse::of);
   }
 
   @Transactional(readOnly = true)
@@ -110,7 +98,7 @@ public class ProductService {
     // subassy->product
     // bom에 있으면 안된다
     else if (Objects.equals(existProduct.getCodeNumber(), SUB_ASSY_CODE_NUMBER) &&
-        bomRepository.existsByProductNumber(existProduct.getProductNumber())) {
+        bomRepository.existsByProductId(existProduct.getId())) {
       throw new RegisteredAsSubAssyException();
     }
   }
@@ -122,11 +110,5 @@ public class ProductService {
     productRepository.findByProductNumber(newNumber).ifPresent(p -> {
       throw new ProductNumberDuplicatedException();
     });
-  }
-
-  private void changeBomProductNumber(String oldNumber, String newNumber) {
-    if (!Objects.equals(oldNumber, newNumber)) {
-      bomRepository.updateProductNumber(oldNumber, newNumber);
-    }
   }
 }

@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(
     uniqueConstraints =
-    @UniqueConstraint(columnNames = {"location_number", "part_id", "product_id"})
+    @UniqueConstraint(columnNames = {"location_number", "part_id", "product_id", "sub_assy_id"})
 )
 public class Bom extends TimeEntity {
 
@@ -54,28 +54,28 @@ public class Bom extends TimeEntity {
   @Column(columnDefinition = "INT(11) UNSIGNED default 0")
   private long quantity = 0;
 
-  @Size(max = 100)
-  @Column(columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin")
-  private String productNumber;
 
   @Size(max = 50)
   private String memo;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  private Part part;
 
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id")
   private Product product;
 
-  public void update(Part part, Product product, UpdateBomServiceRequest request) {
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Part part;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Product subAssy;
+
+  public void update(Product product, Product subAssy, Part part, UpdateBomServiceRequest request) {
     this.locationNumber = request.getLocationNumber();
-    this.productNumber = request.getProductNumber();
     this.codeNumber = request.getCodeNumber();
     this.quantity = request.getQuantity();
     this.memo = request.getMemo();
     this.part = part;
+    this.subAssy = subAssy;
     this.product = product;
   }
 

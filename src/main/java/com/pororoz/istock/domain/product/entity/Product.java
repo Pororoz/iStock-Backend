@@ -84,7 +84,8 @@ public class Product extends TimeEntity {
   public void subtractStock(long quantity) {
     long subtract = this.stock - quantity;
     if (subtract < 0) {
-      throw new ProductStockMinusException();
+      throw new ProductStockMinusException(
+          "id: " + id + ", 품번: " + productNumber + ", 재고: " + stock + ", 요청 수량: " + quantity);
     }
     this.stock = subtract;
   }

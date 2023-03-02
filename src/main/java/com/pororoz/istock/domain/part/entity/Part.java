@@ -65,7 +65,8 @@ public class Part extends TimeEntity {
   public void subtractStock(long quantity) {
     long subtract = this.stock - quantity;
     if (subtract < 0) {
-      throw new PartStockMinusException();
+      throw new PartStockMinusException(
+          "id: " + id + ", 부품명: " + partName + ", 재고: " + stock + ", 요청 수량: " + quantity);
     }
     this.stock = subtract;
   }

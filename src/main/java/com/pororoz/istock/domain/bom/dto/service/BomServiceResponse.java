@@ -12,11 +12,11 @@ public class BomServiceResponse {
 
   private Long bomId;
   private String locationNumber;
-  private String productNumber;
   private String codeNumber;
   private Long quantity;
   private String memo;
   private Long partId;
+  private Long subAssyId;
   private Long productId;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
@@ -28,7 +28,7 @@ public class BomServiceResponse {
         .codeNumber(bom.getCodeNumber())
         .quantity(bom.getQuantity())
         .memo(bom.getMemo())
-        .productNumber(bom.getProductNumber())
+        .subAssyId(bom.getSubAssy() == null ? null : bom.getSubAssy().getId())
         .partId(bom.getPart() == null ? null : bom.getPart().getId())
         .productId(bom.getProduct().getId())
         .createdAt(bom.getCreatedAt())
@@ -40,7 +40,7 @@ public class BomServiceResponse {
     return BomResponse.builder()
         .bomId(bomId)
         .locationNumber(locationNumber)
-        .productNumber(productNumber)
+        .subAssyId(subAssyId)
         .codeNumber(codeNumber)
         .quantity(quantity)
         .memo(memo)

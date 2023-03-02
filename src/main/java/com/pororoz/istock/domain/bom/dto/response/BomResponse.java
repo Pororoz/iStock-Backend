@@ -23,12 +23,12 @@ public class BomResponse {
   @Schema(description = "비고", example = "메모")
   private String memo;
 
-  @Schema(description = "제품 번호", example = "GS-IH-01")
-  private String productNumber;
-
   @Schema(description = "part 아이디", example = "1")
   private Long partId;
 
-  @Schema(description = "product 아이디", example = "2")
+  @Schema(description = "부제품 번호", example = "2")
+  private Long subAssyId;
+
+  @Schema(description = "product 아이디", example = "3")
   private Long productId;
 }

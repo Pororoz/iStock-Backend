@@ -45,9 +45,9 @@ public class PurchaseIntegrationTest extends IntegrationTest {
   @Autowired
   CategoryRepository categoryRepository;
 
-  private Long productId = 1L;
+  final Long productId = 1L;
 
-  private long quantity = 300L;
+  final long quantity = 300L;
 
   @BeforeEach
   void setUp() {
@@ -82,16 +82,17 @@ public class PurchaseIntegrationTest extends IntegrationTest {
   @Nested
   @DisplayName("POST /v1/purchase/product - 제품 자재 일괄 구매")
   class PurchaseProduct {
-    private final String url(Long productId) {
-      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting",productId);
-    }
 
+    String url(Long productId) {
+      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting", productId);
+    }
+    
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
 
       @Test
-      @WithMockUser(roles = "ADMIN")
+      @WithMockUser
       @DisplayName("제품 자재 일괄 구매 요청에 성공한다.")
       void purchaseProduct() throws Exception {
         //given
@@ -121,8 +122,8 @@ public class PurchaseIntegrationTest extends IntegrationTest {
     class FailCase {
 
       @Test
-      @WithMockUser(roles = "ADMIN")
-      @DisplayName("존재하지 않는 제품을 요청하면 구매 요청에 실패한다.")
+      @WithMockUser
+      @DisplayName("존재하지 않는 Product를 넘겨주면 구매 요청에 실패한다.")
       void productNotFound() throws Exception {
         //given
         PurchaseProductRequest request = PurchaseProductRequest.builder()

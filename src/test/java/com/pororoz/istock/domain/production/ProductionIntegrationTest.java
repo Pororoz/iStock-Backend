@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
-import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
@@ -71,22 +70,22 @@ public class ProductionIntegrationTest extends IntegrationTest {
         .categoryName("category1").build());
     product1 = productRepository.save(Product.builder()
         .productName("name1").productNumber("number1")
-        .stock(1).codeNumber("0")
+        .stock(10).codeNumber("0")
         .category(category).build());
     subAssy1 = productRepository.save(Product.builder()
         .productName("sub assy1").productNumber("sub assy1")
-        .stock(1).codeNumber("11")
+        .stock(10).codeNumber("11")
         .category(category).build());
     subAssy2 = productRepository.save(Product.builder()
         .productName("sub assy2").productNumber("sub assy2")
-        .stock(2).codeNumber("11")
+        .stock(20).codeNumber("11")
         .category(category).build());
     part1 = partRepository.save(Part.builder()
         .spec("spec1").partName("name1")
-        .stock(1).build());
+        .stock(10).build());
     part2 = partRepository.save(Part.builder()
         .spec("spec2").partName("name2")
-        .stock(2).build());
+        .stock(20).build());
   }
 
   Bom saveBom(String locationNumber, long quantity, Part part) {
@@ -96,10 +95,10 @@ public class ProductionIntegrationTest extends IntegrationTest {
         .build());
   }
 
-  Bom saveSubAssyBom(String locationNumber, long quantity, String productNumber) {
+  Bom saveSubAssyBom(String locationNumber, long quantity, Product subAssy) {
     return bomRepository.save(Bom.builder()
         .locationNumber(locationNumber).quantity(quantity)
-        .productNumber(productNumber).codeNumber("11")
+        .subAssy(subAssy).codeNumber("11")
         .product(product1)
         .build());
   }
@@ -121,8 +120,7 @@ public class ProductionIntegrationTest extends IntegrationTest {
   @DisplayName("POST - v1/production/products/{productId}/waiting 제품 생산 대기 저장")
   class SaveWaitProduction {
 
-    Long productId = 1L;
-    long quantity = 5L;
+    long quantity = 10L;
 
     @Test
     @DisplayName("제품 생산 대기 요청을 하면 부품과 subassy의 개수를 줄이고 결과를 반환한다.")
@@ -130,16 +128,16 @@ public class ProductionIntegrationTest extends IntegrationTest {
       //given
       Bom bom1 = saveBom("location1", 1, part1);
       Bom bom2 = saveBom("location2", 2, part2);
-      Bom subAssyBom1 = saveSubAssyBom("location3", 1, subAssy1.getProductNumber());
-      Bom subAssyBom2 = saveSubAssyBom("location4", 2, subAssy2.getProductNumber());
+      Bom subAssyBom1 = saveSubAssyBom("location3", 1, subAssy1);
+      Bom subAssyBom2 = saveSubAssyBom("location4", 2, subAssy2);
 
       SaveProductionRequest request = SaveProductionRequest.builder().quantity(quantity).build();
 
       //when
-      ResultActions actions = getResultActions(getUri(productId), HttpMethod.POST, request);
+      ResultActions actions = getResultActions(getUri(product1.getId()), HttpMethod.POST, request);
 
       //then
-      SaveProductionResponse response = SaveProductionResponse.builder().productId(productId)
+      SaveProductionResponse response = SaveProductionResponse.builder().productId(product1.getId())
           .quantity(quantity).build();
       actions.andExpect(status().isOk())
           .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
@@ -152,10 +150,12 @@ public class ProductionIntegrationTest extends IntegrationTest {
       assertThat(productRepository.findById(subAssy2.getId()).orElseThrow().getStock()).isZero();
 
       ProductIo productIo = createProductIo(quantity, ProductStatus.생산대기);
-      ProductIo subAssyIo1 = createProductIo(subAssyBom1.getQuantity(), ProductStatus.사내출고대기);
-      ProductIo subAssyIo2 = createProductIo(subAssyBom2.getQuantity(), ProductStatus.사내출고대기);
-      PartIo partIo1 = createPartIo(bom1.getQuantity(), PartStatus.생산대기);
-      PartIo partIo2 = createPartIo(bom2.getQuantity(), PartStatus.생산대기);
+      ProductIo subAssyIo1 = createProductIo(subAssyBom1.getQuantity() * quantity,
+          ProductStatus.사내출고대기);
+      ProductIo subAssyIo2 = createProductIo(subAssyBom2.getQuantity() * quantity,
+          ProductStatus.사내출고대기);
+      PartIo partIo1 = createPartIo(bom1.getQuantity() * quantity, PartStatus.생산대기);
+      PartIo partIo2 = createPartIo(bom2.getQuantity() * quantity, PartStatus.생산대기);
 
       assertThat(partIoRepository.findAll()).usingRecursiveComparison()
           .ignoringFields("createdAt", "updatedAt", "id", "part", "productIo")
@@ -175,30 +175,11 @@ public class ProductionIntegrationTest extends IntegrationTest {
       SaveProductionRequest request = SaveProductionRequest.builder().quantity(quantity).build();
 
       //when
-      ResultActions actions = getResultActions(getUri(productId), HttpMethod.POST, request);
+      ResultActions actions = getResultActions(getUri(product1.getId()), HttpMethod.POST, request);
 
       //then
       actions.andExpect(status().isBadRequest())
           .andExpect(jsonPath("$.status").value(ExceptionStatus.RUNTIME_ERROR))
-          .andDo(print());
-    }
-
-    @Test
-    @DisplayName("제품의 BOM으로 등록된 sub assy를 모두 찾을 수 없으면 Bad Resquest가 발생한다.")
-    void bomAndSubAssyNotMatching() throws Exception {
-      //given
-      saveSubAssyBom("location3", 1, subAssy1.getProductNumber());
-      saveSubAssyBom("location4", 2, "not saved number");
-
-      SaveProductionRequest request = SaveProductionRequest.builder().quantity(quantity).build();
-
-      //when
-      ResultActions actions = getResultActions(getUri(productId), HttpMethod.POST, request);
-
-      //then
-      actions.andExpect(status().isBadRequest())
-          .andExpect(jsonPath("$.status").value(ExceptionStatus.BOM_AND_SUB_ASSY_NOT_MATCHED))
-          .andExpect(jsonPath("$.message").value(ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCHED))
           .andDo(print());
     }
   }
