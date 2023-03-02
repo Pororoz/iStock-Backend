@@ -59,7 +59,6 @@ public class PurchaseServiceTest {
   Long partIoId = 1L;
   String locationNumber = "L5.L4";
   String codeNumber = "";
-  String productNumber = "GNS-TG01";
   long quantity = 3L;
   String memo = "";
   ProductStatus productStatus = ProductStatus.구매대기;

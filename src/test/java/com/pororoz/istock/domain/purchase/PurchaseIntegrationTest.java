@@ -84,8 +84,8 @@ public class PurchaseIntegrationTest extends IntegrationTest {
   @DisplayName("POST /v1/purchase/product - 제품 자재 일괄 구매")
   class PurchaseProduct {
 
-    private final String url(Long productId) {
-      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting",productId);
+    String url(Long productId) {
+      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting", productId);
     }
 
     @Nested
