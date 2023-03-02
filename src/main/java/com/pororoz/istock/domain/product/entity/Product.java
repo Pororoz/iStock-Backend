@@ -4,6 +4,7 @@ import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
+import com.pororoz.istock.domain.production.exception.ProductStockMinusException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -78,5 +79,13 @@ public class Product extends TimeEntity {
     for (Bom b : boms) {
       b.setProduct(this);
     }
+  }
+
+  public void subtractStock(long quantity) {
+    long subtract = this.stock - quantity;
+    if (subtract < 0) {
+      throw new ProductStockMinusException();
+    }
+    this.stock = subtract;
   }
 }

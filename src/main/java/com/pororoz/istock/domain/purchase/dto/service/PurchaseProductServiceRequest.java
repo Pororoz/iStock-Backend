@@ -14,19 +14,20 @@ import lombok.Getter;
 public class PurchaseProductServiceRequest {
 
   private Long productId;
-  private long amount;
+  private long quantity;
 
-  public ProductIo toProductIo(Product product) {
+  public ProductIo toProductIo(Product product, ProductStatus productStatus, ProductIo productIo) {
     return ProductIo.builder()
-        .quantity(amount)
-        .status(ProductStatus.구매대기)
+        .quantity(quantity)
+        .status(productStatus)
         .product(product)
+        .superIo(productIo)
         .build();
   }
 
   public PartIo toPartIo(Part part, ProductIo productIo) {
     return PartIo.builder()
-        .quantity(amount)
+        .quantity(quantity)
         .status(PartStatus.구매대기)
         .part(part)
         .productIo(productIo)

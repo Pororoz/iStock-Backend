@@ -31,7 +31,13 @@ public class ExceptionMessage {
   public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "Sub assy 목록에 BOM의 productNumber와 일치하는 product가 없습니다.";
   public static final String SELF_DEMOTE_ROLE = "본인의 권한을 강등시킬 수 없습니다.";
   public static final String SELF_DELETE_ACCOUNT = "본인의 계정을 삭제 할 수 없습니다.";
-
+  public static final String PRODUCT_STOCK_MINUS = "제품의 재고가 부족합니다.";
+  public static final String PART_STOCK_MINUS = "부품의 재고가 부족합니다.";
+  public static final String PRODUCT_OR_BOM_NOT_FOUND = "제품을 찾을 수 없거나 연관된 BOM이 없습니다.";
+  public static final String BOM_AND_SUB_ASSY_NOT_MATCHED =
+      "Sub assy로 등록된 BOM과 BOM의 product number로 찾은 sub assy의 개수가 일치하지 않습니다.\n"
+          + "BOM의 product number로 찾을 수 없는 제품(sub assy)이 있습니다.";
+  public static final String PART_NULL = "부품이 null이어서는 안됩니다.";
   private ExceptionMessage() {
   }
 }

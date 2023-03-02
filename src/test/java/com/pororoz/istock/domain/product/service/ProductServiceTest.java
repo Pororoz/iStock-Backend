@@ -3,23 +3,22 @@ package com.pororoz.istock.domain.product.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.pororoz.istock.common.utils.Pagination;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.part.entity.Part;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceRequest;
-import com.pororoz.istock.domain.product.dto.service.FindProductServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductByPartServiceRequest;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.SubAssyServiceResponse;
@@ -447,8 +446,8 @@ class ProductServiceTest {
   }
 
   @Nested
-  @DisplayName("product 조회")
-  class FindProducts {
+  @DisplayName("product와 subAssy 조회")
+  class FindProductsWithSubassys {
 
     Category subCategory = Category.builder().id(10L).build();
     Part part = Part.builder().build();
@@ -476,11 +475,6 @@ class ProductServiceTest {
         int size = 3;
         long total = 10;
 
-        FindProductServiceRequest request = FindProductServiceRequest.builder()
-            .categoryId(categoryId)
-            .page(page).size(size)
-            .build();
-
         List<Product> products = new ArrayList<>();
         for (int i = 0; i < size; i++) {
           Product product = Product.builder().id((long) i).category(category).build();
@@ -495,9 +489,10 @@ class ProductServiceTest {
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
         when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
-        when(productRepository.findByProductNumbers(anySet())).thenReturn(
+        when(productRepository.findByProductNumberIn(anyList())).thenReturn(
             List.of(subAssy1, subAssy2));
-        Page<FindProductServiceResponse> result = productService.findProducts(request);
+        Page<FindProductWithSubassyServiceResponse> result =
+            productService.findProductsWithSubAssies(categoryId, PageRequest.of(page, size));
 
         //then
         SubAssyServiceResponse subAssyResponse1 = SubAssyServiceResponse.builder()
@@ -512,7 +507,7 @@ class ProductServiceTest {
         assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
         assertThat(result.getTotalElements()).isEqualTo(10);
         long i = 0;
-        for (FindProductServiceResponse findResponse : result.getContent()) {
+        for (FindProductWithSubassyServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
           assertThat(findResponse.getSubAssyServiceResponses()).hasSize(2);
@@ -520,79 +515,6 @@ class ProductServiceTest {
               .usingRecursiveComparison()
               .ignoringCollectionOrder()
               .isEqualTo(List.of(subAssyResponse1, subAssyResponse2));
-        }
-      }
-
-      @Test
-      @DisplayName("page와 size가 null이면 product를 전체 조회한다.")
-      void findProductAllWithoutPageable() {
-        //given
-        long total = 10;
-
-        FindProductServiceRequest request = FindProductServiceRequest.builder()
-            .categoryId(categoryId)
-            .page(null).size(null)
-            .build();
-
-        List<Product> products = new ArrayList<>();
-        for (int i = 0; i < total; i++) {
-          Product product = Product.builder().id((long) i).category(category).build();
-          product.setBoms(List.of(otherBom));
-          products.add(product);
-        }
-
-        //when
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByCategoryIdWithBoms(categoryId))
-            .thenReturn(products);
-        when(productRepository.findByProductNumbers(anySet())).thenReturn(List.of());
-        Page<FindProductServiceResponse> result = productService.findProducts(request);
-
-        //then
-        assertThat(result.getTotalPages()).isEqualTo(1);
-        assertThat(result.getTotalElements()).isEqualTo(total);
-        long i = 0;
-        for (FindProductServiceResponse findResponse : result.getContent()) {
-          ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
-          assertThat(productResponse.getProductId()).isEqualTo(i++);
-          // sub assy는 없다.
-          assertThat(findResponse.getSubAssyServiceResponses()).hasSize(0);
-        }
-      }
-
-      @Test
-      @DisplayName("page만 null이면 default 값으로 product를 페이지네이션하여 조회한다.")
-      void findProductWithPageNull() {
-        //given
-        int size = 3;
-        long total = 10;
-
-        FindProductServiceRequest request = FindProductServiceRequest.builder()
-            .categoryId(categoryId)
-            .page(null).size(size)
-            .build();
-
-        List<Product> products = new ArrayList<>();
-        for (int i = 0; i < total; i++) {
-          Product product = Product.builder().id((long) i).category(category).build();
-          products.add(product);
-        }
-        PageImpl<Product> productPage = new PageImpl<>(products,
-            PageRequest.of(Pagination.DEFAULT_PAGE, size), total);
-
-        //when
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
-            .thenReturn(productPage);
-        Page<FindProductServiceResponse> result = productService.findProducts(request);
-
-        //then
-        assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
-        assertThat(result.getTotalElements()).isEqualTo(total);
-        long i = 0;
-        for (FindProductServiceResponse findResponse : result.getContent()) {
-          ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
-          assertThat(productResponse.getProductId()).isEqualTo(i++);
         }
       }
     }
@@ -605,14 +527,14 @@ class ProductServiceTest {
       @DisplayName("categoryId에 해당하는 category가 없으면 예외가 발생한다.")
       void categoryNotFound() {
         //given
-        FindProductServiceRequest request = FindProductServiceRequest.builder()
-            .categoryId(1L).size(10).page(1)
-            .build();
+        PageRequest pageRequest = PageRequest.of(1, 10);
+
         //when
-        when(categoryRepository.findById(1L)).thenThrow(CategoryNotFoundException.class);
+        when(categoryRepository.findById(categoryId)).thenThrow(CategoryNotFoundException.class);
 
         //then
-        assertThrows(CategoryNotFoundException.class, () -> productService.findProducts(request));
+        assertThrows(CategoryNotFoundException.class,
+            () -> productService.findProductsWithSubAssies(categoryId, pageRequest));
       }
 
       @Test
@@ -622,11 +544,6 @@ class ProductServiceTest {
         int page = 0;
         int size = 3;
         long total = 10;
-
-        FindProductServiceRequest request = FindProductServiceRequest.builder()
-            .categoryId(categoryId)
-            .page(page).size(size)
-            .build();
 
         List<Product> products = new ArrayList<>();
         for (int i = 0; i < size; i++) {
@@ -640,13 +557,57 @@ class ProductServiceTest {
         when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
         when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
-        when(productRepository.findByProductNumbers(anySet())).thenReturn(
+        when(productRepository.findByProductNumberIn(anyList())).thenReturn(
             List.of(subAssy1));
 
         //then
         assertThrows(SubAssyNotFoundByProductNameException.class,
-            () -> productService.findProducts(request));
+            () -> productService.findProductsWithSubAssies(categoryId, PageRequest.of(page, size)));
       }
+    }
+  }
+
+  @Nested
+  @DisplayName("part 정보로 product 조회")
+  class FindProductByPart {
+
+    Long partId = 1L;
+    String partName = "partName";
+
+    @Test
+    @DisplayName("part 정보로 product를 페이지네이션하여 조회한다.")
+    void findProductByPart() {
+      //given
+      int page = 0;
+      int size = 3;
+      FindProductByPartServiceRequest request = FindProductByPartServiceRequest.builder()
+          .partId(partId).partName(partName).build();
+      Pageable pageable = PageRequest.of(page, size);
+      Product product = Product.builder()
+          .id(1L).productName(productName)
+          .productNumber(productNumber).codeNumber(codeNumber)
+          .companyName(companyName).stock(stock)
+          .category(category).boms(List.of())
+          .build();
+      Page<Product> products = new PageImpl<>(List.of(product), pageable, 1);
+      ProductServiceResponse response = ProductServiceResponse.builder()
+          .productId(1L).productName(productName)
+          .productNumber(productNumber).codeNumber(codeNumber)
+          .companyName(companyName).stock(stock)
+          .categoryId(categoryId)
+          .build();
+
+      //when
+      when(productRepository.findByPartIdAndPartNameIgnoreNull(eq(partId),
+          eq(partName), any(Pageable.class)))
+          .thenReturn(products);
+
+      //then
+      Page<ProductServiceResponse> result = productService.findProductsByPart(request,
+          pageable);
+      assertThat(result.getTotalPages()).isEqualTo(1);
+      assertThat(result.getTotalElements()).isEqualTo(1);
+      assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(List.of(response));
     }
   }
 }

@@ -2,16 +2,12 @@ package com.pororoz.istock.domain.user.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.pororoz.istock.common.utils.Pagination;
 import com.pororoz.istock.domain.auth.dto.CustomUserDetailsDTO;
 import com.pororoz.istock.domain.user.dto.service.DeleteUserServiceRequest;
-import com.pororoz.istock.domain.user.dto.service.FindUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.SaveUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UpdateUserServiceRequest;
 import com.pororoz.istock.domain.user.dto.service.UserServiceResponse;
@@ -23,7 +19,6 @@ import com.pororoz.istock.domain.user.exception.SelfDemoteRoleException;
 import com.pororoz.istock.domain.user.exception.UserNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
@@ -38,6 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -225,7 +221,9 @@ class UserServiceTest {
       admin = User.builder().id(2L).username("admin").password("admin").role(roleAdmin).build();
       CustomUserDetailsDTO user = new CustomUserDetailsDTO(admin);
       SecurityContext context = SecurityContextHolder.getContext();
-      context.setAuthentication(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities()));
+      context.setAuthentication(
+          new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(),
+              user.getAuthorities()));
     }
 
     @Nested
@@ -395,14 +393,13 @@ class UserServiceTest {
         long totalUsers = 11L;
         int size = 2;
         int page = 3;
-        FindUserServiceRequest request = FindUserServiceRequest.builder().page(page).size(size)
-            .build();
+        Pageable pageable = PageRequest.of(page, size);
         PageImpl<User> pages = new PageImpl<>(users, PageRequest.of(page, size), totalUsers);
         List<UserServiceResponse> userServiceResponses = getUserServiceResponses(users);
 
         //when
         when(userRepository.findAll(any(PageRequest.class))).thenReturn(pages);
-        Page<UserServiceResponse> result = userService.findUsers(request);
+        Page<UserServiceResponse> result = userService.findUsers(pageable);
 
         //then
         assertThat(result.getTotalElements()).isEqualTo(totalUsers);
@@ -418,12 +415,12 @@ class UserServiceTest {
       @DisplayName("page와 size가 null이면 전체를 조회한다.")
       void findAll() {
         //given
-        FindUserServiceRequest request = FindUserServiceRequest.builder().build();
+        Pageable pageable = Pageable.unpaged();
         List<UserServiceResponse> userServiceResponses = getUserServiceResponses(users);
 
         //when
-        when(userRepository.findAll()).thenReturn(users);
-        Page<UserServiceResponse> result = userService.findUsers(request);
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(users));
+        Page<UserServiceResponse> result = userService.findUsers(pageable);
 
         //then
         assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(userServiceResponses);
@@ -436,12 +433,12 @@ class UserServiceTest {
       void findEmptyAll() {
         //given
         List<User> empty = List.of();
-        FindUserServiceRequest request = FindUserServiceRequest.builder().build();
+        Pageable pageable = Pageable.unpaged();
         List<UserServiceResponse> userServiceResponses = List.of();
 
         //when
-        when(userRepository.findAll()).thenReturn(empty);
-        Page<UserServiceResponse> result = userService.findUsers(request);
+        when(userRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(empty));
+        Page<UserServiceResponse> result = userService.findUsers(pageable);
 
         //then
         assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(userServiceResponses);
@@ -449,74 +446,6 @@ class UserServiceTest {
         assertEquals(result.getNumberOfElements(), 0);
         assertEquals(result.getTotalPages(), 1);
       }
-
-      @Test
-      @DisplayName("page만 null이면 default 값(첫 페이지)으로 조회한다.")
-      void pageNull() {
-        //given
-        long totalUsers = 11L;
-        int size = 2;
-        int defaultPage = Pagination.DEFAULT_PAGE;
-        FindUserServiceRequest request = FindUserServiceRequest.builder().size(size)
-            .build();
-        PageImpl<User> pages = new PageImpl<>(users, PageRequest.of(defaultPage, size), totalUsers);
-        List<UserServiceResponse> userServiceResponses = getUserServiceResponses(users);
-
-        //when
-        when(userRepository.findAll(any(PageRequest.class))).thenReturn(pages);
-        Page<UserServiceResponse> result = userService.findUsers(request);
-
-        //then
-        assertTrue(result.isFirst());
-        assertFalse(result.isLast());
-        assertThat(result.getTotalElements()).isEqualTo(totalUsers);
-        assertThat(result.getTotalPages()).isEqualTo((int) (totalUsers + size) / size);
-        assertThat(result.getContent().size()).isEqualTo(2);
-        assertThat(result.getContent().get(0)).usingRecursiveComparison()
-            .isEqualTo(userServiceResponses.get(0));
-        assertThat(result.getContent().get(1)).usingRecursiveComparison()
-            .isEqualTo(userServiceResponses.get(1));
-      }
-
-      @Test
-      @DisplayName("size만 null이면 default 값으로 조회한다.")
-      void sizeNull() {
-        //given
-        long totalUsers = 45L;
-        int page = 1;
-        int defaultSize = Pagination.DEFAULT_SIZE;
-        List<User> findUsers = new ArrayList<>();
-        for (int i = 0; i < defaultSize; i++) {
-          findUsers.add(
-              User.builder().id((long) i).username("ROLE_USER" + i).password("1q2w3e4r")
-                  .role(userRole)
-                  .build());
-        }
-        FindUserServiceRequest request = FindUserServiceRequest.builder().page(page)
-            .build();
-        PageImpl<User> pages = new PageImpl<>(findUsers, PageRequest.of(page, defaultSize),
-            totalUsers);
-        List<UserServiceResponse> userServiceResponses = getUserServiceResponses(findUsers);
-
-        //when
-        when(userRepository.findAll(any(PageRequest.class))).thenReturn(pages);
-        Page<UserServiceResponse> result = userService.findUsers(request);
-
-        //then
-        assertFalse(result.isFirst());
-        assertFalse(result.isLast());
-        assertThat(result.getTotalElements()).isEqualTo(totalUsers);
-        assertThat(result.getTotalPages()).isEqualTo(
-            (int) (totalUsers + defaultSize) / defaultSize);
-        assertThat(result.getContent().size()).isEqualTo(defaultSize);
-        assertThat(result.getContent()).usingRecursiveComparison().isEqualTo(userServiceResponses);
-      }
-    }
-
-    @Nested
-    @DisplayName("실패 케이스")
-    class FailCase {
-
     }
 
     private List<UserServiceResponse> getUserServiceResponses(List<User> users) {

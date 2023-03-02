@@ -36,39 +36,40 @@ public class PurchaseControllerTest extends ControllerTest {
   PurchaseService purchaseService;
 
   private Long productId = 1L;
+  private long quantity = 300L;
   private Long partId = 1L;
-  private long amount = 300L;
 
   @Nested
   @DisplayName("제품 자재 일괄 구매")
   class PurchaseProduct {
 
-    String url = "http://localhost:8080/v1/purchase/product";
+    private final String url(Long productId) {
+      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting",productId);
+    }
 
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
 
       @Test
-      @DisplayName("일괄 구매를 요청하면 productI/O와 partI/O에 구매 대기 내역을 생성한다.")
+      @DisplayName("일괄 구매를 요청하면 구매 대기 내역을 생성한다.")
       void purchaseProduct() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .productId(productId)
-            .amount(amount)
+            .quantity(quantity)
             .build();
         PurchaseProductServiceResponse serviceDto = PurchaseProductServiceResponse.builder()
             .productId(productId)
-            .amount(amount)
+            .quantity(quantity)
             .build();
         PurchaseProductResponse response = PurchaseProductResponse.builder()
             .productId(productId)
-            .amount(amount)
+            .quantity(quantity)
             .build();
 
         // when
         when(purchaseService.purchaseProduct(any(PurchaseProductServiceRequest.class))).thenReturn(serviceDto);
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isOk())
@@ -87,12 +88,11 @@ public class PurchaseControllerTest extends ControllerTest {
       void productIdNullException() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .productId(null)
-            .amount(amount)
+            .quantity(quantity)
             .build();
 
         // when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -100,16 +100,15 @@ public class PurchaseControllerTest extends ControllerTest {
       }
 
       @Test
-      @DisplayName("amount가 1보다 작은면 오류가 발생한다.")
-      void amountNullException() throws Exception {
+      @DisplayName("quantity가 1보다 작은면 오류가 발생한다.")
+      void quantityNullException() throws Exception {
         // given
         PurchaseProductRequest request = PurchaseProductRequest.builder()
-            .productId(productId)
-            .amount(0L)
+            .quantity(0L)
             .build();
 
         // when
-        ResultActions actions = getResultActions(url, HttpMethod.POST, request);
+        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isBadRequest())
@@ -134,15 +133,15 @@ public class PurchaseControllerTest extends ControllerTest {
       void purchasePart() throws Exception {
         // given
         PurchasePartRequest request = PurchasePartRequest.builder()
-            .amount(amount)
+            .quantity(quantity)
             .build();
         PurchasePartServiceResponse serviceDto = PurchasePartServiceResponse.builder()
             .partId(partId)
-            .amount(amount)
+            .quantity(quantity)
             .build();
         PurchasePartResponse response = PurchasePartResponse.builder()
             .partId(partId)
-            .amount(amount)
+            .quantity(quantity)
             .build();
 
         // when
@@ -166,7 +165,7 @@ public class PurchaseControllerTest extends ControllerTest {
       void partIdNullException() throws Exception {
         // given
         PurchasePartRequest request = PurchasePartRequest.builder()
-            .amount(amount)
+            .quantity(quantity)
             .build();
 
         // when
@@ -182,7 +181,7 @@ public class PurchaseControllerTest extends ControllerTest {
       void amountNullException() throws Exception {
         // given
         PurchasePartRequest request = PurchasePartRequest.builder()
-            .amount(0L)
+            .quantity(0L)
             .build();
 
         // when

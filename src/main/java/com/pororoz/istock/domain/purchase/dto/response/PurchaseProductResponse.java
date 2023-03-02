@@ -12,6 +12,6 @@ public class PurchaseProductResponse {
   private Long productId;
 
   @Schema(description = "구매량", example = "100")
-  private long amount;
+  private long quantity;
 
 }

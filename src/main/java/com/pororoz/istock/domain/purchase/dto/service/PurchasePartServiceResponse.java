@@ -9,19 +9,19 @@ import lombok.Getter;
 public class PurchasePartServiceResponse {
 
   private Long partId;
-  private long amount;
+  private long quantity;
 
   public static PurchasePartServiceResponse of(PurchasePartServiceRequest request) {
     return PurchasePartServiceResponse.builder()
         .partId(request.getPartId())
-        .amount(request.getAmount())
+        .quantity(request.getQuantity())
         .build();
   }
 
   public PurchasePartResponse toResponse() {
     return PurchasePartResponse.builder()
         .partId(partId)
-        .amount(amount)
+        .quantity(quantity)
         .build();
   }
 }

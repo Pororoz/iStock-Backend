@@ -3,6 +3,7 @@ package com.pororoz.istock.domain.bom.dto.request;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ public class UpdateBomRequest {
 
   @Schema(description = "BOM 아이디", example = "1")
   @NotNull
-  @PositiveOrZero
+  @Positive
   private Long bomId;
 
   @Schema(description = "location 번호", example = "L5.L4")

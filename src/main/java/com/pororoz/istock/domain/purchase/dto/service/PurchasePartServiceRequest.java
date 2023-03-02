@@ -10,11 +10,11 @@ import lombok.Getter;
 @Builder
 public class PurchasePartServiceRequest {
   private Long partId;
-  private long amount;
+  private long quantity;
 
   public PartIo toPartIo(Part part) {
     return PartIo.builder()
-        .quantity(amount)
+        .quantity(quantity)
         .status(PartStatus.구매대기)
         .part(part)
         .build();

@@ -19,7 +19,6 @@ import com.pororoz.istock.domain.user.entity.User;
 import com.pororoz.istock.domain.user.exception.RoleNotFoundException;
 import com.pororoz.istock.domain.user.repository.RoleRepository;
 import com.pororoz.istock.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -43,11 +42,6 @@ public class UserIntegrationTest extends IntegrationTest {
 
   @Autowired
   RoleRepository roleRepository;
-
-  @AfterEach
-  public void afterEach() {
-    databaseCleanup.execute();
-  }
 
   @Nested
   @DisplayName("PUT /v1/users 계정 수정 API")
@@ -329,16 +323,19 @@ public class UserIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.message").value(ExceptionMessage.TYPE_MISMATCH))
             .andDo(print());
       }
+
       @Test
       @DisplayName("자신의 계정을 삭제하려고 하면 Self Delete Error가 발생하고 400 코드를 반환한다.")
       void selfDelete() throws Exception {
         // given
-        Role role = roleRepository.findByRoleName("ROLE_ADMIN").orElseThrow(RoleNotFoundException::new);
+        Role role = roleRepository.findByRoleName("ROLE_ADMIN")
+            .orElseThrow(RoleNotFoundException::new);
         User user = User.builder().username(username).password(password).role(role).build();
 
         CustomUserDetailsDTO userDetail = new CustomUserDetailsDTO(user);
         SecurityContext context = SecurityContextHolder.getContext();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(userDetail.getUsername(), userDetail.getPassword(), userDetail.getAuthorities()));
+        context.setAuthentication(new UsernamePasswordAuthenticationToken(userDetail.getUsername(),
+            userDetail.getPassword(), userDetail.getAuthorities()));
         userRepository.save(user);
 
         // when

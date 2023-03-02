@@ -11,6 +11,7 @@ import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
+import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
@@ -52,11 +53,14 @@ public class PurchaseController {
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
           @Content(schema = @Schema(implementation = ProductNotFoundException.class))})
   })
-  @PostMapping("/product")
+  @PostMapping("/products/{productId}/waiting")
   public ResponseEntity<ResultDTO<PurchaseProductResponse>> purchaseProduct(
+      @PathVariable("productId") @NotNull(message = ExceptionMessage.INVALID_PATH)
+      @Positive(message = ExceptionMessage.INVALID_PATH) Long productId,
       @Valid @RequestBody PurchaseProductRequest purchaseProductRequest) {
     PurchaseProductServiceResponse serviceDto = purchaseService.purchaseProduct(
-        purchaseProductRequest.toService());
+        PurchaseProductServiceRequest.builder().productId(productId)
+            .quantity(purchaseProductRequest.getQuantity()).build());
     PurchaseProductResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.PURCHASE_PRODUCT, response));
@@ -77,7 +81,7 @@ public class PurchaseController {
       @Positive(message = ExceptionMessage.INVALID_PATH) Long partId,
       @Valid @RequestBody PurchasePartRequest purchasePartRequest) {
     PurchasePartServiceResponse serviceDto = purchaseService.purchasePart(
-        PurchasePartServiceRequest.builder().partId(partId).amount(purchasePartRequest.getAmount()).build());
+        PurchasePartServiceRequest.builder().partId(partId).quantity(purchasePartRequest.getQuantity()).build());
     PurchasePartResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.PURCHASE_PART, response));
