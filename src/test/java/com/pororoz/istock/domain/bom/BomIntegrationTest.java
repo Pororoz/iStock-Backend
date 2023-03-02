@@ -678,6 +678,7 @@ public class BomIntegrationTest extends IntegrationTest {
         savePart("name2", "spec2");
         product = saveProduct("number1", "name1", category);
         saveProduct("number2", "name2", category);
+        part = savePart("name", "spec");
         Bom bom = Bom.builder()
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
@@ -1087,10 +1088,10 @@ public class BomIntegrationTest extends IntegrationTest {
         Part part = savePart("name", "spec");
         Bom bom = bomRepository.save(Bom.builder()
             .locationNumber(locationNumber)
-            .codeNumber("11")
+            .codeNumber(codeNumber)
             .quantity(quantity)
-            .subAssy(subAssy)
-            .product(superSubAssy).part(part)
+            .part(part)
+            .product(superSubAssy)
             .build());
         UpdateBomRequest request = UpdateBomRequest.builder()
             .bomId(bom.getId())

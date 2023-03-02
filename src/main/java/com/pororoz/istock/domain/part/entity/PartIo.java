@@ -14,16 +14,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class PartIo extends TimeEntity {
 
   @Id
@@ -46,6 +43,18 @@ public class PartIo extends TimeEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   private ProductIo productIo;
+
+  @Builder
+  public PartIo(Long id, long quantity, PartStatus status, Part part, ProductIo productIo) {
+    this.id = id;
+    this.quantity = quantity;
+    this.status = status;
+    this.part = part;
+    this.productIo = productIo;
+    if (productIo != null) {
+      productIo.getPartIoList().add(this);
+    }
+  }
 
   public static PartIo createPartIo(Bom bom, ProductIo productIo, Long quantity,
       PartStatus status) {

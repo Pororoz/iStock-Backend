@@ -74,13 +74,6 @@ public class Product extends TimeEntity {
     this.category = category;
   }
 
-  public void setBoms(List<Bom> boms) {
-    this.boms = boms;
-    for (Bom b : boms) {
-      b.setProduct(this);
-    }
-  }
-
   public void subtractStock(long quantity) {
     long subtract = this.stock - quantity;
     if (subtract < 0) {

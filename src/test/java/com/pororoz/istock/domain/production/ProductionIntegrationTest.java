@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
-import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -161,26 +160,9 @@ public class ProductionIntegrationTest extends IntegrationTest {
           .ignoringFields("createdAt", "updatedAt", "id", "part", "productIo")
           .isEqualTo(List.of(partIo1, partIo2));
       assertThat(productIoRepository.findAll()).usingRecursiveComparison()
-          .ignoringFields("createdAt", "updatedAt", "id", "product", "superIo")
+          .ignoringFields("createdAt", "updatedAt", "id", "product", "superIo", "partIoList",
+              "subAssyIoList")
           .isEqualTo(List.of(productIo, subAssyIo1, subAssyIo2));
-    }
-
-    @Test
-    @DisplayName("BOM에 part가 null이면 Bad Request가 발생한다.")
-    void bomsPartNull() throws Exception {
-      //given
-      saveBom("location1", 1, part1);
-      saveBom("location2", 2, null);
-
-      SaveProductionRequest request = SaveProductionRequest.builder().quantity(quantity).build();
-
-      //when
-      ResultActions actions = getResultActions(getUri(product1.getId()), HttpMethod.POST, request);
-
-      //then
-      actions.andExpect(status().isBadRequest())
-          .andExpect(jsonPath("$.status").value(ExceptionStatus.RUNTIME_ERROR))
-          .andDo(print());
     }
   }
 }

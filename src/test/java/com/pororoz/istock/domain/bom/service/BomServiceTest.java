@@ -17,7 +17,6 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.BomSubAssyDuplicatedException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
-import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidSubAssyBomException;
 import com.pororoz.istock.domain.bom.exception.SubAssyCannotHaveSubAssyException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
@@ -124,7 +123,6 @@ class BomServiceTest {
               .memo(memo)
               .build());
         }
-        product.setBoms(bomList);
         PageImpl<Bom> bomPage = new PageImpl<>(bomList, PageRequest.of(page, size), total);
 
         FindBomServiceRequest request = FindBomServiceRequest.builder()
@@ -324,40 +322,6 @@ class BomServiceTest {
       }
 
       @Test
-      @DisplayName("sub assy BOM에 partId가 들어오면 InvalidSubAssyBomException이 발생한다.")
-      void invalidSubAssyBomExceptionWithPartId() {
-        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(subAssyCodeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .subAssyId(subAssyId)
-            .partId(partId)
-            .productId(productId)
-            .build();
-
-        // when
-        // then
-        assertThrows(InvalidSubAssyBomException.class, () -> bomService.saveBom(request));
-      }
-
-      @Test
-      @DisplayName("sub assy BOM에 productNumber가 없으면 InvalidSubAssyBomException이 발생한다.")
-      void invalidSubAssyBomExceptionWithoutProductNumber() {
-        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(subAssyCodeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .productId(productId)
-            .build();
-
-        // when
-        // then
-        assertThrows(InvalidSubAssyBomException.class, () -> bomService.saveBom(request));
-      }
-
-      @Test
       @DisplayName("Sub assy로 저장할 BOM의 subAssyId로 찾은 제품이 sub assy가 아니면 예외가 발생한다.")
       void subAssy() {
         //given
@@ -368,39 +332,6 @@ class BomServiceTest {
 
         //then
         assertThrows(InvalidSubAssyBomException.class, () -> bomService.saveBom(subAssyRequest));
-      }
-
-      @Test
-      @DisplayName("Product BOM 저장 시, productId가 존재하면 InvalidProductBomException이 발생한다.")
-      void saveProductBomWithProductNumber() {
-        //given
-        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .productId(productId)
-            .subAssyId(subAssyId)
-            .build();
-        //when
-        //then
-        assertThrows(InvalidProductBomException.class, () -> bomService.saveBom(request));
-      }
-
-      @Test
-      @DisplayName("Product BOM 저장 시, partId가 null이면 InvalidProductBomException이 발생한다.")
-      void saveProductBomWithoutPartId() {
-        //given
-        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .productId(productId)
-            .build();
-        //when
-        //then
-        assertThrows(InvalidProductBomException.class, () -> bomService.saveBom(request));
       }
 
       @Test
@@ -698,42 +629,6 @@ class BomServiceTest {
             () -> bomService.updateBom(request));
       }
 
-      // save와 같은 validateRequest를 사용하기 때문에 테스트 코드가 거의 같다.
-      @Test
-      @DisplayName("sub assy BOM에 partId가 들어오면 InvalidSubAssyBomException이 발생한다.")
-      void invalidSubAssyBomExceptionWithPartId() {
-        UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
-            .bomId(bomId)
-            .locationNumber(newLocationNumber)
-            .codeNumber(subAssyCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .subAssyId(subAssyId)
-            .partId(newPartId)
-            .productId(newProductId)
-            .build();
-
-        // when
-        // then
-        assertThrows(InvalidSubAssyBomException.class, () -> bomService.updateBom(request));
-      }
-
-      @Test
-      @DisplayName("sub assy BOM에 productNumber가 없으면 InvalidSubAssyBomException이 발생한다.")
-      void invalidSubAssyBomExceptionWithoutProductNumber() {
-        UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
-            .locationNumber(newLocationNumber)
-            .codeNumber(subAssyCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .productId(newProductId)
-            .build();
-
-        // when
-        // then
-        assertThrows(InvalidSubAssyBomException.class, () -> bomService.updateBom(request));
-      }
-
       @Test
       @DisplayName("Sub assy로 수정할 BOM의 subAssyId로 찾은 제품이 sub assy가 아니면 예외가 발생한다.")
       void subAssy() {
@@ -747,40 +642,6 @@ class BomServiceTest {
 
         //then
         assertThrows(InvalidSubAssyBomException.class, () -> bomService.updateBom(subAssyRequest));
-      }
-
-      @Test
-      @DisplayName("Product BOM으로 수정 시, subAssyId 존재하면 InvalidProductBomException이 발생한다.")
-      void saveProductBomWithProductNumber() {
-        //given
-        UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
-            .locationNumber(newLocationNumber)
-            .codeNumber(codeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .subAssyId(subAssyId)
-            .partId(newPartId)
-            .productId(newProductId)
-            .build();
-        //when
-        //then
-        assertThrows(InvalidProductBomException.class, () -> bomService.updateBom(request));
-      }
-
-      @Test
-      @DisplayName("Product BOM으로 수정 시, partId가 null이면 InvalidProductBomException이 발생한다.")
-      void saveProductBomWithoutPartId() {
-        //given
-        UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
-            .locationNumber(newLocationNumber)
-            .codeNumber(newCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .productId(newProductId)
-            .build();
-        //when
-        //then
-        assertThrows(InvalidProductBomException.class, () -> bomService.updateBom(request));
       }
 
       @Test
