@@ -5,10 +5,15 @@ import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
+import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import com.pororoz.istock.domain.purchase.exception.response.PurchaseProductResponseSwagger;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
@@ -59,5 +64,25 @@ public class PurchaseController {
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.PURCHASE_PRODUCT, response));
   }
-}
 
+  @Operation(summary = "purchase part", description = "제품 자재 개별 구매 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.PURCHASE_PART, content = {
+          @Content(schema = @Schema(implementation = PurchaseProductResponseSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PART_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = PartNotFoundException.class))})
+  })
+  @PostMapping("/parts/{partId}/waiting")
+  public ResponseEntity<ResultDTO<PurchasePartResponse>> purchasePart(
+      @PathVariable("partId") @NotNull(message = ExceptionMessage.INVALID_PATH)
+      @Positive(message = ExceptionMessage.INVALID_PATH) Long partId,
+      @Valid @RequestBody PurchasePartRequest purchasePartRequest) {
+    PurchasePartServiceResponse serviceDto = purchaseService.purchasePart(
+        PurchasePartServiceRequest.builder().partId(partId).quantity(purchasePartRequest.getQuantity()).build());
+    PurchasePartResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.PURCHASE_PART, response));
+  }
+}

@@ -12,13 +12,17 @@ import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
+import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
+import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.entity.ProductStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import java.util.List;
@@ -39,6 +43,8 @@ public class PurchaseServiceTest {
   PurchaseService purchaseService;
   @Mock
   ProductRepository productRepository;
+  @Mock
+  PartRepository partRepository;
   @Mock
   BomRepository bomRepository;
   @Mock
@@ -248,6 +254,64 @@ public class PurchaseServiceTest {
         //then
         assertThrows(IllegalArgumentException.class,
             () -> purchaseService.purchaseProduct(request));
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("제품 자재 개별 구매")
+  class PurchasePart {
+
+    PurchasePartServiceRequest request = PurchasePartServiceRequest.builder()
+        .partId(partId)
+        .quantity(quantity)
+        .build();
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("개별 구매를 요청하면 partI/O에 구매 대기 내역을 생성한다.")
+      void purchasePart() {
+        // given
+        Part part = Part.builder().id(partId).build();
+        PartIo partIo = PartIo.builder()
+            .id(partIoId)
+            .quantity(quantity)
+            .status(partStatus)
+            .part(part)
+            .build();
+
+        PurchasePartServiceResponse response = PurchasePartServiceResponse.builder()
+            .partId(partId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(partRepository.findById(request.getPartId())).thenReturn(Optional.of(part));
+        when(partIoRepository.save(any())).thenReturn(partIo);
+        PurchasePartServiceResponse result = purchaseService.purchasePart(request);
+
+        // then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("존재하지 않는 Part를 요청하면 오류가 발생한다.")
+      void productNotFound() {
+        // given
+        // when
+        when(partRepository.findById(request.getPartId())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(PartNotFoundException.class,
+            () -> purchaseService.purchasePart(request));
       }
     }
   }
