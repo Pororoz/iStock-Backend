@@ -30,8 +30,11 @@ public enum ErrorCode {
       ExceptionMessage.DUPLICATE_BOM),
   BOM_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.BOM_NOT_FOUND,
       ExceptionMessage.BOM_NOT_FOUND),
-  INVALID_SUB_ASSY_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_SUB_ASSY_BOM,
-      ExceptionMessage.INVALID_SUB_ASSY_BOM),
+  INVALID_SUB_ASSY_BOM_REQUEST(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_SUB_ASSY_BOM_REQUEST,
+      ExceptionMessage.INVALID_SUB_ASSY_BOM_REQUEST),
+  SUB_ASSY_CANNOT_HAVE_SUB_ASSY(HttpStatus.BAD_REQUEST,
+      ExceptionStatus.SUB_ASSY_CANNOT_HAVE_SUB_ASSY,
+      ExceptionMessage.SUB_ASSY_CANNOT_HAVE_SUB_ASSY),
   INVALID_PRODUCT_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_PRODUCT_BOM,
       ExceptionMessage.INVALID_PRODUCT_BOM),
   SUB_ASSY_BOM_EXIST(HttpStatus.BAD_REQUEST, ExceptionStatus.SUB_ASSY_BOM_EXIST,
@@ -55,8 +58,11 @@ public enum ErrorCode {
       ExceptionMessage.PRODUCT_OR_BOM_NOT_FOUND),
   BOM_AND_SUB_ASSY_NOT_MATCHED(HttpStatus.BAD_REQUEST, ExceptionStatus.BOM_AND_SUB_ASSY_NOT_MATCHED,
       ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCHED),
-  PART_NULL(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_NULL,
-      ExceptionMessage.PART_NULL);
+  BOM_SUB_ASSY_DUPLICATED(HttpStatus.BAD_REQUEST,
+      ExceptionStatus.BOM_SUB_ASSY_DUPLICATED,
+      ExceptionMessage.BOM_SUB_ASSY_DUPLICATED),
+  SUB_ASSY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.SUB_ASSY_NOT_FOUND,
+      ExceptionMessage.SUB_ASSY_NOT_FOUND);
 
   private final HttpStatus statusCode;
 

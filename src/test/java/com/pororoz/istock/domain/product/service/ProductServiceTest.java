@@ -3,7 +3,6 @@ package com.pororoz.istock.domain.product.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,7 +17,7 @@ import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.product.dto.service.FindProductByPartServiceRequest;
-import com.pororoz.istock.domain.product.dto.service.FindProductWithSubassyServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.FindProductWithSubAssyServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.dto.service.SubAssyServiceResponse;
@@ -28,7 +27,6 @@ import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
 import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
-import com.pororoz.istock.domain.product.exception.SubAssyNotFoundByProductNameException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -176,7 +174,6 @@ class ProductServiceTest {
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
         when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
         when(productRepository.findByProductNumber(anyString())).thenReturn(Optional.empty());
-        doNothing().when(bomRepository).updateProductNumber(anyString(), anyString());
 
         ProductServiceResponse result = productService.updateProduct(request);
 
@@ -207,7 +204,6 @@ class ProductServiceTest {
         when(bomRepository.findByProductId(id)).thenReturn(List.of(bom));
         when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
         when(productRepository.findByProductNumber(anyString())).thenReturn(Optional.empty());
-        doNothing().when(bomRepository).updateProductNumber(anyString(), anyString());
 
         ProductServiceResponse result = productService.updateProduct(request);
 
@@ -240,10 +236,9 @@ class ProductServiceTest {
 
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(subAssy));
-        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(false);
+        when(bomRepository.existsByProductId(id)).thenReturn(false);
         when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
         when(productRepository.findByProductNumber(anyString())).thenReturn(Optional.empty());
-        doNothing().when(bomRepository).updateProductNumber(anyString(), anyString());
 
         ProductServiceResponse result = productService.updateProduct(request);
 
@@ -379,7 +374,7 @@ class ProductServiceTest {
 
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(subAssy));
-        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(true);
+        when(bomRepository.existsByProductId(id)).thenReturn(true);
 
         //then
         assertThrows(RegisteredAsSubAssyException.class,
@@ -402,7 +397,7 @@ class ProductServiceTest {
         //given
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(false);
+        when(bomRepository.existsByProductId(id)).thenReturn(false);
         doNothing().when(productRepository).delete(product);
 
         //then
@@ -437,7 +432,7 @@ class ProductServiceTest {
         //given
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        when(bomRepository.existsByProductNumber(productNumber)).thenReturn(true);
+        when(bomRepository.existsByProductId(id)).thenReturn(true);
 
         //then
         assertThrows(RegisteredAsSubAssyException.class, () -> productService.deleteProduct(id));
@@ -447,19 +442,19 @@ class ProductServiceTest {
 
   @Nested
   @DisplayName("product와 subAssy 조회")
-  class FindProductsWithSubassys {
+  class FindProductsWithSubassies {
 
     Category subCategory = Category.builder().id(10L).build();
     Part part = Part.builder().build();
-    Product subAssy1 = Product.builder().productNumber("assy1").codeNumber("11")
+    Product subAssy1 = Product.builder().id(100L).productNumber("assy1").codeNumber("11")
         .category(subCategory).build();
-    Product subAssy2 = Product.builder().productNumber("assy2").codeNumber("11")
+    Product subAssy2 = Product.builder().id(101L).productNumber("assy2").codeNumber("11")
         .category(subCategory).build();
     Bom assyBom1 = Bom.builder()
-        .locationNumber("assy1").quantity(1).productNumber("assy1")
+        .locationNumber("assy1").quantity(1).subAssy(subAssy1)
         .codeNumber("11").part(part).build();
     Bom assyBom2 = Bom.builder()
-        .locationNumber("assy2").quantity(2).productNumber("assy2")
+        .locationNumber("assy2").quantity(2).subAssy(subAssy2)
         .codeNumber("11").part(part).build();
     Bom otherBom = Bom.builder().codeNumber("0").part(part).build();
 
@@ -486,12 +481,10 @@ class ProductServiceTest {
         //when
         //category 조회 -> categoryId, productName, page, size로 product 조회
         // -> 각 product의 bom 조회(bom의 codeNumber가 11)
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
+        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+        when(productRepository.findByCategoryIdWithSubAssies(any(Pageable.class), eq(categoryId)))
             .thenReturn(productPage);
-        when(productRepository.findByProductNumberIn(anyList())).thenReturn(
-            List.of(subAssy1, subAssy2));
-        Page<FindProductWithSubassyServiceResponse> result =
+        Page<FindProductWithSubAssyServiceResponse> result =
             productService.findProductsWithSubAssies(categoryId, PageRequest.of(page, size));
 
         //then
@@ -507,7 +500,7 @@ class ProductServiceTest {
         assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
         assertThat(result.getTotalElements()).isEqualTo(10);
         long i = 0;
-        for (FindProductWithSubassyServiceResponse findResponse : result.getContent()) {
+        for (FindProductWithSubAssyServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
           assertThat(findResponse.getSubAssyServiceResponses()).hasSize(2);
@@ -535,34 +528,6 @@ class ProductServiceTest {
         //then
         assertThrows(CategoryNotFoundException.class,
             () -> productService.findProductsWithSubAssies(categoryId, pageRequest));
-      }
-
-      @Test
-      @DisplayName("Sub assy 목록에 bom의 productNumber와 일치하는 product가 없다.")
-      void subAssyNotFoundByProductName() {
-        //given
-        int page = 0;
-        int size = 3;
-        long total = 10;
-
-        List<Product> products = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-          Product product = Product.builder().id((long) i).category(category).build();
-          product.setBoms(List.of(assyBom1, assyBom2, otherBom));
-          products.add(product);
-        }
-        PageImpl<Product> productPage = new PageImpl<>(products, PageRequest.of(page, size), total);
-
-        //when
-        when(categoryRepository.findById(anyLong())).thenReturn(Optional.of(category));
-        when(productRepository.findByCategoryIdWithBoms(any(Pageable.class), eq(categoryId)))
-            .thenReturn(productPage);
-        when(productRepository.findByProductNumberIn(anyList())).thenReturn(
-            List.of(subAssy1));
-
-        //then
-        assertThrows(SubAssyNotFoundByProductNameException.class,
-            () -> productService.findProductsWithSubAssies(categoryId, PageRequest.of(page, size)));
       }
     }
   }

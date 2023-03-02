@@ -4,7 +4,8 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
-import com.pororoz.istock.domain.part.exception.PartNullException;
+import com.pororoz.istock.domain.part.entity.PartIo;
+import com.pororoz.istock.domain.part.entity.PartStatus;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
@@ -17,6 +18,7 @@ import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,25 +40,13 @@ public class PurchaseService {
   public PurchaseProductServiceResponse purchaseProduct(PurchaseProductServiceRequest request) {
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
-    ProductIo productIo = productIoRepository.save(request.toProductIo(product,
-        ProductStatus.valueOf("구매대기"), null));
-
+    ProductIo productIo = productIoRepository.save(ProductIo.builder()
+        .quantity(request.getQuantity())
+        .status(ProductStatus.valueOf("구매대기"))
+        .product(product)
+        .build());
     List<Bom> boms = bomRepository.findByProductId(request.getProductId());
-    boms.forEach(bom -> {
-          if (bom.getCodeNumber().equals(SUB_ASSY_CODE_NUMBER)) {
-            Product subAssay = productRepository.findByProductNumber(bom.getProductNumber())
-                .orElseThrow(ProductNotFoundException::new);
-            productIoRepository.save(request.toProductIo(subAssay,
-                ProductStatus.valueOf("외주구매대기"), productIo));
-          } else {
-            if (bom.getPart() == null) {
-              throw new PartNullException();
-            } else {
-              partIoRepository.save(request.toPartIo(bom.getPart(), productIo));
-            }
-          }
-        }
-    );
+    savePartIoAndSubAssyIoAll(request.getQuantity(), productIo, boms);
 
     return PurchaseProductServiceResponse.of(request);
   }
@@ -67,5 +57,23 @@ public class PurchaseService {
     partIoRepository.save(request.toPartIo(part));
 
     return PurchasePartServiceResponse.of(request);
+  }
+
+  void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
+    List<PartIo> partIoList = new ArrayList<>();
+    List<ProductIo> subAssyIoList = new ArrayList<>();
+
+    for (Bom bom : boms) {
+      if (SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
+        ProductIo subAssyIo = ProductIo.createSubAssyIo(bom, productIo, quantity,
+            ProductStatus.외주구매대기);
+        subAssyIoList.add(subAssyIo);
+      } else {
+        PartIo partIo = PartIo.createPartIo(bom, productIo, quantity, PartStatus.구매대기);
+        partIoList.add(partIo);
+      }
+    }
+    partIoRepository.saveAll(partIoList);
+    productIoRepository.saveAll(subAssyIoList);
   }
 }

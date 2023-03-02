@@ -83,6 +83,7 @@ public class PurchaseControllerTest extends ControllerTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
       @Test
       @DisplayName("productId가 null이면 오류가 발생한다.")
       void productIdNullException() throws Exception {
@@ -192,6 +193,5 @@ public class PurchaseControllerTest extends ControllerTest {
             .andDo(print());
       }
     }
-
   }
 }

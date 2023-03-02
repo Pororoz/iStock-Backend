@@ -55,12 +55,11 @@ public class PurchaseController {
   })
   @PostMapping("/products/{productId}/waiting")
   public ResponseEntity<ResultDTO<PurchaseProductResponse>> purchaseProduct(
-      @PathVariable("productId") @NotNull(message = ExceptionMessage.INVALID_PATH)
-      @Positive(message = ExceptionMessage.INVALID_PATH) Long productId,
-      @Valid @RequestBody PurchaseProductRequest purchaseProductRequest) {
+      @PathVariable("productId") @NotNull @Positive Long productId,
+      @Valid @RequestBody PurchaseProductRequest request) {
     PurchaseProductServiceResponse serviceDto = purchaseService.purchaseProduct(
         PurchaseProductServiceRequest.builder().productId(productId)
-            .quantity(purchaseProductRequest.getQuantity()).build());
+            .quantity(request.getQuantity()).build());
     PurchaseProductResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.PURCHASE_PRODUCT, response));

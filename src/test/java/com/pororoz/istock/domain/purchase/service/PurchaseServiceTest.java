@@ -3,6 +3,8 @@ package com.pororoz.istock.domain.purchase.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.entity.Bom;
@@ -10,7 +12,6 @@ import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
-import com.pororoz.istock.domain.part.exception.PartNullException;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -88,7 +90,6 @@ public class PurchaseServiceTest {
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
-            .productNumber(productNumber)
             .memo(memo)
             .part(part)
             .product(product)
@@ -110,16 +111,19 @@ public class PurchaseServiceTest {
             .productId(productId)
             .quantity(quantity)
             .build();
+        ArgumentCaptor<List<PartIo>> partArgument = ArgumentCaptor.forClass(List.class);
 
         // when
         when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
         when(productIoRepository.save(any())).thenReturn(productIo);
         when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
-        when(partIoRepository.save(any())).thenReturn(partIo);
+        when(partIoRepository.saveAll(anyList())).thenReturn(List.of(partIo));
         PurchaseProductServiceResponse result = purchaseService.purchaseProduct(request);
 
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
+        verify(partIoRepository).saveAll(partArgument.capture());
+        assertThat(partArgument.getValue()).hasSize(1);
       }
 
 
@@ -129,12 +133,15 @@ public class PurchaseServiceTest {
         // given
         Part part = Part.builder().id(partId).build();
         Product product = Product.builder().id(productId).build();
+        Product subAssy = Product.builder()
+            .id(10000L).codeNumber(SUB_ASSY_CODE_NUMBER)
+            .build();
         Bom bom = Bom.builder()
             .id(bomId)
             .locationNumber(locationNumber)
             .codeNumber(SUB_ASSY_CODE_NUMBER)
             .quantity(quantity)
-            .productNumber(productNumber)
+            .subAssy(subAssy)
             .memo(memo)
             .part(part)
             .product(product)
@@ -145,22 +152,32 @@ public class PurchaseServiceTest {
             .status(productStatus)
             .product(product)
             .build();
+        ProductIo subAssyIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(quantity)
+            .status(ProductStatus.외주구매대기)
+            .product(product)
+            .superIo(productIo)
+            .product(subAssy)
+            .build();
 
         PurchaseProductServiceResponse response = PurchaseProductServiceResponse.builder()
             .productId(productId)
             .quantity(quantity)
             .build();
+        ArgumentCaptor<List<ProductIo>> productArgument = ArgumentCaptor.forClass(List.class);
 
         // when
         when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
-        when(productIoRepository.save(any())).thenReturn(productIo);
+        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
         when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
-        when(productRepository.findByProductNumber(any())).thenReturn(
-            Optional.of(product));
+        when(productIoRepository.saveAll(anyList())).thenReturn(List.of(subAssyIo));
         PurchaseProductServiceResponse result = purchaseService.purchaseProduct(request);
 
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
+        verify(productIoRepository).saveAll(productArgument.capture());
+        assertThat(productArgument.getValue()).hasSize(1);
       }
     }
 
@@ -181,43 +198,6 @@ public class PurchaseServiceTest {
       }
 
       @Test
-      @DisplayName("sub assy의 품번이 product 테이블에 존재하지 않으면 오류가 발생한다.")
-      void productWithSubAssyNotFound() {
-        // given
-        Part part = Part.builder().id(partId).build();
-        Product product = Product.builder().id(productId).build();
-        Bom bom = Bom.builder()
-            .id(bomId)
-            .locationNumber(locationNumber)
-            .codeNumber(SUB_ASSY_CODE_NUMBER)
-            .quantity(quantity)
-            .productNumber(productNumber)
-            .memo(memo)
-            .part(part)
-            .product(product)
-            .build();
-        ProductIo productIo = ProductIo.builder()
-            .id(productIoId)
-            .quantity(quantity)
-            .status(productStatus)
-            .product(product)
-            .build();
-
-        // when
-        when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
-        when(productIoRepository.save(any())).thenReturn(productIo);
-        when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
-        when(productRepository.findByProductNumber(any())).thenReturn(
-            Optional.empty());
-
-        // then
-        assertThrows(ProductNotFoundException.class,
-            () -> purchaseService.purchaseProduct(request));
-
-
-      }
-
-      @Test
       @DisplayName("검색한 bom이 sub assy가 아닌 경우, 해당 bom의 part가 null이면 오류가 발생한다.")
       void partNullException() {
         // given
@@ -227,10 +207,8 @@ public class PurchaseServiceTest {
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
-            .productNumber(productNumber)
             .memo(memo)
             .product(product)
-            .part(null)
             .build();
         ProductIo productIo = ProductIo.builder()
             .id(productIoId)
@@ -245,7 +223,37 @@ public class PurchaseServiceTest {
         when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
 
         //then
-        assertThrows(PartNullException.class,
+        assertThrows(IllegalArgumentException.class,
+            () -> purchaseService.purchaseProduct(request));
+      }
+
+      @Test
+      @DisplayName("검색한 bom이 sub assy인 경우, 해당 bom의 subAssy가 null이면 오류가 발생한다.")
+      void subAssyNullException() {
+        // given
+        Product product = Product.builder().id(productId).build();
+        Bom bom = Bom.builder()
+            .id(bomId)
+            .locationNumber(locationNumber)
+            .codeNumber(SUB_ASSY_CODE_NUMBER)
+            .quantity(quantity)
+            .memo(memo)
+            .product(product)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(quantity)
+            .status(productStatus)
+            .product(product)
+            .build();
+
+        // when
+        when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
+        when(productIoRepository.save(any())).thenReturn(productIo);
+        when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
+
+        //then
+        assertThrows(IllegalArgumentException.class,
             () -> purchaseService.purchaseProduct(request));
       }
     }
