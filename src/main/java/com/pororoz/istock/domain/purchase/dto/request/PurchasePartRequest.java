@@ -2,6 +2,7 @@ package com.pororoz.istock.domain.purchase.dto.request;
 
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class PurchasePartRequest {
 
   @Schema(description = "구매량", example = "100")
+  @NotNull
   @Positive
   private long quantity;
 

@@ -178,8 +178,8 @@ public class PurchaseControllerTest extends ControllerTest {
       }
 
       @Test
-      @DisplayName("amount가 1보다 작은면 오류가 발생한다.")
-      void amountNullException() throws Exception {
+      @DisplayName("quantity가 1보다 작은면 오류가 발생한다.")
+      void quantityNullException() throws Exception {
         // given
         PurchasePartRequest request = PurchasePartRequest.builder()
             .quantity(0L)
