@@ -19,10 +19,4 @@ public class PurchasePartRequest {
   @NotNull
   @Positive
   private long quantity;
-
-  public PurchasePartServiceRequest toService() {
-    return PurchasePartServiceRequest.builder()
-        .quantity(quantity)
-        .build();
-  }
 }
