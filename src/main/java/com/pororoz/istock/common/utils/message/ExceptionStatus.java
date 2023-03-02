@@ -14,7 +14,8 @@ public class ExceptionStatus {
   public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
   public static final String DUPLICATE_BOM = "DUPLICATE_BOM_COMBINATION";
   public static final String BOM_NOT_FOUND = "BOM_NOT_FOUND";
-  public static final String INVALID_SUB_ASSY_BOM = "INVALID_SUB_ASSY_BOM";
+  public static final String INVALID_SUB_ASSY_BOM_REQUEST = "INVALID_SUB_ASSY_BOM_REQUEST";
+  public static final String SUB_ASSY_CANNOT_HAVE_SUB_ASSY = "SUB_ASSY_CANNOT_HAVE_SUB_ASSY";
   public static final String INVALID_PRODUCT_BOM = "INVALID_PRODUCT_BOM";
   public static final String SUB_ASSY_BOM_EXIST = "SUB_ASSY_BOM_EXIST";
   public static final String REGISTERED_AS_SUB_ASSY = "REGISTERED_BY_SUB_ASSY";
@@ -24,13 +25,14 @@ public class ExceptionStatus {
   public static final String PRODUCT_STOCK_MINUS = "PRODUCT_STOCK_MINUS";
   public static final String PART_STOCK_MINUS = "PART_STOCK_MINUS";
   public static final String PRODUCT_OR_BOM_NOT_FOUND = "PRODUCT_OR_BOM_NOT_FOUND";
-  public static final String PART_NULL = "PART_NULL";
+  public static final String BOM_AND_SUB_ASSY_NOT_MATCHED = "BOM_AND_SUB_ASSY_NOT_MATCH";
+  public static final String BOM_SUB_ASSY_DUPLICATED = "BOM_SUB_ASSY_DUPLICATED";
+  public static final String SUB_ASSY_NOT_FOUND = "SUB_ASSY_NOT_FOUND";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";
   public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";
   public static final String FORBIDDEN = "FORBIDDEN";
-  public static final String BOM_AND_SUB_ASSY_NOT_MATCHED = "BOM_AND_SUB_ASSY_NOT_MATCH";
 
   private ExceptionStatus() {
   }

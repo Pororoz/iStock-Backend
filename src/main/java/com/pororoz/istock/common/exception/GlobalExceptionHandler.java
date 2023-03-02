@@ -27,6 +27,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(value = MissingServletRequestParameterException.class)
   public ResponseEntity<ErrorResponse> missingServletRequestParameterException(
       MissingServletRequestParameterException e) {
+    log.error("MissingServletRequestParameterException ", e);
     return getResponseEntity(ExceptionStatus.BAD_REQUEST, ExceptionMessage.PARAMETER_REQUIRED,
         List.of(new ErrorBinder(e.getParameterName(), e.getMessage())), HttpStatus.BAD_REQUEST);
   }
@@ -35,6 +36,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponse> handleRequestBodyValidationErrors(
       MethodArgumentNotValidException e) {
+    log.error("MethodArgumentNotValidException ", e);
     return getValidErrorResponseEntity(e);
   }
 
@@ -42,6 +44,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(BindException.class)
   public ResponseEntity<ErrorResponse> handleModelAttributeValidationErrors(
       BindException e) {
+    log.error("BindException ", e);
     return getValidErrorResponseEntity(e);
   }
 
@@ -59,6 +62,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(ConstraintViolationException.class)
   public ResponseEntity<ErrorResponse> handleValidationBadPath(ConstraintViolationException e) {
     List<ErrorBinder> errors = new ArrayList<>();
+    log.error("ConstraintViolationException ", e);
     for (ConstraintViolation error : e.getConstraintViolations()) {
       errors.add(new ErrorBinder(error.getPropertyPath().toString(), error.getMessage()));
     }
@@ -68,7 +72,9 @@ public class GlobalExceptionHandler {
 
   // Type Mismatch Validation
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-  public ResponseEntity<ErrorResponse> handleValidationTypeMismatchErrors() {
+  public ResponseEntity<ErrorResponse> handleValidationTypeMismatchErrors(
+      MethodArgumentTypeMismatchException e) {
+    log.error("MethodArgumentTypeMismatchException ", e);
     return getResponseEntity(ExceptionStatus.BAD_REQUEST, ExceptionMessage.TYPE_MISMATCH,
         null, HttpStatus.BAD_REQUEST);
   }
@@ -76,12 +82,14 @@ public class GlobalExceptionHandler {
   // Custom exception
   @ExceptionHandler(CustomException.class)
   public ResponseEntity<ErrorResponse> handleCustomErrors(final CustomException e) {
+    log.error("CustomException ", e);
     return getResponseEntity(e.getStatus(), e.getMessage(), null, e.getStatusCode());
   }
 
   // 404
   @ExceptionHandler(NoHandlerFoundException.class)
-  public ResponseEntity<ErrorResponse> handleNotFoundApi() {
+  public ResponseEntity<ErrorResponse> handleNotFoundApi(NoHandlerFoundException e) {
+    log.error("NoHandlerFoundException ", e);
     return getResponseEntity(ExceptionStatus.PAGE_NOT_FOUND, ExceptionMessage.PAGE_NOT_FOUND,
         null, HttpStatus.NOT_FOUND);
   }

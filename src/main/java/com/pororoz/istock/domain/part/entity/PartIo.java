@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.part.entity;
 
 import com.pororoz.istock.common.entity.TimeEntity;
+import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,7 +31,7 @@ public class PartIo extends TimeEntity {
   private Long id;
 
   @NotNull
-  @Positive
+  @Positive(message = "partIo의 수량은 1 이상이어야 합니다. BOM과 요청 수량을 확인해주세요")
   @Column(columnDefinition = "INT(11) UNSIGNED")
   private long quantity;
 
@@ -45,4 +46,18 @@ public class PartIo extends TimeEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   private ProductIo productIo;
+
+  public static PartIo createPartIo(Bom bom, ProductIo productIo, Long quantity,
+      PartStatus status) {
+    if (bom.getPart() == null) {
+      throw new IllegalArgumentException(
+          "BOM에 Part가 없습니다. bomId: " + bom.getId() + ", locationNumber: "
+              + bom.getLocationNumber() + ", productId: " + bom.getProduct().getId());
+    }
+    return PartIo.builder()
+        .part(bom.getPart())
+        .quantity(bom.getQuantity() * quantity)
+        .status(status)
+        .productIo(productIo).build();
+  }
 }

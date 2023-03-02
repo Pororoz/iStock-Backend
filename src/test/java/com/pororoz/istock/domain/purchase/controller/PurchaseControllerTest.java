@@ -31,15 +31,15 @@ public class PurchaseControllerTest extends ControllerTest {
   @MockBean
   PurchaseService purchaseService;
 
-  private Long productId = 1L;
-  private long quantity = 300L;
+  final Long productId = 1L;
+  final long quantity = 300L;
 
   @Nested
   @DisplayName("제품 자재 일괄 구매")
   class PurchaseProduct {
 
-    private final String url(Long productId) {
-      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting",productId);
+    String url(Long productId) {
+      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting", productId);
     }
 
     @Nested
@@ -63,14 +63,15 @@ public class PurchaseControllerTest extends ControllerTest {
             .build();
 
         // when
-        when(purchaseService.purchaseProduct(any(PurchaseProductServiceRequest.class))).thenReturn(serviceDto);
+        when(purchaseService.purchaseProduct(any(PurchaseProductServiceRequest.class))).thenReturn(
+            serviceDto);
         ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.PURCHASE_PRODUCT))
-            .andExpect(jsonPath("$.data",equalTo(asParsedJson(response))))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }
@@ -78,6 +79,7 @@ public class PurchaseControllerTest extends ControllerTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
       @Test
       @DisplayName("productId가 null이면 오류가 발생한다.")
       void productIdNullException() throws Exception {

@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
@@ -15,9 +15,11 @@ import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
+import com.pororoz.istock.domain.bom.exception.BomSubAssyDuplicatedException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidSubAssyBomException;
+import com.pororoz.istock.domain.bom.exception.SubAssyCannotHaveSubAssyException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.part.entity.Part;
@@ -25,11 +27,11 @@ import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+import com.pororoz.istock.domain.product.exception.SubAssyNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -57,32 +59,26 @@ class BomServiceTest {
   @Mock
   ProductRepository productRepository;
 
-  String subAssyCodeNumber = "11";
+  final Long bomId = 1L;
+  final String locationNumber = "L5.L4";
+  final String codeNumber = "";
+  final Long quantity = 3L;
+  final String memo = "";
+  final Long partId = 1L;
+  final Long productId = 2L;
+  final Long subAssyId = 100L;
+  final String subAssyNumber = "sub assy number";
+  final String newLocationNumber = "new location";
+  final String newCodeNumber = "new code";
+  final Long newQuantity = 5L;
+  final String newMemo = "new";
+  final Long newPartId = 3L;
+  final Long newProductId = 4L;
+  final String subAssyCodeNumber = "11";
 
   @Nested
   @DisplayName("제품 BOM 행 조회 로직 테스트")
   class FindBom {
-
-    Long bomId;
-    String locationNumber;
-    String codeNumber;
-    Long quantity;
-    String memo;
-    String productNumber;
-    Long partId;
-    Long productId;
-
-    @BeforeEach
-    void setup() {
-      bomId = 1L;
-      locationNumber = "L5.L4";
-      codeNumber = "";
-      quantity = 3L;
-      memo = "";
-      productNumber = "1";
-      partId = 1L;
-      productId = 2L;
-    }
 
     @Nested
     @DisplayName("성공 케이스")
@@ -180,26 +176,40 @@ class BomServiceTest {
   @DisplayName("제품 BOM 행 추가 로직 테스트")
   class SaveBom {
 
-    Long bomId;
-    String locationNumber;
-    String codeNumber;
-    Long quantity;
-    String memo;
-    String productNumber;
-    Long partId;
-    Long productId;
+    SaveBomServiceRequest request = SaveBomServiceRequest.builder()
+        .locationNumber(locationNumber)
+        .codeNumber(codeNumber)
+        .quantity(quantity)
+        .memo(memo)
+        .productId(productId)
+        .partId(partId)
+        .build();
 
-    @BeforeEach
-    void setup() {
-      bomId = 1L;
-      locationNumber = "L5.L4";
-      codeNumber = "";
-      quantity = 3L;
-      memo = "";
-      productNumber = "1";
-      partId = 1L;
-      productId = 2L;
-    }
+    SaveBomServiceRequest subAssyRequest = SaveBomServiceRequest.builder()
+        .locationNumber(locationNumber)
+        .codeNumber(subAssyCodeNumber)
+        .quantity(quantity)
+        .memo(memo)
+        .subAssyId(subAssyId)
+        .productId(productId)
+        .build();
+
+    Part part = Part.builder().id(partId).build();
+    Product product = Product.builder().id(productId).build();
+    Product subAssy = Product.builder()
+        .id(subAssyId)
+        .codeNumber(subAssyCodeNumber)
+        .productNumber(subAssyNumber)
+        .build();
+
+    Bom bom = Bom.builder()
+        .id(bomId)
+        .locationNumber(locationNumber)
+        .codeNumber(codeNumber)
+        .quantity(quantity)
+        .memo(memo)
+        .part(part)
+        .product(product).build();
 
     @Nested
     @DisplayName("성공 케이스")
@@ -209,14 +219,6 @@ class BomServiceTest {
       @DisplayName("입력값으로 적절한 값이 들어오면 BOM이 정상적으로 추가된다.")
       void saveBom() {
         // given
-        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .partId(partId)
-            .productId(productId)
-            .build();
         BomServiceResponse response = BomServiceResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
@@ -227,24 +229,13 @@ class BomServiceTest {
             .productId(productId)
             .build();
 
-        Part part = Part.builder().id(partId).build();
-        Product product = Product.builder().id(productId).build();
-        Bom bom = Bom.builder()
-            .id(bomId)
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .part(part)
-            .product(product)
-            .build();
-
         // when
-        when(partRepository.findById(any())).thenReturn(Optional.of(part));
+        when(partRepository.findById(anyLong())).thenReturn(Optional.of(part));
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-        when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
-            anyLong())).thenReturn(Optional.empty());
-        when(bomRepository.save(any())).thenReturn(bom);
+        when(bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(locationNumber
+            , productId, null, partId)).thenReturn(Optional.empty());
+        when(bomRepository.save(any(Bom.class))).thenReturn(bom);
+
         BomServiceResponse result = bomService.saveBom(request);
 
         // then
@@ -254,44 +245,35 @@ class BomServiceTest {
       @Test
       @DisplayName("sub assy인 BOM을 저장한다.")
       void saveSubAssyBom() {
-        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(subAssyCodeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .productNumber(productNumber)
-            .productId(productId)
-            .build();
         BomServiceResponse response = BomServiceResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .productNumber(productNumber)
             .productId(productId)
+            .subAssyId(subAssyId)
             .build();
 
-        Product product = Product.builder().id(productId).build();
-        Product superProduct = Product.builder().id(productId).build();
         Bom bom = Bom.builder()
             .id(bomId)
             .locationNumber(locationNumber)
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .productNumber(productNumber)
+            .subAssy(subAssy)
             .product(product)
             .build();
 
         // when
-        when(productRepository.findByProductNumber(productNumber)).thenReturn(
-            Optional.of(superProduct));
+        when(productRepository.findById(subAssyId)).thenReturn(Optional.of(subAssy));
         when(productRepository.findById(productId)).thenReturn(Optional.of(product));
-        when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
-            eq(null))).thenReturn(Optional.empty());
-        when(bomRepository.save(any())).thenReturn(bom);
-        BomServiceResponse result = bomService.saveBom(request);
+        when(bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(locationNumber,
+            productId, subAssyId, null)).thenReturn(Optional.empty());
+        when(bomRepository.findByProductIdAndSubAssyId(productId, subAssyId))
+            .thenReturn(Optional.empty());
+        when(bomRepository.save(any(Bom.class))).thenReturn(bom);
+        BomServiceResponse result = bomService.saveBom(subAssyRequest);
 
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
@@ -306,15 +288,6 @@ class BomServiceTest {
       @DisplayName("partId에 해당하는 part가 존재하지 않으면 예외가 발생한다.")
       void partNotExist() {
         //given
-        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .partId(partId)
-            .productId(productId)
-            .build();
-
         //when
         when(partRepository.findById(anyLong())).thenReturn(Optional.empty());
 
@@ -327,17 +300,7 @@ class BomServiceTest {
       @DisplayName("productId에 해당하는 product가 존재하지 않으면 예외가 발생한다.")
       void productNotExist() {
         //given
-        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .partId(partId)
-            .productId(productId)
-            .build();
-
         //when
-        Part part = Part.builder().id(partId).build();
         when(partRepository.findById(any())).thenReturn(Optional.of(part));
         when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
         //then
@@ -346,35 +309,14 @@ class BomServiceTest {
       }
 
       @Test
-      @DisplayName("location_number, product_id, part_id이 이미 존재하는 조합이면 예외가 발생한다.")
+      @DisplayName("location_number, product_id, sub_assy_id, part_id이 이미 존재하는 조합이면 예외가 발생한다.")
       void duplicateBom() {
         //given
-        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .partId(partId)
-            .productId(productId)
-            .build();
-
-        Part part = Part.builder().id(partId).build();
-        Product product = Product.builder().id(productId).build();
-        Bom bom = Bom.builder()
-            .id(bomId)
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .part(part)
-            .product(product)
-            .build();
-
         //when
         when(partRepository.findById(any())).thenReturn(Optional.of(part));
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
-        when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
-            anyLong())).thenReturn(Optional.of(bom));
+        when(bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(locationNumber,
+            productId, null, partId)).thenReturn(Optional.of(bom));
 
         //then
         assertThrows(DuplicateBomException.class,
@@ -389,7 +331,7 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
             .memo(memo)
-            .productNumber(productNumber)
+            .subAssyId(subAssyId)
             .partId(partId)
             .productId(productId)
             .build();
@@ -416,29 +358,20 @@ class BomServiceTest {
       }
 
       @Test
-      @DisplayName("Sub assy로 저장할 BOM의 상위 제품도 sub assy이면 예외가 발생한다.")
+      @DisplayName("Sub assy로 저장할 BOM의 subAssyId로 찾은 제품이 sub assy가 아니면 예외가 발생한다.")
       void subAssy() {
-        SaveBomServiceRequest request = SaveBomServiceRequest.builder()
-            .locationNumber(locationNumber)
-            .codeNumber(subAssyCodeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .productNumber(productNumber)
-            .productId(productId)
-            .build();
+        //given
+        Product notSubAssy = Product.builder().id(productId).codeNumber("1").build();
 
-        Product superProduct = Product.builder().id(productId).codeNumber("11").build();
-
-        // when
-        when(productRepository.findByProductNumber(productNumber))
-            .thenReturn(Optional.of(superProduct));
+        //when
+        when(productRepository.findById(subAssyId)).thenReturn(Optional.of(notSubAssy));
 
         //then
-        assertThrows(InvalidSubAssyBomException.class, () -> bomService.saveBom(request));
+        assertThrows(InvalidSubAssyBomException.class, () -> bomService.saveBom(subAssyRequest));
       }
 
       @Test
-      @DisplayName("Product BOM 저장 시, productNumber가 존재하면 InvalidProductBomException이 발생한다.")
+      @DisplayName("Product BOM 저장 시, productId가 존재하면 InvalidProductBomException이 발생한다.")
       void saveProductBomWithProductNumber() {
         //given
         SaveBomServiceRequest request = SaveBomServiceRequest.builder()
@@ -446,9 +379,8 @@ class BomServiceTest {
             .codeNumber(codeNumber)
             .quantity(quantity)
             .memo(memo)
-            .productNumber(productNumber)
-            .partId(partId)
             .productId(productId)
+            .subAssyId(subAssyId)
             .build();
         //when
         //then
@@ -470,31 +402,67 @@ class BomServiceTest {
         //then
         assertThrows(InvalidProductBomException.class, () -> bomService.saveBom(request));
       }
+
+      @Test
+      @DisplayName("하나의 제품에 null을 제외한 중복된 sub assy id가 있다면 BomProductNumberDuplicatedException이 발생한다.")
+      void duplicateProductNumber() {
+        //given
+        // when
+        when(productRepository.findById(subAssyId)).thenReturn(Optional.of(subAssy));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(locationNumber,
+            productId, subAssyId, null)).thenReturn(Optional.empty());
+        when(bomRepository.findByProductIdAndSubAssyId(productId, subAssyId)).thenReturn(
+            Optional.of(mock(Bom.class)));
+
+        //then
+        assertThrows(BomSubAssyDuplicatedException.class,
+            () -> bomService.saveBom(subAssyRequest));
+      }
+
+      @Test
+      @DisplayName("Sub assy는 sub assy를 BOM으로 저장할 수 없다.")
+      void subAssyCannotHaveSubAssy() {
+        Product superSubAssy = Product.builder()
+            .id(productId)
+            .codeNumber(subAssyCodeNumber)
+            .productNumber("super sub assy").build();
+
+        // when
+        when(productRepository.findById(subAssyId)).thenReturn(Optional.of(subAssy));
+        when(productRepository.findById(productId)).thenReturn(Optional.of(superSubAssy));
+        when(bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(locationNumber,
+            productId, subAssyId, null)).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(SubAssyCannotHaveSubAssyException.class,
+            () -> bomService.saveBom(subAssyRequest));
+      }
+
+      @Test
+      @DisplayName("존재하지 않는 sub assy id를 요청하면 SubAssyNotFound가 발생한다.")
+      void subAssyNotFound() {
+        SaveBomServiceRequest subAssyRequest = SaveBomServiceRequest.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(subAssyCodeNumber)
+            .quantity(quantity)
+            .memo(memo)
+            .subAssyId(10000L)
+            .productId(productId)
+            .build();
+
+        // when
+        when(productRepository.findById(10000L)).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(SubAssyNotFoundException.class, () -> bomService.saveBom(subAssyRequest));
+      }
     }
   }
 
   @Nested
   @DisplayName("제품 BOM 행 삭제 로직 테스트")
   class DeleteBom {
-
-    Long bomId;
-    String locationNumber;
-    String codeNumber;
-    Long quantity;
-    String memo;
-    Long partId;
-    Long productId;
-
-    @BeforeEach
-    void setup() {
-      bomId = 1L;
-      locationNumber = "L5.L4";
-      codeNumber = "";
-      quantity = 3L;
-      memo = "";
-      partId = 1L;
-      productId = 2L;
-    }
 
     @Nested
     @DisplayName("성공 케이스")
@@ -557,40 +525,43 @@ class BomServiceTest {
   @DisplayName("제품 BOM 행 수정 로직 테스트")
   class UpdateBom {
 
-    Long bomId;
-    String locationNumber;
-    String codeNumber;
-    Long quantity;
-    String memo;
-    Long partId;
-    Long productId;
-    String productNumber;
-    String newLocationNumber;
-    String newCodeNumber;
-    Long newQuantity;
-    String newMemo;
-    Long newPartId;
-    Long newProductId;
-    String newProductNumber;
+    Part part = Part.builder().id(partId).build();
+    Product product = Product.builder().id(productId).build();
+    Product subAssy = Product.builder()
+        .id(subAssyId).codeNumber(subAssyCodeNumber)
+        .productNumber(subAssyNumber)
+        .build();
+    Part newPart = Part.builder().id(newPartId).build();
+    Product newProduct = Product.builder().id(newProductId).build();
+    Bom bom = Bom.builder()
+        .id(bomId)
+        .locationNumber(locationNumber)
+        .codeNumber(codeNumber)
+        .quantity(quantity)
+        .memo(memo)
+        .part(part)
+        .product(product)
+        .build();
 
-    @BeforeEach
-    void setup() {
-      bomId = 1L;
-      locationNumber = "L5.L4";
-      codeNumber = "";
-      quantity = 3L;
-      memo = "";
-      partId = 1L;
-      productId = 2L;
-      productNumber = "number";
-      newLocationNumber = "new location";
-      newCodeNumber = "new code";
-      newQuantity = 5L;
-      newMemo = "new";
-      newPartId = 3L;
-      newProductId = 4L;
-      newProductNumber = "new number";
-    }
+    UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
+        .bomId(bomId)
+        .locationNumber(newLocationNumber)
+        .codeNumber(newCodeNumber)
+        .quantity(newQuantity)
+        .memo(newMemo)
+        .partId(newPartId)
+        .productId(newProductId)
+        .build();
+
+    UpdateBomServiceRequest subAssyRequest = UpdateBomServiceRequest.builder()
+        .bomId(bomId)
+        .locationNumber(newLocationNumber)
+        .subAssyId(subAssyId)
+        .codeNumber(subAssyCodeNumber)
+        .quantity(newQuantity)
+        .memo(newMemo)
+        .productId(newProductId)
+        .build();
 
     @Nested
     @DisplayName("성공 케이스")
@@ -600,30 +571,6 @@ class BomServiceTest {
       @DisplayName("BOM 수정에 성공한다.")
       void updateBom() {
         // given
-        Part part = Part.builder().id(partId).build();
-        Product product = Product.builder().id(productId).build();
-        Part newPart = Part.builder().id(newPartId).build();
-        Product newProduct = Product.builder().id(newProductId).build();
-        Bom bom = Bom.builder()
-            .id(bomId)
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .part(part)
-            .product(product)
-            .build();
-
-        UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
-            .bomId(bomId)
-            .locationNumber(newLocationNumber)
-            .codeNumber(newCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .partId(newPartId)
-            .productId(newProductId)
-            .build();
-
         BomServiceResponse response = BomServiceResponse.builder()
             .bomId(bomId)
             .locationNumber(newLocationNumber)
@@ -638,9 +585,45 @@ class BomServiceTest {
         when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
         when(partRepository.findById(any())).thenReturn(Optional.of(newPart));
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(newProduct));
-        when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
-            anyLong())).thenReturn(Optional.empty());
+        when(bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(newLocationNumber,
+            newProductId, null, newPartId)).thenReturn(Optional.empty());
         BomServiceResponse result = bomService.updateBom(request);
+
+        // then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+
+      @Test
+      @DisplayName("Sub assy로 BOM 수정에 성공한다.")
+      void updateToSubAssyBom() {
+        // given
+        BomServiceResponse response = BomServiceResponse.builder()
+            .bomId(bomId)
+            .locationNumber(newLocationNumber)
+            .subAssyId(subAssyId)
+            .codeNumber(subAssyCodeNumber)
+            .quantity(newQuantity)
+            .memo(newMemo)
+            .productId(newProductId)
+            .build();
+
+        // when
+        when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
+        when(productRepository.findById(anyLong())).thenAnswer(invocation -> {
+          Long id = invocation.getArgument(0);
+          if (id.equals(subAssyId)) {
+            return Optional.of(subAssy);
+          } else if (id.equals(newProductId)) {
+            return Optional.of(newProduct);
+          } else {
+            return Optional.empty();
+          }
+        });
+        when(bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(newLocationNumber,
+            newProductId, subAssyId, null)).thenReturn(Optional.empty());
+        when(bomRepository.findByProductIdAndSubAssyId(newProductId, subAssyId))
+            .thenReturn(Optional.empty());
+        BomServiceResponse result = bomService.updateBom(subAssyRequest);
 
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
@@ -655,16 +638,6 @@ class BomServiceTest {
       @DisplayName("BOM id에 해당하는 BOM이 존재하지 않으면 예외가 발생한다.")
       void bomNotFound() {
         //given
-        UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
-            .bomId(bomId)
-            .locationNumber(newLocationNumber)
-            .codeNumber(newCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .partId(newPartId)
-            .productId(newProductId)
-            .build();
-
         //when
         when(bomRepository.findById(bomId)).thenReturn(Optional.empty());
 
@@ -677,27 +650,6 @@ class BomServiceTest {
       @DisplayName("partId에 해당하는 part가 존재하지 않으면 예외가 발생한다.")
       void partNotExist() {
         //given
-        UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
-            .bomId(bomId)
-            .locationNumber(newLocationNumber)
-            .codeNumber(newCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .partId(newPartId)
-            .productId(newProductId)
-            .build();
-        Part part = Part.builder().id(partId).build();
-        Product product = Product.builder().id(productId).build();
-        Bom bom = Bom.builder()
-            .id(bomId)
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .part(part)
-            .product(product)
-            .build();
-
         //when
         when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
         when(partRepository.findById(anyLong())).thenReturn(Optional.empty());
@@ -711,28 +663,6 @@ class BomServiceTest {
       @DisplayName("productId에 해당하는 product가 존재하지 않으면 예외가 발생한다.")
       void productNotExist() {
         //given
-        UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
-            .bomId(bomId)
-            .locationNumber(newLocationNumber)
-            .codeNumber(newCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .partId(newPartId)
-            .productId(newProductId)
-            .build();
-        Part part = Part.builder().id(partId).build();
-        Product product = Product.builder().id(productId).build();
-        Bom bom = Bom.builder()
-            .id(bomId)
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .part(part)
-            .product(product)
-            .build();
-        Part newPart = Part.builder().id(newPartId).build();
-
         //when
         when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
         when(partRepository.findById(any())).thenReturn(Optional.of(newPart));
@@ -746,31 +676,8 @@ class BomServiceTest {
       @DisplayName("location_number, product_id, part_id이 이미 존재하는 조합이면 예외가 발생한다.")
       void duplicateBom() {
         //given
-        UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
-            .bomId(bomId)
-            .locationNumber(newLocationNumber)
-            .codeNumber(newCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .partId(newPartId)
-            .productId(newProductId)
-            .build();
-
-        Part part = Part.builder().id(partId).build();
-        Product product = Product.builder().id(productId).build();
-        Bom bom = Bom.builder()
-            .id(bomId)
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .part(part)
-            .product(product)
-            .build();
-        Part newPart = Part.builder().id(newPartId).build();
-        Product newProduct = Product.builder().id(newProductId).build();
         Bom ExistedBom = Bom.builder()
-            .id(bomId)
+            .id(bomId + 1)
             .locationNumber(newLocationNumber)
             .codeNumber(newCodeNumber)
             .quantity(newQuantity)
@@ -781,10 +688,10 @@ class BomServiceTest {
 
         //when
         when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
-        when(partRepository.findById(any())).thenReturn(Optional.of(newPart));
-        when(productRepository.findById(anyLong())).thenReturn(Optional.of(newProduct));
-        when(bomRepository.findByLocationNumberAndProductIdAndPartId(anyString(), anyLong(),
-            anyLong())).thenReturn(Optional.of(ExistedBom));
+        when(partRepository.findById(newPartId)).thenReturn(Optional.of(newPart));
+        when(productRepository.findById(newProductId)).thenReturn(Optional.of(newProduct));
+        when(bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(newLocationNumber,
+            newProductId, null, newPartId)).thenReturn(Optional.of(ExistedBom));
 
         //then
         assertThrows(DuplicateBomException.class,
@@ -801,7 +708,7 @@ class BomServiceTest {
             .codeNumber(subAssyCodeNumber)
             .quantity(newQuantity)
             .memo(newMemo)
-            .productNumber(newProductNumber)
+            .subAssyId(subAssyId)
             .partId(newPartId)
             .productId(newProductId)
             .build();
@@ -828,29 +735,22 @@ class BomServiceTest {
       }
 
       @Test
-      @DisplayName("Sub assy로 저장할 BOM의 상위 제품도 sub assy이면 예외가 발생한다.")
+      @DisplayName("Sub assy로 수정할 BOM의 subAssyId로 찾은 제품이 sub assy가 아니면 예외가 발생한다.")
       void subAssy() {
-        UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
-            .locationNumber(newLocationNumber)
-            .codeNumber(subAssyCodeNumber)
-            .quantity(newQuantity)
-            .memo(newMemo)
-            .productNumber(newProductNumber)
-            .productId(newProductId)
-            .build();
-
-        Product superProduct = Product.builder().id(100L).codeNumber("11").build();
+        Product notSubAssy = Product.builder().id(subAssyId)
+            .productNumber("not sub assy")
+            .codeNumber("1").build();
 
         // when
-        when(productRepository.findByProductNumber(newProductNumber))
-            .thenReturn(Optional.of(superProduct));
+        when(bomRepository.findById(bomId)).thenReturn(Optional.of(mock(Bom.class)));
+        when(productRepository.findById(subAssyId)).thenReturn(Optional.of(notSubAssy));
 
         //then
-        assertThrows(InvalidSubAssyBomException.class, () -> bomService.updateBom(request));
+        assertThrows(InvalidSubAssyBomException.class, () -> bomService.updateBom(subAssyRequest));
       }
 
       @Test
-      @DisplayName("Product BOM으로 수정 시, productNumber가 존재하면 InvalidProductBomException이 발생한다.")
+      @DisplayName("Product BOM으로 수정 시, subAssyId 존재하면 InvalidProductBomException이 발생한다.")
       void saveProductBomWithProductNumber() {
         //given
         UpdateBomServiceRequest request = UpdateBomServiceRequest.builder()
@@ -858,7 +758,7 @@ class BomServiceTest {
             .codeNumber(codeNumber)
             .quantity(newQuantity)
             .memo(newMemo)
-            .productNumber(newProductNumber)
+            .subAssyId(subAssyId)
             .partId(newPartId)
             .productId(newProductId)
             .build();
@@ -881,6 +781,46 @@ class BomServiceTest {
         //when
         //then
         assertThrows(InvalidProductBomException.class, () -> bomService.updateBom(request));
+      }
+
+      @Test
+      @DisplayName("Sub assy는 sub assy를 BOM으로 가질 수 없다.")
+      void subAssyCannotHaveSubAssy() {
+        // given
+        Product superSubAssy = Product.builder()
+            .id(newProductId)
+            .codeNumber(subAssyCodeNumber)
+            .productNumber("super sub assy")
+            .build();
+
+        // when
+        when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
+        when(productRepository.findById(newProductId)).thenReturn(Optional.of(superSubAssy));
+        when(productRepository.findById(subAssyId)).thenReturn(Optional.of(subAssy));
+        when(bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(newLocationNumber,
+            newProductId, subAssyId, null)).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(SubAssyCannotHaveSubAssyException.class,
+            () -> bomService.updateBom(subAssyRequest));
+      }
+
+      @Test
+      @DisplayName("하나의 제품에 null을 제외한 중복된 subAssyId가 있다면 BomProductNumberDuplicatedException이 발생한다.")
+      void duplicateProductNumber() {
+        // given
+        // when
+        when(bomRepository.findById(bomId)).thenReturn(Optional.of(bom));
+        when(productRepository.findById(newProductId)).thenReturn(Optional.of(newProduct));
+        when(productRepository.findById(subAssyId)).thenReturn(Optional.of(subAssy));
+        when(bomRepository.findByLocationNumberAndProductIdAndSubAssyIdAndPartId(newLocationNumber,
+            newProductId, subAssyId, null)).thenReturn(Optional.empty());
+        when(bomRepository.findByProductIdAndSubAssyId(newProductId, subAssyId)).thenReturn(
+            Optional.of(mock(Bom.class)));
+
+        // then
+        assertThrows(BomSubAssyDuplicatedException.class,
+            () -> bomService.updateBom(subAssyRequest));
       }
     }
   }

@@ -1,6 +1,5 @@
 package com.pororoz.istock.domain.product;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -252,19 +251,15 @@ public class ProductIntegrationTest extends IntegrationTest {
     @DisplayName("Sub assy를 완제품으로 수정한다.")
     void changeToProduct() throws Exception {
       //given
-      product = productRepository.save(
+      Product subAssy = productRepository.save(
           Product.builder().productName(name)
               .productNumber("sub assy").codeNumber("11")
               .companyName(companyName).stock(stock)
               .category(category1)
               .build());
-      Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
-      bomRepository.save(Bom.builder()
-          .locationNumber("1").product(product).part(part).build());
-      bomRepository.save(Bom.builder()
-          .locationNumber("2").product(product).part(part).build());
+
       UpdateProductRequest request = UpdateProductRequest.builder()
-          .productId(product.getId()).productName(newName)
+          .productId(subAssy.getId()).productName(newName)
           .productNumber(newNumber).codeNumber(newCodeNumber)
           .stock(newStock).companyName(newCompanyName)
           .categoryId(category2.getId())
@@ -275,7 +270,7 @@ public class ProductIntegrationTest extends IntegrationTest {
 
       //then
       ProductResponse response = ProductResponse.builder()
-          .productId(product.getId()).productName(newName)
+          .productId(subAssy.getId()).productName(newName)
           .productNumber(newNumber).codeNumber(newCodeNumber)
           .stock(newStock).companyName(newCompanyName)
           .categoryId(category2.getId())
@@ -284,34 +279,6 @@ public class ProductIntegrationTest extends IntegrationTest {
       actions.andExpect(status().isOk()).andExpect(jsonPath("$.status").value(ResponseStatus.OK))
           .andExpect(jsonPath("$.message").value(ResponseMessage.UPDATE_PRODUCT))
           .andExpect(jsonPath("$.data", equalTo(asParsedJson(response)))).andDo(print());
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("Product number를 수정하면 같은 product number를 가진 BOM도 수정한다.")
-    void changeProductNumberWithBom() throws Exception {
-      //given
-      bomRepository.save(Bom.builder().locationNumber("a")
-          .productNumber(product.getProductNumber())
-          .product(product).build());
-      bomRepository.save(Bom.builder().locationNumber("b")
-          .productNumber(product.getProductNumber())
-          .product(product).build());
-      UpdateProductRequest request = UpdateProductRequest.builder()
-          .productId(product.getId()).productName(newName)
-          .productNumber(newNumber).codeNumber(newCodeNumber)
-          .stock(newStock).companyName(newCompanyName)
-          .categoryId(category2.getId())
-          .build();
-
-      //when
-      ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
-
-      //then
-      actions.andExpect(status().isOk())
-          .andDo(print());
-      List<Bom> boms = bomRepository.findByProductNumber(newNumber);
-      boms.forEach(bom -> assertThat(bom.getProductNumber()).isEqualTo(newNumber));
     }
 
     @Test
@@ -327,7 +294,7 @@ public class ProductIntegrationTest extends IntegrationTest {
               .build());
       Part part = partRepository.save(Part.builder().partName("name").spec("spec").build());
       bomRepository.save(Bom.builder()
-          .productNumber(subAssy.getProductNumber())
+          .subAssy(subAssy)
           .codeNumber("11").locationNumber("1")
           .product(product)
           .build());
@@ -370,7 +337,7 @@ public class ProductIntegrationTest extends IntegrationTest {
           .locationNumber("2").product(subAssy).part(part)
           .build());
       bomRepository.save(Bom.builder()
-          .productNumber(subAssy.getProductNumber())
+          .subAssy(subAssy)
           .codeNumber("11").locationNumber("1")
           .product(product)
           .build());
@@ -434,7 +401,7 @@ public class ProductIntegrationTest extends IntegrationTest {
     String uri = "/v1/products/with/subassy";
 
     @Test
-    @WithMockUser(roles = "USER")
+    @WithMockUser
     @DisplayName("제품을 subAssy와 함께 페이지네이션하여 1페이지를 조회한다.")
     void findProductWithSubAssy() throws Exception {
       //given
@@ -451,14 +418,14 @@ public class ProductIntegrationTest extends IntegrationTest {
       }
 
       //sub assy 저장
-      List<Product> subAssys = new ArrayList<>();
+      List<Product> subAssies = new ArrayList<>();
       for (int i = 0; i < 9; i++) {
         Product product = productRepository.save(Product.builder()
             .productName("sub" + i).productNumber("sub" + i)
             .codeNumber("11").category(category)
             .build());
         products.add(product);
-        subAssys.add(product);
+        subAssies.add(product);
       }
 
       //part 저장
@@ -471,7 +438,7 @@ public class ProductIntegrationTest extends IntegrationTest {
       for (int i = 0; i < 7; i++) {
         bomRepository.save(Bom.builder()
             .codeNumber("11").locationNumber("" + i)
-            .productNumber(subAssys.get(i).getProductNumber())
+            .subAssy(subAssies.get(i))
             .product(products.get(i))
             .quantity(10)
             .build());
@@ -495,7 +462,7 @@ public class ProductIntegrationTest extends IntegrationTest {
       List<FindProductWithSubassyResponse> findProductWithSubassyRespons = new ArrayList<>();
       for (int i = 5; i < 10; i++) {
         Product product = products.get(i);
-        Product subAssy = i > 6 ? null : subAssys.get(i);
+        Product subAssy = i > 6 ? null : subAssies.get(i);
         findProductWithSubassyRespons.add(FindProductWithSubassyResponse.builder()
             .productId(product.getId())
             .productName(product.getProductName())

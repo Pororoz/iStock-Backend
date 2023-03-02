@@ -15,4 +15,10 @@ public class CustomException extends RuntimeException {
     this.statusCode = errorCode.getStatusCode();
     this.status = errorCode.getStatus();
   }
+
+  public CustomException(ErrorCode errorCode, String detail) {
+    super(errorCode.getMessage() + " " + detail);
+    this.statusCode = errorCode.getStatusCode();
+    this.status = errorCode.getStatus();
+  }
 }
