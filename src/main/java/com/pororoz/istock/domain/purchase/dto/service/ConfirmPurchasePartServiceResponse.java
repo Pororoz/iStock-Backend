@@ -1,6 +1,8 @@
 package com.pororoz.istock.domain.purchase.dto.service;
 
 import com.pororoz.istock.domain.part.entity.PartIo;
+import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
+import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,6 +18,14 @@ public class ConfirmPurchasePartServiceResponse {
         .partIoId(partIo.getId())
         .partId(partIo.getPart().getId())
         .quantity(partIo.getQuantity())
+        .build();
+  }
+
+  public ConfirmPurchasePartResponse toResponse() {
+    return ConfirmPurchasePartResponse.builder()
+        .partIoId(partIoId)
+        .partId(partId)
+        .quantity(quantity)
         .build();
   }
 }

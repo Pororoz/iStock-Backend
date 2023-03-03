@@ -27,6 +27,7 @@ public class ResponseMessage {
   public static final String WAIT_PRODUCTION = "제품 생산 대기";
   public static final String PURCHASE_PRODUCT = "제품 자재 일괄 구매 대기";
   public static final String PURCHASE_PART = "제품 자재 개별 구매 대기";
+  public static final String CONFIRM_PURCHASE_PART = "제품 자재 구매 확정";
 
   private ResponseMessage() {
   }
