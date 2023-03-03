@@ -15,6 +15,7 @@ import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.entity.ProductStatus;
+import com.pororoz.istock.domain.product.exception.ProductIoNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceRequest;
@@ -271,6 +272,22 @@ class ProductionServiceTest {
       }
     }
 
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
 
+      @Test
+      @DisplayName("존재하지 않는 productIo로 조회하면 ProductIoNotFoundException이 발생한다.")
+      void ProductIoNotFoundException() {
+        //given
+        //when
+        when(productIoRepository.findByIdWithProductAndSubAssyIoAndPartIo(productIoId))
+            .thenReturn(Optional.empty());
+        //then
+        assertThrows(ProductIoNotFoundException.class,
+            () -> productionService.confirmProduction(productIoId));
+      }
+
+    }
   }
 }

@@ -7,6 +7,7 @@ import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.entity.ProductStatus;
+import com.pororoz.istock.domain.product.exception.ProductIoNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceRequest;
@@ -44,7 +45,7 @@ public class ProductionService {
 
   public UpdateProductionServiceResponse confirmProduction(Long productIoId) {
     ProductIo productIo = productIoRepository.findByIdWithProductAndSubAssyIoAndPartIo(productIoId)
-        .get();
+        .orElseThrow(ProductIoNotFoundException::new);
     productIo.getProduct().addStock(productIo.getQuantity());
     productIo.confirmProduction();
     productIo.getPartIoList().forEach(PartIo::confirmPartProduction);

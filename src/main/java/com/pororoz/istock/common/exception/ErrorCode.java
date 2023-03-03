@@ -62,7 +62,9 @@ public enum ErrorCode {
       ExceptionStatus.BOM_SUB_ASSY_DUPLICATED,
       ExceptionMessage.BOM_SUB_ASSY_DUPLICATED),
   SUB_ASSY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.SUB_ASSY_NOT_FOUND,
-      ExceptionMessage.SUB_ASSY_NOT_FOUND);
+      ExceptionMessage.SUB_ASSY_NOT_FOUND),
+  PRODUCT_IO_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_IO_NOT_FOUND,
+      ExceptionMessage.PRODUCT_IO_NOT_FOUND);
 
   private final HttpStatus statusCode;
 

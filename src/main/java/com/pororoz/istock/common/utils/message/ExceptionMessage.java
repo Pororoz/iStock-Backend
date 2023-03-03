@@ -41,6 +41,7 @@ public class ExceptionMessage {
   public static final String BOM_SUB_ASSY_DUPLICATED =
       "제품의 BOM에 이미 같은 sub assy가 존재합니다. 중복된 sub assy는 등록할 수 없습니다.";
   public static final String SUB_ASSY_NOT_FOUND = "해당 sub assy를 찾을 수 없습니다.";
+  public static final String PRODUCT_IO_NOT_FOUND = "해당 product io를 찾을 수 없습니다.";
 
   private ExceptionMessage() {
   }
