@@ -9,8 +9,11 @@ import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
+import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
+import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
@@ -80,9 +83,24 @@ public class PurchaseController {
       @Positive(message = ExceptionMessage.INVALID_PATH) Long partId,
       @Valid @RequestBody PurchasePartRequest purchasePartRequest) {
     PurchasePartServiceResponse serviceDto = purchaseService.purchasePart(
-        PurchasePartServiceRequest.builder().partId(partId).quantity(purchasePartRequest.getQuantity()).build());
+        PurchasePartServiceRequest.builder()
+            .partId(partId)
+            .quantity(purchasePartRequest.getQuantity()).build());
     PurchasePartResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.PURCHASE_PART, response));
+  }
+
+  @Operation(summary = "confirm purchase part", description = "제품 자재 구매 확정 API")
+  @PostMapping("/part-io/{partIoId}/confirm")
+  public ResponseEntity<ResultDTO<ConfirmPurchasePartResponse>> confirmPurchasePart(
+      @PathVariable("partIoId") @NotNull(message = ExceptionMessage.INVALID_PATH)
+      @Positive(message = ExceptionMessage.INVALID_PATH) Long partIoId) {
+    ConfirmPurchasePartServiceResponse serviceDto = purchaseService.confirmPurchasePart(
+        ConfirmPurchasePartServiceRequest.builder()
+            .partIoId(partIoId).build());
+    ConfirmPurchasePartResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CONFIRM_PURCHASE_PART, response));
   }
 }
