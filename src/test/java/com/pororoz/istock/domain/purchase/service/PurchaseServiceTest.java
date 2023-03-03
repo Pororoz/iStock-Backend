@@ -315,4 +315,53 @@ public class PurchaseServiceTest {
       }
     }
   }
+
+  @Nested
+  @DisplayName("제품 자재 개별 구매")
+  class ConfirmPurchasePart {
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      ConfirmPurchasePart request = ConfirmPurchasePart.builder()
+          .partIoId(partIoId)
+          .build();
+
+      @Test
+      @DisplayName("구매 대기 상태의 자재를 구매 확정 상태로 변경한다.")
+      void ConfirmPurchasePart() {
+        // given
+        Part part = Part.builder().id(partId).build();
+        PartIo partIo = PartIo.builder()
+            .id(partIoId)
+            .quantity(quantity)
+            .status(partStatus)
+            .part(part)
+            .build();
+
+        ConfirmPurchasePartServiceResponse response = ConfirmPurchasePart.builder()
+            .partIoId(partIoId)
+            .partId(partId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(partIoRepository.findById(request.getPartIoId())).thenReturn(Optional.of(partIo));
+        ConfirmPurchasePartServiceResponse result = purchaseService.ComfirmpurchasePart(request);
+
+        // then
+        ArgumentCaptor<PartIo> argumentCaptor = ArgumentCaptor.forClass(PartIo.class);
+        verify(partIoRepository).save(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().getStatus()).isEqualTo(PartStatus.구매_확정);
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+    }
+  }
 }
