@@ -29,8 +29,6 @@ public class ProductionService {
   private final ProductRepository productRepository;
   private final ProductIoRepository productIoRepository;
 
-  private final String SUB_ASSY_CODE_NUMBER = "11";
-
   public SaveProductionServiceResponse saveWaitingProduction(SaveProductionServiceRequest request) {
     Product product = productRepository.findByIdWithPartsAndSubAssies(request.getProductId())
         .orElseThrow(ProductOrBomNotFoundException::new);
@@ -70,7 +68,7 @@ public class ProductionService {
     List<ProductIo> subAssyIoList = new ArrayList<>();
 
     for (Bom bom : boms) {
-      if (SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
+      if (Bom.SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
         ProductIo subAssyIo = ProductIo.createSubAssyIo(bom, productIo, quantity,
             ProductStatus.사내출고대기);
         bom.getSubAssy().subtractStock(bom.getQuantity() * quantity);
