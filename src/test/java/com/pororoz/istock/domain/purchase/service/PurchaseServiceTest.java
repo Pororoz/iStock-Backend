@@ -21,6 +21,8 @@ import com.pororoz.istock.domain.product.entity.ProductStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
@@ -59,6 +61,7 @@ public class PurchaseServiceTest {
   Long partIoId = 1L;
   String locationNumber = "L5.L4";
   String codeNumber = "";
+  long stock = 10L;
   long quantity = 3L;
   String memo = "";
   ProductStatus productStatus = ProductStatus.구매대기;
@@ -324,7 +327,7 @@ public class PurchaseServiceTest {
     @DisplayName("성공 케이스")
     class SuccessCase {
 
-      ConfirmPurchasePart request = ConfirmPurchasePart.builder()
+      ConfirmPurchasePartServiceRequest request = ConfirmPurchasePartServiceRequest.builder()
           .partIoId(partIoId)
           .build();
 
@@ -332,7 +335,7 @@ public class PurchaseServiceTest {
       @DisplayName("구매 대기 상태의 자재를 구매 확정 상태로 변경한다.")
       void ConfirmPurchasePart() {
         // given
-        Part part = Part.builder().id(partId).build();
+        Part part = Part.builder().id(partId).stock(stock).build();
         PartIo partIo = PartIo.builder()
             .id(partIoId)
             .quantity(quantity)
@@ -340,7 +343,7 @@ public class PurchaseServiceTest {
             .part(part)
             .build();
 
-        ConfirmPurchasePartServiceResponse response = ConfirmPurchasePart.builder()
+        ConfirmPurchasePartServiceResponse response = ConfirmPurchasePartServiceResponse.builder()
             .partIoId(partIoId)
             .partId(partId)
             .quantity(quantity)
@@ -348,12 +351,17 @@ public class PurchaseServiceTest {
 
         // when
         when(partIoRepository.findById(request.getPartIoId())).thenReturn(Optional.of(partIo));
-        ConfirmPurchasePartServiceResponse result = purchaseService.ComfirmpurchasePart(request);
+        ConfirmPurchasePartServiceResponse result = purchaseService.confirmPurchasePart(request);
 
         // then
-        ArgumentCaptor<PartIo> argumentCaptor = ArgumentCaptor.forClass(PartIo.class);
-        verify(partIoRepository).save(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getStatus()).isEqualTo(PartStatus.구매_확정);
+        ArgumentCaptor<Part> capturedPart = ArgumentCaptor.forClass(Part.class);
+        verify(partRepository).save(capturedPart.capture());
+        assertThat(capturedPart.getValue().getStock()).isEqualTo(stock + quantity);
+
+        ArgumentCaptor<PartIo> capturedPartIo = ArgumentCaptor.forClass(PartIo.class);
+        verify(partIoRepository).save(capturedPartIo.capture());
+        assertThat(capturedPartIo.getValue().getStatus()).isEqualTo(PartStatus.구매확정);
+
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
