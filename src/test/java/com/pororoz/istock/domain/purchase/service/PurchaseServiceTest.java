@@ -12,6 +12,7 @@ import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
+import com.pororoz.istock.domain.part.exception.PartIoNotFoundException;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
@@ -307,7 +308,7 @@ public class PurchaseServiceTest {
 
       @Test
       @DisplayName("존재하지 않는 Part를 요청하면 오류가 발생한다.")
-      void productNotFound() {
+      void partNotFound() {
         // given
         // when
         when(partRepository.findById(request.getPartId())).thenReturn(Optional.empty());
@@ -323,13 +324,13 @@ public class PurchaseServiceTest {
   @DisplayName("제품 자재 개별 구매")
   class ConfirmPurchasePart {
 
+    ConfirmPurchasePartServiceRequest request = ConfirmPurchasePartServiceRequest.builder()
+      .partIoId(partIoId)
+      .build();
+
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
-
-      ConfirmPurchasePartServiceRequest request = ConfirmPurchasePartServiceRequest.builder()
-          .partIoId(partIoId)
-          .build();
 
       @Test
       @DisplayName("구매 대기 상태의 자재를 구매 확정 상태로 변경한다.")
@@ -370,6 +371,17 @@ public class PurchaseServiceTest {
     @DisplayName("실패 케이스")
     class FailCase {
 
+      @Test
+      @DisplayName("존재하지 않는 PartIo를 요청하면 오류가 발생한다.")
+      void partIoNotFound() {
+        // given
+        // when
+        when(partRepository.findById(request.getPartIoId())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(PartIoNotFoundException.class,
+            () -> purchaseService.confirmPurchasePart(request));
+      }
     }
   }
 }
