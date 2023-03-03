@@ -250,8 +250,7 @@ class ProductionServiceTest {
             .status(PartStatus.생산대기).build();
 
         //when
-        when(productIoRepository.findByIdWithProductAndSubAssyIoAndPartIo(productIoId))
-            .thenReturn(Optional.of(productIo));
+        when(productIoRepository.findById(productIoId)).thenReturn(Optional.of(productIo));
         UpdateProductionServiceResponse result = productionService.confirmProduction(productIoId);
 
         //then
@@ -281,8 +280,7 @@ class ProductionServiceTest {
       void ProductIoNotFoundException() {
         //given
         //when
-        when(productIoRepository.findByIdWithProductAndSubAssyIoAndPartIo(productIoId))
-            .thenReturn(Optional.empty());
+        when(productIoRepository.findById(productIoId)).thenReturn(Optional.empty());
         //then
         assertThrows(ProductIoNotFoundException.class,
             () -> productionService.confirmProduction(productIoId));

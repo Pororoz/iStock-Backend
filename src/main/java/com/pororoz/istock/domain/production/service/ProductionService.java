@@ -42,7 +42,7 @@ public class ProductionService {
   }
 
   public UpdateProductionServiceResponse confirmProduction(Long productIoId) {
-    ProductIo productIo = productIoRepository.findByIdWithProductAndSubAssyIoAndPartIo(productIoId)
+    ProductIo productIo = productIoRepository.findById(productIoId)
         .orElseThrow(ProductIoNotFoundException::new);
     productIo.getProduct().addStock(productIo.getQuantity());
     productIo.confirmProduction();

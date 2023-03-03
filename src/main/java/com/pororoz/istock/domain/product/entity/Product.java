@@ -61,7 +61,7 @@ public class Product extends TimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   private Category category;
 
-  @OneToMany(mappedBy = "product")
+  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
   @Builder.Default
   private List<Bom> boms = new ArrayList<>();
 

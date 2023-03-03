@@ -12,6 +12,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
@@ -46,12 +47,13 @@ public class ProductIo extends TimeEntity {
   private Product product;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "super_io_id")
   private ProductIo superIo;
 
-  @OneToMany(mappedBy = "productIo")
+  @OneToMany(mappedBy = "productIo", fetch = FetchType.LAZY)
   private List<PartIo> partIoList;
 
-  @OneToMany(mappedBy = "superIo")
+  @OneToMany(mappedBy = "superIo", fetch = FetchType.LAZY)
   private List<ProductIo> subAssyIoList;
 
   @Builder
