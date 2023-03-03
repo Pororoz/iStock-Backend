@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
+import com.pororoz.istock.domain.production.exception.ConfirmProductionException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,33 @@ class PartIoTest {
       //then
       assertThrows(IllegalArgumentException.class,
           () -> PartIo.createPartIo(mockBom, mockProductIo, 1L, PartStatus.생산대기));
+    }
+  }
+
+  @Nested
+  @DisplayName("생산 상태 변경")
+  class confirmProduction {
+
+    @Test
+    @DisplayName("생산 취소 상태는 생산 완료로 변경할 수 없다.")
+    void cannotChangeStatusCancel() {
+      //given
+      PartIo partIo = PartIo.builder().id(1L).status(PartStatus.생산취소).build();
+
+      //when
+      //then
+      assertThrows(ConfirmProductionException.class, partIo::confirmPartProduction);
+    }
+
+    @Test
+    @DisplayName("생산 완료 상태는 생산 완료로 변경할 수 없다.")
+    void cannotChangeStatusConfirm() {
+      //given
+      PartIo partIo = PartIo.builder().id(1L).status(PartStatus.생산완료).build();
+
+      //when
+      //then
+      assertThrows(ConfirmProductionException.class, partIo::confirmPartProduction);
     }
   }
 }

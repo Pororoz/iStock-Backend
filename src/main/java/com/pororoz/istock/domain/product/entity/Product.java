@@ -14,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
@@ -75,7 +74,10 @@ public class Product extends TimeEntity {
     this.category = category;
   }
 
-  public void addStock(@Positive long quantity) {
+  public void addStock(long quantity) {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("0혹은 양수만 stock에 더할 수 있습니다.");
+    }
     this.stock += quantity;
   }
 
