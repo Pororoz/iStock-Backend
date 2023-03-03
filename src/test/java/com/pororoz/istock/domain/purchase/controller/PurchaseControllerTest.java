@@ -243,5 +243,22 @@ public class PurchaseControllerTest extends ControllerTest {
             .andDo(print());
       }
     }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("partIoId가 null이면 오류가 발생한다.")
+      void partIoIdNullException() throws Exception {
+        // given
+        // when
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
   }
 }
