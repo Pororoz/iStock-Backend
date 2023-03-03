@@ -5,6 +5,7 @@ import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.part.exception.PartIoNotFoundException;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
@@ -18,7 +19,9 @@ import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequ
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
-import com.pororoz.istock.domain.purchase.exception.response.PurchaseProductResponseSwagger;
+import com.pororoz.istock.domain.purchase.swagger.ConfirmPurchasePartResponseSwagger;
+import com.pororoz.istock.domain.purchase.swagger.PurchasePartResponseSwagger;
+import com.pororoz.istock.domain.purchase.swagger.PurchaseProductResponseSwagger;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -71,7 +74,7 @@ public class PurchaseController {
   @Operation(summary = "purchase part", description = "제품 자재 개별 구매 API")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.PURCHASE_PART, content = {
-          @Content(schema = @Schema(implementation = PurchaseProductResponseSwagger.class))}),
+          @Content(schema = @Schema(implementation = PurchasePartResponseSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PART_NOT_FOUND, content = {
@@ -92,6 +95,14 @@ public class PurchaseController {
   }
 
   @Operation(summary = "confirm purchase part", description = "제품 자재 구매 확정 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.CONFIRM_PURCHASE_PART, content = {
+          @Content(schema = @Schema(implementation = ConfirmPurchasePartResponseSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PART_IO_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = PartIoNotFoundException.class))})
+  })
   @PostMapping("/part-io/{partIoId}/confirm")
   public ResponseEntity<ResultDTO<ConfirmPurchasePartResponse>> confirmPurchasePart(
       @PathVariable("partIoId") @NotNull(message = ExceptionMessage.INVALID_PATH)
