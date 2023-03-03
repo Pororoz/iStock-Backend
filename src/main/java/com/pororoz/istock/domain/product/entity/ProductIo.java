@@ -81,4 +81,12 @@ public class ProductIo extends TimeEntity {
         .status(status)
         .superIo(superIo).build();
   }
+
+  public void confirmProduction() {
+    this.status = ProductStatus.생산완료;
+  }
+
+  public void confirmSubAssyProduction() {
+    this.status = ProductStatus.사내출고완료;
+  }
 }

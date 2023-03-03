@@ -11,6 +11,7 @@ import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceRequest;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceResponse;
+import com.pororoz.istock.domain.production.dto.service.UpdateProductionServiceResponse;
 import com.pororoz.istock.domain.production.exception.ProductOrBomNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,20 @@ public class ProductionService {
         .productId(productIo.getProduct().getId())
         .quantity(productIo.getQuantity())
         .build();
+  }
+
+  public UpdateProductionServiceResponse confirmProduction(Long productIoId) {
+    ProductIo productIo = productIoRepository.findByIdWithProductAndSubAssyIoAndPartIo(productIoId)
+        .get();
+    productIo.getProduct().addStock(productIo.getQuantity());
+    productIo.confirmProduction();
+    productIo.getPartIoList().forEach(PartIo::confirmPartProduction);
+    productIo.getSubAssyIoList().forEach(ProductIo::confirmSubAssyProduction);
+
+    return UpdateProductionServiceResponse.builder()
+        .productIoId(productIoId)
+        .productId(productIo.getProduct().getId())
+        .quantity(productIo.getQuantity()).build();
   }
 
   private ProductIo saveProductIo(long quantity, Product product) {

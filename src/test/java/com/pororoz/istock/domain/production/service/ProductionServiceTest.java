@@ -3,7 +3,6 @@ package com.pororoz.istock.domain.production.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +19,7 @@ import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceRequest;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceResponse;
+import com.pororoz.istock.domain.production.dto.service.UpdateProductionServiceResponse;
 import com.pororoz.istock.domain.production.exception.PartStockMinusException;
 import com.pororoz.istock.domain.production.exception.ProductOrBomNotFoundException;
 import com.pororoz.istock.domain.production.exception.ProductStockMinusException;
@@ -50,7 +50,22 @@ class ProductionServiceTest {
   PartIoRepository partIoRepository;
 
   final Long productId = 1L;
+  final Long productIoId = 10L;
   final long quantity = 10;
+
+  Bom createPartBom(long quantity, Product product, Part part) {
+    return Bom.builder()
+        .codeNumber("0").quantity(quantity)
+        .product(product).part(part)
+        .build();
+  }
+
+  Bom createSubAssyBom(long quantity, Product product, Product subAssy) {
+    return Bom.builder()
+        .codeNumber("11").quantity(quantity)
+        .product(product).subAssy(subAssy)
+        .build();
+  }
 
   @Nested
   @DisplayName("제품 생산 대기 생성")
@@ -68,19 +83,13 @@ class ProductionServiceTest {
       @DisplayName("part를 소모하고 partIo, productIo에 생산 대기를 추가한다.")
       void saveProduction() {
         //given
-        Part part = Part.builder()
-            .stock(20).build();
-        Bom bom = Bom.builder()
-            .quantity(2)
-            .part(part).build();
-        Product product = Product.builder()
-            .id(productId)
-            .boms(List.of(bom)).build();
+        Part part = Part.builder().stock(20).build();
+        Product product = Product.builder().id(productId).build();
+        Bom bom = createPartBom(2, product, part);
         ProductIo productIo = ProductIo.builder()
-            .quantity(quantity).product(product).id(1L)
+            .quantity(quantity).product(product)
             .build();
         ArgumentCaptor<List<PartIo>> listArgument = ArgumentCaptor.forClass(List.class);
-        ArgumentCaptor<ProductIo> productIoArgument = ArgumentCaptor.forClass(ProductIo.class);
 
         //when
         when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
@@ -89,40 +98,28 @@ class ProductionServiceTest {
         SaveProductionServiceResponse response = productionService.saveWaitingProduction(request);
 
         //then
-        ProductIo savingProductIo = ProductIo.builder()
-            .status(ProductStatus.생산대기)
-            .quantity(quantity).product(product)
-            .build();
         PartIo savingPartIo = PartIo.builder()
             .status(PartStatus.생산대기).quantity(quantity * bom.getQuantity())
             .productIo(productIo).part(part)
             .build();
-        verify(productIoRepository).save(productIoArgument.capture());
         verify(partIoRepository, times(1)).saveAll(listArgument.capture());
-        assertThat(productIoArgument.getValue()).usingRecursiveComparison()
-            .isEqualTo(savingProductIo);
         assertThat(listArgument.getValue()).usingRecursiveComparison()
             .isEqualTo(List.of(savingPartIo));
         assertThat(response.getProductId()).isEqualTo(productId);
         assertThat(response.getQuantity()).isEqualTo(quantity);
         assertThat(part.getStock()).isZero();
+        verifyProductIoSaved(product);
       }
 
       @Test
       @DisplayName("Product의 bom에 subassy가 있으면 subassy의 part도 저장한다.")
       void saveSubAssyProductIo() {
         //given
-        String subAssyNumber = "product number";
         Product subAssy = Product.builder()
             .id(productId + 1L).codeNumber("11")
-            .productNumber(subAssyNumber)
             .stock(20).build();
-        Bom subAssyBom = Bom.builder()
-            .codeNumber("11").subAssy(subAssy)
-            .quantity(2).build();
-        Product product = Product.builder()
-            .id(productId)
-            .boms(List.of(subAssyBom)).build();
+        Product product = Product.builder().id(productId).build();
+        Bom subAssyBom = createSubAssyBom(2, product, subAssy);
         ProductIo productIo = ProductIo.builder()
             .quantity(quantity).product(product).id(1L)
             .build();
@@ -146,6 +143,20 @@ class ProductionServiceTest {
         assertThat(response.getProductId()).isEqualTo(productId);
         assertThat(response.getQuantity()).isEqualTo(quantity);
         assertThat(subAssy.getStock()).isZero();
+        verifyProductIoSaved(product);
+      }
+
+      private void verifyProductIoSaved(Product product) {
+        ArgumentCaptor<ProductIo> productIoArgument = ArgumentCaptor.forClass(ProductIo.class);
+
+        ProductIo savingProductIo = ProductIo.builder()
+            .status(ProductStatus.생산대기)
+            .quantity(quantity).product(product)
+            .build();
+
+        verify(productIoRepository).save(productIoArgument.capture());
+        assertThat(productIoArgument.getValue()).usingRecursiveComparison()
+            .isEqualTo(savingProductIo);
       }
     }
 
@@ -170,17 +181,10 @@ class ProductionServiceTest {
       @DisplayName("Part의 stock이 음수가 되면 PartStockMinusException이 발생한다.")
       void partStockMinus() {
         //given
-        Part part = Part.builder()
-            .stock(2).build();
-        Bom bom1 = Bom.builder()
-            .quantity(1)
-            .part(part).build();
-        Bom bom2 = Bom.builder()
-            .quantity(2)
-            .part(part).build();
-        Product product = Product.builder()
-            .id(productId)
-            .boms(List.of(bom1, bom2)).build();
+        Part part = Part.builder().stock(2).build();
+        Product product = Product.builder().id(productId).build();
+        createPartBom(1, product, part);
+        createPartBom(2, product, part);
         ProductIo productIo = ProductIo.builder()
             .quantity(quantity).product(product).id(1L)
             .build();
@@ -199,92 +203,74 @@ class ProductionServiceTest {
       @DisplayName("Product의 stock이 음수가 되면 ProductStockMinusException이 발생한다.")
       void productStockMinus() {
         //given
-        String subAssyNumber = "product number";
         Product subAssy = Product.builder()
             .id(productId + 1L).codeNumber("11")
-            .productNumber(subAssyNumber)
             .stock(1).build();
-        Bom subAssyBom = Bom.builder()
-            .codeNumber("11").subAssy(subAssy)
-            .quantity(2).build();
-        Product product = Product.builder()
-            .id(productId)
-            .boms(List.of(subAssyBom)).build();
+        Product product = Product.builder().id(productId).build();
+        createSubAssyBom(2, product, subAssy);
         ProductIo productIo = ProductIo.builder()
-            .quantity(quantity).product(product).id(1L)
-            .build();
-
-        //when
-        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
-            Optional.of(product));
-        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-
-        //then
-        assertThrows(ProductStockMinusException.class,
-            () -> productionService.saveWaitingProduction(request));
-        verify(productIoRepository, times(0)).saveAll(anyList());
-      }
-
-      @Test
-      @DisplayName("SubAssy Bom의 productNumber로 product를 찾을 수 없으면 SubAssyNotFoundByProductNameException이 발생한다.")
-      void subAssyNotFoundByProductName() {
-        //given
-        String subAssyNumber = "product number";
-        Product subAssy = Product.builder()
-            .id(productId + 1L).codeNumber("11")
-            .productNumber(subAssyNumber)
-            .stock(1).build();
-        Bom subAssyBom = Bom.builder()
-            .codeNumber("11").subAssy(subAssy)
-            .quantity(2).build();
-        Product product = Product.builder()
-            .id(productId)
-            .boms(List.of(subAssyBom)).build();
-        ProductIo productIo = ProductIo.builder()
-            .quantity(quantity).product(product).id(1L)
-            .build();
-
-        //when
-        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
-            Optional.of(product));
-        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-
-        //then
-        assertThrows(ProductStockMinusException.class,
-            () -> productionService.saveWaitingProduction(request));
-        verify(productIoRepository, times(0)).saveAll(anyList());
-      }
-
-      @Test
-      @DisplayName("BOM을 partIo에 저장할 때 part가 null이라면 IllegalArgumentException이 발생한다.")
-      void partNull() {
-        //given
-        Product product = Product.builder()
-            .id(productId).build();
-        Bom bom = Bom.builder()
-            .quantity(1).build();
-        product.setBoms(List.of(bom));
-        ProductIo productIo = ProductIo.builder()
-            .quantity(quantity).product(product).id(1L)
-            .build();
-        ArgumentCaptor<ProductIo> productIoArgument = ArgumentCaptor.forClass(ProductIo.class);
-
-        //when
-        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
-            Optional.of(product));
-        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-
-        //then
-        assertThrows(IllegalArgumentException.class,
-            () -> productionService.saveWaitingProduction(request));
-        ProductIo savingProductIo = ProductIo.builder()
-            .status(ProductStatus.생산대기)
             .quantity(quantity).product(product)
             .build();
-        verify(productIoRepository).save(productIoArgument.capture());
-        assertThat(productIoArgument.getValue()).usingRecursiveComparison()
-            .isEqualTo(savingProductIo);
+
+        //when
+        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
+            Optional.of(product));
+        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
+
+        //then
+        assertThrows(ProductStockMinusException.class,
+            () -> productionService.saveWaitingProduction(request));
       }
     }
+  }
+
+  @Nested
+  @DisplayName("제품 구매 확정")
+  class ConfirmProduction {
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("part와 subAssy가 포함된 제품을 구매 확정한다.")
+      void confirmProductionIncludePartAndSubAssy() {
+        //given
+        Product product = Product.builder().id(1L).stock(0).build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId).quantity(quantity)
+            .status(ProductStatus.생산대기).product(product)
+            .build();
+        ProductIo subAssyIo = ProductIo.builder()
+            .quantity(quantity).superIo(productIo)
+            .status(ProductStatus.사내출고대기).build();
+        PartIo partIo = PartIo.builder()
+            .quantity(quantity * 2).productIo(productIo)
+            .status(PartStatus.생산대기).build();
+
+        //when
+        when(productIoRepository.findByIdWithProductAndSubAssyIoAndPartIo(productIoId))
+            .thenReturn(Optional.of(productIo));
+        UpdateProductionServiceResponse result = productionService.confirmProduction(productIoId);
+
+        //then
+        UpdateProductionServiceResponse response = UpdateProductionServiceResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity).build();
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+        assertThat(product.getStock()).isEqualTo(quantity);
+        verifyIo(productIo, subAssyIo, partIo);
+      }
+
+      private void verifyIo(ProductIo productIo, ProductIo subAssyIo, PartIo partIo) {
+        assertThat(productIo.getStatus()).isEqualTo(ProductStatus.생산완료);
+        assertThat(subAssyIo.getStatus()).isEqualTo(ProductStatus.사내출고완료);
+        assertThat(partIo.getStatus()).isEqualTo(PartStatus.생산완료);
+      }
+    }
+
+
   }
 }

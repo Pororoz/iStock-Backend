@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
@@ -72,6 +73,10 @@ public class Product extends TimeEntity {
     this.stock = request.getStock();
     this.companyName = request.getCompanyName();
     this.category = category;
+  }
+
+  public void addStock(@Positive long quantity) {
+    this.stock += quantity;
   }
 
   public void subtractStock(long quantity) {

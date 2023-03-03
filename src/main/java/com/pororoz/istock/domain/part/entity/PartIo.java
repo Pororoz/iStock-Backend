@@ -69,4 +69,8 @@ public class PartIo extends TimeEntity {
         .status(status)
         .productIo(productIo).build();
   }
+
+  public void confirmPartProduction() {
+    this.status = PartStatus.생산완료;
+  }
 }
