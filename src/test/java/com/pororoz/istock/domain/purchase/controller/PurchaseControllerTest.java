@@ -15,7 +15,6 @@ import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
 import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
@@ -240,6 +239,24 @@ public class PurchaseControllerTest extends ControllerTest {
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_PURCHASE_PART))
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("partIoId가 null이면 오류가 발생한다.")
+      void partIoIdNullException() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isBadRequest())
             .andDo(print());
       }
     }
