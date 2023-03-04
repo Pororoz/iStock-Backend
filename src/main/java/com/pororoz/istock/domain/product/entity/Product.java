@@ -76,7 +76,7 @@ public class Product extends TimeEntity {
 
   public void addStock(long quantity) {
     if (quantity < 0) {
-      throw new IllegalArgumentException("0혹은 양수만 stock에 더할 수 있습니다.");
+      throw new IllegalArgumentException("0 이상만 stock에 더할 수 있습니다.");
     }
     this.stock += quantity;
   }

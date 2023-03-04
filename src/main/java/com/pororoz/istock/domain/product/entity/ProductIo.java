@@ -100,4 +100,20 @@ public class ProductIo extends TimeEntity {
     }
     this.status = ProductStatus.사내출고완료;
   }
+
+  public void cancelProduction() {
+    if (this.status != ProductStatus.생산대기) {
+      throw new ChangeIoStatusException(ProductStatus.생산대기.name(), ProductStatus.생산취소.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = ProductStatus.생산취소;
+  }
+
+  public void cancelSubAssyProduction() {
+    if (this.status != ProductStatus.사내출고대기) {
+      throw new ChangeIoStatusException(ProductStatus.사내출고대기.name(), ProductStatus.사내출고취소.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = ProductStatus.사내출고취소;
+  }
 }

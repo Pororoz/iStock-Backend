@@ -53,7 +53,7 @@ class ProductIoTest {
   }
 
   @Nested
-  @DisplayName("생산 상태 변경")
+  @DisplayName("생산 완료")
   class confirmProduction {
 
     @Test
@@ -98,6 +98,55 @@ class ProductIoTest {
       //when
       //then
       assertThrows(ChangeIoStatusException.class, productIo::confirmProduction);
+    }
+  }
+
+  @Nested
+  @DisplayName("생산 취소")
+  class cancelProduction {
+
+    @Test
+    @DisplayName("생산 취소 상태는 생산 취소로 변경할 수 없다.")
+    void cannotChangeStatusCancel() {
+      //given
+      ProductIo productIo = ProductIo.builder().id(1L).status(ProductStatus.생산취소).build();
+
+      //when
+      //then
+      assertThrows(ChangeIoStatusException.class, productIo::cancelProduction);
+    }
+
+    @Test
+    @DisplayName("생산 완료 상태는 생산 취소로 변경할 수 없다.")
+    void cannotChangeStatusConfirm() {
+      //given
+      ProductIo productIo = ProductIo.builder().id(1L).status(ProductStatus.생산완료).build();
+
+      //when
+      //then
+      assertThrows(ChangeIoStatusException.class, productIo::cancelProduction);
+    }
+
+    @Test
+    @DisplayName("사내 출고 취소 상태는 사내 출고 취소로 변경할 수 없다.")
+    void cannotChangeSubAssyStatusCancel() {
+      //given
+      ProductIo productIo = ProductIo.builder().id(1L).status(ProductStatus.사내출고취소).build();
+
+      //when
+      //then
+      assertThrows(ChangeIoStatusException.class, productIo::cancelSubAssyProduction);
+    }
+
+    @Test
+    @DisplayName("사내 출고 완료 상태는 사내 출고 취소로 변경할 수 없다.")
+    void cannotChangeSubAssyStatusConfirm() {
+      //given
+      ProductIo productIo = ProductIo.builder().id(1L).status(ProductStatus.사내출고완료).build();
+
+      //when
+      //then
+      assertThrows(ChangeIoStatusException.class, productIo::cancelSubAssyProduction);
     }
   }
 }

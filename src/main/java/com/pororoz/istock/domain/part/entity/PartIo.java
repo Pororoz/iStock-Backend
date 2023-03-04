@@ -80,4 +80,12 @@ public class PartIo extends TimeEntity {
     }
     this.status = PartStatus.생산완료;
   }
+
+  public void cancelPartProduction() {
+    if (this.status != PartStatus.생산대기) {
+      throw new ChangeIoStatusException(PartStatus.생산대기.name(), PartStatus.생산취소.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = PartStatus.생산취소;
+  }
 }

@@ -53,7 +53,7 @@ class PartIoTest {
   }
 
   @Nested
-  @DisplayName("생산 상태 변경")
+  @DisplayName("생산 완료")
   class confirmProduction {
 
     @Test
@@ -76,6 +76,33 @@ class PartIoTest {
       //when
       //then
       assertThrows(ChangeIoStatusException.class, partIo::confirmPartProduction);
+    }
+  }
+
+  @Nested
+  @DisplayName("생산 취소")
+  class cancelProduction {
+
+    @Test
+    @DisplayName("생산 취소 상태는 생산 취소로 변경할 수 없다.")
+    void cannotChangeStatusCancel() {
+      //given
+      PartIo partIo = PartIo.builder().id(1L).status(PartStatus.생산취소).build();
+
+      //when
+      //then
+      assertThrows(ChangeIoStatusException.class, partIo::cancelPartProduction);
+    }
+
+    @Test
+    @DisplayName("생산 완료 상태는 생산 취소로 변경할 수 없다.")
+    void cannotChangeStatusConfirm() {
+      //given
+      PartIo partIo = PartIo.builder().id(1L).status(PartStatus.생산완료).build();
+
+      //when
+      //then
+      assertThrows(ChangeIoStatusException.class, partIo::cancelPartProduction);
     }
   }
 }

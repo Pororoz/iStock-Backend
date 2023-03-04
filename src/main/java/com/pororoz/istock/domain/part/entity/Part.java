@@ -62,6 +62,13 @@ public class Part extends TimeEntity {
     this.stock = request.getStock();
   }
 
+  public void addStock(long quantity) {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("0 이상만 stock에 더할 수 있습니다.");
+    }
+    this.stock += quantity;
+  }
+
   public void subtractStock(long quantity) {
     long subtract = this.stock - quantity;
     if (subtract < 0) {
