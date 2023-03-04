@@ -79,4 +79,13 @@ public class ProductionController {
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CONFIRM_PRODUCTION, response));
   }
+
+  @PostMapping("/product-io/{productIoId}/cancel")
+  public ResponseEntity<ResultDTO<UpdateProductionResponse>> cancelProduction(
+      @PathVariable("productIoId") @Positive Long productIoId) {
+    UpdateProductionResponse response = productionService.cancelProduction(
+        productIoId).toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CANCEL_PRODUCTION, response));
+  }
 }
