@@ -89,6 +89,7 @@ public class ProductService {
     // product->subassy
     // bom에 subassy가 있으면 안된다.
     if (Objects.equals(newCodeNumber, SUB_ASSY_CODE_NUMBER)) {
+      System.out.println("?");
       bomRepository.findByProductId(existProduct.getId()).forEach(bom -> {
         if (Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER)) {
           throw new SubAssyBomExistException();

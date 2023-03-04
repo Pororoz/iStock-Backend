@@ -319,6 +319,10 @@ class ProductionServiceTest {
 
         //when
         when(productIoRepository.findById(productIoId)).thenReturn(Optional.of(productIo));
+        when(productIoRepository.findBySuperIoWithProduct(any(ProductIo.class)))
+            .thenReturn(List.of(subAssyIo));
+        when(partIoRepository.findByProductIoWithPart(any(ProductIo.class)))
+            .thenReturn(List.of(partIo));
         UpdateProductionServiceResponse result = productionService.cancelProduction(
             productIoId);
 

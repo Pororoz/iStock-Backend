@@ -59,8 +59,8 @@ public class ProductionService {
     ProductIo productIo = productIoRepository.findById(productIoId)
         .orElseThrow(ProductIoNotFoundException::new);
     productIo.cancelProduction();
-    cancelPartIoList(productIo.getPartIoList());
-    cancelSubAssyIoList(productIo.getSubAssyIoList());
+    cancelPartIoList(productIo);
+    cancelSubAssyIoList(productIo);
 
     return UpdateProductionServiceResponse.builder()
         .productIoId(productIoId)
@@ -96,15 +96,15 @@ public class ProductionService {
     productIoRepository.saveAll(subAssyIoList);
   }
 
-  private void cancelPartIoList(List<PartIo> partIoList) {
-    partIoList.forEach(partIo -> {
+  private void cancelPartIoList(ProductIo productIo) {
+    partIoRepository.findByProductIoWithPart(productIo).forEach(partIo -> {
       partIo.cancelPartProduction();
       partIo.getPart().addStock(partIo.getQuantity());
     });
   }
 
-  private void cancelSubAssyIoList(List<ProductIo> subAssyIoList) {
-    subAssyIoList.forEach(subAssyIo -> {
+  private void cancelSubAssyIoList(ProductIo productIo) {
+    productIoRepository.findBySuperIoWithProduct(productIo).forEach(subAssyIo -> {
       subAssyIo.cancelSubAssyProduction();
       subAssyIo.getProduct().addStock(subAssyIo.getQuantity());
     });
