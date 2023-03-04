@@ -226,7 +226,7 @@ class ProductionServiceTest {
   }
 
   @Nested
-  @DisplayName("제품 구매 확정")
+  @DisplayName("제품 생산 확정")
   class ConfirmProduction {
 
     @Nested
@@ -286,6 +286,74 @@ class ProductionServiceTest {
             () -> productionService.confirmProduction(productIoId));
       }
 
+    }
+  }
+
+  @Nested
+  @DisplayName("제품 생산 취소")
+  class CancelProduction {
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("제품 생산을 취소하고 io 상태를 취소 상태로 변경한다.")
+      void cancelProduction() {
+        //given
+        Part part = Part.builder().id(1L).stock(10).build();
+        Product product = Product.builder().id(2L).stock(20).build();
+        Product subAssy = Product.builder().id(3L).stock(30).build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId).quantity(quantity)
+            .status(ProductStatus.생산대기).product(product)
+            .build();
+        PartIo partIo = PartIo.builder()
+            .quantity(quantity).status(PartStatus.생산대기)
+            .productIo(productIo).part(part)
+            .build();
+        ProductIo subAssyIo = ProductIo.builder()
+            .quantity(quantity).status(ProductStatus.사내출고대기)
+            .superIo(productIo).product(subAssy)
+            .build();
+
+        //when
+        when(productIoRepository.findById(productIoId)).thenReturn(Optional.of(productIo));
+        UpdateProductionServiceResponse result = productionService.cancelProduction(
+            productIoId);
+
+        //then
+        UpdateProductionServiceResponse response = UpdateProductionServiceResponse.builder()
+            .productIoId(productIoId)
+            .productId(product.getId())
+            .quantity(quantity).build();
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+        assertThat(part.getStock()).isEqualTo(10 + quantity);
+        assertThat(subAssy.getStock()).isEqualTo(30 + quantity);
+        verifyIoStatus(productIo, subAssyIo, partIo);
+      }
+
+      private void verifyIoStatus(ProductIo productIo, ProductIo subAssyIo, PartIo partIo) {
+        assertThat(productIo.getStatus()).isEqualTo(ProductStatus.생산취소);
+        assertThat(subAssyIo.getStatus()).isEqualTo(ProductStatus.사내출고취소);
+        assertThat(partIo.getStatus()).isEqualTo(PartStatus.생산취소);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("존재하지 않는 productIoId로 찾으면 ProductIoNotFoundException이 발생한다.")
+      void productIoNotFound() {
+        //given
+        //when
+        when(productIoRepository.findById(productIoId)).thenReturn(Optional.empty());
+        //then
+        assertThrows(ProductIoNotFoundException.class,
+            () -> productionService.cancelProduction(productIoId));
+      }
     }
   }
 }
