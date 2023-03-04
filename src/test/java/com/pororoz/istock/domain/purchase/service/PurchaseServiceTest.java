@@ -376,7 +376,7 @@ public class PurchaseServiceTest {
       void partIoNotFound() {
         // given
         // when
-        when(partRepository.findById(request.getPartIoId())).thenReturn(Optional.empty());
+        when(partIoRepository.findById(request.getPartIoId())).thenReturn(Optional.empty());
 
         // then
         assertThrows(PartIoNotFoundException.class,
