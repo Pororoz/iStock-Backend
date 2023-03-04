@@ -8,9 +8,9 @@ import lombok.Getter;
 @Getter
 public class ConfirmProductionExceptionSwagger {
 
-  @Schema(description = "에러 명칭", example = ExceptionStatus.CONFIRM_PRODUCTION)
+  @Schema(description = "에러 명칭", example = ExceptionStatus.CHANGE_IO_STATUS)
   private String status;
 
-  @Schema(description = "상세 메시지", example = ExceptionMessage.CONFIRM_PRODUCTION)
+  @Schema(description = "상세 메시지", example = ExceptionMessage.CHANGE_IO_STATUS)
   private String message;
 }

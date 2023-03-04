@@ -65,8 +65,8 @@ public enum ErrorCode {
       ExceptionMessage.SUB_ASSY_NOT_FOUND),
   PRODUCT_IO_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_IO_NOT_FOUND,
       ExceptionMessage.PRODUCT_IO_NOT_FOUND),
-  CONFIRM_PRODUCTION(HttpStatus.BAD_REQUEST, ExceptionStatus.CONFIRM_PRODUCTION,
-      ExceptionMessage.CONFIRM_PRODUCTION);
+  CHANGE_IO_STATUS(HttpStatus.BAD_REQUEST, ExceptionStatus.CHANGE_IO_STATUS,
+      ExceptionMessage.CHANGE_IO_STATUS);
   private final HttpStatus statusCode;
 
   private final String status;

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
-import com.pororoz.istock.domain.production.exception.ConfirmProductionException;
+import com.pororoz.istock.domain.production.exception.ChangeIoStatusException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -64,7 +64,7 @@ class PartIoTest {
 
       //when
       //then
-      assertThrows(ConfirmProductionException.class, partIo::confirmPartProduction);
+      assertThrows(ChangeIoStatusException.class, partIo::confirmPartProduction);
     }
 
     @Test
@@ -75,7 +75,7 @@ class PartIoTest {
 
       //when
       //then
-      assertThrows(ConfirmProductionException.class, partIo::confirmPartProduction);
+      assertThrows(ChangeIoStatusException.class, partIo::confirmPartProduction);
     }
   }
 }

@@ -3,7 +3,7 @@ package com.pororoz.istock.domain.product.entity;
 import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.part.entity.PartIo;
-import com.pororoz.istock.domain.production.exception.ConfirmProductionException;
+import com.pororoz.istock.domain.production.exception.ChangeIoStatusException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -87,7 +87,7 @@ public class ProductIo extends TimeEntity {
 
   public void confirmProduction() {
     if (this.status != ProductStatus.생산대기) {
-      throw new ConfirmProductionException(ProductStatus.생산대기.name(), ProductStatus.생산완료.name(),
+      throw new ChangeIoStatusException(ProductStatus.생산대기.name(), ProductStatus.생산완료.name(),
           "id: " + this.id + ", 상태: " + this.status);
     }
     this.status = ProductStatus.생산완료;
@@ -95,7 +95,7 @@ public class ProductIo extends TimeEntity {
 
   public void confirmSubAssyProduction() {
     if (this.status != ProductStatus.사내출고대기) {
-      throw new ConfirmProductionException(ProductStatus.사내출고대기.name(), ProductStatus.사내출고완료.name(),
+      throw new ChangeIoStatusException(ProductStatus.사내출고대기.name(), ProductStatus.사내출고완료.name(),
           "id: " + this.id + ", 상태: " + this.status);
     }
     this.status = ProductStatus.사내출고완료;

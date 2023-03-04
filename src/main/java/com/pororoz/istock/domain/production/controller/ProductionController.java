@@ -65,7 +65,7 @@ public class ProductionController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.CONFIRM_PRODUCTION, content = {
           @Content(schema = @Schema(implementation = UpdateProductionResponseSwagger.class))}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.CONFIRM_PRODUCTION, content = {
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.CHANGE_IO_STATUS, content = {
           @Content(schema = @Schema(implementation = ConfirmProductionExceptionSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
