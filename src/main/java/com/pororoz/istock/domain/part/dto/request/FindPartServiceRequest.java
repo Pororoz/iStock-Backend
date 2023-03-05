@@ -10,4 +10,10 @@ public class FindPartServiceRequest {
   private Long partId;
   private String partName;
   private String spec;
+
+  public FindPartServiceRequest(Long partId, String partName, String spec) {
+    this.partId = partId;
+    this.partName = partName;
+    this.spec = spec;
+  }
 }

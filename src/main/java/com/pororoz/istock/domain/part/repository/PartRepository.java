@@ -12,6 +12,8 @@ public interface PartRepository extends JpaRepository<Part, Long> {
 
   Optional<Part> findByPartNameAndSpec(String partName, String spec);
 
+  Part findPartByPartNameAndSpec(String partName, String spec);
+
   @Query(value = "SELECT p FROM Part p "
       + "WHERE ((:partId IS NULL OR p.id = :partId) AND "
       + "(:partName IS NULL OR p.partName = :partName) AND "

@@ -122,4 +122,13 @@ public class ProductService {
       bomRepository.updateProductNumber(oldNumber, newNumber);
     }
   }
+
+  public Product findProductByProductNumberAndProductName(String productNumber, String productName) {
+    return productRepository.findProductByProductNumberAndProductName(productNumber, productName);
+  }
+
+  public Product findProductById(Long productId) {
+    return productRepository.findProductById(productId);
+  }
+
 }

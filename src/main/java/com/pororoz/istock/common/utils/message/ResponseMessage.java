@@ -24,6 +24,7 @@ public class ResponseMessage {
   public static final String DELETE_BOM = "BOM 행 제거";
   public static final String UPDATE_BOM = "BOM 행 수정";
 
+  public static final String UPLOAD_CSV = "CSV 업로드";
   private ResponseMessage() {
   }
 }

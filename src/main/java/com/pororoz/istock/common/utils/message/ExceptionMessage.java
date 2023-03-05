@@ -32,6 +32,7 @@ public class ExceptionMessage {
   public static final String SELF_DEMOTE_ROLE = "본인의 권한을 강등시킬 수 없습니다.";
   public static final String SELF_DELETE_ACCOUNT = "본인의 계정을 삭제 할 수 없습니다.";
 
+  public static final String INVALID_FILE = "유효하지 않은 파일입니다. 파일을 다시 확인하세요.";
   private ExceptionMessage() {
   }
 }
