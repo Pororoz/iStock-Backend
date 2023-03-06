@@ -28,6 +28,7 @@ import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import com.pororoz.istock.domain.purchase.exception.ConfirmPurchaseException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -355,14 +356,8 @@ public class PurchaseServiceTest {
         ConfirmPurchasePartServiceResponse result = purchaseService.confirmPurchasePart(request);
 
         // then
-        ArgumentCaptor<Part> capturedPart = ArgumentCaptor.forClass(Part.class);
-        verify(partRepository).save(capturedPart.capture());
-        assertThat(capturedPart.getValue().getStock()).isEqualTo(stock + quantity);
-
-        ArgumentCaptor<PartIo> capturedPartIo = ArgumentCaptor.forClass(PartIo.class);
-        verify(partIoRepository).save(capturedPartIo.capture());
-        assertThat(capturedPartIo.getValue().getStatus()).isEqualTo(PartStatus.구매확정);
-
+        assertThat(part.getStock()).isEqualTo(stock + quantity);
+        assertThat(partIo.getStatus()).isEqualTo(partStatus.구매확정);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
@@ -381,6 +376,27 @@ public class PurchaseServiceTest {
         // then
         assertThrows(PartIoNotFoundException.class,
             () -> purchaseService.confirmPurchasePart(request));
+      }
+
+      @Test
+      @DisplayName("구매대기 상태가 아닌 경우, 구매확정으로 상태를 바꿀 수 없다.")
+      void notPurchaseWaiting() {
+        // given
+        Part part = Part.builder().id(partId).stock(stock).build();
+        PartIo partIo = PartIo.builder()
+            .id(partIoId)
+            .quantity(quantity)
+            .status(PartStatus.구매확정)
+            .part(part)
+            .build();
+
+        // when
+        when(partIoRepository.findById(request.getPartIoId())).thenReturn(Optional.of(partIo));
+
+        // then
+        assertThrows(ConfirmPurchaseException.class,
+            () -> purchaseService.confirmPurchasePart(request));
+
       }
     }
   }

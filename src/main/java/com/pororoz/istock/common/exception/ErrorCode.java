@@ -64,7 +64,9 @@ public enum ErrorCode {
   SUB_ASSY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.SUB_ASSY_NOT_FOUND,
       ExceptionMessage.SUB_ASSY_NOT_FOUND),
   PART_IO_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PART_IO_NOT_FOUND,
-      ExceptionMessage.PART_IO_NOT_FOUND)
+      ExceptionMessage.PART_IO_NOT_FOUND),
+  CONFIRM_PURCHASE(HttpStatus.BAD_REQUEST, ExceptionStatus.CONFIRM_PURCHASE,
+      ExceptionMessage.CONFIRM_PURCHASE);
   ;
 
   private final HttpStatus statusCode;

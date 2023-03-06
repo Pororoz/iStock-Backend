@@ -29,6 +29,7 @@ public class ExceptionStatus {
   public static final String BOM_SUB_ASSY_DUPLICATED = "BOM_SUB_ASSY_DUPLICATED";
   public static final String SUB_ASSY_NOT_FOUND = "SUB_ASSY_NOT_FOUND";
   public static final String PART_IO_NOT_FOUND = "PART_IO_NOT_FOUND";
+  public static final String CONFIRM_PURCHASE = "CONFIRM_PURCHASE";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";

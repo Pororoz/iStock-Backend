@@ -66,17 +66,12 @@ public class PurchaseService {
       ConfirmPurchasePartServiceRequest request) {
     PartIo partIo = partIoRepository.findById(request.getPartIoId())
         .orElseThrow(PartIoNotFoundException::new);
-    Part part = partIo.getPart();
 
-    part.setStock(part.getStock() + partIo.getQuantity());
-    partRepository.save(part);
-
-    partIo.setStatus(PartStatus.구매확정);
-    partIoRepository.save(partIo);
+    partIo.confirmPurchase();
+    partIo.getPart().addStock(partIo.getQuantity());
 
     return ConfirmPurchasePartServiceResponse.of(partIo);
   }
-
 
   void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
     List<PartIo> partIoList = new ArrayList<>();

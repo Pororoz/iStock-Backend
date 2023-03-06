@@ -19,9 +19,10 @@ import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequ
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
-import com.pororoz.istock.domain.purchase.swagger.ConfirmPurchasePartResponseSwagger;
-import com.pororoz.istock.domain.purchase.swagger.PurchasePartResponseSwagger;
-import com.pororoz.istock.domain.purchase.swagger.PurchaseProductResponseSwagger;
+import com.pororoz.istock.domain.purchase.swagger.exception.ConfirmPurchaseExceptionSwagger;
+import com.pororoz.istock.domain.purchase.swagger.response.ConfirmPurchasePartResponseSwagger;
+import com.pororoz.istock.domain.purchase.swagger.response.PurchasePartResponseSwagger;
+import com.pororoz.istock.domain.purchase.swagger.response.PurchaseProductResponseSwagger;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -98,6 +99,8 @@ public class PurchaseController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.CONFIRM_PURCHASE_PART, content = {
           @Content(schema = @Schema(implementation = ConfirmPurchasePartResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.CONFIRM_PURCHASE, content = {
+          @Content(schema = @Schema(implementation = ConfirmPurchaseExceptionSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PART_IO_NOT_FOUND, content = {

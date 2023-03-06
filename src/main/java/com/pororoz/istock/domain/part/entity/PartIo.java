@@ -3,6 +3,7 @@ package com.pororoz.istock.domain.part.entity;
 import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.product.entity.ProductIo;
+import com.pororoz.istock.domain.purchase.exception.ConfirmPurchaseException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -22,7 +23,6 @@ import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -61,5 +61,13 @@ public class PartIo extends TimeEntity {
         .quantity(bom.getQuantity() * quantity)
         .status(status)
         .productIo(productIo).build();
+  }
+
+  public void confirmPurchase() {
+    if (this.status != PartStatus.구매대기) {
+      throw new ConfirmPurchaseException(PartStatus.생산대기.name(), PartStatus.생산완료.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = PartStatus.구매확정;
   }
 }
