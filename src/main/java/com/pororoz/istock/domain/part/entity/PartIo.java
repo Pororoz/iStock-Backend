@@ -3,6 +3,7 @@ package com.pororoz.istock.domain.part.entity;
 import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.product.entity.ProductIo;
+import com.pororoz.istock.domain.production.exception.ConfirmProductionException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,19 +12,17 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class PartIo extends TimeEntity {
 
   @Id
@@ -45,7 +44,20 @@ public class PartIo extends TimeEntity {
   private Part part;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "product_io_id")
   private ProductIo productIo;
+
+  @Builder
+  public PartIo(Long id, long quantity, PartStatus status, Part part, ProductIo productIo) {
+    this.id = id;
+    this.quantity = quantity;
+    this.status = status;
+    this.part = part;
+    this.productIo = productIo;
+    if (productIo != null) {
+      productIo.getPartIoList().add(this);
+    }
+  }
 
   public static PartIo createPartIo(Bom bom, ProductIo productIo, Long quantity,
       PartStatus status) {
@@ -59,5 +71,13 @@ public class PartIo extends TimeEntity {
         .quantity(bom.getQuantity() * quantity)
         .status(status)
         .productIo(productIo).build();
+  }
+
+  public void confirmPartProduction() {
+    if (this.status != PartStatus.생산대기) {
+      throw new ConfirmProductionException(PartStatus.생산대기.name(), PartStatus.생산완료.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = PartStatus.생산완료;
   }
 }

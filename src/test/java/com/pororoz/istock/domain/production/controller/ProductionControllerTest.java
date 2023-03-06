@@ -13,8 +13,10 @@ import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.production.dto.response.UpdateProductionResponse;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceRequest;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceResponse;
+import com.pororoz.istock.domain.production.dto.service.UpdateProductionServiceResponse;
 import com.pororoz.istock.domain.production.service.ProductionService;
 import java.util.HashMap;
 import java.util.Map;
@@ -122,6 +124,59 @@ class ProductionControllerTest extends ControllerTest {
       actions.andExpect(status().isBadRequest())
           .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
           .andDo(print());
+    }
+  }
+
+  @Nested
+  @DisplayName("제품 생산 확정")
+  class ConfirmProduction {
+
+    Long productIoId = 1L;
+    Long productId = 1L;
+    long quantity = 10;
+
+    String getUri(Long productIoId) {
+      return "/v1/production/product-io/" + productIoId + "/confirm";
+    }
+
+    @Test
+    @DisplayName("제품 생산 확정 요청을 받는다")
+    void confirmProduction() throws Exception {
+      //given
+      String uri = getUri(productIoId);
+      UpdateProductionServiceResponse serviceResponse = UpdateProductionServiceResponse.builder()
+          .productIoId(productIoId)
+          .productId(productId)
+          .quantity(quantity).build();
+
+      //when
+      when(productionService.confirmProduction(productIoId)).thenReturn(serviceResponse);
+      ResultActions actions = getResultActions(uri, HttpMethod.POST);
+
+      //then
+      UpdateProductionResponse response = UpdateProductionResponse.builder()
+          .productIoId(productIoId)
+          .productId(productId)
+          .quantity(quantity).build();
+
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_PRODUCTION))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("productIoId는 null이면 안된다.")
+    void productIoIdNotNull() throws Exception {
+      //given
+      String uri = getUri(null);
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.POST);
+
+      //then
+      actions.andExpect(status().isBadRequest()).andDo(print());
     }
   }
 }

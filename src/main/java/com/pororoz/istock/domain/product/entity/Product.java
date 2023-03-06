@@ -61,7 +61,7 @@ public class Product extends TimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   private Category category;
 
-  @OneToMany(mappedBy = "product")
+  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
   @Builder.Default
   private List<Bom> boms = new ArrayList<>();
 
@@ -74,11 +74,11 @@ public class Product extends TimeEntity {
     this.category = category;
   }
 
-  public void setBoms(List<Bom> boms) {
-    this.boms = boms;
-    for (Bom b : boms) {
-      b.setProduct(this);
+  public void addStock(long quantity) {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("0혹은 양수만 stock에 더할 수 있습니다.");
     }
+    this.stock += quantity;
   }
 
   public void subtractStock(long quantity) {

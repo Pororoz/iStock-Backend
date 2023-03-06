@@ -14,7 +14,7 @@ public class ExceptionStatus {
   public static final String PRODUCT_NOT_FOUND = "PRODUCT_NOT_FOUND";
   public static final String DUPLICATE_BOM = "DUPLICATE_BOM_COMBINATION";
   public static final String BOM_NOT_FOUND = "BOM_NOT_FOUND";
-  public static final String INVALID_SUB_ASSY_BOM_REQUEST = "INVALID_SUB_ASSY_BOM_REQUEST";
+  public static final String INVALID_SUB_ASSY_BOM = "INVALID_SUB_ASSY_BOM_REQUEST";
   public static final String SUB_ASSY_CANNOT_HAVE_SUB_ASSY = "SUB_ASSY_CANNOT_HAVE_SUB_ASSY";
   public static final String INVALID_PRODUCT_BOM = "INVALID_PRODUCT_BOM";
   public static final String SUB_ASSY_BOM_EXIST = "SUB_ASSY_BOM_EXIST";
@@ -28,6 +28,8 @@ public class ExceptionStatus {
   public static final String BOM_AND_SUB_ASSY_NOT_MATCHED = "BOM_AND_SUB_ASSY_NOT_MATCH";
   public static final String BOM_SUB_ASSY_DUPLICATED = "BOM_SUB_ASSY_DUPLICATED";
   public static final String SUB_ASSY_NOT_FOUND = "SUB_ASSY_NOT_FOUND";
+  public static final String PRODUCT_IO_NOT_FOUND = "PRODUCT_IO_NOT_FOUND";
+  public static final String CONFIRM_PRODUCTION = "CONFIRM_PRODUCTION";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";

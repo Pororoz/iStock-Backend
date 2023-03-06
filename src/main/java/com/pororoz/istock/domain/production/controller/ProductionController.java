@@ -5,12 +5,16 @@ import com.pororoz.istock.common.swagger.exception.AccessForbiddenSwagger;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.product.swagger.exception.ProductIoNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.production.dto.request.SaveProductionRequest;
 import com.pororoz.istock.domain.production.dto.response.SaveProductionResponse;
+import com.pororoz.istock.domain.production.dto.response.UpdateProductionResponse;
 import com.pororoz.istock.domain.production.service.ProductionService;
-import com.pororoz.istock.domain.production.swagger.SaveProductionResponseSwagger;
 import com.pororoz.istock.domain.production.swagger.exception.BomAndSubAssyNotMatchExceptionSwagger;
+import com.pororoz.istock.domain.production.swagger.exception.ConfirmProductionExceptionSwagger;
 import com.pororoz.istock.domain.production.swagger.exception.ProductOrBomNotFoundExceptionSwagger;
+import com.pororoz.istock.domain.production.swagger.response.SaveProductionResponseSwagger;
+import com.pororoz.istock.domain.production.swagger.response.UpdateProductionResponseSwagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,7 +43,7 @@ public class ProductionController {
 
   @Operation(summary = "wait production", description = "제품 생산 대기 API")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = ResponseMessage.SAVE_PRODUCT, content = {
+      @ApiResponse(responseCode = "200", description = ResponseMessage.WAIT_PRODUCTION, content = {
           @Content(schema = @Schema(implementation = SaveProductionResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCHED, content = {
           @Content(schema = @Schema(implementation = BomAndSubAssyNotMatchExceptionSwagger.class))}),
@@ -55,5 +59,24 @@ public class ProductionController {
         .saveWaitingProduction(request.toService(productId)).toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.WAIT_PRODUCTION, response));
+  }
+
+  @Operation(summary = "confirm production", description = "제품 생산 완료 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.CONFIRM_PRODUCTION, content = {
+          @Content(schema = @Schema(implementation = UpdateProductionResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.CONFIRM_PRODUCTION, content = {
+          @Content(schema = @Schema(implementation = ConfirmProductionExceptionSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_IO_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = ProductIoNotFoundExceptionSwagger.class))})})
+  @PostMapping("/product-io/{productIoId}/confirm")
+  public ResponseEntity<ResultDTO<UpdateProductionResponse>> confirmProduction(
+      @PathVariable("productIoId") @Positive Long productIoId) {
+    UpdateProductionResponse response = productionService.confirmProduction(
+        productIoId).toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CONFIRM_PRODUCTION, response));
   }
 }

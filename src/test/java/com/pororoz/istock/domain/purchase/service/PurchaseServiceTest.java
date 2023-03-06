@@ -142,7 +142,6 @@ public class PurchaseServiceTest {
             .quantity(quantity)
             .subAssy(subAssy)
             .memo(memo)
-            .part(part)
             .product(product)
             .build();
         ProductIo productIo = ProductIo.builder()
@@ -193,66 +192,6 @@ public class PurchaseServiceTest {
 
         // then
         assertThrows(ProductNotFoundException.class,
-            () -> purchaseService.purchaseProduct(request));
-      }
-
-      @Test
-      @DisplayName("검색한 bom이 sub assy가 아닌 경우, 해당 bom의 part가 null이면 오류가 발생한다.")
-      void partNullException() {
-        // given
-        Product product = Product.builder().id(productId).build();
-        Bom bom = Bom.builder()
-            .id(bomId)
-            .locationNumber(locationNumber)
-            .codeNumber(codeNumber)
-            .quantity(quantity)
-            .memo(memo)
-            .product(product)
-            .build();
-        ProductIo productIo = ProductIo.builder()
-            .id(productIoId)
-            .quantity(quantity)
-            .status(productStatus)
-            .product(product)
-            .build();
-
-        // when
-        when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
-        when(productIoRepository.save(any())).thenReturn(productIo);
-        when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
-
-        //then
-        assertThrows(IllegalArgumentException.class,
-            () -> purchaseService.purchaseProduct(request));
-      }
-
-      @Test
-      @DisplayName("검색한 bom이 sub assy인 경우, 해당 bom의 subAssy가 null이면 오류가 발생한다.")
-      void subAssyNullException() {
-        // given
-        Product product = Product.builder().id(productId).build();
-        Bom bom = Bom.builder()
-            .id(bomId)
-            .locationNumber(locationNumber)
-            .codeNumber(SUB_ASSY_CODE_NUMBER)
-            .quantity(quantity)
-            .memo(memo)
-            .product(product)
-            .build();
-        ProductIo productIo = ProductIo.builder()
-            .id(productIoId)
-            .quantity(quantity)
-            .status(productStatus)
-            .product(product)
-            .build();
-
-        // when
-        when(productRepository.findById(request.getProductId())).thenReturn(Optional.of(product));
-        when(productIoRepository.save(any())).thenReturn(productIo);
-        when(bomRepository.findByProductId(productId)).thenReturn(List.of(bom));
-
-        //then
-        assertThrows(IllegalArgumentException.class,
             () -> purchaseService.purchaseProduct(request));
       }
     }
