@@ -5,6 +5,9 @@ spring:
     # build profile이 실행되면 secret도 함께 실행
     group:
       "build": "secret"
+  jpa:
+    properties:
+      hibernate.default_batch_fetch_size: 100
 ---
 # build config
 spring:

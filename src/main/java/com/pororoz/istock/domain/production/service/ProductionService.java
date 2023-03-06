@@ -7,10 +7,12 @@ import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.entity.ProductStatus;
+import com.pororoz.istock.domain.product.exception.ProductIoNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceRequest;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceResponse;
+import com.pororoz.istock.domain.production.dto.service.UpdateProductionServiceResponse;
 import com.pororoz.istock.domain.production.exception.ProductOrBomNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +29,6 @@ public class ProductionService {
   private final ProductRepository productRepository;
   private final ProductIoRepository productIoRepository;
 
-  private final String SUB_ASSY_CODE_NUMBER = "11";
-
   public SaveProductionServiceResponse saveWaitingProduction(SaveProductionServiceRequest request) {
     Product product = productRepository.findByIdWithPartsAndSubAssies(request.getProductId())
         .orElseThrow(ProductOrBomNotFoundException::new);
@@ -39,6 +39,20 @@ public class ProductionService {
         .productId(productIo.getProduct().getId())
         .quantity(productIo.getQuantity())
         .build();
+  }
+
+  public UpdateProductionServiceResponse confirmProduction(Long productIoId) {
+    ProductIo productIo = productIoRepository.findById(productIoId)
+        .orElseThrow(ProductIoNotFoundException::new);
+    productIo.getProduct().addStock(productIo.getQuantity());
+    productIo.confirmProduction();
+    productIo.getPartIoList().forEach(PartIo::confirmPartProduction);
+    productIo.getSubAssyIoList().forEach(ProductIo::confirmSubAssyProduction);
+
+    return UpdateProductionServiceResponse.builder()
+        .productIoId(productIoId)
+        .productId(productIo.getProduct().getId())
+        .quantity(productIo.getQuantity()).build();
   }
 
   private ProductIo saveProductIo(long quantity, Product product) {
@@ -54,7 +68,7 @@ public class ProductionService {
     List<ProductIo> subAssyIoList = new ArrayList<>();
 
     for (Bom bom : boms) {
-      if (SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
+      if (Bom.SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
         ProductIo subAssyIo = ProductIo.createSubAssyIo(bom, productIo, quantity,
             ProductStatus.사내출고대기);
         bom.getSubAssy().subtractStock(bom.getQuantity() * quantity);

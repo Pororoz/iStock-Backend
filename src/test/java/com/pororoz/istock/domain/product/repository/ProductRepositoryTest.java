@@ -252,19 +252,14 @@ class ProductRepositoryTest extends RepositoryTest {
           .codeNumber("11").productName("name2")
           .productNumber("subAssyNumber").category(category1)
           .build());
-      Bom bom1 = em.persist(Bom.builder()
+      em.persist(Bom.builder()
           .locationNumber("location1")
           .product(product).part(part)
           .build());
-      Bom bom2 = em.persist(Bom.builder()
+      em.persist(Bom.builder()
           .locationNumber("location2").codeNumber("11")
           .product(product).subAssy(subAssy)
           .build());
-      Bom bom3 = em.persist(Bom.builder()
-          .locationNumber("location3")
-          .product(product)
-          .build());
-      product.setBoms(List.of(bom1, bom2, bom3));
       em.flush();
       em.clear();
 

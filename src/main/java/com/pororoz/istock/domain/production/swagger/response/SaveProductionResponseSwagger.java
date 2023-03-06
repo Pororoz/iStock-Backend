@@ -1,4 +1,4 @@
-package com.pororoz.istock.domain.production.swagger;
+package com.pororoz.istock.domain.production.swagger.response;
 
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;

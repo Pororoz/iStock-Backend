@@ -9,7 +9,6 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.exception.BomNotFoundException;
 import com.pororoz.istock.domain.bom.exception.BomSubAssyDuplicatedException;
 import com.pororoz.istock.domain.bom.exception.DuplicateBomException;
-import com.pororoz.istock.domain.bom.exception.InvalidProductBomException;
 import com.pororoz.istock.domain.bom.exception.InvalidSubAssyBomException;
 import com.pororoz.istock.domain.bom.exception.SubAssyCannotHaveSubAssyException;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
@@ -20,6 +19,7 @@ import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.SubAssyNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,8 +35,6 @@ public class BomService {
   private final ProductRepository productRepository;
   private final BomRepository bomRepository;
 
-  private final String SUB_ASSY_CODE_NUMBER = "11";
-
   @Transactional(readOnly = true)
   public Page<FindBomServiceResponse> findBomList(FindBomServiceRequest request,
       Pageable pageable) {
@@ -46,15 +44,14 @@ public class BomService {
   }
 
   public BomServiceResponse saveBom(SaveBomServiceRequest request) {
-    validateRequest(request.getCodeNumber(), request.getPartId(), request.getSubAssyId());
     Part part = findPartById(request.getPartId());
     Product subAssy = findSubAssyById(request.getSubAssyId());
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
     checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getSubAssyId(),
         request.getPartId(), null);
-    if (SUB_ASSY_CODE_NUMBER.equals(request.getCodeNumber())) {
-      if (SUB_ASSY_CODE_NUMBER.equals(product.getCodeNumber())) {
+    if (Bom.SUB_ASSY_CODE_NUMBER.equals(request.getCodeNumber())) {
+      if (Bom.SUB_ASSY_CODE_NUMBER.equals(product.getCodeNumber())) {
         throw new SubAssyCannotHaveSubAssyException();
       }
       checkDuplicateSubAssy(request.getProductId(), request.getSubAssyId(), null);
@@ -70,7 +67,6 @@ public class BomService {
   }
 
   public BomServiceResponse updateBom(UpdateBomServiceRequest request) {
-    validateRequest(request.getCodeNumber(), request.getPartId(), request.getSubAssyId());
     Bom existBom = bomRepository.findById(request.getBomId())
         .orElseThrow(BomNotFoundException::new);
     Part part = findPartById(request.getPartId());
@@ -79,39 +75,17 @@ public class BomService {
         .orElseThrow(ProductNotFoundException::new);
     checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getSubAssyId(),
         request.getPartId(), existBom.getId());
-    if (SUB_ASSY_CODE_NUMBER.equals(request.getCodeNumber())) {
-      if (SUB_ASSY_CODE_NUMBER.equals(product.getCodeNumber())) {
+    if (Bom.SUB_ASSY_CODE_NUMBER.equals(request.getCodeNumber())) {
+      if (Bom.SUB_ASSY_CODE_NUMBER.equals(product.getCodeNumber())) {
         throw new SubAssyCannotHaveSubAssyException();
       }
       // subAssy가 바뀔 경우 중복된 subAssy가 있는지 확인
-      // codeNumber가 11이기 때문에 subAssy는 null이 아닌지는 위에서 확인.
-      if (!subAssy.equals(existBom.getSubAssy())) {
+      if (!Objects.equals(subAssy, existBom.getSubAssy())) {
         checkDuplicateSubAssy(request.getProductId(), request.getSubAssyId(), existBom.getId());
       }
     }
     existBom.update(product, subAssy, part, request);
     return BomServiceResponse.of(existBom);
-  }
-
-  private void validateRequest(String codeNumber, Long partId, Long subAssyId) {
-    if (SUB_ASSY_CODE_NUMBER.equals(codeNumber)) {
-      validateSubAssyBom(partId, subAssyId);
-      return;
-    }
-    validateProductBom(partId, subAssyId);
-  }
-
-  // product number는 sub assy의 품명이어야 한다.
-  private void validateSubAssyBom(Long partId, Long subAssyId) {
-    if (subAssyId == null || partId != null) {
-      throw new InvalidSubAssyBomException();
-    }
-  }
-
-  private void validateProductBom(Long partId, Long subAssyId) {
-    if (subAssyId != null || partId == null) {
-      throw new InvalidProductBomException();
-    }
   }
 
   private Part findPartById(Long partId) {
@@ -125,7 +99,7 @@ public class BomService {
     }
     Product subAssy = productRepository.findById(subAssyId)
         .orElseThrow(SubAssyNotFoundException::new);
-    if (!SUB_ASSY_CODE_NUMBER.equals(subAssy.getCodeNumber())) {
+    if (!Bom.SUB_ASSY_CODE_NUMBER.equals(subAssy.getCodeNumber())) {
       throw new InvalidSubAssyBomException();
     }
     return subAssy;

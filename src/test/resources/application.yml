@@ -10,6 +10,8 @@ spring:
       ddl-auto: create
     open-in-view: true
     defer-datasource-initialization: true
+    properties:
+      hibernate.default_batch_fetch_size: 100
   sql:
     init:
       mode: always

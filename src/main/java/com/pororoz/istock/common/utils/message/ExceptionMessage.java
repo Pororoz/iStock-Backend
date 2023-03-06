@@ -24,9 +24,9 @@ public class ExceptionMessage {
   public static final String PRODUCT_NOT_FOUND = "해당 제품을 찾을 수 없습니다.";
   public static final String DUPLICATE_BOM = "location_number, product_id, part_id의 조합이 중복됩니다.";
   public static final String BOM_NOT_FOUND = "존재하지 않는 BOM입니다.";
-  public static final String INVALID_SUB_ASSY_BOM_REQUEST = "Sub assy BOM은 sub assy id가 필요하고 partId가 null이어야 합니다.";
+  public static final String INVALID_SUB_ASSY_BOM = "Sub assy BOM은 sub assy가 필요하고 part가 null이어야 합니다.";
   public static final String SUB_ASSY_CANNOT_HAVE_SUB_ASSY = "Sub assy는 sub assy를 BOM으로 가질 수 없습니다.";
-  public static final String INVALID_PRODUCT_BOM = "product BOM은 partId가 필요하고 productNumber가 null이어야 합니다.";
+  public static final String INVALID_PRODUCT_BOM = "Product BOM은 part가 필요하고 sub assy가 null이어야 합니다.";
   public static final String SUB_ASSY_BOM_EXIST = "해당 제품의 BOM에 sub assy가 존재합니다. Sub assy는 sub assy를 가질 수 없습니다.";
   public static final String REGISTERED_AS_SUB_ASSY = "다른 제품의 BOM에 sub assy로 등록되어 있습니다.";
   public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "Sub assy 목록에 BOM의 productNumber와 일치하는 product가 없습니다.";
@@ -41,6 +41,8 @@ public class ExceptionMessage {
   public static final String BOM_SUB_ASSY_DUPLICATED =
       "제품의 BOM에 이미 같은 sub assy가 존재합니다. 중복된 sub assy는 등록할 수 없습니다.";
   public static final String SUB_ASSY_NOT_FOUND = "해당 sub assy를 찾을 수 없습니다.";
+  public static final String PRODUCT_IO_NOT_FOUND = "해당 product io를 찾을 수 없습니다.";
+  public static final String CONFIRM_PRODUCTION = "잘못된 생산 상태 수정입니다.";
 
   public static final String PART_IO_NOT_FOUND = "해당 part IO를 찾을 수 없습니다.";
   public static final String CONFIRM_PURCHASE = "잘못된 구매 상태 수정입니다.";

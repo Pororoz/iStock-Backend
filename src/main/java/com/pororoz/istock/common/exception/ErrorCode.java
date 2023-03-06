@@ -30,8 +30,8 @@ public enum ErrorCode {
       ExceptionMessage.DUPLICATE_BOM),
   BOM_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.BOM_NOT_FOUND,
       ExceptionMessage.BOM_NOT_FOUND),
-  INVALID_SUB_ASSY_BOM_REQUEST(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_SUB_ASSY_BOM_REQUEST,
-      ExceptionMessage.INVALID_SUB_ASSY_BOM_REQUEST),
+  INVALID_SUB_ASSY_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_SUB_ASSY_BOM,
+      ExceptionMessage.INVALID_SUB_ASSY_BOM),
   SUB_ASSY_CANNOT_HAVE_SUB_ASSY(HttpStatus.BAD_REQUEST,
       ExceptionStatus.SUB_ASSY_CANNOT_HAVE_SUB_ASSY,
       ExceptionMessage.SUB_ASSY_CANNOT_HAVE_SUB_ASSY),
@@ -66,9 +66,11 @@ public enum ErrorCode {
   PART_IO_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PART_IO_NOT_FOUND,
       ExceptionMessage.PART_IO_NOT_FOUND),
   CONFIRM_PURCHASE(HttpStatus.BAD_REQUEST, ExceptionStatus.CONFIRM_PURCHASE,
-      ExceptionMessage.CONFIRM_PURCHASE);
-  ;
-
+      ExceptionMessage.CONFIRM_PURCHASE),
+  PRODUCT_IO_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_IO_NOT_FOUND,
+      ExceptionMessage.PRODUCT_IO_NOT_FOUND),
+  CONFIRM_PRODUCTION(HttpStatus.BAD_REQUEST, ExceptionStatus.CONFIRM_PRODUCTION,
+      ExceptionMessage.CONFIRM_PRODUCTION);
   private final HttpStatus statusCode;
 
   private final String status;

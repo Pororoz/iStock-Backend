@@ -185,7 +185,7 @@ class ProductServiceTest {
       @DisplayName("완성품을 sub asssay로 수정한다.")
       void changeToSubAssy() {
         //given
-        Bom bom = Bom.builder().codeNumber("not sub assy").build();
+        Bom bom = Bom.builder().codeNumber("not sub assy").part(mock(Part.class)).build();
         UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
             .productId(id).productNumber("new pnumber")
             .productName("new pname").codeNumber("11")
@@ -338,8 +338,10 @@ class ProductServiceTest {
       @DisplayName("완성품을 sub assy로 수정하는데, 해당 bom에 sub assy가 존재하면 예외가 발생한다.")
       void changeToSubAssyThenSubAssyBomExist() {
         //given
-        Bom bom = Bom.builder().codeNumber("not sub assy").build();
-        Bom subAssybom = Bom.builder().codeNumber("11").build();
+        Part part = Part.builder().build();
+        Product subAssy = Product.builder().build();
+        Bom bom = Bom.builder().codeNumber("not sub assy").part(part).build();
+        Bom subAssybom = Bom.builder().codeNumber("11").subAssy(subAssy).build();
         UpdateProductServiceRequest request = UpdateProductServiceRequest.builder()
             .productId(id).productNumber("new pnumber")
             .productName("new pname").codeNumber("11")
@@ -452,10 +454,10 @@ class ProductServiceTest {
         .category(subCategory).build();
     Bom assyBom1 = Bom.builder()
         .locationNumber("assy1").quantity(1).subAssy(subAssy1)
-        .codeNumber("11").part(part).build();
+        .codeNumber("11").build();
     Bom assyBom2 = Bom.builder()
         .locationNumber("assy2").quantity(2).subAssy(subAssy2)
-        .codeNumber("11").part(part).build();
+        .codeNumber("11").build();
     Bom otherBom = Bom.builder().codeNumber("0").part(part).build();
 
     @Nested
@@ -473,7 +475,9 @@ class ProductServiceTest {
         List<Product> products = new ArrayList<>();
         for (int i = 0; i < size; i++) {
           Product product = Product.builder().id((long) i).category(category).build();
-          product.setBoms(List.of(assyBom1, assyBom2, otherBom));
+          product.getBoms().add(assyBom1);
+          product.getBoms().add(assyBom2);
+          product.getBoms().add(otherBom);
           products.add(product);
         }
         PageImpl<Product> productPage = new PageImpl<>(products, PageRequest.of(page, size), total);
@@ -503,7 +507,6 @@ class ProductServiceTest {
         for (FindProductWithSubAssyServiceResponse findResponse : result.getContent()) {
           ProductServiceResponse productResponse = findResponse.getProductServiceResponse();
           assertThat(productResponse.getProductId()).isEqualTo(i++);
-          assertThat(findResponse.getSubAssyServiceResponses()).hasSize(2);
           assertThat(findResponse.getSubAssyServiceResponses())
               .usingRecursiveComparison()
               .ignoringCollectionOrder()

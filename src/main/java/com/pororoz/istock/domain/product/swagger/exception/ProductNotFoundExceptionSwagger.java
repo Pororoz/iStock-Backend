@@ -8,7 +8,7 @@ import lombok.Getter;
 @Getter
 public class ProductNotFoundExceptionSwagger {
 
-  @Schema(description = "에러 명칭", example = ExceptionStatus.BAD_REQUEST)
+  @Schema(description = "에러 명칭", example = ExceptionStatus.PRODUCT_NOT_FOUND)
   private String status;
 
   @Schema(description = "상세 메시지", example = ExceptionMessage.PRODUCT_NOT_FOUND)
