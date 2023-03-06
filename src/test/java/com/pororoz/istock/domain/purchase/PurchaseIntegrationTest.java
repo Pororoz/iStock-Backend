@@ -13,11 +13,15 @@ import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.part.entity.Part;
+import com.pororoz.istock.domain.part.entity.PartIo;
+import com.pororoz.istock.domain.part.entity.PartStatus;
+import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
+import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
 import java.util.ArrayList;
@@ -41,6 +45,9 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
   @Autowired
   PartRepository partRepository;
+
+  @Autowired
+  PartIoRepository partIoRepository;
 
   @Autowired
   CategoryRepository categoryRepository;
@@ -78,10 +85,23 @@ public class PurchaseIntegrationTest extends IntegrationTest {
           .product(products.get((int) (Math.random() * 9)))
           .build());
     }
+    //partIo 저장
+    partIoRepository.save(PartIo.builder()
+        .quantity(10)
+        .status(PartStatus.구매대기)
+        .part(parts.get(0))
+        .build()
+    );
+    partIoRepository.save(PartIo.builder()
+        .quantity(10)
+        .status(PartStatus.구매확정)
+        .part(parts.get(0))
+        .build()
+    );
   }
 
   @Nested
-  @DisplayName("POST /v1/purchase/product - 제품 자재 일괄 구매")
+  @DisplayName("POST /v1/purchase/products/{productId}/waiting - 제품 자재 일괄 구매")
   class PurchaseProduct {
 
     String url(Long productId) {
@@ -158,7 +178,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
   }
 
   @Nested
-  @DisplayName("POST /v1/purchase/part - 제품 자재 개별 구매")
+  @DisplayName("POST /v1/purchase/parts/{partId}/waiting - 제품 자재 개별 구매")
   class PurchasePart {
 
     private String url(Long partId) {
@@ -228,6 +248,88 @@ public class PurchaseIntegrationTest extends IntegrationTest {
         ResultActions actions = getResultActions(url(1L), HttpMethod.POST, request);
 
         //then
+        actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("POST /v1/purchase/part-io/{partIoId}/confirm - 제품 자재 구매 확정")
+  class ConfirmPurchasePart {
+
+    private String url(Long partIoId) {
+      return String.format("http://localhost:8080/v1/purchase/part-io/%s/confirm", partIoId);
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @WithMockUser
+      @DisplayName("제품 자재 구매 확정 요청에 성공한다.")
+      void confirmPurchasePart() throws Exception {
+        // given
+        ConfirmPurchasePartResponse response = ConfirmPurchasePartResponse.builder()
+            .partIoId(1L)
+            .partId(1L)
+            .quantity(10L)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(url(1L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_PURCHASE_PART))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @WithMockUser
+      @DisplayName("구매대기 상태가 아닌 경우, 구매확정 상태로 변경할 수 없다.")
+      void notPurchaseWaiting() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(2L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser
+      @DisplayName("존재하지 않는 부품IO를 요청하면 구매 요청에 실패한다.")
+      void partIoNotFound() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(100L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isNotFound())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("인증되지 않은 사용자가 접근하면 FORBIDDEN을 반환한다.")
+      void forbidden() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(1L), HttpMethod.POST);
+
+        // then
         actions.andExpect(status().isForbidden())
             .andDo(print());
       }

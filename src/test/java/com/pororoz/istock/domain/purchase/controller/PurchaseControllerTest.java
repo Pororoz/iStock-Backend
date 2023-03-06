@@ -12,8 +12,10 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
+import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
+import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
@@ -38,13 +40,14 @@ public class PurchaseControllerTest extends ControllerTest {
   private Long productId = 1L;
   private long quantity = 300L;
   private Long partId = 1L;
+  private Long partIoId = 1L;
 
   @Nested
   @DisplayName("제품 자재 일괄 구매")
   class PurchaseProduct {
 
     private final String url(Long productId) {
-      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting",productId);
+      return String.format("http://localhost:8080/v1/purchase/products/%s/waiting", productId);
     }
 
     @Nested
@@ -68,14 +71,15 @@ public class PurchaseControllerTest extends ControllerTest {
             .build();
 
         // when
-        when(purchaseService.purchaseProduct(any(PurchaseProductServiceRequest.class))).thenReturn(serviceDto);
+        when(purchaseService.purchaseProduct(any(PurchaseProductServiceRequest.class))).thenReturn(
+            serviceDto);
         ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.PURCHASE_PRODUCT))
-            .andExpect(jsonPath("$.data",equalTo(asParsedJson(response))))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }
@@ -125,6 +129,7 @@ public class PurchaseControllerTest extends ControllerTest {
     private String url(Long partId) {
       return String.format("http://localhost:8080/v1/purchase/parts/%s/waiting", partId);
     }
+
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
@@ -146,14 +151,15 @@ public class PurchaseControllerTest extends ControllerTest {
             .build();
 
         // when
-        when(purchaseService.purchasePart(any(PurchasePartServiceRequest.class))).thenReturn(serviceDto);
+        when(purchaseService.purchasePart(any(PurchasePartServiceRequest.class))).thenReturn(
+            serviceDto);
         ResultActions actions = getResultActions(url(partId), HttpMethod.POST, request);
 
         //then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.PURCHASE_PART))
-            .andExpect(jsonPath("$.data",equalTo(asParsedJson(response))))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }
@@ -161,6 +167,7 @@ public class PurchaseControllerTest extends ControllerTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
       @Test
       @DisplayName("partId가 null이면 오류가 발생한다.")
       void partIdNullException() throws Exception {
@@ -187,6 +194,66 @@ public class PurchaseControllerTest extends ControllerTest {
 
         // when
         ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("제품 자재 구매 확정")
+  class ConfirmPurchasePart {
+
+    private String url(Long partIoId) {
+      return String.format("http://localhost:8080/v1/purchase/part-io/%s/confirm", partIoId);
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("구매를 확정하면 partIo의 상태가 대기에서 확정으로 변경된다.")
+      void confirmPurchasePart() throws Exception {
+        // given
+        ConfirmPurchasePartServiceResponse serviceDto = ConfirmPurchasePartServiceResponse.builder()
+            .partIoId((partIoId))
+            .partId(partId)
+            .quantity(quantity)
+            .build();
+        ConfirmPurchasePartResponse response = ConfirmPurchasePartResponse.builder()
+            .partIoId(partIoId)
+            .partId(partId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(purchaseService.confirmPurchasePart(any())).thenReturn(
+            serviceDto);
+        ResultActions actions = getResultActions(url(partIoId), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_PURCHASE_PART))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("partIoId가 null이면 오류가 발생한다.")
+      void partIoIdNullException() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST);
 
         //then
         actions.andExpect(status().isBadRequest())

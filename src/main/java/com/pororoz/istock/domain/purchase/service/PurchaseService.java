@@ -5,6 +5,7 @@ import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
+import com.pororoz.istock.domain.part.exception.PartIoNotFoundException;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
@@ -14,6 +15,8 @@ import com.pororoz.istock.domain.product.entity.ProductStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceRequest;
+import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
@@ -59,6 +62,16 @@ public class PurchaseService {
     return PurchasePartServiceResponse.of(request);
   }
 
+  public ConfirmPurchasePartServiceResponse confirmPurchasePart(
+      ConfirmPurchasePartServiceRequest request) {
+    PartIo partIo = partIoRepository.findById(request.getPartIoId())
+        .orElseThrow(PartIoNotFoundException::new);
+
+    partIo.confirmPurchase();
+    partIo.getPart().addStock(partIo.getQuantity());
+
+    return ConfirmPurchasePartServiceResponse.of(partIo);
+  }
 
   void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
     List<PartIo> partIoList = new ArrayList<>();

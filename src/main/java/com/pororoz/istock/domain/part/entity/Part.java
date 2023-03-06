@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -62,6 +63,9 @@ public class Part extends TimeEntity {
     this.stock = request.getStock();
   }
 
+  public void addStock(long quantity) {
+    this.stock += quantity;
+  }
   public void subtractStock(long quantity) {
     long subtract = this.stock - quantity;
     if (subtract < 0) {

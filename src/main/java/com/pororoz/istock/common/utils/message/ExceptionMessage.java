@@ -44,6 +44,8 @@ public class ExceptionMessage {
   public static final String PRODUCT_IO_NOT_FOUND = "해당 product io를 찾을 수 없습니다.";
   public static final String CONFIRM_PRODUCTION = "잘못된 생산 상태 수정입니다.";
 
+  public static final String PART_IO_NOT_FOUND = "해당 part IO를 찾을 수 없습니다.";
+  public static final String CONFIRM_PURCHASE = "잘못된 구매 상태 수정입니다.";
   private ExceptionMessage() {
   }
 }
