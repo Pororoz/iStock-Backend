@@ -37,8 +37,6 @@ public class PurchaseService {
   private final ProductIoRepository productIoRepository;
   private final PartIoRepository partIoRepository;
 
-  private final String SUB_ASSY_CODE_NUMBER = "11";
-
   public PurchaseProductServiceResponse purchaseProduct(PurchaseProductServiceRequest request) {
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
@@ -76,7 +74,7 @@ public class PurchaseService {
     List<ProductIo> subAssyIoList = new ArrayList<>();
 
     for (Bom bom : boms) {
-      if (SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
+      if (Bom.SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
         ProductIo subAssyIo = ProductIo.createSubAssyIo(bom, productIo, quantity,
             ProductStatus.외주구매대기);
         subAssyIoList.add(subAssyIo);
