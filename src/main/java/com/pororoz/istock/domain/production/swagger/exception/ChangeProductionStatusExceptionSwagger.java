@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 
 @Getter
-public class ChangeIoStatusExceptionSwagger {
+public class ChangeProductionStatusExceptionSwagger {
 
   @Schema(description = "에러 명칭", example = ExceptionStatus.CHANGE_IO_STATUS)
   private String status;

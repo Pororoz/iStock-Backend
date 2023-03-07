@@ -63,6 +63,8 @@ public enum ErrorCode {
       ExceptionMessage.BOM_SUB_ASSY_DUPLICATED),
   SUB_ASSY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.SUB_ASSY_NOT_FOUND,
       ExceptionMessage.SUB_ASSY_NOT_FOUND),
+  PART_IO_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PART_IO_NOT_FOUND,
+      ExceptionMessage.PART_IO_NOT_FOUND),
   PRODUCT_IO_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_IO_NOT_FOUND,
       ExceptionMessage.PRODUCT_IO_NOT_FOUND),
   CHANGE_IO_STATUS(HttpStatus.BAD_REQUEST, ExceptionStatus.CHANGE_IO_STATUS,

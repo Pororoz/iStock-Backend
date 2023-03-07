@@ -11,7 +11,7 @@ import com.pororoz.istock.domain.production.dto.response.SaveProductionResponse;
 import com.pororoz.istock.domain.production.dto.response.UpdateProductionResponse;
 import com.pororoz.istock.domain.production.service.ProductionService;
 import com.pororoz.istock.domain.production.swagger.exception.BomAndSubAssyNotMatchExceptionSwagger;
-import com.pororoz.istock.domain.production.swagger.exception.ChangeIoStatusExceptionSwagger;
+import com.pororoz.istock.domain.production.swagger.exception.ChangeProductionStatusExceptionSwagger;
 import com.pororoz.istock.domain.production.swagger.exception.ProductOrBomNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.production.swagger.response.SaveProductionResponseSwagger;
 import com.pororoz.istock.domain.production.swagger.response.UpdateProductionResponseSwagger;
@@ -66,7 +66,7 @@ public class ProductionController {
       @ApiResponse(responseCode = "200", description = ResponseMessage.CONFIRM_PRODUCTION, content = {
           @Content(schema = @Schema(implementation = UpdateProductionResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.CHANGE_IO_STATUS, content = {
-          @Content(schema = @Schema(implementation = ChangeIoStatusExceptionSwagger.class))}),
+          @Content(schema = @Schema(implementation = ChangeProductionStatusExceptionSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_IO_NOT_FOUND, content = {
@@ -85,7 +85,7 @@ public class ProductionController {
       @ApiResponse(responseCode = "200", description = ResponseMessage.CANCEL_PRODUCTION, content = {
           @Content(schema = @Schema(implementation = UpdateProductionResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.CHANGE_IO_STATUS, content = {
-          @Content(schema = @Schema(implementation = ChangeIoStatusExceptionSwagger.class))}),
+          @Content(schema = @Schema(implementation = ChangeProductionStatusExceptionSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_IO_NOT_FOUND, content = {

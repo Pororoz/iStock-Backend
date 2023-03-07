@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
-import com.pororoz.istock.domain.production.exception.ChangeIoStatusException;
+import com.pororoz.istock.domain.production.exception.ChangeProductionStatusException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -64,7 +64,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeIoStatusException.class, productIo::confirmProduction);
+      assertThrows(ChangeProductionStatusException.class, productIo::confirmProduction);
     }
 
     @Test
@@ -75,7 +75,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeIoStatusException.class, productIo::confirmProduction);
+      assertThrows(ChangeProductionStatusException.class, productIo::confirmProduction);
     }
 
     @Test
@@ -86,7 +86,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeIoStatusException.class, productIo::confirmSubAssyProduction);
+      assertThrows(ChangeProductionStatusException.class, productIo::confirmSubAssyProduction);
     }
 
     @Test
@@ -97,7 +97,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeIoStatusException.class, productIo::confirmProduction);
+      assertThrows(ChangeProductionStatusException.class, productIo::confirmProduction);
     }
   }
 
@@ -113,7 +113,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeIoStatusException.class, productIo::cancelProduction);
+      assertThrows(ChangeProductionStatusException.class, productIo::cancelProduction);
     }
 
     @Test
@@ -124,7 +124,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeIoStatusException.class, productIo::cancelProduction);
+      assertThrows(ChangeProductionStatusException.class, productIo::cancelProduction);
     }
 
     @Test
@@ -135,7 +135,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeIoStatusException.class, productIo::cancelSubAssyProduction);
+      assertThrows(ChangeProductionStatusException.class, productIo::cancelSubAssyProduction);
     }
 
     @Test
@@ -146,7 +146,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeIoStatusException.class, productIo::cancelSubAssyProduction);
+      assertThrows(ChangeProductionStatusException.class, productIo::cancelSubAssyProduction);
     }
   }
 }

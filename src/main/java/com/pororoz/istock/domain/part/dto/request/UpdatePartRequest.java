@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdatePartRequest {
 
-  @Schema(description = "파트 아이디", example = "1")
+  @Schema(description = "부품 아이디", example = "1")
   @NotNull
   @Positive
   private Long partId;

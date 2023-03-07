@@ -28,6 +28,7 @@ public class ExceptionStatus {
   public static final String BOM_AND_SUB_ASSY_NOT_MATCHED = "BOM_AND_SUB_ASSY_NOT_MATCH";
   public static final String BOM_SUB_ASSY_DUPLICATED = "BOM_SUB_ASSY_DUPLICATED";
   public static final String SUB_ASSY_NOT_FOUND = "SUB_ASSY_NOT_FOUND";
+  public static final String PART_IO_NOT_FOUND = "PART_IO_NOT_FOUND";
   public static final String PRODUCT_IO_NOT_FOUND = "PRODUCT_IO_NOT_FOUND";
   public static final String CHANGE_IO_STATUS = "CHANGE_IO_STATUS";
 
