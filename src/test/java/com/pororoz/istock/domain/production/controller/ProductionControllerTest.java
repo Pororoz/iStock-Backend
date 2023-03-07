@@ -179,4 +179,68 @@ class ProductionControllerTest extends ControllerTest {
       actions.andExpect(status().isBadRequest()).andDo(print());
     }
   }
+
+  @Nested
+  @DisplayName("제품 생산 취소")
+  class CancelProduction {
+
+    Long productIoId = 1L;
+    Long productId = 1L;
+    long quantity = 10;
+
+    String getUri(Long productIoId) {
+      return "/v1/production/product-io/" + productIoId + "/cancel";
+    }
+
+    @Test
+    @DisplayName("제품 생산 취소 요청을 보내고 응답을 받는다.")
+    void cancelProduction() throws Exception {
+      //given
+      UpdateProductionServiceResponse serviceResponse = UpdateProductionServiceResponse.builder()
+          .quantity(quantity)
+          .productId(productId)
+          .productIoId(productIoId).build();
+
+      //when
+      when(productionService.cancelProduction(productIoId)).thenReturn(serviceResponse);
+      ResultActions actions = getResultActions(getUri(productIoId), HttpMethod.POST);
+
+      //then
+      UpdateProductionResponse response = UpdateProductionResponse.builder()
+          .quantity(quantity)
+          .productId(productId)
+          .productIoId(productIoId).build();
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_PRODUCTION))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("ProductIoId로 0을 보내면 BadRequest가 발생한다.")
+    void cancelProductionIoIdNotZero() throws Exception {
+      //given
+      //when
+      ResultActions actions = getResultActions(getUri(0L), HttpMethod.POST);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+          .andDo(print());
+    }
+
+    @Test
+    @DisplayName("ProductIoId로 null을 보내면 BadRequest가 발생한다.")
+    void cancelProductionIoIdNotNull() throws Exception {
+      //given
+      //when
+      ResultActions actions = getResultActions(getUri(null), HttpMethod.POST);
+
+      //then
+      actions.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.status").value(ExceptionStatus.BAD_REQUEST))
+          .andDo(print());
+    }
+  }
 }

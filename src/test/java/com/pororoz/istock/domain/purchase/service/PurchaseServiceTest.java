@@ -22,13 +22,12 @@ import com.pororoz.istock.domain.product.entity.ProductStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
-import com.pororoz.istock.domain.purchase.exception.ConfirmPurchaseException;
+import com.pororoz.istock.domain.purchase.exception.ChangePurchaseStatusException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -264,10 +263,6 @@ public class PurchaseServiceTest {
   @DisplayName("제품 자재 개별 구매")
   class ConfirmPurchasePart {
 
-    ConfirmPurchasePartServiceRequest request = ConfirmPurchasePartServiceRequest.builder()
-      .partIoId(partIoId)
-      .build();
-
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
@@ -291,8 +286,8 @@ public class PurchaseServiceTest {
             .build();
 
         // when
-        when(partIoRepository.findById(request.getPartIoId())).thenReturn(Optional.of(partIo));
-        ConfirmPurchasePartServiceResponse result = purchaseService.confirmPurchasePart(request);
+        when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
+        ConfirmPurchasePartServiceResponse result = purchaseService.confirmPurchasePart(partIoId);
 
         // then
         assertThat(part.getStock()).isEqualTo(stock + quantity);
@@ -310,11 +305,11 @@ public class PurchaseServiceTest {
       void partIoNotFound() {
         // given
         // when
-        when(partIoRepository.findById(request.getPartIoId())).thenReturn(Optional.empty());
+        when(partIoRepository.findById(partIoId)).thenReturn(Optional.empty());
 
         // then
         assertThrows(PartIoNotFoundException.class,
-            () -> purchaseService.confirmPurchasePart(request));
+            () -> purchaseService.confirmPurchasePart(partIoId));
       }
 
       @Test
@@ -330,11 +325,11 @@ public class PurchaseServiceTest {
             .build();
 
         // when
-        when(partIoRepository.findById(request.getPartIoId())).thenReturn(Optional.of(partIo));
+        when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
 
         // then
-        assertThrows(ConfirmPurchaseException.class,
-            () -> purchaseService.confirmPurchasePart(request));
+        assertThrows(ChangePurchaseStatusException.class,
+            () -> purchaseService.confirmPurchasePart(partIoId));
 
       }
     }

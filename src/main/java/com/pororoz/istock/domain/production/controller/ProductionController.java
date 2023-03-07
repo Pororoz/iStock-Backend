@@ -11,7 +11,7 @@ import com.pororoz.istock.domain.production.dto.response.SaveProductionResponse;
 import com.pororoz.istock.domain.production.dto.response.UpdateProductionResponse;
 import com.pororoz.istock.domain.production.service.ProductionService;
 import com.pororoz.istock.domain.production.swagger.exception.BomAndSubAssyNotMatchExceptionSwagger;
-import com.pororoz.istock.domain.production.swagger.exception.ConfirmProductionExceptionSwagger;
+import com.pororoz.istock.domain.production.swagger.exception.ChangeProductionStatusExceptionSwagger;
 import com.pororoz.istock.domain.production.swagger.exception.ProductOrBomNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.production.swagger.response.SaveProductionResponseSwagger;
 import com.pororoz.istock.domain.production.swagger.response.UpdateProductionResponseSwagger;
@@ -65,8 +65,8 @@ public class ProductionController {
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = ResponseMessage.CONFIRM_PRODUCTION, content = {
           @Content(schema = @Schema(implementation = UpdateProductionResponseSwagger.class))}),
-      @ApiResponse(responseCode = "400", description = ExceptionMessage.CONFIRM_PRODUCTION, content = {
-          @Content(schema = @Schema(implementation = ConfirmProductionExceptionSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.CHANGE_IO_STATUS, content = {
+          @Content(schema = @Schema(implementation = ChangeProductionStatusExceptionSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_IO_NOT_FOUND, content = {
@@ -78,5 +78,24 @@ public class ProductionController {
         productIoId).toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CONFIRM_PRODUCTION, response));
+  }
+
+  @Operation(summary = "cancel production", description = "제품 생산 취소 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.CANCEL_PRODUCTION, content = {
+          @Content(schema = @Schema(implementation = UpdateProductionResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.CHANGE_IO_STATUS, content = {
+          @Content(schema = @Schema(implementation = ChangeProductionStatusExceptionSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_IO_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = ProductIoNotFoundExceptionSwagger.class))})})
+  @PostMapping("/product-io/{productIoId}/cancel")
+  public ResponseEntity<ResultDTO<UpdateProductionResponse>> cancelProduction(
+      @PathVariable("productIoId") @Positive Long productIoId) {
+    UpdateProductionResponse response = productionService.cancelProduction(
+        productIoId).toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CANCEL_PRODUCTION, response));
   }
 }

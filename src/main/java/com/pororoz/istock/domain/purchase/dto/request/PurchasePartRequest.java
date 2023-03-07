@@ -1,6 +1,5 @@
 package com.pororoz.istock.domain.purchase.dto.request;
 
-import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

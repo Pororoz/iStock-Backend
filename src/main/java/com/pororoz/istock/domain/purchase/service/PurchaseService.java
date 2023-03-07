@@ -15,7 +15,6 @@ import com.pororoz.istock.domain.product.entity.ProductStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
@@ -37,8 +36,6 @@ public class PurchaseService {
   private final BomRepository bomRepository;
   private final ProductIoRepository productIoRepository;
   private final PartIoRepository partIoRepository;
-
-  private final String SUB_ASSY_CODE_NUMBER = "11";
 
   public PurchaseProductServiceResponse purchaseProduct(PurchaseProductServiceRequest request) {
     Product product = productRepository.findById(request.getProductId())
@@ -62,9 +59,8 @@ public class PurchaseService {
     return PurchasePartServiceResponse.of(request);
   }
 
-  public ConfirmPurchasePartServiceResponse confirmPurchasePart(
-      ConfirmPurchasePartServiceRequest request) {
-    PartIo partIo = partIoRepository.findById(request.getPartIoId())
+  public ConfirmPurchasePartServiceResponse confirmPurchasePart(Long partIoId) {
+    PartIo partIo = partIoRepository.findById(partIoId)
         .orElseThrow(PartIoNotFoundException::new);
 
     partIo.confirmPurchase();
@@ -78,7 +74,7 @@ public class PurchaseService {
     List<ProductIo> subAssyIoList = new ArrayList<>();
 
     for (Bom bom : boms) {
-      if (SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
+      if (Bom.SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
         ProductIo subAssyIo = ProductIo.createSubAssyIo(bom, productIo, quantity,
             ProductStatus.외주구매대기);
         subAssyIoList.add(subAssyIo);

@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.product.service;
 
+import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
@@ -30,8 +31,6 @@ public class ProductService {
   private final BomRepository bomRepository;
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
-
-  private final String SUB_ASSY_CODE_NUMBER = "11";
 
   public ProductServiceResponse saveProduct(SaveProductServiceRequest request) {
     checkProductNumberDuplicated(null, request.getProductNumber());
@@ -88,17 +87,17 @@ public class ProductService {
     }
     // product->subassy
     // bom에 subassy가 있으면 안된다.
-    if (Objects.equals(newCodeNumber, SUB_ASSY_CODE_NUMBER)) {
+    if (Bom.SUB_ASSY_CODE_NUMBER.equals(newCodeNumber)) {
       bomRepository.findByProductId(existProduct.getId()).forEach(bom -> {
-        if (Objects.equals(bom.getCodeNumber(), SUB_ASSY_CODE_NUMBER)) {
+        if (Bom.SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
           throw new SubAssyBomExistException();
         }
       });
     }
     // subassy->product
     // bom에 있으면 안된다
-    else if (Objects.equals(existProduct.getCodeNumber(), SUB_ASSY_CODE_NUMBER) &&
-        bomRepository.existsByProductId(existProduct.getId())) {
+    else if (Bom.SUB_ASSY_CODE_NUMBER.equals(existProduct.getCodeNumber())
+        && bomRepository.existsByProductId(existProduct.getId())) {
       throw new RegisteredAsSubAssyException();
     }
   }

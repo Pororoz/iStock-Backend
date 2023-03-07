@@ -218,6 +218,50 @@ public class ProductionIntegrationTest extends IntegrationTest {
     }
   }
 
+  @Nested
+  @WithMockUser
+  @DisplayName("POST - v1/production/product-io/{productId}/cancel 제품 생산 취소")
+  class CancelProduction {
+
+    String getUri(Long productIoId) {
+      return "/v1/production/product-io/" + productIoId + "/cancel";
+    }
+
+    @Test
+    @DisplayName("생산 취소 요청을 하고 productIo와 partIo의 상태를 변경하고 수량을 복구한다.")
+    void cancelProduction() throws Exception {
+      //given
+      long quantity = 5;
+      ProductIo productIo = saveProductIo(quantity, ProductStatus.생산대기, product1);
+      savePartIo(quantity, PartStatus.생산대기, part1, productIo);
+      savePartIo(quantity * 2, PartStatus.생산대기, part2, productIo);
+      saveSubAssyIo(quantity, ProductStatus.사내출고대기, subAssy1, productIo);
+      saveSubAssyIo(quantity * 2, ProductStatus.사내출고대기, subAssy2, productIo);
+
+      String uri = getUri(productIo.getId());
+
+      //when
+      ResultActions actions = getResultActions(uri, HttpMethod.POST);
+
+      //then
+      UpdateProductionResponse response = UpdateProductionResponse.builder()
+          .productIoId(productIo.getId())
+          .productId(product1.getId())
+          .quantity(quantity).build();
+
+      actions.andExpect(status().isOk())
+          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+          .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_PRODUCTION))
+          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+          .andDo(print());
+      verifyPartIo(quantity, 1, 2, PartStatus.생산취소);
+      verifyProductIo(quantity, ProductStatus.생산취소, 1, 2, ProductStatus.사내출고취소);
+      verifyPartStock(part1.getStock() + quantity, part2.getStock() + quantity * 2);
+      verifyProductStock(product1.getStock(), subAssy1.getStock() + quantity,
+          subAssy2.getStock() + quantity * 2);
+    }
+  }
+
   void verifyProductIo(long quantity1, ProductStatus productStatus, long quantity2, long quantity3,
       ProductStatus subAssyStatus) {
     ProductIo productIo = createProductIo(quantity1, productStatus);
@@ -236,5 +280,17 @@ public class ProductionIntegrationTest extends IntegrationTest {
     assertThat(partIoRepository.findAll()).usingRecursiveComparison()
         .ignoringFields("createdAt", "updatedAt", "id", "part", "productIo")
         .isEqualTo(List.of(partIo1, partIo2));
+  }
+
+  void verifyPartStock(long stock1, long stock2) {
+    List<Long> stocks = partRepository.findAll().stream().map(Part::getStock).toList();
+    assertThat(stocks).usingRecursiveComparison()
+        .isEqualTo(List.of(stock1, stock2));
+  }
+
+  void verifyProductStock(long stock1, long stock2, long stock3) {
+    List<Long> stocks = productRepository.findAll().stream().map(Product::getStock).toList();
+    assertThat(stocks).usingRecursiveComparison()
+        .isEqualTo(List.of(stock1, stock2, stock3));
   }
 }

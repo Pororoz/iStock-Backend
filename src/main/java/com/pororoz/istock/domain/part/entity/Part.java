@@ -17,7 +17,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
@@ -64,8 +63,12 @@ public class Part extends TimeEntity {
   }
 
   public void addStock(long quantity) {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("0 이상만 stock에 더할 수 있습니다.");
+    }
     this.stock += quantity;
   }
+
   public void subtractStock(long quantity) {
     long subtract = this.stock - quantity;
     if (subtract < 0) {

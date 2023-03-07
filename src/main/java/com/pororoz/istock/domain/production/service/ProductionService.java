@@ -55,6 +55,19 @@ public class ProductionService {
         .quantity(productIo.getQuantity()).build();
   }
 
+  public UpdateProductionServiceResponse cancelProduction(Long productIoId) {
+    ProductIo productIo = productIoRepository.findById(productIoId)
+        .orElseThrow(ProductIoNotFoundException::new);
+    productIo.cancelProduction();
+    cancelPartIoList(productIo);
+    cancelSubAssyIoList(productIo);
+
+    return UpdateProductionServiceResponse.builder()
+        .productIoId(productIoId)
+        .productId(productIo.getProduct().getId())
+        .quantity(productIo.getQuantity()).build();
+  }
+
   private ProductIo saveProductIo(long quantity, Product product) {
     ProductIo productIo = ProductIo.builder()
         .quantity(quantity)
@@ -81,5 +94,19 @@ public class ProductionService {
     }
     partIoRepository.saveAll(partIoList);
     productIoRepository.saveAll(subAssyIoList);
+  }
+
+  private void cancelPartIoList(ProductIo productIo) {
+    partIoRepository.findByProductIoWithPart(productIo).forEach(partIo -> {
+      partIo.cancelPartProduction();
+      partIo.getPart().addStock(partIo.getQuantity());
+    });
+  }
+
+  private void cancelSubAssyIoList(ProductIo productIo) {
+    productIoRepository.findBySuperIoWithProduct(productIo).forEach(subAssyIo -> {
+      subAssyIo.cancelSubAssyProduction();
+      subAssyIo.getProduct().addStock(subAssyIo.getQuantity());
+    });
   }
 }

@@ -37,16 +37,16 @@ public class PurchaseControllerTest extends ControllerTest {
   @MockBean
   PurchaseService purchaseService;
 
-  private Long productId = 1L;
-  private long quantity = 300L;
-  private Long partId = 1L;
-  private Long partIoId = 1L;
+  final Long productId = 1L;
+  final long quantity = 300L;
+  final Long partId = 1L;
+  final Long partIoId = 1L;
 
   @Nested
   @DisplayName("제품 자재 일괄 구매")
   class PurchaseProduct {
 
-    private final String url(Long productId) {
+    String url(Long productId) {
       return String.format("http://localhost:8080/v1/purchase/products/%s/waiting", productId);
     }
 

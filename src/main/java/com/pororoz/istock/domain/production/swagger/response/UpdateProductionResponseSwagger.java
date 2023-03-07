@@ -12,7 +12,8 @@ public class UpdateProductionResponseSwagger {
   @Schema(description = "Result Code", example = ResponseStatus.OK)
   private String status;
 
-  @Schema(description = "Message", example = ResponseMessage.CONFIRM_PRODUCTION)
+  @Schema(description = "Message", example = ResponseMessage.CONFIRM_PRODUCTION + " | "
+      + ResponseMessage.CANCEL_PRODUCTION)
   private String message;
 
   private UpdateProductionResponse data;

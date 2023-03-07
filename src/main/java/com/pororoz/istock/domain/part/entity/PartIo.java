@@ -3,8 +3,8 @@ package com.pororoz.istock.domain.part.entity;
 import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.product.entity.ProductIo;
-import com.pororoz.istock.domain.production.exception.ConfirmProductionException;
-import com.pororoz.istock.domain.purchase.exception.ConfirmPurchaseException;
+import com.pororoz.istock.domain.production.exception.ChangeProductionStatusException;
+import com.pororoz.istock.domain.purchase.exception.ChangePurchaseStatusException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -76,7 +76,7 @@ public class PartIo extends TimeEntity {
 
   public void confirmPurchase() {
     if (this.status != PartStatus.구매대기) {
-      throw new ConfirmPurchaseException(PartStatus.생산대기.name(), PartStatus.생산완료.name(),
+      throw new ChangePurchaseStatusException(PartStatus.생산대기.name(), PartStatus.생산완료.name(),
           "id: " + this.id + ", 상태: " + this.status);
     }
     this.status = PartStatus.구매확정;
@@ -84,9 +84,17 @@ public class PartIo extends TimeEntity {
 
   public void confirmPartProduction() {
     if (this.status != PartStatus.생산대기) {
-      throw new ConfirmProductionException(PartStatus.생산대기.name(), PartStatus.생산완료.name(),
+      throw new ChangeProductionStatusException(PartStatus.생산대기.name(), PartStatus.생산완료.name(),
           "id: " + this.id + ", 상태: " + this.status);
     }
     this.status = PartStatus.생산완료;
+  }
+
+  public void cancelPartProduction() {
+    if (this.status != PartStatus.생산대기) {
+      throw new ChangeProductionStatusException(PartStatus.생산대기.name(), PartStatus.생산취소.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = PartStatus.생산취소;
   }
 }

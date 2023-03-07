@@ -2,13 +2,13 @@ package com.pororoz.istock.domain.purchase.dto.service;
 
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
-import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
 public class ConfirmPurchasePartServiceResponse {
+
   Long partIoId;
   Long partId;
   long quantity;
