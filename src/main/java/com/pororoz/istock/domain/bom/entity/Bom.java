@@ -39,9 +39,9 @@ public class Bom extends TimeEntity {
   private Long id;
 
   @NotNull
-  @Size(max = 100)
+  @Size(max = 255)
   @Column(name = "location_number",
-      columnDefinition = "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT '0'")
+      columnDefinition = "VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT '0'")
   private String locationNumber;
 
   @Size(max = 20)
