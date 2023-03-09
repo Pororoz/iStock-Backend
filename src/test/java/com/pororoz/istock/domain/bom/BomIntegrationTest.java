@@ -226,6 +226,7 @@ public class BomIntegrationTest extends IntegrationTest {
               .part(PartResponse.of(bom.getPart()))
               .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
               .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
+              .productId(bom.getProduct().getId())
               .build());
         }
         PageResponse<FindBomResponse> response = new PageResponse<>(
@@ -262,6 +263,7 @@ public class BomIntegrationTest extends IntegrationTest {
               .part(PartResponse.of(bom.getPart()))
               .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
               .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
+              .productId(bom.getProduct().getId())
               .build());
         }
         PageResponse<FindBomResponse> response = new PageResponse<>(
