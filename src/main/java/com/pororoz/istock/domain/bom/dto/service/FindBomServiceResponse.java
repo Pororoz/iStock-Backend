@@ -22,6 +22,7 @@ public class FindBomServiceResponse {
   private String memo;
   private String createdAt;
   private String updatedAt;
+  private Long productId;
   private PartResponse part;
 
   static public FindBomServiceResponse of(Bom bom) {
@@ -33,6 +34,7 @@ public class FindBomServiceResponse {
         .memo(bom.getMemo())
         .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
         .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
+        .productId(bom.getProduct().getId())
         .part(PartResponse.of(bom.getPart()))
         .build();
   }
@@ -46,6 +48,7 @@ public class FindBomServiceResponse {
         .memo(memo)
         .createdAt(createdAt)
         .updatedAt(updatedAt)
+        .productId(productId)
         .part(part)
         .build();
   }

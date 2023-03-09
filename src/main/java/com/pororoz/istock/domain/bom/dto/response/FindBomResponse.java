@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FindBomResponse {
+
   @Schema(description = "bom 아이디", example = "1")
   private Long bomId;
 
@@ -32,5 +33,9 @@ public class FindBomResponse {
 
   @Schema(description = "수정 시간", example = "2023-01-01 00:00:01")
   private String updatedAt;
+
+  @Schema(description = "제품 아이디", example = "2")
+  private Long productId;
+
   private PartResponse part;
 }
