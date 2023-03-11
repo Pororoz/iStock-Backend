@@ -95,6 +95,22 @@ class OutboundControllerTest extends ControllerTest {
         actions.andExpect(status().isBadRequest())
             .andDo(print());
       }
+
+      @Test
+      @DisplayName("quantity값을 null로 보내면 예외처리를 한다.")
+      void quantityNull() throws Exception {
+        // given
+        OutboundRequest request = OutboundRequest.builder()
+            .quantity(null)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
     }
   }
 }
