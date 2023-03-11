@@ -61,7 +61,6 @@ class OutboundControllerTest extends ControllerTest {
         // when
         when(outboundService.outbound(any(OutboundServiceRequest.class)))
             .thenReturn(serviceResponse);
-        System.out.println(url(productId));
         ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         // then
@@ -81,6 +80,21 @@ class OutboundControllerTest extends ControllerTest {
     @DisplayName("실패 케이스")
     class FailCase {
 
+      @Test
+      @DisplayName("productId값이 0이하면 예외처리를 한다.")
+      void productIdNotPositive() throws Exception {
+        // given
+        OutboundRequest request = OutboundRequest.builder()
+            .quantity(quantity)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(url(-1L), HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
     }
   }
 }

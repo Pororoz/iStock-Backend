@@ -9,6 +9,8 @@ import com.pororoz.istock.domain.outbound.dto.request.OutboundRequest;
 import com.pororoz.istock.domain.outbound.dto.response.OutboundResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.outbound.service.OutboundService;
+import com.pororoz.istock.domain.outbound.swagger.exception.ProductIdNotPositiveExceptionSwagger;
+import com.pororoz.istock.domain.outbound.swagger.response.OutboundResponseSwagger;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -39,6 +41,10 @@ public class OutboundController {
 
   @Operation(summary = "outbound wait", description = "제품 출고 대기")
   @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.OUTBOUND_WAIT, content = {
+          @Content(schema = @Schema(implementation = OutboundResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.BAD_REQUEST, content = {
+          @Content(schema = @Schema(implementation = ProductIdNotPositiveExceptionSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
       @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
