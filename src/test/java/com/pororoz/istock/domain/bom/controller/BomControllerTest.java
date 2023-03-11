@@ -101,6 +101,7 @@ class BomControllerTest extends ControllerTest {
             .memo(memo)
             .createdAt(now)
             .updatedAt(now)
+            .productId(productId)
             .part(part1)
             .build();
         FindBomServiceResponse serviceResponse2 = FindBomServiceResponse.builder()
@@ -111,6 +112,7 @@ class BomControllerTest extends ControllerTest {
             .memo(memo)
             .createdAt(now)
             .updatedAt(now)
+            .productId(productId)
             .part(part2)
             .build();
         Page<FindBomServiceResponse> dtoPage =
@@ -128,6 +130,7 @@ class BomControllerTest extends ControllerTest {
             .memo(memo)
             .createdAt(now)
             .updatedAt(now)
+            .productId(productId)
             .part(part1)
             .build();
         FindBomResponse findBomResponse2 = FindBomResponse.builder()
@@ -138,6 +141,7 @@ class BomControllerTest extends ControllerTest {
             .memo(memo)
             .createdAt(now)
             .updatedAt(now)
+            .productId(productId)
             .part(part2)
             .build();
         PageResponse<FindBomResponse> response =
