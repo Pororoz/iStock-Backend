@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
+import com.pororoz.istock.domain.outbound.dto.request.OutboundRequest;
+import com.pororoz.istock.domain.outbound.dto.response.OutboundResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceRequest;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.outbound.service.OutboundService;
@@ -29,9 +31,8 @@ class OutboundControllerTest extends ControllerTest {
   @MockBean
   OutboundService outboundService;
 
-  private Long productId = 1L;
-  private Long productIoId = 10L;
-  private Long quantity = 100L;
+  final Long productId = 1L;
+  final Long quantity = 100L;
 
   @Nested
   @DisplayName("제품 출고 대기 API")
@@ -52,7 +53,7 @@ class OutboundControllerTest extends ControllerTest {
         OutboundRequest request = OutboundRequest.builder()
             .quantity(quantity)
             .build();
-        OutboundServiceResponse serviceResponse = OutboundResponse.builder()
+        OutboundServiceResponse serviceResponse = OutboundServiceResponse.builder()
             .productId(productId)
             .quantity(quantity)
             .build();
@@ -60,6 +61,7 @@ class OutboundControllerTest extends ControllerTest {
         // when
         when(outboundService.outbound(any(OutboundServiceRequest.class)))
             .thenReturn(serviceResponse);
+        System.out.println(url(productId));
         ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
 
         // then
@@ -69,7 +71,7 @@ class OutboundControllerTest extends ControllerTest {
             .build();
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-            .andExpect(jsonPath("$.message").value(ResponseMessage.SAVE_PART))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.OUTBOUND_WAIT))
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }

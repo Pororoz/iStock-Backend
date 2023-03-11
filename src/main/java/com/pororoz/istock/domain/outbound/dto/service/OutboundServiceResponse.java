@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.outbound.dto.service;
 
+import com.pororoz.istock.domain.outbound.dto.response.OutboundResponse;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,13 @@ public class OutboundServiceResponse {
     return OutboundServiceResponse.builder()
         .productId(productIo.getProduct().getId())
         .quantity(productIo.getQuantity())
+        .build();
+  }
+
+  public OutboundResponse toResponse() {
+    return OutboundResponse.builder()
+        .productId(productId)
+        .quantity(quantity)
         .build();
   }
 }
