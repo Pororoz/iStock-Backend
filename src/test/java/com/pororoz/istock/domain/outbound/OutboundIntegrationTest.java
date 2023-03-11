@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.outbound;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,6 +16,7 @@ import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.outbound.dto.request.OutboundRequest;
 import com.pororoz.istock.domain.outbound.dto.response.OutboundResponse;
 import com.pororoz.istock.domain.product.entity.Product;
+import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,6 +95,10 @@ public class OutboundIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.message").value(ResponseMessage.OUTBOUND_WAIT))
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
+
+        Product changedProduct = productRepository.findById(productId)
+            .orElseThrow(ProductNotFoundException::new);
+        assertThat(changedProduct.getStock()).isEqualTo(quantity-requestQuantity);
       }
     }
 

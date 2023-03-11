@@ -23,6 +23,7 @@ public class OutboundService {
   public OutboundServiceResponse outbound(OutboundServiceRequest request) {
     Product product = productRepository.findById(request.getProductId())
         .orElseThrow(ProductNotFoundException::new);
+    product.subtractStock(request.getQuantity());
     ProductIo productIo = saveProductIo(request.getQuantity(), product);
     return OutboundServiceResponse.of(productIo);
   }
