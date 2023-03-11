@@ -1,13 +1,15 @@
 package com.pororoz.istock.domain.outbound.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceRequest;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
+import com.pororoz.istock.domain.product.entity.ProductStatus;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.Optional;
@@ -39,7 +41,7 @@ class OutboundServiceTest {
   class Outbound {
 
     OutboundServiceRequest request = OutboundServiceRequest.builder()
-        .productId().quantity()
+        .productId(productId).quantity(quantity)
         .build();
 
     @Nested
@@ -53,6 +55,7 @@ class OutboundServiceTest {
             .build();
         ProductIo productIo = ProductIo.builder()
             .id(productId)
+            .status(ProductStatus.출고대기)
             .quantity(quantity)
             .product(product)
             .build();
