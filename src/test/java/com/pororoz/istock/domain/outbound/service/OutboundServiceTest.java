@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceRequest;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceRequest;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.product.entity.Product;
@@ -124,7 +126,7 @@ class OutboundServiceTest {
             .product(product)
             .build();
         OutboundConfirmServiceResponse response = OutboundConfirmServiceResponse.builder()
-            .productIoId(productIo)
+            .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)
             .build();
