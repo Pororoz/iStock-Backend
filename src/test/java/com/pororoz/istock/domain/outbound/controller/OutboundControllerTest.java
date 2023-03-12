@@ -11,6 +11,7 @@ import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.outbound.dto.request.OutboundRequest;
+import com.pororoz.istock.domain.outbound.dto.response.OutboundConfirmResponse;
 import com.pororoz.istock.domain.outbound.dto.response.OutboundResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceRequest;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceResponse;
@@ -131,7 +132,7 @@ class OutboundControllerTest extends ControllerTest {
 
       @Test
       @DisplayName("제품 출고 확정을 요청하면 productIO와 출고된 productId, quantity를 반환한다.")
-      void outbound() throws Exception {
+      void outboundConfirm() throws Exception {
         // given
         OutboundConfirmServiceResponse serviceResponse = OutboundConfirmServiceResponse.builder()
             .productIoId(productIoId)

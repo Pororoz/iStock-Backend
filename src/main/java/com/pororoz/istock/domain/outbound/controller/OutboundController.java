@@ -6,7 +6,10 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.outbound.dto.request.OutboundRequest;
+import com.pororoz.istock.domain.outbound.dto.response.OutboundConfirmResponse;
 import com.pororoz.istock.domain.outbound.dto.response.OutboundResponse;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceRequest;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.outbound.service.OutboundService;
 import com.pororoz.istock.domain.outbound.swagger.exception.ProductIdNotPositiveExceptionSwagger;
@@ -59,5 +62,27 @@ public class OutboundController {
     OutboundResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.OUTBOUND_WAIT, response));
+  }
+
+  @Operation(summary = "outbound wait", description = "제품 출고 대기")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.OUTBOUND_WAIT, content = {
+          @Content(schema = @Schema(implementation = OutboundResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.BAD_REQUEST, content = {
+          @Content(schema = @Schema(implementation = ProductIdNotPositiveExceptionSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = ProductNotFoundException.class))}),
+  })
+  @PostMapping("/product-io/{productIoId}/confirm")
+  public ResponseEntity<ResultDTO<OutboundConfirmResponse>> outboundConfirm(
+      @PathVariable("productIoId") @NotNull @Positive Long productIoId
+  ) {
+    OutboundConfirmServiceResponse serviceDto = outboundService.outboundConfirm(
+        OutboundConfirmServiceRequest.builder().productIoId(productIoId).build());
+    OutboundConfirmResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.OUTBOUND_CONFIRM, response));
   }
 }
