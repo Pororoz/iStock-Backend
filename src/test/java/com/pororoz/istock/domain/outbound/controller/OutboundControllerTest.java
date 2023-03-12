@@ -158,5 +158,22 @@ class OutboundControllerTest extends ControllerTest {
             .andDo(print());
       }
     }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+      @Test
+      @DisplayName("productIoId값이 0이하면 예외처리를 한다.")
+      void productIoIdNotPositive() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(-1L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
   }
 }
