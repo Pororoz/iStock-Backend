@@ -13,8 +13,11 @@ import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceResp
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.outbound.service.OutboundService;
 import com.pororoz.istock.domain.outbound.swagger.exception.ProductIdNotPositiveExceptionSwagger;
+import com.pororoz.istock.domain.outbound.swagger.exception.ProductIoIdNotPositiveExceptionSwagger;
+import com.pororoz.istock.domain.outbound.swagger.response.OutboundConfirmResponseSwagger;
 import com.pororoz.istock.domain.outbound.swagger.response.OutboundResponseSwagger;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+import com.pororoz.istock.domain.product.swagger.exception.ProductIoNotFoundExceptionSwagger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -64,16 +67,16 @@ public class OutboundController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.OUTBOUND_WAIT, response));
   }
 
-  @Operation(summary = "outbound wait", description = "제품 출고 대기")
+  @Operation(summary = "outbound confirm", description = "제품 출고 확정")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = ResponseMessage.OUTBOUND_WAIT, content = {
-          @Content(schema = @Schema(implementation = OutboundResponseSwagger.class))}),
+      @ApiResponse(responseCode = "200", description = ResponseMessage.OUTBOUND_CONFIRM, content = {
+          @Content(schema = @Schema(implementation = OutboundConfirmResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.BAD_REQUEST, content = {
-          @Content(schema = @Schema(implementation = ProductIdNotPositiveExceptionSwagger.class))}),
+          @Content(schema = @Schema(implementation = ProductIoIdNotPositiveExceptionSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
           @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
-      @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_NOT_FOUND, content = {
-          @Content(schema = @Schema(implementation = ProductNotFoundException.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_IO_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = ProductIoNotFoundExceptionSwagger.class))}),
   })
   @PostMapping("/product-io/{productIoId}/confirm")
   public ResponseEntity<ResultDTO<OutboundConfirmResponse>> outboundConfirm(
