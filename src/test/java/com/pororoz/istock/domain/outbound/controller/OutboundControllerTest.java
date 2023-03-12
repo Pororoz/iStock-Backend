@@ -97,11 +97,11 @@ class OutboundControllerTest extends ControllerTest {
       }
 
       @Test
-      @DisplayName("quantity값을 null로 보내면 예외처리를 한다.")
+      @DisplayName("quantity값을 0이하로 보내면 예외처리를 한다.")
       void quantityNull() throws Exception {
         // given
         OutboundRequest request = OutboundRequest.builder()
-            .quantity(null)
+            .quantity(-1)
             .build();
 
         // when

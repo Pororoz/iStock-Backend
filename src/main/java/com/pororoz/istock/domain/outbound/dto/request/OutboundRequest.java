@@ -18,7 +18,7 @@ public class OutboundRequest {
   @Schema(description = "제품 수량", example = "100")
   @NotNull
   @Positive
-  private Long quantity;
+  private long quantity;
 
   public OutboundServiceRequest toService(Long productId) {
     return OutboundServiceRequest.builder()
