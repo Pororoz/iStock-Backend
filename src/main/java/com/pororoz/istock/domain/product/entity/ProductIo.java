@@ -103,6 +103,15 @@ public class ProductIo extends TimeEntity {
     this.status = ProductStatus.사내출고완료;
   }
 
+  public void confirmOutbound() {
+    if (this.status != ProductStatus.출고대기) {
+      throw new ChangeProductionStatusException(ProductStatus.출고대기.name(),
+          ProductStatus.출고완료.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = ProductStatus.출고완료;
+  }
+
   public void cancelProduction() {
     if (this.status != ProductStatus.생산대기) {
       throw new ChangeProductionStatusException(ProductStatus.생산대기.name(),
@@ -119,5 +128,14 @@ public class ProductIo extends TimeEntity {
           "id: " + this.id + ", 상태: " + this.status);
     }
     this.status = ProductStatus.사내출고취소;
+  }
+
+  public void cancelOutbound() {
+    if (this.status != ProductStatus.출고대기) {
+      throw new ChangeProductionStatusException(ProductStatus.출고대기.name(),
+          ProductStatus.출고취소.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = ProductStatus.출고취소;
   }
 }
