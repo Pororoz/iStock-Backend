@@ -13,9 +13,11 @@ import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.entity.ProductStatus;
+import com.pororoz.istock.domain.product.exception.ProductIoNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import com.pororoz.istock.domain.production.exception.ChangeProductionStatusException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -54,7 +56,7 @@ class OutboundServiceTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("")
+      @DisplayName("정상적인 값을 전달하면 ProductIo가 출고대기 상태로 저장된다.")
       void outbound() {
         // given
         Product product = Product.builder()
@@ -144,6 +146,40 @@ class OutboundServiceTest {
     @DisplayName("실패 케이스")
     class FailCase {
 
+      @Test
+      @DisplayName("productIo가 존재하지 않으면 에러가 발생한다.")
+      void notFoundProduct() {
+        // given
+        // when
+        when(productIoRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ProductIoNotFoundException.class,
+            () -> outboundService.outboundConfirm(request));
+      }
+
+      @Test
+      @DisplayName("ProductIo의 status의 값이 출고대기가 아니라면 Exception이 발생한다.")
+      void productIoStatusError() {
+        // given
+        Product product = Product.builder()
+            .id(productId)
+            .stock(50)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .status(ProductStatus.생산완료)
+            .quantity(quantity)
+            .product(product)
+            .build();
+
+        // when
+        when(productIoRepository.findById(productIoId)).thenReturn(Optional.of(productIo));
+
+        // then
+        assertThrows(ChangeProductionStatusException.class,
+            () -> outboundService.outboundConfirm(request));
+      }
     }
   }
 }
