@@ -12,6 +12,8 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.outbound.dto.request.OutboundRequest;
 import com.pororoz.istock.domain.outbound.dto.response.OutboundResponse;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceRequest;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceRequest;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.outbound.service.OutboundService;
@@ -32,6 +34,7 @@ class OutboundControllerTest extends ControllerTest {
   OutboundService outboundService;
 
   final Long productId = 1L;
+  final Long productIoId = 10L;
   final Long quantity = 100L;
 
   @Nested
@@ -109,6 +112,48 @@ class OutboundControllerTest extends ControllerTest {
 
         // then
         actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("제품 출고 확정 API")
+  class OutboundConfirm {
+
+    String url(Long productIoId) {
+      return "http://localhost:8080/v1/outbounds/product-io/" + productIoId + "/confirm";
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("제품 출고 확정을 요청하면 productIO와 출고된 productId, quantity를 반환한다.")
+      void outbound() throws Exception {
+        // given
+        OutboundConfirmServiceResponse serviceResponse = OutboundConfirmServiceResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(outboundService.outboundConfirm(any(OutboundConfirmServiceRequest.class)))
+            .thenReturn(serviceResponse);
+        ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
+
+        // then
+        OutboundConfirmResponse response = OutboundConfirmResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.OUTBOUND_CONFIRM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
     }
