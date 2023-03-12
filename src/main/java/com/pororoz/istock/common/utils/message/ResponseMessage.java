@@ -31,6 +31,7 @@ public class ResponseMessage {
   public static final String PURCHASE_PART = "제품 자재 개별 구매 대기";
   public static final String CONFIRM_PURCHASE_PART = "제품 자재 구매 확정";
   public static final String OUTBOUND_WAIT = "제품 출고 대기";
+  public static final String OUTBOUND_CONFIRM = "제품 출고 확정";
 
   private ResponseMessage() {
   }
