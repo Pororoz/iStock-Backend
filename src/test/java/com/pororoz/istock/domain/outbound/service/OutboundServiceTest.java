@@ -96,4 +96,52 @@ class OutboundServiceTest {
       }
     }
   }
+
+  @Nested
+  @DisplayName("제품 출고 확정")
+  class OutboundConfirm {
+
+    OutboundConfirmServiceRequest request = OutboundConfirmServiceRequest.builder()
+        .productIoId(productIoId)
+        .build();
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("정상적인 값으로 요청 받으면 productIoId, productId, quantity 등의 정보를 전달한다.")
+      void outboundConfirm() {
+        // given
+        Product product = Product.builder()
+            .id(productId)
+            .stock(50)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .status(ProductStatus.출고대기)
+            .quantity(quantity)
+            .product(product)
+            .build();
+        OutboundConfirmServiceResponse response = OutboundConfirmServiceResponse.builder()
+            .productIoId(productIo)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(productIoRepository.findById(productIoId)).thenReturn(Optional.of(productIo));
+        OutboundConfirmServiceResponse result = outboundService.outboundConfirm(request);
+
+        // then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+    }
+  }
 }
