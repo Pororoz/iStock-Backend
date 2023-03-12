@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.outbound.dto.service;
 
+import com.pororoz.istock.domain.outbound.dto.response.OutboundConfirmResponse;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +17,14 @@ public class OutboundConfirmServiceResponse {
         .productIoId(productIo.getId())
         .productId(productIo.getProduct().getId())
         .quantity(productIo.getQuantity())
+        .build();
+  }
+
+  public OutboundConfirmResponse toResponse() {
+    return OutboundConfirmResponse.builder()
+        .productIoId(productIoId)
+        .productId(productId)
+        .quantity(quantity)
         .build();
   }
 }
