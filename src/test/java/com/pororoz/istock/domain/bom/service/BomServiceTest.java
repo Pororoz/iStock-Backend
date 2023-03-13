@@ -168,6 +168,7 @@ class BomServiceTest {
               .stock(i + 1)
               .productNumber("number" + i)
               .productName("name" + i)
+              .category(category)
               .build();
 
           bomList.add(Bom.builder()

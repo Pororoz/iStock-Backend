@@ -39,7 +39,7 @@ public class FindBomServiceResponse {
         .productId(bom.getProduct().getId())
         .partService(bom.getPart() == null ? null : PartServiceResponse.of(bom.getPart()))
         .subAssyService(
-            bom.getProduct() == null ? null : ProductServiceResponse.of(bom.getProduct()))
+            bom.getSubAssy() == null ? null : ProductServiceResponse.of(bom.getSubAssy()))
         .build();
   }
 
@@ -53,8 +53,8 @@ public class FindBomServiceResponse {
         .createdAt(createdAt)
         .updatedAt(updatedAt)
         .productId(productId)
-        .part(partService.toResponse())
-        .subAssy(subAssyService.toResponse())
+        .part(partService != null ? partService.toResponse() : null)
+        .subAssy(subAssyService != null ? subAssyService.toResponse() : null)
         .build();
   }
 }
