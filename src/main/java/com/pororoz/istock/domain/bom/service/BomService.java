@@ -1,7 +1,6 @@
 package com.pororoz.istock.domain.bom.service;
 
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
-import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
@@ -36,10 +35,10 @@ public class BomService {
   private final BomRepository bomRepository;
 
   @Transactional(readOnly = true)
-  public Page<FindBomServiceResponse> findBomList(FindBomServiceRequest request,
+  public Page<FindBomServiceResponse> findBomList(Long productId,
       Pageable pageable) {
-    productRepository.findById(request.getProductId()).orElseThrow(ProductNotFoundException::new);
-    return bomRepository.findByProductIdWithPart(pageable, request.getProductId())
+    productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
+    return bomRepository.findByProductIdWithPartAndSubAssy(pageable, productId)
         .map(FindBomServiceResponse::of);
   }
 

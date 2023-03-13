@@ -3,7 +3,8 @@ package com.pororoz.istock.domain.bom.dto.service;
 import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
-import com.pororoz.istock.domain.part.dto.response.PartResponse;
+import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
+import com.pororoz.istock.domain.product.dto.service.ProductServiceResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +24,8 @@ public class FindBomServiceResponse {
   private String createdAt;
   private String updatedAt;
   private Long productId;
-  private PartResponse part;
+  private PartServiceResponse partService;
+  private ProductServiceResponse subAssyService;
 
   static public FindBomServiceResponse of(Bom bom) {
     return FindBomServiceResponse.builder()
@@ -35,7 +37,9 @@ public class FindBomServiceResponse {
         .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
         .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
         .productId(bom.getProduct().getId())
-        .part(PartResponse.of(bom.getPart()))
+        .partService(bom.getPart() == null ? null : PartServiceResponse.of(bom.getPart()))
+        .subAssyService(
+            bom.getSubAssy() == null ? null : ProductServiceResponse.of(bom.getSubAssy()))
         .build();
   }
 
@@ -49,7 +53,8 @@ public class FindBomServiceResponse {
         .createdAt(createdAt)
         .updatedAt(updatedAt)
         .productId(productId)
-        .part(part)
+        .part(partService != null ? partService.toResponse() : null)
+        .subAssy(subAssyService != null ? subAssyService.toResponse() : null)
         .build();
   }
 }

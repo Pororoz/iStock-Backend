@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.bom.dto.response;
 
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
+import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,4 +39,6 @@ public class FindBomResponse {
   private Long productId;
 
   private PartResponse part;
+
+  private ProductResponse subAssy;
 }

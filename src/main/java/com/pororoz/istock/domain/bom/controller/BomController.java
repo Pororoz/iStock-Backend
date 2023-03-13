@@ -77,7 +77,7 @@ public class BomController {
   public ResponseEntity<ResultDTO<PageResponse<FindBomResponse>>> findBomList(
       @Parameter(hidden = true) Pageable pageable,
       @Valid @ParameterObject @ModelAttribute FindBomRequest request) {
-    Page<FindBomResponse> responseDto = bomService.findBomList(request.toService(), pageable)
+    Page<FindBomResponse> responseDto = bomService.findBomList(request.getProductId(), pageable)
         .map(FindBomServiceResponse::toResponse);
     PageResponse<FindBomResponse> response = new PageResponse<>(responseDto);
     return ResponseEntity.ok(
