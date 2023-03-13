@@ -9,7 +9,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
-import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
@@ -84,8 +83,8 @@ class BomServiceTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("요청을 보내면 해당 프로덕트의 Bom List를 반환해준다.")
-      void findBom() {
+      @DisplayName("요청을 보내면 part가 포함된 해당 제품의 Bom List를 반환해준다.")
+      void findBomWithPart() {
         // given
         int page = 0;
         int size = 3;
@@ -125,16 +124,71 @@ class BomServiceTest {
         }
         PageImpl<Bom> bomPage = new PageImpl<>(bomList, PageRequest.of(page, size), total);
 
-        FindBomServiceRequest request = FindBomServiceRequest.builder()
-            .productId(productId)
-            .build();
         Pageable pageable = PageRequest.of(page, size);
 
         // when
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
-        when(bomRepository.findByProductIdWithPart(any(Pageable.class), eq(productId)))
+        when(bomRepository.findByProductIdWithPartAndSubAssy(any(Pageable.class), eq(productId)))
             .thenReturn(bomPage);
-        Page<FindBomServiceResponse> result = bomService.findBomList(request, pageable);
+        Page<FindBomServiceResponse> result = bomService.findBomList(productId, pageable);
+
+        //then
+        assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
+        assertThat(result.getTotalElements()).isEqualTo(10);
+        assertThat(result.isFirst()).isEqualTo(true);
+        assertThat(result.isLast()).isEqualTo(false);
+      }
+
+      @Test
+      @DisplayName("요청을 보내면 sub assy가 포함된 해당 제품의 Bom List를 반환해준다.")
+      void findBomWithSubAssy() {
+        // given
+        int page = 0;
+        int size = 3;
+        long total = 10;
+
+        Category category = Category.builder()
+            .id(1L)
+            .categoryName("category")
+            .build();
+        Product product = Product.builder()
+            .id(1L)
+            .codeNumber("1")
+            .productName("product")
+            .category(category)
+            .stock(3L)
+            .companyName("pororoz")
+            .build();
+
+        List<Bom> bomList = new ArrayList<>();
+        for (long i = 0; i < 3; i++) {
+          Product subAssy = Product.builder()
+              .id(i + 1)
+              .codeNumber("11")
+              .stock(i + 1)
+              .productNumber("number" + i)
+              .productName("name" + i)
+              .build();
+
+          bomList.add(Bom.builder()
+              .id(i + 1)
+              .locationNumber("L5.L" + i)
+              .codeNumber("11")
+              .quantity(quantity)
+              .subAssy(subAssy)
+              .product(product)
+              .memo(memo)
+              .build());
+        }
+        PageImpl<Bom> bomPage = new PageImpl<>(bomList, PageRequest.of(page, size), total);
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        // when
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        when(bomRepository.findByProductIdWithPartAndSubAssy(any(Pageable.class), eq(productId)))
+            .thenReturn(bomPage);
+        Page<FindBomServiceResponse> result = bomService.findBomList(productId, pageable);
 
         //then
         assertThat(result.getTotalPages()).isEqualTo((total + size) / size);
@@ -155,9 +209,6 @@ class BomServiceTest {
         int page = 0;
         int size = 3;
 
-        FindBomServiceRequest request = FindBomServiceRequest.builder()
-            .productId(productId)
-            .build();
         Pageable pageable = PageRequest.of(page, size);
 
         // when
@@ -165,7 +216,7 @@ class BomServiceTest {
 
         // then
         assertThrows(ProductNotFoundException.class,
-            () -> bomService.findBomList(request, pageable));
+            () -> bomService.findBomList(productId, pageable));
       }
     }
   }

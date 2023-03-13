@@ -12,11 +12,13 @@ import org.springframework.data.repository.query.Param;
 public interface BomRepository extends JpaRepository<Bom, Long> {
 
   @Query(value = "select b from Bom b "
-      + "left join fetch b.part p "
+      + "left join fetch b.part "
+      + "left join fetch b.subAssy "
       + "where b.product.id = :productId "
       + "order by b.id",
       countQuery = "select count(b) from Bom b where b.product.id = :productId ")
-  Page<Bom> findByProductIdWithPart(Pageable pageable, @Param("productId") Long productId);
+  Page<Bom> findByProductIdWithPartAndSubAssy(Pageable pageable,
+      @Param("productId") Long productId);
 
   Optional<Bom> findByLocationNumberAndProductIdAndSubAssyIdAndPartId(String locationNumber,
       Long productId, Long subAssyId, Long partId);

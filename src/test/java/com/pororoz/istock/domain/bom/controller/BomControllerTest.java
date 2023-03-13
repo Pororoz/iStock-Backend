@@ -18,12 +18,12 @@ import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
 import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.dto.service.BomServiceResponse;
-import com.pororoz.istock.domain.bom.dto.service.FindBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.FindBomServiceResponse;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.dto.service.UpdateBomServiceRequest;
 import com.pororoz.istock.domain.bom.service.BomService;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
+import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,20 +79,18 @@ class BomControllerTest extends ControllerTest {
         String now = TimeEntity.formatTime(LocalDateTime.now());
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        PartResponse part1 = PartResponse.builder()
+        PartServiceResponse partService1 = PartServiceResponse.builder()
             .partId(1L)
             .price(580)
             .partName("part1")
             .stock(2L)
-            .spec("spec1")
-            .build();
-        PartResponse part2 = PartResponse.builder()
+            .spec("spec1").build();
+        PartServiceResponse partService2 = PartServiceResponse.builder()
             .partId(2L)
             .price(580)
             .partName("part2")
             .stock(2L)
-            .spec("spec2")
-            .build();
+            .spec("spec2").build();
         FindBomServiceResponse serviceResponse1 = FindBomServiceResponse.builder()
             .bomId(1L)
             .locationNumber(locationNumber + "0")
@@ -102,8 +100,7 @@ class BomControllerTest extends ControllerTest {
             .createdAt(now)
             .updatedAt(now)
             .productId(productId)
-            .part(part1)
-            .build();
+            .partService(partService1).build();
         FindBomServiceResponse serviceResponse2 = FindBomServiceResponse.builder()
             .bomId(2L)
             .locationNumber(locationNumber + "1")
@@ -113,8 +110,7 @@ class BomControllerTest extends ControllerTest {
             .createdAt(now)
             .updatedAt(now)
             .productId(productId)
-            .part(part2)
-            .build();
+            .partService(partService2).build();
         Page<FindBomServiceResponse> dtoPage =
             new PageImpl<>(List.of(serviceResponse1, serviceResponse2), pageRequest, 4);
 
@@ -122,6 +118,18 @@ class BomControllerTest extends ControllerTest {
         params.add("page", "0");
         params.add("size", "2");
 
+        PartResponse part1 = PartResponse.builder()
+            .partId(1L)
+            .price(580)
+            .partName("part1")
+            .stock(2L)
+            .spec("spec1").build();
+        PartResponse part2 = PartResponse.builder()
+            .partId(2L)
+            .price(580)
+            .partName("part2")
+            .stock(2L)
+            .spec("spec2").build();
         FindBomResponse findBomResponse1 = FindBomResponse.builder()
             .bomId(1L)
             .locationNumber(locationNumber + "0")
@@ -149,8 +157,7 @@ class BomControllerTest extends ControllerTest {
                 new PageImpl<>(List.of(findBomResponse1, findBomResponse2), pageRequest, 4));
 
         // when
-        when(bomService.findBomList(any(FindBomServiceRequest.class),
-            any(Pageable.class))).thenReturn(dtoPage);
+        when(bomService.findBomList(anyLong(), any(Pageable.class))).thenReturn(dtoPage);
         ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
 
         // then
