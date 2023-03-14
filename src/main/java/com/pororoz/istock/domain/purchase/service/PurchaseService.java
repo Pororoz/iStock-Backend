@@ -15,6 +15,7 @@ import com.pororoz.istock.domain.product.entity.ProductStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
+import com.pororoz.istock.domain.purchase.dto.service.CancelPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
@@ -67,6 +68,15 @@ public class PurchaseService {
     partIo.getPart().addStock(partIo.getQuantity());
 
     return ConfirmPurchasePartServiceResponse.of(partIo);
+  }
+
+  public CancelPurchasePartServiceResponse cancelPurchasePart(Long partIoId) {
+    PartIo partIo = partIoRepository.findById(partIoId)
+        .orElseThrow(PartIoNotFoundException::new);
+
+    partIo.cancelPurchase();
+
+    return CancelPurchasePartServiceResponse.of(partIo);
   }
 
   void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
