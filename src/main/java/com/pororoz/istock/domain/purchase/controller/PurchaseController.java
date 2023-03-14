@@ -10,9 +10,11 @@ import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
+import com.pororoz.istock.domain.purchase.dto.response.CancelPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
+import com.pororoz.istock.domain.purchase.dto.service.CancelPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
@@ -113,5 +115,16 @@ public class PurchaseController {
     ConfirmPurchasePartResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CONFIRM_PURCHASE_PART, response));
+  }
+
+  @Operation(summary = "cancel purchase part", description = "제품 자재 구매 취소 API")
+  @PostMapping("/part-io/{partIoId}/cancel")
+  public ResponseEntity<ResultDTO<CancelPurchasePartResponse>> cancelPurchasePart(
+      @PathVariable("partIoId") @NotNull(message = ExceptionMessage.INVALID_PATH)
+      @Positive(message = ExceptionMessage.INVALID_PATH) Long partIoId) {
+    CancelPurchasePartServiceResponse serviceDto = purchaseService.cancelPurchasePart(partIoId);
+    CancelPurchasePartResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CANCEL_PURCHASE_PART, response));
   }
 }
