@@ -22,6 +22,7 @@ import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequ
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import com.pororoz.istock.domain.purchase.swagger.exception.ChangePurchaseStatusExceptionSwagger;
+import com.pororoz.istock.domain.purchase.swagger.response.CancelPurchasePartResponseSwagger;
 import com.pororoz.istock.domain.purchase.swagger.response.ConfirmPurchasePartResponseSwagger;
 import com.pororoz.istock.domain.purchase.swagger.response.PurchasePartResponseSwagger;
 import com.pororoz.istock.domain.purchase.swagger.response.PurchaseProductResponseSwagger;
@@ -118,6 +119,16 @@ public class PurchaseController {
   }
 
   @Operation(summary = "cancel purchase part", description = "제품 자재 구매 취소 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.CANCEL_PURCHASE_PART, content = {
+          @Content(schema = @Schema(implementation = CancelPurchasePartResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.CHANGE_IO_STATUS, content = {
+          @Content(schema = @Schema(implementation = ChangePurchaseStatusExceptionSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PART_IO_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = PartIoNotFoundException.class))})
+  })
   @PostMapping("/part-io/{partIoId}/cancel")
   public ResponseEntity<ResultDTO<CancelPurchasePartResponse>> cancelPurchasePart(
       @PathVariable("partIoId") @NotNull(message = ExceptionMessage.INVALID_PATH)
