@@ -12,16 +12,14 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
-import com.pororoz.istock.domain.purchase.dto.response.CancelPurchasePartResponse;
-import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
-import com.pororoz.istock.domain.purchase.dto.service.CancelPurchasePartServiceResponse;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.response.UpdatePurchaseResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -220,12 +218,12 @@ public class PurchaseControllerTest extends ControllerTest {
       @DisplayName("구매를 확정하면 partIo의 상태가 대기에서 확정으로 변경된다.")
       void confirmPurchasePart() throws Exception {
         // given
-        ConfirmPurchasePartServiceResponse serviceDto = ConfirmPurchasePartServiceResponse.builder()
+        UpdatePurchaseServiceResponse serviceDto = UpdatePurchaseServiceResponse.builder()
             .partIoId((partIoId))
             .partId(partId)
             .quantity(quantity)
             .build();
-        ConfirmPurchasePartResponse response = ConfirmPurchasePartResponse.builder()
+        UpdatePurchaseResponse response = UpdatePurchaseResponse.builder()
             .partIoId(partIoId)
             .partId(partId)
             .quantity(quantity)
@@ -280,12 +278,12 @@ public class PurchaseControllerTest extends ControllerTest {
       @DisplayName("구매를 취소하면 partIo의 상태가 대기에서 취소로 변경된다.")
       void cancelPurchasePart() throws Exception {
         // given
-        CancelPurchasePartServiceResponse serviceDto = CancelPurchasePartServiceResponse.builder()
+        UpdatePurchaseServiceResponse serviceDto = UpdatePurchaseServiceResponse.builder()
             .partIoId((partIoId))
             .partId(partId)
             .quantity(quantity)
             .build();
-        CancelPurchasePartResponse response = CancelPurchasePartResponse.builder()
+        UpdatePurchaseResponse response = UpdatePurchaseResponse.builder()
             .partIoId(partIoId)
             .partId(partId)
             .quantity(quantity)

@@ -21,10 +21,9 @@ import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
-import com.pororoz.istock.domain.purchase.dto.response.CancelPurchasePartResponse;
-import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
+import com.pororoz.istock.domain.purchase.dto.response.UpdatePurchaseResponse;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -272,7 +271,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       @DisplayName("제품 자재 구매 확정 요청에 성공한다.")
       void confirmPurchasePart() throws Exception {
         // given
-        ConfirmPurchasePartResponse response = ConfirmPurchasePartResponse.builder()
+        UpdatePurchaseResponse response = UpdatePurchaseResponse.builder()
             .partIoId(1L)
             .partId(1L)
             .quantity(10L)
@@ -353,7 +352,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       @DisplayName("제품 자재 구매 취소 요청에 성공한다.")
       void cancelPurchasePart() throws Exception {
         // given
-        CancelPurchasePartResponse response = CancelPurchasePartResponse.builder()
+        UpdatePurchaseResponse response = UpdatePurchaseResponse.builder()
             .partIoId(1L)
             .partId(1L)
             .quantity(10L)

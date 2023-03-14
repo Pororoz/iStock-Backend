@@ -10,16 +10,14 @@ import com.pororoz.istock.domain.part.exception.PartNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
-import com.pororoz.istock.domain.purchase.dto.response.CancelPurchasePartResponse;
-import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
-import com.pororoz.istock.domain.purchase.dto.service.CancelPurchasePartServiceResponse;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.response.UpdatePurchaseResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import com.pororoz.istock.domain.purchase.swagger.exception.ChangePurchaseStatusExceptionSwagger;
 import com.pororoz.istock.domain.purchase.swagger.response.CancelPurchasePartResponseSwagger;
@@ -109,11 +107,11 @@ public class PurchaseController {
           @Content(schema = @Schema(implementation = PartIoNotFoundException.class))})
   })
   @PostMapping("/part-io/{partIoId}/confirm")
-  public ResponseEntity<ResultDTO<ConfirmPurchasePartResponse>> confirmPurchasePart(
+  public ResponseEntity<ResultDTO<UpdatePurchaseResponse>> confirmPurchasePart(
       @PathVariable("partIoId") @NotNull(message = ExceptionMessage.INVALID_PATH)
       @Positive(message = ExceptionMessage.INVALID_PATH) Long partIoId) {
-    ConfirmPurchasePartServiceResponse serviceDto = purchaseService.confirmPurchasePart(partIoId);
-    ConfirmPurchasePartResponse response = serviceDto.toResponse();
+    UpdatePurchaseServiceResponse serviceDto = purchaseService.confirmPurchasePart(partIoId);
+    UpdatePurchaseResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CONFIRM_PURCHASE_PART, response));
   }
@@ -130,11 +128,11 @@ public class PurchaseController {
           @Content(schema = @Schema(implementation = PartIoNotFoundException.class))})
   })
   @PostMapping("/part-io/{partIoId}/cancel")
-  public ResponseEntity<ResultDTO<CancelPurchasePartResponse>> cancelPurchasePart(
+  public ResponseEntity<ResultDTO<UpdatePurchaseResponse>> cancelPurchasePart(
       @PathVariable("partIoId") @NotNull(message = ExceptionMessage.INVALID_PATH)
       @Positive(message = ExceptionMessage.INVALID_PATH) Long partIoId) {
-    CancelPurchasePartServiceResponse serviceDto = purchaseService.cancelPurchasePart(partIoId);
-    CancelPurchasePartResponse response = serviceDto.toResponse();
+    UpdatePurchaseServiceResponse serviceDto = purchaseService.cancelPurchasePart(partIoId);
+    UpdatePurchaseResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CANCEL_PURCHASE_PART, response));
   }

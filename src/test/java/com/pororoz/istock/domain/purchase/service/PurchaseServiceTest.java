@@ -22,12 +22,11 @@ import com.pororoz.istock.domain.product.entity.ProductStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import com.pororoz.istock.domain.purchase.dto.service.CancelPurchasePartServiceResponse;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import com.pororoz.istock.domain.purchase.exception.ChangePurchaseStatusException;
 import java.util.List;
 import java.util.Optional;
@@ -280,7 +279,7 @@ public class PurchaseServiceTest {
             .part(part)
             .build();
 
-        ConfirmPurchasePartServiceResponse response = ConfirmPurchasePartServiceResponse.builder()
+        UpdatePurchaseServiceResponse response = UpdatePurchaseServiceResponse.builder()
             .partIoId(partIoId)
             .partId(partId)
             .quantity(quantity)
@@ -288,7 +287,7 @@ public class PurchaseServiceTest {
 
         // when
         when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
-        ConfirmPurchasePartServiceResponse result = purchaseService.confirmPurchasePart(partIoId);
+        UpdatePurchaseServiceResponse result = purchaseService.confirmPurchasePart(partIoId);
 
         // then
         assertThat(part.getStock()).isEqualTo(stock + quantity);
@@ -356,7 +355,7 @@ public class PurchaseServiceTest {
             .part(part)
             .build();
 
-        CancelPurchasePartServiceResponse response = CancelPurchasePartServiceResponse.builder()
+        UpdatePurchaseServiceResponse response = UpdatePurchaseServiceResponse.builder()
             .partIoId(partIoId)
             .partId(partId)
             .quantity(quantity)
@@ -365,7 +364,7 @@ public class PurchaseServiceTest {
 
         // when
         when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
-        CancelPurchasePartServiceResponse result = purchaseService.cancelPurchasePart(partIoId);
+        UpdatePurchaseServiceResponse result = purchaseService.cancelPurchasePart(partIoId);
 
         // then
         assertThat(part.getStock()).isEqualTo(stock);

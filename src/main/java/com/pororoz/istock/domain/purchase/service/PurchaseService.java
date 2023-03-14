@@ -15,12 +15,11 @@ import com.pororoz.istock.domain.product.entity.ProductStatus;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import com.pororoz.istock.domain.purchase.dto.service.CancelPurchasePartServiceResponse;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -60,23 +59,23 @@ public class PurchaseService {
     return PurchasePartServiceResponse.of(request);
   }
 
-  public ConfirmPurchasePartServiceResponse confirmPurchasePart(Long partIoId) {
+  public UpdatePurchaseServiceResponse confirmPurchasePart(Long partIoId) {
     PartIo partIo = partIoRepository.findById(partIoId)
         .orElseThrow(PartIoNotFoundException::new);
 
     partIo.confirmPurchase();
     partIo.getPart().addStock(partIo.getQuantity());
 
-    return ConfirmPurchasePartServiceResponse.of(partIo);
+    return UpdatePurchaseServiceResponse.of(partIo);
   }
 
-  public CancelPurchasePartServiceResponse cancelPurchasePart(Long partIoId) {
+  public UpdatePurchaseServiceResponse cancelPurchasePart(Long partIoId) {
     PartIo partIo = partIoRepository.findById(partIoId)
         .orElseThrow(PartIoNotFoundException::new);
 
     partIo.cancelPurchase();
 
-    return CancelPurchasePartServiceResponse.of(partIo);
+    return UpdatePurchaseServiceResponse.of(partIo);
   }
 
   void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
