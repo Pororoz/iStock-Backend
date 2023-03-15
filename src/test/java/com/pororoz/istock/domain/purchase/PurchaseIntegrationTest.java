@@ -18,12 +18,16 @@ import com.pororoz.istock.domain.part.entity.PartStatus;
 import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
+import com.pororoz.istock.domain.product.entity.ProductIo;
+import com.pororoz.istock.domain.product.entity.ProductStatus;
+import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
 import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
+import com.pororoz.istock.domain.purchase.dto.response.UpdateSubAssyPurchaseResponse;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +43,9 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
   @Autowired
   ProductRepository productRepository;
+
+  @Autowired
+  ProductIoRepository productIoRepository;
 
   @Autowired
   BomRepository bomRepository;
@@ -65,6 +72,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       Product product = productRepository.save(Product.builder()
           .productName("p" + i).productNumber("p" + i)
           .stock((int) (Math.random() * 100) + 1).category(category)
+          .codeNumber(String.valueOf(i))
           .build());
       products.add(product);
     }
@@ -85,6 +93,28 @@ public class PurchaseIntegrationTest extends IntegrationTest {
           .product(products.get((int) (Math.random() * 9)))
           .build());
     }
+    //productIo 저장
+    ProductIo productIo = productIoRepository.save(ProductIo.builder()
+        .quantity(10)
+        .status(ProductStatus.구매대기)
+        .product(products.get(0))
+        .superIo(null)
+        .build()
+    );
+    productIoRepository.save(ProductIo.builder()
+        .quantity(10)
+        .status(ProductStatus.외주구매대기)
+        .product(products.get(9))
+        .superIo(productIo)
+        .build()
+    );
+    productIoRepository.save(ProductIo.builder()
+        .quantity(10)
+        .status(ProductStatus.외주구매확정)
+        .product(products.get(9))
+        .superIo(productIo)
+        .build()
+    );
     //partIo 저장
     partIoRepository.save(PartIo.builder()
         .quantity(10)
@@ -328,6 +358,87 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
         // when
         ResultActions actions = getResultActions(url(1L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("POST /v1/purchase/product-io/subassy/{productIoId}/confirm - subassy 구매 확정")
+  class ConfirmSubAssyPurchase {
+    private String url(Long productIoId) {
+      return String.format("http://localhost:8080/v1/purchase/product-io/subassy/%s/confirm", productIoId);
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @WithMockUser
+      @DisplayName("subassy 구매 확정 요청에 성공한다.")
+      void confirmSubAssyPurchase() throws Exception {
+        // given
+        UpdateSubAssyPurchaseResponse response = UpdateSubAssyPurchaseResponse.builder()
+            .productIoId(2L)
+            .productId(10L)
+            .quantity(10L)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(url(2L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_SUB_ASSY_PURCHASE))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @WithMockUser
+      @DisplayName("구매대기 상태가 아닌 경우, 구매확정 상태로 변경할 수 없다.")
+      void notPurchaseWaiting() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(3L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser
+      @DisplayName("존재하지 않는 제품IO를 요청하면 구매 요청에 실패한다.")
+      void partIoNotFound() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(100L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isNotFound())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("인증되지 않은 사용자가 접근하면 FORBIDDEN을 반환한다.")
+      void forbidden() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(2L), HttpMethod.POST);
 
         // then
         actions.andExpect(status().isForbidden())
