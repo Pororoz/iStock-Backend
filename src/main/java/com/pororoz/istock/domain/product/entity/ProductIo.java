@@ -4,6 +4,7 @@ import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.production.exception.ChangeProductionStatusException;
+import com.pororoz.istock.domain.purchase.exception.ChangePurchaseStatusException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -119,5 +120,13 @@ public class ProductIo extends TimeEntity {
           "id: " + this.id + ", 상태: " + this.status);
     }
     this.status = ProductStatus.사내출고취소;
+  }
+
+  public void confirmSubAssyPurchase() {
+    if (this.status != ProductStatus.외주구매대기) {
+      throw new ChangePurchaseStatusException(ProductStatus.외주구매대기.name(), ProductStatus.외주구매확정.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = ProductStatus.외주구매확정;
   }
 }
