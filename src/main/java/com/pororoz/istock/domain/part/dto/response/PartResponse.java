@@ -1,6 +1,5 @@
 package com.pororoz.istock.domain.part.dto.response;
 
-import com.pororoz.istock.domain.part.entity.Part;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,14 +23,4 @@ public class PartResponse {
 
   @Schema(description = "재고", example = "5")
   private long stock;
-
-  public static PartResponse of(Part part) {
-    return PartResponse.builder()
-        .partId(part.getId())
-        .partName(part.getPartName())
-        .price(part.getPrice())
-        .spec(part.getSpec())
-        .stock(part.getStock())
-        .build();
-  }
 }
