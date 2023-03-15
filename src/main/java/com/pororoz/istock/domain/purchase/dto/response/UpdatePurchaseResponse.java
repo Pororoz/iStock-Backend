@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class ConfirmPurchasePartResponse {
+public class UpdatePurchaseResponse {
 
   @Schema(description = "부품IO 아이디", example = "1")
   private Long partIoId;

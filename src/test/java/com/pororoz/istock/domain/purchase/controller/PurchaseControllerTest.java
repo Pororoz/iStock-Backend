@@ -12,14 +12,14 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
-import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.response.UpdatePurchaseResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -218,12 +218,12 @@ public class PurchaseControllerTest extends ControllerTest {
       @DisplayName("구매를 확정하면 partIo의 상태가 대기에서 확정으로 변경된다.")
       void confirmPurchasePart() throws Exception {
         // given
-        ConfirmPurchasePartServiceResponse serviceDto = ConfirmPurchasePartServiceResponse.builder()
+        UpdatePurchaseServiceResponse serviceDto = UpdatePurchaseServiceResponse.builder()
             .partIoId((partIoId))
             .partId(partId)
             .quantity(quantity)
             .build();
-        ConfirmPurchasePartResponse response = ConfirmPurchasePartResponse.builder()
+        UpdatePurchaseResponse response = UpdatePurchaseResponse.builder()
             .partIoId(partIoId)
             .partId(partId)
             .quantity(quantity)
@@ -238,6 +238,66 @@ public class PurchaseControllerTest extends ControllerTest {
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
             .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_PURCHASE_PART))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("partIoId가 null이면 오류가 발생한다.")
+      void partIoIdNullException() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("제품 자재 구매 취소")
+  class CancelPurchasePart {
+
+    private String url(Long partIoId) {
+      return String.format("http://localhost:8080/v1/purchase/part-io/%s/cancel", partIoId);
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("구매를 취소하면 partIo의 상태가 대기에서 취소로 변경된다.")
+      void cancelPurchasePart() throws Exception {
+        // given
+        UpdatePurchaseServiceResponse serviceDto = UpdatePurchaseServiceResponse.builder()
+            .partIoId((partIoId))
+            .partId(partId)
+            .quantity(quantity)
+            .build();
+        UpdatePurchaseResponse response = UpdatePurchaseResponse.builder()
+            .partIoId(partIoId)
+            .partId(partId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(purchaseService.cancelPurchasePart(any())).thenReturn(
+            serviceDto);
+        ResultActions actions = getResultActions(url(partIoId), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_PURCHASE_PART))
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }

@@ -76,10 +76,18 @@ public class PartIo extends TimeEntity {
 
   public void confirmPurchase() {
     if (this.status != PartStatus.구매대기) {
-      throw new ChangePurchaseStatusException(PartStatus.생산대기.name(), PartStatus.생산완료.name(),
+      throw new ChangePurchaseStatusException(PartStatus.구매대기.name(), PartStatus.구매확정.name(),
           "id: " + this.id + ", 상태: " + this.status);
     }
     this.status = PartStatus.구매확정;
+  }
+
+  public void cancelPurchase() {
+    if (this.status != PartStatus.구매대기) {
+      throw new ChangePurchaseStatusException(PartStatus.구매대기.name(), PartStatus.구매취소.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = PartStatus.구매취소;
   }
 
   public void confirmPartProduction() {
