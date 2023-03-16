@@ -24,11 +24,11 @@ import com.pororoz.istock.domain.product.exception.ProductIoNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyPurchaseServiceResponse;
 import com.pororoz.istock.domain.purchase.exception.ChangePurchaseStatusException;
 import java.util.List;
@@ -263,7 +263,7 @@ public class PurchaseServiceTest {
   }
 
   @Nested
-  @DisplayName("제품 자재 개별 구매")
+  @DisplayName("제품 자재 구매 확정")
   class ConfirmPurchasePart {
 
     @Nested
@@ -272,7 +272,7 @@ public class PurchaseServiceTest {
 
       @Test
       @DisplayName("구매 대기 상태의 자재를 구매 확정 상태로 변경한다.")
-      void ConfirmPurchasePart() {
+      void confirmPurchasePart() {
         // given
         Part part = Part.builder().id(partId).stock(stock).build();
         PartIo partIo = PartIo.builder()
@@ -282,7 +282,7 @@ public class PurchaseServiceTest {
             .part(part)
             .build();
 
-        ConfirmPurchasePartServiceResponse response = ConfirmPurchasePartServiceResponse.builder()
+        UpdatePurchaseServiceResponse response = UpdatePurchaseServiceResponse.builder()
             .partIoId(partIoId)
             .partId(partId)
             .quantity(quantity)
@@ -290,7 +290,7 @@ public class PurchaseServiceTest {
 
         // when
         when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
-        ConfirmPurchasePartServiceResponse result = purchaseService.confirmPurchasePart(partIoId);
+        UpdatePurchaseServiceResponse result = purchaseService.confirmPurchasePart(partIoId);
 
         // then
         assertThat(part.getStock()).isEqualTo(stock + quantity);
@@ -333,6 +333,83 @@ public class PurchaseServiceTest {
         // then
         assertThrows(ChangePurchaseStatusException.class,
             () -> purchaseService.confirmPurchasePart(partIoId));
+
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("제품 자재 구매 취소")
+  class CancelPurchasePart {
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("구매 대기 상태의 자재를 구매 취소 상태로 변경한다.")
+      void cancelPurchasePart() {
+        // given
+        Part part = Part.builder().id(partId).stock(stock).build();
+        PartIo partIo = PartIo.builder()
+            .id(partIoId)
+            .quantity(quantity)
+            .status(partStatus)
+            .part(part)
+            .build();
+
+        UpdatePurchaseServiceResponse response = UpdatePurchaseServiceResponse.builder()
+            .partIoId(partIoId)
+            .partId(partId)
+            .quantity(quantity)
+            .build();
+
+
+        // when
+        when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
+        UpdatePurchaseServiceResponse result = purchaseService.cancelPurchasePart(partIoId);
+
+        // then
+        assertThat(part.getStock()).isEqualTo(stock);
+        assertThat(partIo.getStatus()).isEqualTo(partStatus.구매취소);
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("존재하지 않는 PartIo를 요청하면 오류가 발생한다.")
+      void partIoNotFound() {
+        // given
+        // when
+        when(partIoRepository.findById(partIoId)).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(PartIoNotFoundException.class,
+            () -> purchaseService.cancelPurchasePart(partIoId));
+      }
+
+      @Test
+      @DisplayName("구매대기 상태가 아닌 경우, 구매취소으로 상태를 바꿀 수 없다.")
+      void notPurchaseWaiting() {
+        // given
+        Part part = Part.builder().id(partId).stock(stock).build();
+        PartIo partIo = PartIo.builder()
+            .id(partIoId)
+            .quantity(quantity)
+            .status(PartStatus.구매확정)
+            .part(part)
+            .build();
+
+        // when
+        when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
+
+        // then
+        assertThrows(ChangePurchaseStatusException.class,
+            () -> purchaseService.cancelPurchasePart(partIoId));
 
       }
     }
