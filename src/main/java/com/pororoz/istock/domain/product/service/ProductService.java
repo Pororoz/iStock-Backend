@@ -14,10 +14,9 @@ import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedExcept
 import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+
+import java.util.*;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -123,12 +122,8 @@ public class ProductService {
     }
   }
 
-  public Product findProductByProductNumberAndProductName(String productNumber, String productName) {
-    return productRepository.findProductByProductNumberAndProductName(productNumber, productName);
-  }
-
-  public Product findProductById(Long productId) {
-    return productRepository.findProductById(productId);
+  public Optional<Product> findProductById(Long productId) {
+    return productRepository.findById(productId);
   }
 
 }
