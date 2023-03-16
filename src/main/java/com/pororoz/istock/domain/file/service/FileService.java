@@ -4,18 +4,21 @@ import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
 import com.pororoz.istock.domain.bom.service.BomService;
 import com.pororoz.istock.domain.category.dto.service.SaveCategoryServiceRequest;
 import com.pororoz.istock.domain.category.entity.Category;
+import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.category.service.CategoryService;
 
 import com.pororoz.istock.domain.file.dto.service.FileServiceResponse;
 
 import com.pororoz.istock.domain.file.exception.InvalidFileException;
 import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
-import com.pororoz.istock.domain.part.entity.Part;
 
+import com.pororoz.istock.domain.part.entity.Part;
+import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.part.service.PartService;
 import com.pororoz.istock.domain.product.dto.service.SaveProductServiceRequest;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 
@@ -27,9 +30,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,16 +40,19 @@ public class FileService {
 
   private final BomService bomService;
   private final PartService partService;
+  private final PartRepository partRepository;
   private final ProductService productService;
+
+  private final ProductRepository productRepository;
   private final CategoryService categoryService;
+  private final CategoryRepository categoryRepository;
+
   private final String SUB_ASSAY_ID = "SUB_ASS'Y";
   private final String SUB_ASSAY_CODE_NUMBER = "11";
 
   public FileServiceResponse uploadFile(MultipartFile csvFile, Long productId)  {
-      Product targetProduct = productService.findProductById(productId);
-      if(targetProduct == null) {
-          throw new ProductNotFoundException();
-      }
+      Optional<Product> optTargetProduct = productService.findProductById(productId);
+      Product targetProduct = optTargetProduct.orElseThrow(ProductNotFoundException::new);
 
       List<String> bomLines = new ArrayList<>();
 
@@ -62,6 +66,13 @@ public class FileService {
               lineNumber++;
               if(lineNumber < 5) continue;
 
+              String result = line.chars().filter(ch -> ch != ',')
+                          .collect(StringBuilder::new, StringBuilder::appendCodePoint,
+                                  StringBuilder::append)
+                          .toString();
+
+              if(result == "") continue;
+
               bomLines.add(line.replaceAll(",", ", "));
           }
           br.close();
@@ -74,7 +85,7 @@ public class FileService {
           bomData = bomData.stream().map(s -> s.trim()).collect(Collectors.toList());
 
           Long quantity = "".equals(bomData.get(1)) ? Long.parseLong("0") : Long.parseLong(bomData.get(1));
-          String locationNumber = bomData.get(2).length() > 100 ? bomData.get(2).substring(100) : bomData.get(2);
+          String locationNumber = bomData.get(2);
           String partName = bomData.get(3);
           String spec = bomData.get(4);
           Long price = "".equals(bomData.get(5)) ? Long.parseLong("0") : Long.parseLong(bomData.get(5)); // 단가
@@ -85,25 +96,21 @@ public class FileService {
 
           if(SUB_ASSAY_CODE_NUMBER.equals(codeNumber)) {
               // sub Assay
-              Product subAssay = productService.findProductByProductNumberAndProductName(bomData.get(3), bomData.get(4)); // subAssay인 경우에는 4, 5번째에 있는 항목이 다름
+              Product subAssay = productRepository.findProductByProductNumberAndProductName(bomData.get(3), bomData.get(4)); // subAssay인 경우에는 4, 5번째에 있는 항목이 다름
               // sub Assay 없으면 추가
-              if(subAssay == null) {
+              if(Objects.isNull(subAssay)) {
                   // category 없으면 추가
-                  Category subAssayCategory = categoryService.findCategoryIdByName(SUB_ASSAY_ID);
-                  if (subAssayCategory == null) {
-                      categoryService.saveCategory(new SaveCategoryServiceRequest(SUB_ASSAY_ID));
-                      subAssayCategory = categoryService.findCategoryIdByName(SUB_ASSAY_ID);
-                  }
-                  productService.saveProduct(new SaveProductServiceRequest(bomData.get(3), bomData.get(4), codeNumber, 0, "", subAssayCategory.getId()));
+                  Optional<Long> optSubAssayCategoryId = categoryRepository.findByCategoryName(SUB_ASSAY_ID).map(Category::getId);
+                  Long subAssayCategoryId = optSubAssayCategoryId.orElseGet(() -> categoryService.saveCategory(new SaveCategoryServiceRequest(SUB_ASSAY_ID)).getCategoryId());
+
+                  productService.saveProduct(new SaveProductServiceRequest(bomData.get(3), bomData.get(4), codeNumber, 0, "", subAssayCategoryId));
               }
               bomService.saveBom(new SaveBomServiceRequest(locationNumber, codeNumber, quantity, "", targetProduct.getProductNumber(), null, productId));
           } else {
-              Part targetPart = partService.findPartByPartNameAndSpec(partName, spec);
-              if (targetPart == null) {
-                  partService.savePart(new SavePartServiceRequest(partName, spec, price, stock));
-              }
-              targetPart = partService.findPartByPartNameAndSpec(partName, spec);
-              bomService.saveBom(new SaveBomServiceRequest(locationNumber, codeNumber, quantity, "", null, targetPart.getId(), productId));
+              Optional<Long> optTargetPart = partRepository.findByPartNameAndSpec(partName, spec).map(Part::getId);
+              Long targetPartId = optTargetPart.orElseGet(() -> partService.savePart(new SavePartServiceRequest(partName, spec, price, stock)).getPartId());
+              
+              bomService.saveBom(new SaveBomServiceRequest(locationNumber, codeNumber, quantity, "", null, targetPartId, productId));
           }
       }
 
