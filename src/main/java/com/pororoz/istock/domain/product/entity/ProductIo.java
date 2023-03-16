@@ -129,4 +129,12 @@ public class ProductIo extends TimeEntity {
     }
     this.status = ProductStatus.외주구매확정;
   }
+
+  public void cancelSubAssyPurchase() {
+    if (this.status != ProductStatus.외주구매대기) {
+      throw new ChangePurchaseStatusException(ProductStatus.외주구매대기.name(), ProductStatus.외주구매취소.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = ProductStatus.외주구매취소;
+  }
 }

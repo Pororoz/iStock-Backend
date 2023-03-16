@@ -24,6 +24,7 @@ import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceRespo
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import com.pororoz.istock.domain.purchase.swagger.exception.ChangePurchaseStatusExceptionSwagger;
 import com.pororoz.istock.domain.purchase.swagger.response.CancelPurchasePartResponseSwagger;
+import com.pororoz.istock.domain.purchase.swagger.response.CancelSubAssyPurchaseResponseSwagger;
 import com.pororoz.istock.domain.purchase.swagger.response.ConfirmPurchasePartResponseSwagger;
 import com.pororoz.istock.domain.purchase.swagger.response.ConfirmSubAssyPurchaseResponseSwagger;
 import com.pororoz.istock.domain.purchase.swagger.response.PurchasePartResponseSwagger;
@@ -160,5 +161,26 @@ public class PurchaseController {
     UpdateSubAssyPurchaseResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CONFIRM_SUB_ASSY_PURCHASE, response));
+  }
+
+  @Operation(summary = "cancel subAssy purchase", description = "subAssy 구매 취소 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.CANCEL_SUB_ASSY_PURCHASE, content = {
+          @Content(schema = @Schema(implementation = CancelSubAssyPurchaseResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.CHANGE_IO_STATUS, content = {
+          @Content(schema = @Schema(implementation = ChangePurchaseStatusExceptionSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_IO_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = ProductIoNotFoundException.class))})
+  })
+  @PostMapping("/subassy-io/{productIoId}/cancel")
+  public ResponseEntity<ResultDTO<UpdateSubAssyPurchaseResponse>> cancelSubAssyPurchase(
+      @PathVariable("productIoId") @NotNull(message = ExceptionMessage.INVALID_PATH)
+      @Positive(message = ExceptionMessage.INVALID_PATH) Long productIoId) {
+    UpdateSubAssyPurchaseServiceResponse serviceDto = purchaseService.cancelSubAssyPurchase(productIoId);
+    UpdateSubAssyPurchaseResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CANCEL_SUB_ASSY_PURCHASE, response));
   }
 }
