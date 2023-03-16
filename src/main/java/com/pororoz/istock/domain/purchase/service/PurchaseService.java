@@ -93,6 +93,17 @@ public class PurchaseService {
     return UpdateSubAssyPurchaseServiceResponse.of(productIo);
   }
 
+  public UpdateSubAssyPurchaseServiceResponse cancelSubAssyPurchase(Long productIoId) {
+    ProductIo productIo = productIoRepository.findById(productIoId)
+        .orElseThrow(ProductIoNotFoundException::new);
+
+    checkWhetherSubAssy(productIo);
+
+    productIo.cancelSubAssyPurchase();
+
+    return UpdateSubAssyPurchaseServiceResponse.of(productIo);
+  }
+
   void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
     List<PartIo> partIoList = new ArrayList<>();
     List<ProductIo> subAssyIoList = new ArrayList<>();
