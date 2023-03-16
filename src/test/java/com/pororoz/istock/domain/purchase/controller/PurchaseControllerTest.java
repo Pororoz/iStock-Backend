@@ -330,7 +330,7 @@ public class PurchaseControllerTest extends ControllerTest {
   class ConfirmSubAssyPurchase {
 
     private String url(Long productIoId) {
-      return String.format("http://localhost:8080/v1/purchase/subassy-io/%s/confirm", partIoId);
+      return String.format("http://localhost:8080/v1/purchase/subassy-io/%s/confirm", productIoId);
     }
 
     @Nested
@@ -384,5 +384,65 @@ public class PurchaseControllerTest extends ControllerTest {
       }
     }
 
+  }
+
+  @Nested
+  @DisplayName("Sub Assy 구매 취소")
+  class CancelSubAssyPurchase {
+
+    private String url(Long productIoId) {
+      return String.format("http://localhost:8080/v1/purchase/subassy-io/%s/cancel", productIoId);
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("subAssy인 productIo의 상태가 구매대기에서 구매취소으로 변경된다.")
+      void cancelSubAssyPurchase() throws Exception {
+        // given
+        UpdateSubAssyPurchaseServiceResponse serviceDto = UpdateSubAssyPurchaseServiceResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+        UpdateSubAssyPurchaseResponse response = UpdateSubAssyPurchaseResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(purchaseService.cancelSubAssyPurchase(any())).thenReturn(
+            serviceDto);
+        ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_SUB_ASSY_PURCHASE))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("productIoId가 null이면 오류가 발생한다.")
+      void productIoIdNullException() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
   }
 }
