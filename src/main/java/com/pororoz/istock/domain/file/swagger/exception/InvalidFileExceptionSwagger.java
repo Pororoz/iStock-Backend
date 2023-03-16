@@ -5,11 +5,10 @@ import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Data
+@Getter
 public class InvalidFileExceptionSwagger {
 
   @Schema(description = "에러 명칭", example = ExceptionStatus.INVALID_FILE)
