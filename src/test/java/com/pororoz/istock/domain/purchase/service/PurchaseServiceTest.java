@@ -364,7 +364,6 @@ public class PurchaseServiceTest {
             .quantity(quantity)
             .build();
 
-
         // when
         when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
         UpdatePurchaseServiceResponse result = purchaseService.cancelPurchasePart(partIoId);
@@ -454,7 +453,8 @@ public class PurchaseServiceTest {
 
         // when
         when(productIoRepository.findById(productIoIdAsSubAssy)).thenReturn(Optional.of(subAssyIo));
-        UpdateSubAssyPurchaseServiceResponse result = purchaseService.confirmSubAssyPurchase(productIoIdAsSubAssy);
+        UpdateSubAssyPurchaseServiceResponse result = purchaseService.confirmSubAssyPurchase(
+            productIoIdAsSubAssy);
 
         // then
         assertThat(subAssy.getStock()).isEqualTo(stock + quantity);
@@ -466,6 +466,7 @@ public class PurchaseServiceTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
       @Test
       @DisplayName("존재하지 않는 ProductIo를 요청하면 오류가 발생한다.")
       void partIoNotFound() {
@@ -528,6 +529,124 @@ public class PurchaseServiceTest {
         // then
         assertThrows(ChangePurchaseStatusException.class,
             () -> purchaseService.confirmSubAssyPurchase(productIoIdAsSubAssy));
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("SubAssy 구매 취소")
+  class CancelPurchaseSubAssy {
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("구매 대기 상태의 SubAssy를 구매 취소 상태로 변경한다.")
+      void cancelPurchaseSubAssy() {
+        // given
+        Product product = Product.builder().id(productId).build();
+        Product subAssy = Product.builder()
+            .id(productIdAsSubAssy).codeNumber(SUB_ASSY_CODE_NUMBER)
+            .stock(stock)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(quantity)
+            .status(productStatus)
+            .product(product)
+            .build();
+        ProductIo subAssyIo = ProductIo.builder()
+            .id(productIoIdAsSubAssy)
+            .quantity(quantity)
+            .status(ProductStatus.외주구매대기)
+            .superIo(productIo)
+            .product(subAssy)
+            .build();
+
+        UpdateSubAssyPurchaseServiceResponse response = UpdateSubAssyPurchaseServiceResponse.builder()
+            .productIoId(productIoIdAsSubAssy)
+            .productId(productIdAsSubAssy)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(productIoRepository.findById(productIoIdAsSubAssy)).thenReturn(Optional.of(subAssyIo));
+        UpdateSubAssyPurchaseServiceResponse result = purchaseService.cancelSubAssyPurchase(
+            productIoIdAsSubAssy);
+
+        // then
+        assertThat(subAssyIo.getStatus()).isEqualTo(productStatus.외주구매취소);
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("존재하지 않는 ProductIo를 요청하면 오류가 발생한다.")
+      void partIoNotFound() {
+        // given
+        // when
+        when(productIoRepository.findById(productIoIdAsSubAssy)).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ProductIoNotFoundException.class,
+            () -> purchaseService.cancelSubAssyPurchase(productIoIdAsSubAssy));
+      }
+
+      @Test
+      @DisplayName("해당 ProductIo가 SubAssy가 아니면 오류가 발생한다.")
+      void invalidSubAssyType() {
+        // given
+        Product product = Product.builder().id(productId).build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(quantity)
+            .status(productStatus)
+            .product(product)
+            .build();
+
+        // when
+        when(productIoRepository.findById(productIoIdAsSubAssy)).thenReturn(Optional.of(productIo));
+
+        // then
+        assertThrows(InvalidSubAssyTypeException.class,
+            () -> purchaseService.cancelSubAssyPurchase(productIoIdAsSubAssy));
+      }
+
+      @Test
+      @DisplayName("구매대기 상태가 아닌 경우, 구매취소 상태로 변경할 수 없다.")
+      void invalidProductStatus() {
+        // given
+        Product product = Product.builder().id(productId).build();
+        Product subAssy = Product.builder()
+            .id(productIdAsSubAssy).codeNumber(SUB_ASSY_CODE_NUMBER)
+            .stock(stock)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .quantity(quantity)
+            .status(productStatus)
+            .product(product)
+            .build();
+        ProductIo subAssyIo = ProductIo.builder()
+            .id(productIoIdAsSubAssy)
+            .quantity(quantity)
+            .status(ProductStatus.외주구매확정)
+            .product(product)
+            .superIo(productIo)
+            .product(subAssy)
+            .build();
+
+        // when
+        when(productIoRepository.findById(productIoIdAsSubAssy)).thenReturn(Optional.of(subAssyIo));
+
+        // then
+        assertThrows(ChangePurchaseStatusException.class,
+            () -> purchaseService.cancelSubAssyPurchase(productIoIdAsSubAssy));
       }
     }
   }
