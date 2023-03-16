@@ -543,4 +543,85 @@ public class PurchaseIntegrationTest extends IntegrationTest {
       }
     }
   }
+
+  @Nested
+  @DisplayName("POST /v1/purchase/subassy-io/{productIoId}/cancel - subassy 구매 취소")
+  class CancelSubAssyPurchase {
+    private String url(Long productIoId) {
+      return String.format("http://localhost:8080/v1/purchase/subassy-io/%s/cancel", productIoId);
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @WithMockUser
+      @DisplayName("subassy 구매 취소 요청에 성공한다.")
+      void cancelSubAssyPurchase() throws Exception {
+        // given
+        UpdateSubAssyPurchaseResponse response = UpdateSubAssyPurchaseResponse.builder()
+            .productIoId(2L)
+            .productId(10L)
+            .quantity(10L)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(url(2L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_SUB_ASSY_PURCHASE))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @WithMockUser
+      @DisplayName("구매대기 상태가 아닌 경우, 구매취소 상태로 변경할 수 없다.")
+      void notPurchaseWaiting() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(3L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser
+      @DisplayName("존재하지 않는 제품IO를 요청하면 구매 요청에 실패한다.")
+      void partIoNotFound() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(100L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isNotFound())
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("인증되지 않은 사용자가 접근하면 FORBIDDEN을 반환한다.")
+      void forbidden() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(2L), HttpMethod.POST);
+
+        // then
+        actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
+    }
+  }
 }
