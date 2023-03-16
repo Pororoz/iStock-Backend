@@ -56,8 +56,4 @@ public class PartService {
         request.getSpec(), pageable);
     return parts.map(PartServiceResponse::of);
   }
-
-  public Part findPartByPartNameAndSpec(String partName, String spec) {
-    return partRepository.findPartByPartNameAndSpec(partName, spec);
-  }
 }

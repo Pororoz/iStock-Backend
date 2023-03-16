@@ -14,7 +14,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
   Optional<Product> findByProductNumber(String productNumber);
   Product findProductByProductNumberAndProductName(String productNumber, String productName);
-  Product findProductById(Long id);
 
   @Query(value = "select p from Product p "
       + "left join fetch p.boms b "

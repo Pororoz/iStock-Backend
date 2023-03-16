@@ -55,12 +55,4 @@ public class CategoryService {
     categoryRepository.deleteById(deleteCategoryServiceRequest.getCategoryId());
     return CategoryServiceResponse.of(category);
   }
-
-  public int countCategoryByName(String categoryName) {
-    return categoryRepository.countCategoryByCategoryName(categoryName);
-  }
-
-  public Category findCategoryIdByName(String categoryName) {
-    return categoryRepository.findCategoryByCategoryName(categoryName);
-  }
 }
