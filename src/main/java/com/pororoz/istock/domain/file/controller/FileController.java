@@ -13,10 +13,8 @@ import com.pororoz.istock.domain.file.service.FileService;
 import com.pororoz.istock.domain.file.swagger.exception.InvalidFileExceptionSwagger;
 import com.pororoz.istock.domain.file.swagger.exception.ProductNotFoundExceptionSwagger;
 import com.pororoz.istock.domain.file.swagger.response.UploadFileResponseSwagger;
-import com.pororoz.istock.domain.product.entity.Product;
-import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
+
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,9 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.Optional;
 
 @Tag(name = "File", description = "File API")
 @Validated
