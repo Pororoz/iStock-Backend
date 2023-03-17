@@ -80,6 +80,9 @@ public class FileService {
           throw new InvalidFileException();
       }
 
+      Optional<Long> optSubAssayCategoryId = categoryRepository.findByCategoryName(SUB_ASSAY_ID).map(Category::getId);
+      Long subAssayCategoryId = optSubAssayCategoryId.orElseGet(() -> categoryService.saveCategory(new SaveCategoryServiceRequest(SUB_ASSAY_ID)).getCategoryId());
+
       for(String line : bomLines) {
           List<String> bomData = Arrays.asList(line.split(","));
           bomData = bomData.stream().map(s -> s.trim()).collect(Collectors.toList());
@@ -96,21 +99,15 @@ public class FileService {
 
           if(SUB_ASSAY_CODE_NUMBER.equals(codeNumber)) {
               // sub Assay
-              Product subAssay = productRepository.findProductByProductNumberAndProductName(bomData.get(3), bomData.get(4)); // subAssay인 경우에는 4, 5번째에 있는 항목이 다름
-              // sub Assay 없으면 추가
-              if(Objects.isNull(subAssay)) {
-                  // category 없으면 추가
-                  Optional<Long> optSubAssayCategoryId = categoryRepository.findByCategoryName(SUB_ASSAY_ID).map(Category::getId);
-                  Long subAssayCategoryId = optSubAssayCategoryId.orElseGet(() -> categoryService.saveCategory(new SaveCategoryServiceRequest(SUB_ASSAY_ID)).getCategoryId());
+              Optional<Long> optSubAssayId = productRepository.findProductByProductNumberAndProductName(bomData.get(3), bomData.get(4)).map(Product::getId); // subAssay인 경우에는 4, 5번째에 있는 항목이 다름
+              Long subAssayId = optSubAssayId.orElseGet(() -> productService.saveProduct(new SaveProductServiceRequest(partName, spec, codeNumber, 0, "", subAssayCategoryId)).getProductId());
 
-                  productService.saveProduct(new SaveProductServiceRequest(bomData.get(3), bomData.get(4), codeNumber, 0, "", subAssayCategoryId));
-              }
-              bomService.saveBom(new SaveBomServiceRequest(locationNumber, codeNumber, quantity, "", targetProduct.getId(), null, productId));
+              bomService.saveBom(new SaveBomServiceRequest(locationNumber, codeNumber, quantity, "", null, subAssayId, productId));
           } else {
-              Optional<Long> optTargetPart = partRepository.findByPartNameAndSpec(partName, spec).map(Part::getId);
-              Long targetPartId = optTargetPart.orElseGet(() -> partService.savePart(new SavePartServiceRequest(partName, spec, price, stock)).getPartId());
+              Optional<Long> optTargetPartId = partRepository.findByPartNameAndSpec(partName, spec).map(Part::getId);
+              Long targetPartId = optTargetPartId.orElseGet(() -> partService.savePart(new SavePartServiceRequest(partName, spec, price, stock)).getPartId());
               
-              bomService.saveBom(new SaveBomServiceRequest(locationNumber, codeNumber, quantity, "", null, targetPartId, productId));
+              bomService.saveBom(new SaveBomServiceRequest(locationNumber, codeNumber, quantity, "", targetPartId, null, productId));
           }
       }
 
