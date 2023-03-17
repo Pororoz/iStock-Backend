@@ -32,6 +32,9 @@ public enum ErrorCode {
       ExceptionMessage.BOM_NOT_FOUND),
   INVALID_SUB_ASSY_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_SUB_ASSY_BOM,
       ExceptionMessage.INVALID_SUB_ASSY_BOM),
+  SUB_ASSY_CANNOT_HAVE_SUB_ASSY(HttpStatus.BAD_REQUEST,
+      ExceptionStatus.SUB_ASSY_CANNOT_HAVE_SUB_ASSY,
+      ExceptionMessage.SUB_ASSY_CANNOT_HAVE_SUB_ASSY),
   INVALID_PRODUCT_BOM(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_PRODUCT_BOM,
       ExceptionMessage.INVALID_PRODUCT_BOM),
   SUB_ASSY_BOM_EXIST(HttpStatus.BAD_REQUEST, ExceptionStatus.SUB_ASSY_BOM_EXIST,
@@ -47,7 +50,29 @@ public enum ErrorCode {
       ExceptionMessage.SELF_DELETE_ACCOUNT),
   INVALID_PAGE_REQUEST(HttpStatus.BAD_REQUEST, ExceptionStatus.BAD_REQUEST,
       ExceptionMessage.INVALID_PAGE_REQUEST),
-  INVALID_FILE(HttpStatus.BAD_REQUEST, ExceptionStatus.BAD_REQUEST, ExceptionMessage.INVALID_FILE);
+  INVALID_FILE(HttpStatus.BAD_REQUEST, ExceptionStatus.BAD_REQUEST, ExceptionMessage.INVALID_FILE),
+  PRODUCT_STOCK_MINUS(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_STOCK_MINUS,
+      ExceptionMessage.PRODUCT_STOCK_MINUS),
+  PART_STOCK_MINUS(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_STOCK_MINUS,
+      ExceptionMessage.PART_STOCK_MINUS),
+  PRODUCT_OR_BOM_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_OR_BOM_NOT_FOUND,
+      ExceptionMessage.PRODUCT_OR_BOM_NOT_FOUND),
+  BOM_AND_SUB_ASSY_NOT_MATCHED(HttpStatus.BAD_REQUEST, ExceptionStatus.BOM_AND_SUB_ASSY_NOT_MATCHED,
+      ExceptionMessage.BOM_AND_SUB_ASSY_NOT_MATCHED),
+  BOM_SUB_ASSY_DUPLICATED(HttpStatus.BAD_REQUEST,
+      ExceptionStatus.BOM_SUB_ASSY_DUPLICATED,
+      ExceptionMessage.BOM_SUB_ASSY_DUPLICATED),
+  SUB_ASSY_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.SUB_ASSY_NOT_FOUND,
+      ExceptionMessage.SUB_ASSY_NOT_FOUND),
+  PART_IO_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PART_IO_NOT_FOUND,
+      ExceptionMessage.PART_IO_NOT_FOUND),
+  PRODUCT_IO_NOT_FOUND(HttpStatus.NOT_FOUND, ExceptionStatus.PRODUCT_IO_NOT_FOUND,
+      ExceptionMessage.PRODUCT_IO_NOT_FOUND),
+  CHANGE_IO_STATUS(HttpStatus.BAD_REQUEST, ExceptionStatus.CHANGE_IO_STATUS,
+      ExceptionMessage.CHANGE_IO_STATUS),
+  INVALID_SUB_ASSY_TYPE(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_SUB_ASSY_TYPE,
+      ExceptionMessage.INVALID_SUB_ASSY_TYPE)
+  ;
 
   private final HttpStatus statusCode;
 

@@ -24,13 +24,27 @@ public class ExceptionMessage {
   public static final String PRODUCT_NOT_FOUND = "해당 제품을 찾을 수 없습니다.";
   public static final String DUPLICATE_BOM = "location_number, product_id, part_id의 조합이 중복됩니다.";
   public static final String BOM_NOT_FOUND = "존재하지 않는 BOM입니다.";
-  public static final String INVALID_SUB_ASSY_BOM = "sub assy는 완제품의 productNumber가 필요하고 partId가 null이어야 합니다.";
-  public static final String INVALID_PRODUCT_BOM = "product BOM은 partId가 필요하고 productNumber가 null이어야 합니다.";
+  public static final String INVALID_SUB_ASSY_BOM = "Sub assy BOM은 sub assy가 필요하고 part가 null이어야 합니다.";
+  public static final String SUB_ASSY_CANNOT_HAVE_SUB_ASSY = "Sub assy는 sub assy를 BOM으로 가질 수 없습니다.";
+  public static final String INVALID_PRODUCT_BOM = "Product BOM은 part가 필요하고 sub assy가 null이어야 합니다.";
   public static final String SUB_ASSY_BOM_EXIST = "해당 제품의 BOM에 sub assy가 존재합니다. Sub assy는 sub assy를 가질 수 없습니다.";
   public static final String REGISTERED_AS_SUB_ASSY = "다른 제품의 BOM에 sub assy로 등록되어 있습니다.";
   public static final String SUB_ASSY_NOT_FOUND_BY_PRODUCT_NAME = "Sub assy 목록에 BOM의 productNumber와 일치하는 product가 없습니다.";
   public static final String SELF_DEMOTE_ROLE = "본인의 권한을 강등시킬 수 없습니다.";
   public static final String SELF_DELETE_ACCOUNT = "본인의 계정을 삭제 할 수 없습니다.";
+  public static final String PRODUCT_STOCK_MINUS = "제품의 재고가 부족합니다.";
+  public static final String PART_STOCK_MINUS = "부품의 재고가 부족합니다.";
+  public static final String PRODUCT_OR_BOM_NOT_FOUND = "제품을 찾을 수 없거나 연관된 BOM이 없습니다.";
+  public static final String BOM_AND_SUB_ASSY_NOT_MATCHED =
+      "Sub assy로 등록된 BOM과 BOM의 product number로 찾은 sub assy의 개수가 일치하지 않습니다.\n"
+          + "BOM의 product number로 찾을 수 없는 제품(sub assy)이 있습니다.";
+  public static final String BOM_SUB_ASSY_DUPLICATED =
+      "제품의 BOM에 이미 같은 sub assy가 존재합니다. 중복된 sub assy는 등록할 수 없습니다.";
+  public static final String SUB_ASSY_NOT_FOUND = "해당 sub assy를 찾을 수 없습니다.";
+  public static final String PRODUCT_IO_NOT_FOUND = "해당 product io를 찾을 수 없습니다.";
+  public static final String CHANGE_IO_STATUS = "잘못된 io 상태 수정입니다.";
+  public static final String PART_IO_NOT_FOUND = "해당 part IO를 찾을 수 없습니다.";
+  public static final String INVALID_SUB_ASSY_TYPE = "해당 product는 sub assy가 아닙니다.";
 
   public static final String INVALID_FILE = "유효하지 않은 파일입니다. 파일을 다시 확인하세요.";
   private ExceptionMessage() {

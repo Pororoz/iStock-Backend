@@ -7,7 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.pororoz.istock.domain.part.dto.request.FindPartServiceRequest;
+import com.pororoz.istock.domain.part.dto.service.FindPartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.UpdatePartServiceRequest;

@@ -23,5 +23,4 @@ public class PartResponse {
 
   @Schema(description = "재고", example = "5")
   private long stock;
-
 }

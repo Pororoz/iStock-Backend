@@ -4,6 +4,7 @@ import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.product.dto.service.UpdateProductServiceRequest;
+import com.pororoz.istock.domain.production.exception.ProductStockMinusException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -60,7 +61,7 @@ public class Product extends TimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   private Category category;
 
-  @OneToMany(mappedBy = "product")
+  @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
   @Builder.Default
   private List<Bom> boms = new ArrayList<>();
 
@@ -73,10 +74,19 @@ public class Product extends TimeEntity {
     this.category = category;
   }
 
-  public void setBoms(List<Bom> boms) {
-    this.boms = boms;
-    for (Bom b : boms) {
-      b.setProduct(this);
+  public void addStock(long quantity) {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("0 이상만 stock에 더할 수 있습니다.");
     }
+    this.stock += quantity;
+  }
+
+  public void subtractStock(long quantity) {
+    long subtract = this.stock - quantity;
+    if (subtract < 0) {
+      throw new ProductStockMinusException(
+          "id: " + id + ", 품번: " + productNumber + ", 재고: " + stock + ", 요청 수량: " + quantity);
+    }
+    this.stock = subtract;
   }
 }

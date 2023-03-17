@@ -16,18 +16,18 @@ public class SaveBomServiceRequest {
   private String codeNumber;
   private Long quantity;
   private String memo;
-  private String productNumber;
   private Long partId;
+  private Long subAssyId;
   private Long productId;
 
-  public Bom toBom(Part part, Product product) {
+  public Bom toBom(Product product, Product subAssy, Part part) {
     return Bom.builder()
         .locationNumber(locationNumber)
         .codeNumber(codeNumber)
         .quantity(quantity)
         .memo(memo)
-        .productNumber(productNumber)
         .part(part)
+        .subAssy(subAssy)
         .product(product)
         .build();
   }

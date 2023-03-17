@@ -20,9 +20,20 @@ public class ResponseMessage {
   public static final String UPDATE_PRODUCT = "제품 수정";
   public static final String DELETE_PRODUCT = "제품 삭제";
   public static final String FIND_PRODUCT = "제품 조회";
+  public static final String FIND_BOM = "BOM 행 조회";
   public static final String SAVE_BOM = "BOM 행 추가";
   public static final String DELETE_BOM = "BOM 행 제거";
   public static final String UPDATE_BOM = "BOM 행 수정";
+  public static final String WAIT_PRODUCTION = "제품 생산 대기";
+  public static final String CONFIRM_PRODUCTION = "제품 생산 완료";
+  public static final String CANCEL_PRODUCTION = "제품 생산 취소";
+  public static final String PURCHASE_PRODUCT = "제품 자재 일괄 구매 대기";
+  public static final String PURCHASE_PART = "제품 자재 개별 구매 대기";
+  public static final String CONFIRM_PURCHASE_PART = "제품 자재 구매 확정";
+  public static final String CANCEL_PURCHASE_PART = "제품 자재 구매 취소";
+  public static final String OUTBOUND_WAIT = "제품 출고 대기";
+  public static final String CONFIRM_SUB_ASSY_PURCHASE = "Sub Assy 구매 확정";
+  public static final String CANCEL_SUB_ASSY_PURCHASE = "Sub Assy 구매 취소";
 
   public static final String UPLOAD_CSV = "CSV 업로드";
   private ResponseMessage() {

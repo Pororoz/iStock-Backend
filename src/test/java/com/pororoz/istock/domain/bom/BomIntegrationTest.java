@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.pororoz.istock.IntegrationTest;
+import com.pororoz.istock.common.dto.PageResponse;
+import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ExceptionStatus;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
@@ -13,20 +15,26 @@ import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.bom.dto.request.SaveBomRequest;
 import com.pororoz.istock.domain.bom.dto.request.UpdateBomRequest;
 import com.pororoz.istock.domain.bom.dto.response.BomResponse;
+import com.pororoz.istock.domain.bom.dto.response.FindBomResponse;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
+import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
+import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import org.junit.jupiter.api.AfterEach;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.ResultActions;
@@ -47,9 +55,254 @@ public class BomIntegrationTest extends IntegrationTest {
   @Autowired
   CategoryRepository categoryRepository;
 
-  @AfterEach
-  void afterEach() {
-    databaseCleanup.execute();
+  Long bomId = 1L;
+  String locationNumber = "L5.L4";
+  String codeNumber = "";
+  long quantity = 3;
+  String memo = "";
+  Long partId = 1L;
+  Long productId = 1L;
+  String newLocationNumber = "new location";
+  String newCodeNumber = "new code";
+  Long newQuantity = 5L;
+  String newMemo = "new";
+  Long newPartId = 2L;
+  Long newProductId = 2L;
+  String uri = "http://localhost:8080/v1/bom";
+  String subAssyCodeNumber = "11";
+
+  Part savePart(String partName, String spec) {
+    return partRepository.save(Part.builder()
+        .partName(partName)
+        .spec(spec)
+        .stock(10)
+        .price(10).build());
+  }
+
+  Product saveProduct(String productNumber, String productName, Category category) {
+    return productRepository.save(Product.builder()
+        .productNumber(productNumber)
+        .productName(productName)
+        .category(category).build());
+  }
+
+  Category saveCategory(String categoryName) {
+    return categoryRepository.save(Category.builder()
+        .categoryName(categoryName).build());
+  }
+
+  Product saveSubAssy(String productNumber, String productName, Category category) {
+    return productRepository.save(Product.builder()
+        .codeNumber(subAssyCodeNumber).productNumber(productNumber)
+        .productName(productName)
+        .category(category).build());
+  }
+
+
+  PartResponse partResponseOf(Part part) {
+    return PartResponse.builder()
+        .partId(part.getId())
+        .partName(part.getPartName())
+        .price(part.getPrice())
+        .spec(part.getSpec())
+        .stock(part.getStock())
+        .build();
+  }
+
+  ProductResponse productResponseOf(Product product) {
+    return ProductResponse.builder()
+        .productId(product.getId())
+        .productName(product.getProductName())
+        .productNumber(product.getProductNumber())
+        .codeNumber(product.getCodeNumber())
+        .stock(product.getStock())
+        .companyName(product.getCompanyName())
+        .categoryId(product.getCategory().getId())
+        .build();
+  }
+
+  @Nested
+  @DisplayName("GET /api/v1/bom - BOM 행 조회 API")
+  class FindBom {
+
+    MultiValueMap<String, String> params;
+
+    @BeforeEach
+    void setup() {
+      params = new LinkedMultiValueMap<>();
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      List<Bom> bomList;
+      List<Part> partList;
+      List<Product> productList;
+
+      @BeforeEach
+      void setup() {
+        long number = 1;
+        bomList = new ArrayList<>();
+        partList = new ArrayList<>();
+        productList = new ArrayList<>();
+
+        Category category = saveCategory("카테고리");
+        for (int i = 0; i < 2; i++) {
+          Part part = savePart(Integer.toString(i + 1), Integer.toString(i + 1));
+          partList.add(part);
+        }
+        Product subAssy = saveSubAssy("number", "name", category);
+
+        for (int i = 0; i < 2; i++) {
+          Product product = saveProduct(Integer.toString(i + 1), Integer.toString(i + 1), category);
+          productList.add(product);
+        }
+
+        // bom1
+        bomList.add(Bom.builder()
+            .codeNumber("1")
+            .locationNumber("2")
+            .quantity(number)
+            .product(productList.get(0))
+            .part(partList.get(0))
+            .build());
+        // bom2
+        bomList.add(Bom.builder()
+            .codeNumber("2")
+            .locationNumber("2")
+            .quantity(number)
+            .product(productList.get(0))
+            .part(partList.get(1))
+            .build());
+        //sub assy bom3
+        bomList.add(Bom.builder()
+            .codeNumber(subAssyCodeNumber)
+            .locationNumber("5")
+            .quantity(number)
+            .product(productList.get(0))
+            .subAssy(subAssy)
+            .build());
+        bomRepository.saveAll(bomList);
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("productId를 통해 검색하면 해당 productId에 연관된 모든 Bom 정보를 제공해준다.")
+      void findBom() throws Exception {
+        // given
+        int page = 0;
+        int size = 2;
+        params.add("page", "0");
+        params.add("size", "2");
+        params.add("product-id", String.valueOf(productList.get(0).getId()));
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        List<FindBomResponse> findBomResponseArrayList = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+          Bom bom = bomList.get(i);
+          findBomResponseArrayList.add(FindBomResponse.builder()
+              .bomId(bom.getId())
+              .locationNumber(bom.getLocationNumber())
+              .codeNumber(bom.getCodeNumber())
+              .quantity(bom.getQuantity())
+              .memo(bom.getMemo())
+              .part(partResponseOf(bom.getPart()))
+              .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
+              .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
+              .productId(bom.getProduct().getId())
+              .build());
+        }
+        PageResponse<FindBomResponse> response = new PageResponse<>(
+            new PageImpl<>(findBomResponseArrayList, PageRequest.of(page, size), 3));
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("page와 size없이 productId를 통해 검색하면 default값으로 해당 productId에 연관된 모든 Bom 정보를 제공해준다.")
+      void findBomWithoutPageAndSize() throws Exception {
+        // given
+        int default_page = 0;
+        int default_size = 20;
+        params.add("product-id", String.valueOf(productList.get(0).getId()));
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        List<FindBomResponse> findBomResponseArrayList = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+          Bom bom = bomList.get(i);
+          findBomResponseArrayList.add(FindBomResponse.builder()
+              .bomId(bom.getId())
+              .locationNumber(bom.getLocationNumber())
+              .codeNumber(bom.getCodeNumber())
+              .quantity(bom.getQuantity())
+              .memo(bom.getMemo())
+              .part(i < 2 ? partResponseOf(bom.getPart()) : null)
+              .subAssy(i >= 2 ? productResponseOf(bom.getSubAssy()) : null)
+              .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
+              .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
+              .productId(bom.getProduct().getId())
+              .build());
+        }
+        PageResponse<FindBomResponse> response = new PageResponse<>(
+            new PageImpl<>(findBomResponseArrayList, PageRequest.of(default_page, default_size),
+                3));
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_BOM))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
+      @DisplayName("존재하지 않는 productId를 통해 검색하면 404 Not Found 에러가 발생한다.")
+      void productIdNotFound() throws Exception {
+        // given
+        params.add("page", "0");
+        params.add("size", "2");
+        params.add("product-id", "1");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        actions.andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.PRODUCT_NOT_FOUND))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.PRODUCT_NOT_FOUND))
+            .andDo(print());
+      }
+
+      @Test
+      @DisplayName("인증되지 않은 사용자는 forbidden이 발생한다.")
+      void forbiddenUser() throws Exception {
+        // given
+        params.add("page", "0");
+        params.add("size", "2");
+        params.add("product-id", "1");
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
+
+        // then
+        actions.andExpect(status().isForbidden());
+      }
+    }
   }
 
   @Nested
@@ -75,29 +328,13 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @BeforeEach
       void setup() {
-        String nothing = "1";
-        long number = 1;
-        part = Part.builder()
-            .partName(nothing)
-            .spec(nothing)
-            .stock(number)
-            .price(number)
-            .build();
-        category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
-        product = Product.builder()
-            .productName(nothing)
-            .productNumber(nothing)
-            .codeNumber(nothing)
-            .category(category)
-            .companyName(nothing)
-            .stock(number)
-            .build();
-        partRepository.save(part);
-        productRepository.save(product);
+        part = savePart("part name", "spec");
+        category = saveCategory("category name");
+        product = saveProduct("product number", "product name", category);
       }
 
       @Test
-      @WithMockUser(roles = "USER")
+      @WithMockUser
       @DisplayName("모든 값을 정상적으로 넣으면 200 OK와 저장한 Bom Data를 반환한다.")
       void saveBom() throws Exception {
         // given
@@ -131,31 +368,27 @@ public class BomIntegrationTest extends IntegrationTest {
       }
 
       @Test
-      @WithMockUser(roles = "USER")
+      @WithMockUser
       @DisplayName("Sub assy BOM을 저장하고 저장한 Bom Data를 반환한다.")
       void saveSubAssyBom() throws Exception {
         // given
-        Product superProduct = productRepository.save(Product.builder()
-            .productName("p").productNumber("p")
-            .category(category)
-            .build());
-        String subAssyCodeNumber = "11";
+        Product subAssy = saveSubAssy("sub number", "sub name", category);
         SaveBomRequest request = SaveBomRequest.builder()
             .locationNumber(locationNumber)
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
-            .productNumber(superProduct.getProductName())
+            .subAssyId(subAssy.getId())
             .memo(memo)
-            .productId(productId)
+            .productId(product.getId())
             .build();
         BomResponse response = BomResponse.builder()
             .bomId(bomId)
             .locationNumber(locationNumber)
             .codeNumber(subAssyCodeNumber)
             .quantity(quantity)
-            .productNumber(superProduct.getProductName())
+            .subAssyId(subAssy.getId())
             .memo(memo)
-            .productId(productId)
+            .productId(product.getId())
             .build();
 
         // when
@@ -175,7 +408,7 @@ public class BomIntegrationTest extends IntegrationTest {
     class FailCase {
 
       @Test
-      @WithMockUser(roles = "ADMIN")
+      @WithMockUser
       @DisplayName("존재하지 않는 partId를 입력하면 404 Not Found를 반환한다.")
       void partNotFound() throws Exception {
         // given
@@ -199,19 +432,11 @@ public class BomIntegrationTest extends IntegrationTest {
       }
 
       @Test
-      @WithMockUser(roles = "ADMIN")
+      @WithMockUser
       @DisplayName("존재하지 않는 productId를 입력하면 404 Not Found를 반환한다.")
       void productNotFound() throws Exception {
         // given
-        String nothing = "1";
-        long number = 1;
-        Part part = Part.builder()
-            .partName(nothing)
-            .spec(nothing)
-            .stock(number)
-            .price(number)
-            .build();
-        partRepository.save(part);
+        savePart("name", "spec");
 
         SaveBomRequest request = SaveBomRequest.builder()
             .locationNumber(locationNumber)
@@ -233,28 +458,14 @@ public class BomIntegrationTest extends IntegrationTest {
       }
 
       @Test
-      @WithMockUser(roles = "ADMIN")
+      @WithMockUser
       @DisplayName("이미 존재하는 조합의 BOM을 저장하면 404 Bad Request를 반환한다.")
       void duplicateBom() throws Exception {
         // given
         String nothing = "1";
-        long number = 1;
-        Part part = partRepository.save(Part.builder()
-            .partName(nothing)
-            .spec(nothing)
-            .stock(number)
-            .price(number)
-            .build());
-        Category category = categoryRepository.save(
-            Category.builder().categoryName("카테고리").build());
-        Product product = productRepository.save(Product.builder()
-            .productName(nothing)
-            .productNumber(nothing)
-            .codeNumber(nothing)
-            .category(category)
-            .companyName(nothing)
-            .stock(number)
-            .build());
+        Part part = savePart("name", "spec");
+        Category category = saveCategory("카테고리");
+        Product product = saveProduct(nothing, nothing, category);
         Bom bom = Bom.builder()
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
@@ -306,23 +517,20 @@ public class BomIntegrationTest extends IntegrationTest {
       }
 
       @Test
-      @WithMockUser(roles = "USER")
-      @DisplayName("Sub assy가 Sub assy를 BOM으로 저장하려하면 Bad Request가 발생한다.")
-      void saveSubAssyBom() throws Exception {
+      @WithMockUser
+      @DisplayName("Sub assy에 Sub assy를 BOM으로 저장하려하면 Bad Request가 발생한다.")
+      void subAssyCannotHaveSubAssy() throws Exception {
         // given
-        Category category = categoryRepository.save(Category.builder()
-            .categoryName("c").build());
-        Product subProduct = productRepository.save(Product.builder()
-            .codeNumber("11").productNumber("superNumber")
-            .productName("superName")
-            .category(category).build());
+        Category category = saveCategory("c");
+        Product superSubAssy = saveSubAssy("super number", "super name", category);
+        Product subAssy = saveSubAssy("sub assy number", "sub assy name", category);
         SaveBomRequest request = SaveBomRequest.builder()
             .locationNumber(locationNumber)
             .codeNumber("11")
             .quantity(quantity)
-            .productNumber(subProduct.getProductNumber())
+            .subAssyId(subAssy.getId())
             .memo(memo)
-            .productId(productId)
+            .productId(superSubAssy.getId())
             .build();
 
         // when
@@ -330,8 +538,8 @@ public class BomIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.INVALID_SUB_ASSY_BOM))
-            .andExpect(jsonPath("$.message").value(ExceptionMessage.INVALID_SUB_ASSY_BOM))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.SUB_ASSY_CANNOT_HAVE_SUB_ASSY))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.SUB_ASSY_CANNOT_HAVE_SUB_ASSY))
             .andDo(print());
       }
     }
@@ -341,21 +549,7 @@ public class BomIntegrationTest extends IntegrationTest {
   @DisplayName("DELETE /api/v1/bom - BOM 행 제거 API")
   class deleteBom {
 
-    Long bomId = 1L;
-    String locationNumber = "L5.L4";
-    String codeNumber = "";
-    Long quantity = 3L;
-    String memo = "";
-    Long partId = 1L;
-    Long productId = 1L;
-
-    MultiValueMap<String, String> params;
-    String uri = "http://localhost:8080/v1/bom";
-
-    @BeforeEach
-    void setup() {
-      params = new LinkedMultiValueMap<>();
-    }
+    String uri = "http://localhost:8080/v1/bom/";
 
     @Nested
     @DisplayName("성공 케이스")
@@ -368,25 +562,9 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @BeforeEach
       void setup() {
-        String nothing = "1";
-        long number = 1L;
-        part = Part.builder()
-            .partName(nothing)
-            .spec(nothing)
-            .stock(number)
-            .price(number)
-            .build();
-        category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
-        product = Product.builder()
-            .productName(nothing)
-            .productNumber(nothing)
-            .codeNumber(nothing)
-            .category(category)
-            .companyName(nothing)
-            .stock(number)
-            .build();
-        partRepository.save(part);
-        productRepository.save(product);
+        part = savePart("part name", "spec");
+        category = saveCategory("category name");
+        product = saveProduct("product number", "product name", category);
         bom = Bom.builder()
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
@@ -404,19 +582,17 @@ public class BomIntegrationTest extends IntegrationTest {
       void deleteBom() throws Exception {
         // given
         BomResponse response = BomResponse.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
             .memo(memo)
-            .partId(partId)
-            .productId(productId)
+            .partId(part.getId())
+            .productId(product.getId())
             .build();
 
-        params.add("bomId", Long.toString(bomId));
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + bomId, HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isOk())
@@ -436,10 +612,8 @@ public class BomIntegrationTest extends IntegrationTest {
       @DisplayName("존재하지 않는 BOM 값을 삭제 시도하면 404 Not Found를 반환한다.")
       void bomNotFound() throws Exception {
         // given
-        params.add("bomId", Long.toString(bomId));
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + bomId, HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isNotFound())
@@ -453,10 +627,8 @@ public class BomIntegrationTest extends IntegrationTest {
       @DisplayName("bomId에 마이너스 값을 넣으면 400 Bad Request를 반환한다.")
       void bomIdMinus() throws Exception {
         // given
-        params.add("bomId", Long.toString(-1));
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + "-1", HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isBadRequest())
@@ -467,10 +639,8 @@ public class BomIntegrationTest extends IntegrationTest {
       @DisplayName("인증되지 않은 사용자가 접근하면 403 Forbidden을 반환한다.")
       void forbidden() throws Exception {
         // given
-        params.add("bomId", Long.toString(bomId));
-
         // when
-        ResultActions actions = getResultActions(uri, HttpMethod.DELETE, params);
+        ResultActions actions = getResultActions(uri + bomId, HttpMethod.DELETE);
 
         // then
         actions.andExpect(status().isForbidden())
@@ -483,81 +653,31 @@ public class BomIntegrationTest extends IntegrationTest {
   @DisplayName("PUT /api/v1/bom - 제품 BOM 행 수정 API")
   class UpdateBom {
 
-    Long bomId = 1L;
-    String locationNumber = "L5.L4";
-    String codeNumber = "";
-    long quantity = 3;
-    String memo = "";
-    Long partId = 1L;
-    Long productId = 1L;
-    String newLocationNumber = "new location";
-    String newCodeNumber = "new code";
-    Long newQuantity = 5L;
-    String newMemo = "new";
-    Long newPartId = 2L;
-    Long newProductId = 2L;
-    String uri = "http://localhost:8080/v1/bom";
-
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
 
+      Bom bom;
       Part part;
       Product product;
       Category category;
 
       @BeforeEach
       void setup() {
-        String nothing1 = "1";
-        String nothing2 = "2";
-        long number1 = 1;
-        long number2 = 2;
-        category = categoryRepository.save(Category.builder().categoryName("카테고리").build());
-        Part partFixture1 = Part.builder()
-            .id(partId)
-            .partName(nothing1)
-            .spec(nothing1)
-            .stock(number1)
-            .price(number1)
-            .build();
-        Part partFixture2 = Part.builder()
-            .id(newPartId)
-            .partName(nothing2)
-            .spec(nothing2)
-            .stock(number2)
-            .price(number2)
-            .build();
-        Product productFixture1 = Product.builder()
-            .id(productId)
-            .productName(nothing1)
-            .productNumber(nothing1)
-            .codeNumber(nothing1)
-            .category(category)
-            .companyName(nothing1)
-            .stock(number1)
-            .build();
-        Product productFixture2 = Product.builder()
-            .id(newProductId)
-            .productName(nothing2)
-            .productNumber(nothing2)
-            .codeNumber(nothing2)
-            .category(category)
-            .companyName(nothing2)
-            .stock(number2)
-            .build();
-        part = partRepository.save(partFixture1);
-        partRepository.save(partFixture2);
-        product = productRepository.save(productFixture1);
-        productRepository.save(productFixture2);
-        Bom bom = Bom.builder()
+        category = saveCategory("category name");
+        savePart("name1", "spec1");
+        savePart("name2", "spec2");
+        product = saveProduct("number1", "name1", category);
+        saveProduct("number2", "name2", category);
+        part = savePart("name", "spec");
+        bom = bomRepository.save(Bom.builder()
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
             .memo(memo)
             .part(part)
             .product(product)
-            .build();
-        bomRepository.save(bom);
+            .build());
       }
 
       @Test
@@ -566,7 +686,7 @@ public class BomIntegrationTest extends IntegrationTest {
       void updateBom() throws Exception {
         // given
         UpdateBomRequest request = UpdateBomRequest.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(newLocationNumber)
             .codeNumber(newCodeNumber)
             .quantity(newQuantity)
@@ -575,7 +695,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .productId(newProductId)
             .build();
         BomResponse response = BomResponse.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(newLocationNumber)
             .codeNumber(newCodeNumber)
             .quantity(newQuantity)
@@ -601,7 +721,7 @@ public class BomIntegrationTest extends IntegrationTest {
       void updateBomWithSameIndex() throws Exception {
         // given
         UpdateBomRequest request = UpdateBomRequest.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(locationNumber)
             .codeNumber(newCodeNumber)
             .quantity(newQuantity)
@@ -610,7 +730,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .productId(productId)
             .build();
         BomResponse response = BomResponse.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(locationNumber)
             .codeNumber(newCodeNumber)
             .quantity(newQuantity)
@@ -636,7 +756,7 @@ public class BomIntegrationTest extends IntegrationTest {
       void updateBomNotChange() throws Exception {
         // given
         UpdateBomRequest request = UpdateBomRequest.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
@@ -645,7 +765,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .productId(productId)
             .build();
         BomResponse response = BomResponse.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
@@ -667,31 +787,27 @@ public class BomIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser
-      @DisplayName("code number를 11(sub assy)로 정상적을 변경한다.")
-      void updateToCodeNumber11() throws Exception {
+      @DisplayName("BOM을 sub assy BOM으로 변경한다.")
+      void updateToSubAssyBom() throws Exception {
         // given
-        Product product = productRepository.save(Product.builder()
-            .codeNumber("number").productNumber("number")
-            .productName("name").category(category)
-            .build());
+        Product subAssy = saveSubAssy("sub assy number", "sub assy name", category);
+
         UpdateBomRequest request = UpdateBomRequest.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(newLocationNumber)
-            .productNumber(product.getProductNumber())
+            .subAssyId(subAssy.getId())
             .codeNumber("11")
             .quantity(newQuantity)
             .memo(newMemo)
-            .productNumber(product.getProductNumber())
             .productId(productId)
             .build();
         BomResponse response = BomResponse.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(newLocationNumber)
-            .productNumber(product.getProductNumber())
+            .subAssyId(subAssy.getId())
             .codeNumber("11")
             .quantity(newQuantity)
             .memo(newMemo)
-            .productNumber(product.getProductNumber())
             .productId(productId)
             .build();
 
@@ -711,8 +827,9 @@ public class BomIntegrationTest extends IntegrationTest {
       @DisplayName("Code number를 11(sub assy)에서 new code number로 정상적을 변경한다.")
       void updateToCodeNumber0() throws Exception {
         // given
+        Product subAssy = saveSubAssy("sub assy number", "sub assy name", category);
         Bom subAssyBom = bomRepository.save(Bom.builder()
-            .codeNumber("11").productNumber("sub assy number")
+            .codeNumber("11").subAssy(subAssy)
             .product(product)
             .build());
         UpdateBomRequest request = UpdateBomRequest.builder()
@@ -751,7 +868,7 @@ public class BomIntegrationTest extends IntegrationTest {
     class FailCase {
 
       @Test
-      @WithMockUser(roles = "ADMIN")
+      @WithMockUser
       @DisplayName("존재하지 않는 BOM의 ID를 입력하면 404 Not Found를 반환한다.")
       void bomNotFound() throws Exception {
         // given
@@ -776,32 +893,18 @@ public class BomIntegrationTest extends IntegrationTest {
       }
 
       @Test
-      @WithMockUser(roles = "ADMIN")
+      @WithMockUser
       @DisplayName("존재하지 않는 partId를 입력하면 404 Not Found를 반환한다.")
       void partNotFound() throws Exception {
         // given
         String nothing1 = "1";
-        long number1 = 1;
-        Category category = categoryRepository.save(
-            Category.builder().categoryName("카테고리").build());
-        Part partFixture1 = Part.builder()
+        Category category = saveCategory("카테고리");
+        Part part = partRepository.save(Part.builder()
             .id(partId)
             .partName(nothing1)
             .spec(nothing1)
-            .stock(number1)
-            .price(number1)
-            .build();
-        Product productFixture1 = Product.builder()
-            .id(productId)
-            .productName(nothing1)
-            .productNumber(nothing1)
-            .codeNumber(nothing1)
-            .category(category)
-            .companyName(nothing1)
-            .stock(number1)
-            .build();
-        Part part = partRepository.save(partFixture1);
-        Product product = productRepository.save(productFixture1);
+            .build());
+        Product product = saveProduct(nothing1, nothing1, category);
         Bom bom = Bom.builder()
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
@@ -833,30 +936,15 @@ public class BomIntegrationTest extends IntegrationTest {
       }
 
       @Test
-      @WithMockUser(roles = "ADMIN")
+      @WithMockUser
       @DisplayName("존재하지 않는 productId를 입력하면 404 Not Found를 반환한다.")
       void productNotFound() throws Exception {
         // given
         String nothing1 = "1";
         String nothing2 = "2";
-        long number1 = 1;
-        long number2 = 2;
-        Category category = categoryRepository.save(
-            Category.builder().categoryName("카테고리").build());
-        Part partFixture1 = Part.builder()
-            .id(partId)
-            .partName(nothing1)
-            .spec(nothing1)
-            .stock(number1)
-            .price(number1)
-            .build();
-        Part partFixture2 = Part.builder()
-            .id(newPartId)
-            .partName(nothing2)
-            .spec(nothing2)
-            .stock(number2)
-            .price(number2)
-            .build();
+        Category category = saveCategory("카테고리");
+        Part part = savePart(nothing1, nothing1);
+        savePart(nothing2, nothing2);
         Product productFixture1 = Product.builder()
             .id(productId)
             .productName(nothing1)
@@ -864,10 +952,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .codeNumber(nothing1)
             .category(category)
             .companyName(nothing1)
-            .stock(number1)
             .build();
-        Part part = partRepository.save(partFixture1);
-        partRepository.save(partFixture2);
         Product product = productRepository.save(productFixture1);
         Bom bom = Bom.builder()
             .locationNumber(locationNumber)
@@ -900,46 +985,25 @@ public class BomIntegrationTest extends IntegrationTest {
       }
 
       @Test
-      @WithMockUser(roles = "ADMIN")
+      @WithMockUser
       @DisplayName("locationNumber, partId, productId 중 하나라도 변경하는 경우, 이미 존재하는 조합의 BOM으로 수정하려고 하면 404 Bad Request를 반환한다.")
       void duplicateBom() throws Exception {
         // given
         String nothing1 = "1";
-        long number1 = 1;
         String nothing2 = "2";
-        long number2 = 2;
         Part part1 = partRepository.save(Part.builder()
             .id(1L)
             .partName(nothing1)
             .spec(nothing1)
-            .stock(number1)
-            .price(number1)
             .build());
         Part part2 = partRepository.save(Part.builder()
             .id(2L)
             .partName(nothing2)
             .spec(nothing2)
-            .stock(number2)
-            .price(number2)
             .build());
-        Category category = categoryRepository.save(
-            Category.builder().categoryName("카테고리").build());
-        Product product1 = productRepository.save(Product.builder()
-            .productName(nothing1)
-            .productNumber(nothing1)
-            .codeNumber(nothing1)
-            .category(category)
-            .companyName(nothing1)
-            .stock(number1)
-            .build());
-        Product product2 = productRepository.save(Product.builder()
-            .productName(nothing2)
-            .productNumber(nothing2)
-            .codeNumber(nothing2)
-            .category(category)
-            .companyName(nothing2)
-            .stock(number2)
-            .build());
+        Category category = saveCategory("카테고리");
+        Product product1 = saveProduct(nothing1, nothing1, category);
+        Product product2 = saveProduct(nothing2, nothing2, category);
         Bom bom1 = Bom.builder()
             .id(1L)
             .locationNumber(locationNumber)
@@ -1000,6 +1064,85 @@ public class BomIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isForbidden())
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser
+      @DisplayName("Sub assy의 BOM을 part에서 sub assy로 수정하면 Bad Request가 발생한다.")
+      void subAssyCannotHaveSubAssy() throws Exception {
+        // given
+        Category category = saveCategory("category");
+        Product superSubAssy = saveSubAssy("supser number", "super sub name", category);
+        Product subAssy = saveSubAssy("sub assy number", "sub assy name", category);
+        Part part = savePart("name", "spec");
+        Bom bom = bomRepository.save(Bom.builder()
+            .locationNumber(locationNumber)
+            .codeNumber(codeNumber)
+            .quantity(quantity)
+            .part(part)
+            .product(superSubAssy)
+            .build());
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bom.getId())
+            .locationNumber(locationNumber)
+            .codeNumber("11")
+            .quantity(quantity)
+            .subAssyId(subAssy.getId())
+            .memo(memo)
+            .productId(superSubAssy.getId())
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.SUB_ASSY_CANNOT_HAVE_SUB_ASSY))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.SUB_ASSY_CANNOT_HAVE_SUB_ASSY))
+            .andDo(print());
+      }
+
+      @Test
+      @WithMockUser
+      @DisplayName("제품 내의 BOM에서 이미 존재하는 subAssyId로 수정할 수 없다")
+      void cannotUpdateExistProductNumber() throws Exception {
+        // given
+        Category category = saveCategory("category");
+        Product product = saveProduct("number", "name", category);
+        Product subAssy1 = saveSubAssy("sub assy number1", "sub assy name1", category);
+        Product subAssy2 = saveSubAssy("sub assy number2", "sub assy name2", category);
+        Bom bom1 = bomRepository.save(Bom.builder()
+            .locationNumber(locationNumber)
+            .codeNumber("11")
+            .quantity(quantity)
+            .subAssy(subAssy1)
+            .product(product)
+            .build());
+        bomRepository.save(Bom.builder()
+            .locationNumber(newLocationNumber)
+            .codeNumber("11")
+            .quantity(quantity)
+            .subAssy(subAssy2)
+            .product(product)
+            .build());
+
+        UpdateBomRequest request = UpdateBomRequest.builder()
+            .bomId(bom1.getId())
+            .locationNumber(locationNumber)
+            .codeNumber("11")
+            .quantity(quantity)
+            .subAssyId(subAssy2.getId())
+            .productId(product.getId())
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(uri, HttpMethod.PUT, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.BOM_SUB_ASSY_DUPLICATED))
+            .andExpect(jsonPath("$.message").value(ExceptionMessage.BOM_SUB_ASSY_DUPLICATED))
             .andDo(print());
       }
     }

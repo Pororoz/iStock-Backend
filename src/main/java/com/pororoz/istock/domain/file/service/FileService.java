@@ -105,7 +105,7 @@ public class FileService {
 
                   productService.saveProduct(new SaveProductServiceRequest(bomData.get(3), bomData.get(4), codeNumber, 0, "", subAssayCategoryId));
               }
-              bomService.saveBom(new SaveBomServiceRequest(locationNumber, codeNumber, quantity, "", targetProduct.getProductNumber(), null, productId));
+              bomService.saveBom(new SaveBomServiceRequest(locationNumber, codeNumber, quantity, "", targetProduct.getId(), null, productId));
           } else {
               Optional<Long> optTargetPart = partRepository.findByPartNameAndSpec(partName, spec).map(Part::getId);
               Long targetPartId = optTargetPart.orElseGet(() -> partService.savePart(new SavePartServiceRequest(partName, spec, price, stock)).getPartId());

@@ -2,6 +2,7 @@ package com.pororoz.istock.domain.part.entity;
 
 import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.part.dto.service.UpdatePartServiceRequest;
+import com.pororoz.istock.domain.production.exception.PartStockMinusException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -54,10 +55,26 @@ public class Part extends TimeEntity {
   @Column(columnDefinition = "INT(11) UNSIGNED default 0")
   private long stock = 0;
 
-  public void update(UpdatePartServiceRequest request){
+  public void update(UpdatePartServiceRequest request) {
     this.partName = request.getPartName();
     this.spec = request.getSpec();
     this.price = request.getPrice();
     this.stock = request.getStock();
+  }
+
+  public void addStock(long quantity) {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("0 이상만 stock에 더할 수 있습니다.");
+    }
+    this.stock += quantity;
+  }
+
+  public void subtractStock(long quantity) {
+    long subtract = this.stock - quantity;
+    if (subtract < 0) {
+      throw new PartStockMinusException(
+          "id: " + id + ", 부품명: " + partName + ", 재고: " + stock + ", 요청 수량: " + quantity);
+    }
+    this.stock = subtract;
   }
 }
