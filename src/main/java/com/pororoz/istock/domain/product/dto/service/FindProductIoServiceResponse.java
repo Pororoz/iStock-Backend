@@ -15,7 +15,7 @@ public class FindProductIoServiceResponse {
   private ProductStatus status;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
-  private Long superId;
+  private Long superIoId;
   private ProductServiceResponse productServiceResponse;
 
   public static FindProductIoServiceResponse of(ProductIo productIo) {
@@ -25,7 +25,7 @@ public class FindProductIoServiceResponse {
         .status(productIo.getStatus())
         .createdAt(productIo.getCreatedAt())
         .updatedAt(productIo.getUpdatedAt())
-        .superId(productIo.getSuperIo() == null ? null : productIo.getSuperIo().getId())
+        .superIoId(productIo.getSuperIo() == null ? null : productIo.getSuperIo().getId())
         .productServiceResponse(ProductServiceResponse.of(productIo.getProduct()))
         .build();
   }

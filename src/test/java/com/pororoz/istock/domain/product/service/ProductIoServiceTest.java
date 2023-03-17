@@ -95,7 +95,7 @@ class ProductIoServiceTest {
           .productIoId(subAssyIo.getId())
           .quantity(subAssyIo.getQuantity())
           .status(subAssyIo.getStatus())
-          .superId(productIo.getId())
+          .superIoId(productIo.getId())
           .productServiceResponse(ProductServiceResponse.of(subAssy))
           .build();
       assertThat(productIoPage.getTotalPages()).isEqualTo(1);

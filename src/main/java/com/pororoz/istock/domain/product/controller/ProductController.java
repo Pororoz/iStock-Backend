@@ -130,8 +130,7 @@ public class ProductController {
       @Positive @RequestParam("category-id")
       Long categoryId) {
     Page<FindProductWithSubassyResponse> productPage = productService.findProductsWithSubAssies(
-            categoryId,
-            pageable)
+            categoryId, pageable)
         .map(FindProductWithSubAssyServiceResponse::toResponse);
     PageResponse<FindProductWithSubassyResponse> response = new PageResponse<>(productPage);
     return ResponseEntity.ok(
