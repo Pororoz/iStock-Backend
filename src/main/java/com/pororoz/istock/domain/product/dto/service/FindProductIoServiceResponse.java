@@ -1,5 +1,7 @@
 package com.pororoz.istock.domain.product.dto.service;
 
+import com.pororoz.istock.common.entity.TimeEntity;
+import com.pororoz.istock.domain.product.dto.response.FindProductIoResponse;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.entity.ProductStatus;
 import java.time.LocalDateTime;
@@ -28,5 +30,18 @@ public class FindProductIoServiceResponse {
         .superIoId(productIo.getSuperIo() == null ? null : productIo.getSuperIo().getId())
         .productServiceResponse(ProductServiceResponse.of(productIo.getProduct()))
         .build();
+  }
+
+  public FindProductIoResponse toResponse() {
+    return FindProductIoResponse.builder()
+        .productIoId(productIoId)
+        .quantity(quantity)
+        .status(status)
+        .superIoId(superIoId)
+        .createdAt(TimeEntity.formatTime(createdAt))
+        .updatedAt(TimeEntity.formatTime(updatedAt))
+        .productId(productServiceResponse.getProductId())
+        .productName(productServiceResponse.getProductName())
+        .productNumber(productServiceResponse.getProductNumber()).build();
   }
 }
