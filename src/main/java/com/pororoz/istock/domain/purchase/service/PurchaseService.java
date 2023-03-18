@@ -12,14 +12,17 @@ import com.pororoz.istock.domain.part.repository.PartRepository;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.entity.ProductStatus;
+import com.pororoz.istock.domain.product.exception.InvalidSubAssyTypeException;
+import com.pororoz.istock.domain.product.exception.ProductIoNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyPurchaseServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -59,14 +62,46 @@ public class PurchaseService {
     return PurchasePartServiceResponse.of(request);
   }
 
-  public ConfirmPurchasePartServiceResponse confirmPurchasePart(Long partIoId) {
+  public UpdatePurchaseServiceResponse confirmPurchasePart(Long partIoId) {
     PartIo partIo = partIoRepository.findById(partIoId)
         .orElseThrow(PartIoNotFoundException::new);
 
     partIo.confirmPurchase();
     partIo.getPart().addStock(partIo.getQuantity());
 
-    return ConfirmPurchasePartServiceResponse.of(partIo);
+    return UpdatePurchaseServiceResponse.of(partIo);
+  }
+
+  public UpdatePurchaseServiceResponse cancelPurchasePart(Long partIoId) {
+    PartIo partIo = partIoRepository.findById(partIoId)
+        .orElseThrow(PartIoNotFoundException::new);
+
+    partIo.cancelPurchase();
+
+    return UpdatePurchaseServiceResponse.of(partIo);
+  }
+
+  public UpdateSubAssyPurchaseServiceResponse confirmSubAssyPurchase(Long productIoId) {
+    ProductIo productIo = productIoRepository.findById(productIoId)
+        .orElseThrow(ProductIoNotFoundException::new);
+
+    checkWhetherSubAssy(productIo);
+
+    productIo.confirmSubAssyPurchase();
+    productIo.getProduct().addStock(productIo.getQuantity());
+
+    return UpdateSubAssyPurchaseServiceResponse.of(productIo);
+  }
+
+  public UpdateSubAssyPurchaseServiceResponse cancelSubAssyPurchase(Long productIoId) {
+    ProductIo productIo = productIoRepository.findById(productIoId)
+        .orElseThrow(ProductIoNotFoundException::new);
+
+    checkWhetherSubAssy(productIo);
+
+    productIo.cancelSubAssyPurchase();
+
+    return UpdateSubAssyPurchaseServiceResponse.of(productIo);
   }
 
   void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
@@ -85,5 +120,11 @@ public class PurchaseService {
     }
     partIoRepository.saveAll(partIoList);
     productIoRepository.saveAll(subAssyIoList);
+  }
+
+  private void checkWhetherSubAssy(ProductIo productIo) {
+    if (productIo.getSuperIo() == null) {
+      throw new InvalidSubAssyTypeException();
+    }
   }
 }

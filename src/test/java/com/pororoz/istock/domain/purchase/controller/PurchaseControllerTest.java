@@ -12,14 +12,16 @@ import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
-import com.pororoz.istock.domain.purchase.dto.response.ConfirmPurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
-import com.pororoz.istock.domain.purchase.dto.service.ConfirmPurchasePartServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.response.UpdateSubAssyPurchaseResponse;
+import com.pororoz.istock.domain.purchase.dto.response.UpdatePurchaseResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyPurchaseServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,6 +40,7 @@ public class PurchaseControllerTest extends ControllerTest {
   PurchaseService purchaseService;
 
   final Long productId = 1L;
+  final Long productIoId = 1L;
   final long quantity = 300L;
   final Long partId = 1L;
   final Long partIoId = 1L;
@@ -218,12 +221,12 @@ public class PurchaseControllerTest extends ControllerTest {
       @DisplayName("구매를 확정하면 partIo의 상태가 대기에서 확정으로 변경된다.")
       void confirmPurchasePart() throws Exception {
         // given
-        ConfirmPurchasePartServiceResponse serviceDto = ConfirmPurchasePartServiceResponse.builder()
+        UpdatePurchaseServiceResponse serviceDto = UpdatePurchaseServiceResponse.builder()
             .partIoId((partIoId))
             .partId(partId)
             .quantity(quantity)
             .build();
-        ConfirmPurchasePartResponse response = ConfirmPurchasePartResponse.builder()
+        UpdatePurchaseResponse response = UpdatePurchaseResponse.builder()
             .partIoId(partIoId)
             .partId(partId)
             .quantity(quantity)
@@ -250,6 +253,187 @@ public class PurchaseControllerTest extends ControllerTest {
       @Test
       @DisplayName("partIoId가 null이면 오류가 발생한다.")
       void partIoIdNullException() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("제품 자재 구매 취소")
+  class CancelPurchasePart {
+
+    private String url(Long partIoId) {
+      return String.format("http://localhost:8080/v1/purchase/part-io/%s/cancel", partIoId);
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("구매를 취소하면 partIo의 상태가 대기에서 취소로 변경된다.")
+      void cancelPurchasePart() throws Exception {
+        // given
+        UpdatePurchaseServiceResponse serviceDto = UpdatePurchaseServiceResponse.builder()
+            .partIoId((partIoId))
+            .partId(partId)
+            .quantity(quantity)
+            .build();
+        UpdatePurchaseResponse response = UpdatePurchaseResponse.builder()
+            .partIoId(partIoId)
+            .partId(partId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(purchaseService.cancelPurchasePart(any())).thenReturn(
+            serviceDto);
+        ResultActions actions = getResultActions(url(partIoId), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_PURCHASE_PART))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("partIoId가 null이면 오류가 발생한다.")
+      void partIoIdNullException() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("Sub Assy 구매 확정")
+  class ConfirmSubAssyPurchase {
+
+    private String url(Long productIoId) {
+      return String.format("http://localhost:8080/v1/purchase/subassy-io/%s/confirm", productIoId);
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("subAssy인 productIo의 상태가 구매대기에서 구매확정으로 변경된다.")
+      void confirmSubAssyPurchase() throws Exception {
+        // given
+        UpdateSubAssyPurchaseServiceResponse serviceDto = UpdateSubAssyPurchaseServiceResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+        UpdateSubAssyPurchaseResponse response = UpdateSubAssyPurchaseResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(purchaseService.confirmSubAssyPurchase(any())).thenReturn(
+            serviceDto);
+        ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_SUB_ASSY_PURCHASE))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("productIoId가 null이면 오류가 발생한다.")
+      void productIoIdNullException() throws Exception {
+        // given
+
+        // when
+        ResultActions actions = getResultActions(url(null), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isBadRequest())
+            .andDo(print());
+      }
+    }
+
+  }
+
+  @Nested
+  @DisplayName("Sub Assy 구매 취소")
+  class CancelSubAssyPurchase {
+
+    private String url(Long productIoId) {
+      return String.format("http://localhost:8080/v1/purchase/subassy-io/%s/cancel", productIoId);
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("subAssy인 productIo의 상태가 구매대기에서 구매취소으로 변경된다.")
+      void cancelSubAssyPurchase() throws Exception {
+        // given
+        UpdateSubAssyPurchaseServiceResponse serviceDto = UpdateSubAssyPurchaseServiceResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+        UpdateSubAssyPurchaseResponse response = UpdateSubAssyPurchaseResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(purchaseService.cancelSubAssyPurchase(any())).thenReturn(
+            serviceDto);
+        ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
+
+        //then
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_SUB_ASSY_PURCHASE))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+      @Test
+      @DisplayName("productIoId가 null이면 오류가 발생한다.")
+      void productIoIdNullException() throws Exception {
         // given
 
         // when

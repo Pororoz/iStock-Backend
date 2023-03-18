@@ -62,9 +62,11 @@ public class Bom extends TimeEntity {
   private Product product;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "part_id")
   private Part part;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "sub_assy_id")
   private Product subAssy;
 
   @Builder

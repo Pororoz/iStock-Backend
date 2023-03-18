@@ -30,7 +30,10 @@ public class ResponseMessage {
   public static final String PURCHASE_PRODUCT = "제품 자재 일괄 구매 대기";
   public static final String PURCHASE_PART = "제품 자재 개별 구매 대기";
   public static final String CONFIRM_PURCHASE_PART = "제품 자재 구매 확정";
+  public static final String CANCEL_PURCHASE_PART = "제품 자재 구매 취소";
   public static final String OUTBOUND_WAIT = "제품 출고 대기";
+  public static final String CONFIRM_SUB_ASSY_PURCHASE = "Sub Assy 구매 확정";
+  public static final String CANCEL_SUB_ASSY_PURCHASE = "Sub Assy 구매 취소";
   public static final String OUTBOUND_CONFIRM = "제품 출고 확정";
 
   private ResponseMessage() {

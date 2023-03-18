@@ -23,6 +23,7 @@ import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.part.dto.response.PartResponse;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
+import com.pororoz.istock.domain.product.dto.response.ProductResponse;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
@@ -97,6 +98,29 @@ public class BomIntegrationTest extends IntegrationTest {
         .category(category).build());
   }
 
+
+  PartResponse partResponseOf(Part part) {
+    return PartResponse.builder()
+        .partId(part.getId())
+        .partName(part.getPartName())
+        .price(part.getPrice())
+        .spec(part.getSpec())
+        .stock(part.getStock())
+        .build();
+  }
+
+  ProductResponse productResponseOf(Product product) {
+    return ProductResponse.builder()
+        .productId(product.getId())
+        .productName(product.getProductName())
+        .productNumber(product.getProductNumber())
+        .codeNumber(product.getCodeNumber())
+        .stock(product.getStock())
+        .companyName(product.getCompanyName())
+        .categoryId(product.getCategory().getId())
+        .build();
+  }
+
   @Nested
   @DisplayName("GET /api/v1/bom - BOM 행 조회 API")
   class FindBom {
@@ -112,48 +136,28 @@ public class BomIntegrationTest extends IntegrationTest {
     @DisplayName("성공 케이스")
     class SuccessCase {
 
-      List<Part> partList;
-
-      List<Product> productList;
-
-      List<Category> categoryList;
-
       List<Bom> bomList;
+      List<Part> partList;
+      List<Product> productList;
 
       @BeforeEach
       void setup() {
         long number = 1;
+        bomList = new ArrayList<>();
         partList = new ArrayList<>();
         productList = new ArrayList<>();
-        categoryList = new ArrayList<>();
-        bomList = new ArrayList<>();
 
-        for (int i = 0; i < 4; i++) {
-          Part part = Part.builder()
-              .partName(Integer.toString(i + 1))
-              .spec(Integer.toString(i + 1))
-              .stock(number)
-              .price(number)
-              .build();
+        Category category = saveCategory("카테고리");
+        for (int i = 0; i < 2; i++) {
+          Part part = savePart(Integer.toString(i + 1), Integer.toString(i + 1));
           partList.add(part);
         }
-        partRepository.saveAll(partList);
+        Product subAssy = saveSubAssy("number", "name", category);
 
         for (int i = 0; i < 2; i++) {
-          Category category = categoryRepository.save(
-              Category.builder().categoryName("카테고리" + (i + 1)).build());
-          Product product = Product.builder()
-              .productName(Integer.toString(i + 1))
-              .productNumber(Integer.toString(i + 1))
-              .codeNumber(Integer.toString(i + 1))
-              .category(category)
-              .companyName(Integer.toString(i + 1))
-              .stock(number)
-              .build();
-          categoryList.add(category);
+          Product product = saveProduct(Integer.toString(i + 1), Integer.toString(i + 1), category);
           productList.add(product);
         }
-        productRepository.saveAll(productList);
 
         // bom1
         bomList.add(Bom.builder()
@@ -171,33 +175,16 @@ public class BomIntegrationTest extends IntegrationTest {
             .product(productList.get(0))
             .part(partList.get(1))
             .build());
-        //bom3
+        //sub assy bom3
         bomList.add(Bom.builder()
-            .codeNumber("2")
+            .codeNumber(subAssyCodeNumber)
             .locationNumber("5")
             .quantity(number)
             .product(productList.get(0))
-            .part(partList.get(2))
-            .build());
-        // bom4
-        bomList.add(Bom.builder()
-            .codeNumber("3")
-            .locationNumber("7")
-            .quantity(number)
-            .product(productList.get(1))
-            .part(partList.get(2))
-            .build());
-        // bom5
-        bomList.add(Bom.builder()
-            .codeNumber("4")
-            .locationNumber("3")
-            .quantity(number)
-            .product(productList.get(1))
-            .part(partList.get(3))
+            .subAssy(subAssy)
             .build());
         bomRepository.saveAll(bomList);
       }
-
 
       @Test
       @WithMockUser(roles = "ADMIN")
@@ -208,7 +195,7 @@ public class BomIntegrationTest extends IntegrationTest {
         int size = 2;
         params.add("page", "0");
         params.add("size", "2");
-        params.add("product-id", "1");
+        params.add("product-id", String.valueOf(productList.get(0).getId()));
 
         // when
         ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
@@ -223,7 +210,7 @@ public class BomIntegrationTest extends IntegrationTest {
               .codeNumber(bom.getCodeNumber())
               .quantity(bom.getQuantity())
               .memo(bom.getMemo())
-              .part(PartResponse.of(bom.getPart()))
+              .part(partResponseOf(bom.getPart()))
               .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
               .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
               .productId(bom.getProduct().getId())
@@ -245,7 +232,7 @@ public class BomIntegrationTest extends IntegrationTest {
         // given
         int default_page = 0;
         int default_size = 20;
-        params.add("product-id", "1");
+        params.add("product-id", String.valueOf(productList.get(0).getId()));
 
         // when
         ResultActions actions = getResultActions(uri, HttpMethod.GET, params);
@@ -260,7 +247,8 @@ public class BomIntegrationTest extends IntegrationTest {
               .codeNumber(bom.getCodeNumber())
               .quantity(bom.getQuantity())
               .memo(bom.getMemo())
-              .part(PartResponse.of(bom.getPart()))
+              .part(i < 2 ? partResponseOf(bom.getPart()) : null)
+              .subAssy(i >= 2 ? productResponseOf(bom.getSubAssy()) : null)
               .createdAt(TimeEntity.formatTime(bom.getCreatedAt()))
               .updatedAt(TimeEntity.formatTime(bom.getUpdatedAt()))
               .productId(bom.getProduct().getId())
@@ -594,13 +582,13 @@ public class BomIntegrationTest extends IntegrationTest {
       void deleteBom() throws Exception {
         // given
         BomResponse response = BomResponse.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
             .memo(memo)
-            .partId(partId)
-            .productId(productId)
+            .partId(part.getId())
+            .productId(product.getId())
             .build();
 
         // when
@@ -669,6 +657,7 @@ public class BomIntegrationTest extends IntegrationTest {
     @DisplayName("성공 케이스")
     class SuccessCase {
 
+      Bom bom;
       Part part;
       Product product;
       Category category;
@@ -681,15 +670,14 @@ public class BomIntegrationTest extends IntegrationTest {
         product = saveProduct("number1", "name1", category);
         saveProduct("number2", "name2", category);
         part = savePart("name", "spec");
-        Bom bom = Bom.builder()
+        bom = bomRepository.save(Bom.builder()
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
             .memo(memo)
             .part(part)
             .product(product)
-            .build();
-        bomRepository.save(bom);
+            .build());
       }
 
       @Test
@@ -698,7 +686,7 @@ public class BomIntegrationTest extends IntegrationTest {
       void updateBom() throws Exception {
         // given
         UpdateBomRequest request = UpdateBomRequest.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(newLocationNumber)
             .codeNumber(newCodeNumber)
             .quantity(newQuantity)
@@ -707,7 +695,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .productId(newProductId)
             .build();
         BomResponse response = BomResponse.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(newLocationNumber)
             .codeNumber(newCodeNumber)
             .quantity(newQuantity)
@@ -733,7 +721,7 @@ public class BomIntegrationTest extends IntegrationTest {
       void updateBomWithSameIndex() throws Exception {
         // given
         UpdateBomRequest request = UpdateBomRequest.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(locationNumber)
             .codeNumber(newCodeNumber)
             .quantity(newQuantity)
@@ -742,7 +730,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .productId(productId)
             .build();
         BomResponse response = BomResponse.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(locationNumber)
             .codeNumber(newCodeNumber)
             .quantity(newQuantity)
@@ -768,7 +756,7 @@ public class BomIntegrationTest extends IntegrationTest {
       void updateBomNotChange() throws Exception {
         // given
         UpdateBomRequest request = UpdateBomRequest.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
@@ -777,7 +765,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .productId(productId)
             .build();
         BomResponse response = BomResponse.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(locationNumber)
             .codeNumber(codeNumber)
             .quantity(quantity)
@@ -805,7 +793,7 @@ public class BomIntegrationTest extends IntegrationTest {
         Product subAssy = saveSubAssy("sub assy number", "sub assy name", category);
 
         UpdateBomRequest request = UpdateBomRequest.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(newLocationNumber)
             .subAssyId(subAssy.getId())
             .codeNumber("11")
@@ -814,7 +802,7 @@ public class BomIntegrationTest extends IntegrationTest {
             .productId(productId)
             .build();
         BomResponse response = BomResponse.builder()
-            .bomId(bomId)
+            .bomId(bom.getId())
             .locationNumber(newLocationNumber)
             .subAssyId(subAssy.getId())
             .codeNumber("11")
