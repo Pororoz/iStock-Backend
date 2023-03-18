@@ -182,4 +182,52 @@ class OutboundServiceTest {
       }
     }
   }
+
+  @Nested
+  @DisplayName("제품 출고 취소")
+  class CancelOutbound {
+
+    OutboundConfirmServiceRequest request = OutboundConfirmServiceRequest.builder()
+        .productIoId(productIoId)
+        .build();
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("제품 출고 취소 로직을 처리한다.")
+      void cancelOutbound() {
+        // given
+        Product product = Product.builder()
+            .id(productId)
+            .stock(50)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .status(ProductStatus.출고대기)
+            .quantity(quantity)
+            .product(product)
+            .build();
+        OutboundConfirmServiceResponse response = OutboundConfirmServiceResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(productIoRepository.findById(anyLong())).thenReturn(Optional.of(productIo));
+        OutboundConfirmServiceResponse result = outboundService.outboundCancel(request);
+
+        // then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+    }
+  }
 }
