@@ -14,6 +14,7 @@ import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.outbound.service.OutboundService;
 import com.pororoz.istock.domain.outbound.swagger.exception.ProductIdNotPositiveExceptionSwagger;
 import com.pororoz.istock.domain.outbound.swagger.exception.ProductIoIdNotPositiveExceptionSwagger;
+import com.pororoz.istock.domain.outbound.swagger.response.OutboundCancelResponseSwagger;
 import com.pororoz.istock.domain.outbound.swagger.response.OutboundConfirmResponseSwagger;
 import com.pororoz.istock.domain.outbound.swagger.response.OutboundResponseSwagger;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
@@ -91,8 +92,8 @@ public class OutboundController {
 
   @Operation(summary = "outbound cancel", description = "제품 출고 취소")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = ResponseMessage.OUTBOUND_CONFIRM, content = {
-          @Content(schema = @Schema(implementation = OutboundConfirmResponseSwagger.class))}),
+      @ApiResponse(responseCode = "200", description = ResponseMessage.OUTBOUND_CANCEL, content = {
+          @Content(schema = @Schema(implementation = OutboundCancelResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.BAD_REQUEST, content = {
           @Content(schema = @Schema(implementation = ProductIoIdNotPositiveExceptionSwagger.class))}),
       @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
