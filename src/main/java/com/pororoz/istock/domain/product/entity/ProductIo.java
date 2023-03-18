@@ -2,6 +2,7 @@ package com.pororoz.istock.domain.product.entity;
 
 import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.outbound.exception.ChangeOutboundStatusException;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.production.exception.ChangeProductionStatusException;
 import jakarta.persistence.Column;
@@ -105,9 +106,7 @@ public class ProductIo extends TimeEntity {
 
   public void confirmOutbound() {
     if (this.status != ProductStatus.출고대기) {
-      throw new ChangeProductionStatusException(ProductStatus.출고대기.name(),
-          ProductStatus.출고완료.name(),
-          "id: " + this.id + ", 상태: " + this.status);
+      throw new ChangeOutboundStatusException();
     }
     this.status = ProductStatus.출고완료;
   }
@@ -132,9 +131,7 @@ public class ProductIo extends TimeEntity {
 
   public void cancelOutbound() {
     if (this.status != ProductStatus.출고대기) {
-      throw new ChangeProductionStatusException(ProductStatus.출고대기.name(),
-          ProductStatus.출고취소.name(),
-          "id: " + this.id + ", 상태: " + this.status);
+      throw new ChangeOutboundStatusException();
     }
     this.status = ProductStatus.출고취소;
   }

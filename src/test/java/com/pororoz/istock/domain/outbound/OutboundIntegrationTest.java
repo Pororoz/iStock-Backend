@@ -248,7 +248,7 @@ public class OutboundIntegrationTest extends IntegrationTest {
 
         // then
         actions.andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.status").value(ExceptionStatus.CHANGE_IO_STATUS))
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.CHANGE_OUTBOUND_STATUS))
             .andDo(print());
       }
 

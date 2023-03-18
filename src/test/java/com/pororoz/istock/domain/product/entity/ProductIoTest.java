@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.outbound.exception.ChangeOutboundStatusException;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
 import com.pororoz.istock.domain.production.exception.ChangeProductionStatusException;
@@ -109,7 +110,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeProductionStatusException.class, productIo::confirmOutbound);
+      assertThrows(ChangeOutboundStatusException.class, productIo::confirmOutbound);
     }
 
     @Test
@@ -120,7 +121,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeProductionStatusException.class, productIo::confirmOutbound);
+      assertThrows(ChangeOutboundStatusException.class, productIo::confirmOutbound);
     }
   }
 
@@ -180,7 +181,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeProductionStatusException.class, productIo::cancelOutbound);
+      assertThrows(ChangeOutboundStatusException.class, productIo::cancelOutbound);
     }
 
     @Test
@@ -191,7 +192,7 @@ class ProductIoTest {
 
       //when
       //then
-      assertThrows(ChangeProductionStatusException.class, productIo::cancelOutbound);
+      assertThrows(ChangeOutboundStatusException.class, productIo::cancelOutbound);
     }
   }
 }

@@ -10,6 +10,7 @@ import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceRequ
 import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceRequest;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
+import com.pororoz.istock.domain.outbound.exception.ChangeOutboundStatusException;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.entity.ProductStatus;
@@ -17,7 +18,6 @@ import com.pororoz.istock.domain.product.exception.ProductIoNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
-import com.pororoz.istock.domain.production.exception.ChangeProductionStatusException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -177,7 +177,7 @@ class OutboundServiceTest {
         when(productIoRepository.findById(productIoId)).thenReturn(Optional.of(productIo));
 
         // then
-        assertThrows(ChangeProductionStatusException.class,
+        assertThrows(ChangeOutboundStatusException.class,
             () -> outboundService.outboundConfirm(request));
       }
     }
