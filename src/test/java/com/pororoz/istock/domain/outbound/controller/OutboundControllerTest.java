@@ -176,4 +176,51 @@ class OutboundControllerTest extends ControllerTest {
       }
     }
   }
+
+  @Nested
+  @DisplayName("제품 출고 취소 API")
+  class OutboundCancel {
+
+    String url(long productIoId) {
+      return "http://localhost:8080/v1/outbounds/product-io/" + productIoId + "/cancel";
+    }
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+      @Test
+      @DisplayName("제품 출고 취소를 하면 200 OK값과 해당 productIo와 product에 대한 정보를 제공한다.")
+      void cancelOutbound() throws Exception {
+        // given
+        OutboundConfirmServiceResponse serviceResponse = OutboundConfirmServiceResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(outboundService.outboundCancel(any(OutboundConfirmServiceRequest.class)))
+            .thenReturn(serviceResponse);
+        ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
+
+        // then
+        OutboundConfirmResponse response = OutboundConfirmResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.OUTBOUND_CANCEL))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+
+    }
+  }
 }
