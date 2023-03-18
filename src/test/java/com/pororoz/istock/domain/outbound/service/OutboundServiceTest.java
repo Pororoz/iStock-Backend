@@ -227,7 +227,40 @@ class OutboundServiceTest {
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+      @Test
+      @DisplayName("productIo가 존재하지 않으면 에러가 발생한다.")
+      void notFoundProduct() {
+        // given
+        // when
+        when(productIoRepository.findById(anyLong())).thenReturn(Optional.empty());
 
+        // then
+        assertThrows(ProductIoNotFoundException.class,
+            () -> outboundService.outboundConfirm(request));
+      }
+
+      @Test
+      @DisplayName("ProductIo의 status의 값이 출고대기가 아니라면 Exception이 발생한다.")
+      void productIoStatusError() {
+        // given
+        Product product = Product.builder()
+            .id(productId)
+            .stock(50)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .status(ProductStatus.출고완료)
+            .quantity(quantity)
+            .product(product)
+            .build();
+
+        // when
+        when(productIoRepository.findById(productIoId)).thenReturn(Optional.of(productIo));
+
+        // then
+        assertThrows(ChangeOutboundStatusException.class,
+            () -> outboundService.outboundConfirm(request));
+      }
     }
   }
 }
