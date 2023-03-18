@@ -70,7 +70,9 @@ public enum ErrorCode {
   CHANGE_IO_STATUS(HttpStatus.BAD_REQUEST, ExceptionStatus.CHANGE_IO_STATUS,
       ExceptionMessage.CHANGE_IO_STATUS),
   INVALID_SUB_ASSY_TYPE(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_SUB_ASSY_TYPE,
-      ExceptionMessage.INVALID_SUB_ASSY_TYPE)
+      ExceptionMessage.INVALID_SUB_ASSY_TYPE),
+  CHANGE_OUTBOUND_STATUS(HttpStatus.BAD_REQUEST, ExceptionStatus.CHANGE_OUTBOUND_STATUS,
+      ExceptionMessage.CHANGE_OUTBOUND_STATUS)
   ;
   private final HttpStatus statusCode;
 

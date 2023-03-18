@@ -32,6 +32,7 @@ public class ExceptionStatus {
   public static final String PRODUCT_IO_NOT_FOUND = "PRODUCT_IO_NOT_FOUND";
   public static final String CHANGE_IO_STATUS = "CHANGE_IO_STATUS";
   public static final String INVALID_SUB_ASSY_TYPE = "INVALID_SUB_ASSY_TYPE";
+  public static final String CHANGE_OUTBOUND_STATUS = "CHANGE_OUTBOUND_STATUS";
 
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";

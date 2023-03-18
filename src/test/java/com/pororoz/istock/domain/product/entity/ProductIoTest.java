@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.outbound.exception.ChangeOutboundStatusException;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
 import com.pororoz.istock.domain.production.exception.ChangeProductionStatusException;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 class ProductIoTest {
 
   @Nested
+  @DisplayName("ProductIo 생성 테스트")
   class CreateProductIo {
 
     @Test
@@ -99,6 +101,28 @@ class ProductIoTest {
       //then
       assertThrows(ChangeProductionStatusException.class, productIo::confirmProduction);
     }
+
+    @Test
+    @DisplayName("출고 취소 상태는 출고 완료로 변경할 수 없다.")
+    void cannotChangeOutboundCancel() {
+      //given
+      ProductIo productIo = ProductIo.builder().id(1L).status(ProductStatus.출고취소).build();
+
+      //when
+      //then
+      assertThrows(ChangeOutboundStatusException.class, productIo::confirmOutbound);
+    }
+
+    @Test
+    @DisplayName("출고 완료 상태는 출고 완료로 변경할 수 없다.")
+    void cannotChangeOutboundConfirm() {
+      //given
+      ProductIo productIo = ProductIo.builder().id(1L).status(ProductStatus.출고완료).build();
+
+      //when
+      //then
+      assertThrows(ChangeOutboundStatusException.class, productIo::confirmOutbound);
+    }
   }
 
   @Nested
@@ -147,6 +171,28 @@ class ProductIoTest {
       //when
       //then
       assertThrows(ChangeProductionStatusException.class, productIo::cancelSubAssyProduction);
+    }
+
+    @Test
+    @DisplayName("출고 취소 상태는 출고 취소로 변경할 수 없다.")
+    void cannotChangeOutboundCancel() {
+      //given
+      ProductIo productIo = ProductIo.builder().id(1L).status(ProductStatus.출고취소).build();
+
+      //when
+      //then
+      assertThrows(ChangeOutboundStatusException.class, productIo::cancelOutbound);
+    }
+
+    @Test
+    @DisplayName("출고 완료 상태는 출고 취소로 변경할 수 없다.")
+    void cannotChangeOutboundConfirm() {
+      //given
+      ProductIo productIo = ProductIo.builder().id(1L).status(ProductStatus.출고완료).build();
+
+      //when
+      //then
+      assertThrows(ChangeOutboundStatusException.class, productIo::cancelOutbound);
     }
   }
 }
