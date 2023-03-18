@@ -113,6 +113,34 @@ public class OutboundIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser(roles = "ADMIN")
+      @DisplayName("현재 존재하는 quantity보다 많은 양을 요구하면 Error가 발생한다.")
+      void quantityError() throws Exception {
+        // given
+        Category category = categoryRepository.save(
+            Category.builder().categoryName("카테고리").build());
+        productRepository.save(
+            Product.builder()
+                .productName(name)
+                .productNumber(number)
+                .codeNumber(codeNumber)
+                .companyName(companyName)
+                .stock(quantity)
+                .category(category)
+                .build());
+        OutboundRequest request = OutboundRequest.builder()
+            .quantity(quantity + 100L)
+            .build();
+
+        // when
+        ResultActions actions = getResultActions(url(productId), HttpMethod.POST, request);
+
+        // then
+        actions.andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(ExceptionStatus.PRODUCT_STOCK_MINUS));
+      }
+
+      @Test
+      @WithMockUser(roles = "ADMIN")
       @DisplayName("productId에 따른 product가 존재하지 않을 때 404 Not Found를 반환한다.")
       void productNotFound() throws Exception {
         // given
@@ -302,6 +330,7 @@ public class OutboundIntegrationTest extends IntegrationTest {
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
+
       @BeforeEach
       void setup() {
         Category category = categoryRepository.save(
@@ -347,12 +376,18 @@ public class OutboundIntegrationTest extends IntegrationTest {
         ProductIo changedProductIo = productIoRepository.findById(productIoId)
             .orElseThrow(ProductIoNotFoundException::new);
         assertThat(changedProductIo.getStatus()).isEqualTo(ProductStatus.출고취소);
+
+        // product의 수량이 변경됐는지 확인
+        Product changedProduct = productRepository.findById(productId)
+            .orElseThrow(ProductNotFoundException::new);
+        assertThat(changedProduct.getStock()).isEqualTo(productQuantity + productIoQuantity);
       }
     }
 
     @Nested
     @DisplayName("실패 케이스")
     class FailCase {
+
       @Test
       @WithMockUser(roles = "ADMIN")
       @DisplayName("productIo의 status가 출고대기 상태가 아니라면 400 BadRequest Error를 발생시킨다.")
