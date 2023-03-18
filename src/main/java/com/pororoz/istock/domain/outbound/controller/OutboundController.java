@@ -58,7 +58,7 @@ public class OutboundController {
   })
   @PostMapping("/products/{productId}/waiting")
   public ResponseEntity<ResultDTO<OutboundResponse>> outbound(
-      @PathVariable("productId") @NotNull @Positive Long productId,
+      @PathVariable("productId") @NotNull @Positive long productId,
       @Valid @RequestBody OutboundRequest request
   ) {
     OutboundServiceResponse serviceDto = outboundService.outbound(request.toService(productId));
@@ -80,12 +80,34 @@ public class OutboundController {
   })
   @PostMapping("/product-io/{productIoId}/confirm")
   public ResponseEntity<ResultDTO<OutboundConfirmResponse>> outboundConfirm(
-      @PathVariable("productIoId") @NotNull @Positive Long productIoId
+      @PathVariable("productIoId") @NotNull @Positive long productIoId
   ) {
     OutboundConfirmServiceResponse serviceDto = outboundService.outboundConfirm(
         OutboundConfirmServiceRequest.builder().productIoId(productIoId).build());
     OutboundConfirmResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.OUTBOUND_CONFIRM, response));
+  }
+
+  @Operation(summary = "outbound cancel", description = "제품 출고 취소")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = ResponseMessage.OUTBOUND_CONFIRM, content = {
+          @Content(schema = @Schema(implementation = OutboundConfirmResponseSwagger.class))}),
+      @ApiResponse(responseCode = "400", description = ExceptionMessage.BAD_REQUEST, content = {
+          @Content(schema = @Schema(implementation = ProductIoIdNotPositiveExceptionSwagger.class))}),
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))}),
+      @ApiResponse(responseCode = "404", description = ExceptionMessage.PRODUCT_IO_NOT_FOUND, content = {
+          @Content(schema = @Schema(implementation = ProductIoNotFoundExceptionSwagger.class))}),
+  })
+  @PostMapping("/product-io/{productIoId}/cancel")
+  public ResponseEntity<ResultDTO<OutboundConfirmResponse>> outboundCancel(
+      @PathVariable("productIoId") @NotNull @Positive long productIoId
+  ) {
+    OutboundConfirmServiceResponse serviceDto = outboundService.outboundCancel(
+        OutboundConfirmServiceRequest.builder().productIoId(productIoId).build());
+    OutboundConfirmResponse response = serviceDto.toResponse();
+    return ResponseEntity.ok(
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.OUTBOUND_CANCEL, response));
   }
 }

@@ -35,6 +35,7 @@ public class ResponseMessage {
   public static final String CONFIRM_SUB_ASSY_PURCHASE = "Sub Assy 구매 확정";
   public static final String CANCEL_SUB_ASSY_PURCHASE = "Sub Assy 구매 취소";
   public static final String OUTBOUND_CONFIRM = "제품 출고 확정";
+  public static final String OUTBOUND_CANCEL = "제품 출고 취소";
 
   private ResponseMessage() {
   }
