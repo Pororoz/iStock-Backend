@@ -1,7 +1,7 @@
 package com.pororoz.istock.domain.outbound.service;
 
-import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceRequest;
-import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceResponse;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundUpdateServiceRequest;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundUpdateServiceResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceRequest;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.product.entity.Product;
@@ -40,20 +40,20 @@ public class OutboundService {
     return productIoRepository.save(productIo);
   }
 
-  public OutboundConfirmServiceResponse outboundConfirm(OutboundConfirmServiceRequest request) {
+  public OutboundUpdateServiceResponse outboundConfirm(OutboundUpdateServiceRequest request) {
     ProductIo productIo = productIoRepository.findById(request.getProductIoId())
         .orElseThrow(ProductIoNotFoundException::new);
     productIo.confirmOutbound();
-    return OutboundConfirmServiceResponse.of(productIo);
+    return OutboundUpdateServiceResponse.of(productIo);
   }
 
-  public OutboundConfirmServiceResponse outboundCancel(OutboundConfirmServiceRequest request) {
+  public OutboundUpdateServiceResponse outboundCancel(OutboundUpdateServiceRequest request) {
     ProductIo productIo = productIoRepository.findById(request.getProductIoId())
         .orElseThrow(ProductIoNotFoundException::new);
     Product product = productRepository.findById(productIo.getProduct().getId())
             .orElseThrow(ProductNotFoundException::new);
     product.addStock(productIo.getQuantity());
     productIo.cancelOutbound();
-    return OutboundConfirmServiceResponse.of(productIo);
+    return OutboundUpdateServiceResponse.of(productIo);
   }
 }

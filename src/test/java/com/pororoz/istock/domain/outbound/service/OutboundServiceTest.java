@@ -6,8 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceRequest;
-import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceResponse;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundUpdateServiceRequest;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundUpdateServiceResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceRequest;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.outbound.exception.ChangeOutboundStatusException;
@@ -105,7 +105,7 @@ class OutboundServiceTest {
   @DisplayName("제품 출고 확정")
   class OutboundConfirm {
 
-    OutboundConfirmServiceRequest request = OutboundConfirmServiceRequest.builder()
+    OutboundUpdateServiceRequest request = OutboundUpdateServiceRequest.builder()
         .productIoId(productIoId)
         .build();
 
@@ -127,7 +127,7 @@ class OutboundServiceTest {
             .quantity(quantity)
             .product(product)
             .build();
-        OutboundConfirmServiceResponse response = OutboundConfirmServiceResponse.builder()
+        OutboundUpdateServiceResponse response = OutboundUpdateServiceResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)
@@ -135,7 +135,7 @@ class OutboundServiceTest {
 
         // when
         when(productIoRepository.findById(productIoId)).thenReturn(Optional.of(productIo));
-        OutboundConfirmServiceResponse result = outboundService.outboundConfirm(request);
+        OutboundUpdateServiceResponse result = outboundService.outboundConfirm(request);
 
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
@@ -187,7 +187,7 @@ class OutboundServiceTest {
   @DisplayName("제품 출고 취소")
   class CancelOutbound {
 
-    OutboundConfirmServiceRequest request = OutboundConfirmServiceRequest.builder()
+    OutboundUpdateServiceRequest request = OutboundUpdateServiceRequest.builder()
         .productIoId(productIoId)
         .build();
 
@@ -209,7 +209,7 @@ class OutboundServiceTest {
             .quantity(quantity)
             .product(product)
             .build();
-        OutboundConfirmServiceResponse response = OutboundConfirmServiceResponse.builder()
+        OutboundUpdateServiceResponse response = OutboundUpdateServiceResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)
@@ -218,7 +218,7 @@ class OutboundServiceTest {
         // when
         when(productIoRepository.findById(anyLong())).thenReturn(Optional.of(productIo));
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
-        OutboundConfirmServiceResponse result = outboundService.outboundCancel(request);
+        OutboundUpdateServiceResponse result = outboundService.outboundCancel(request);
 
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(response);

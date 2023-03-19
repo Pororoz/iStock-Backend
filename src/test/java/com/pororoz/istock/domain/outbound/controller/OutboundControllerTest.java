@@ -11,10 +11,10 @@ import com.pororoz.istock.ControllerTest;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.outbound.dto.request.OutboundRequest;
-import com.pororoz.istock.domain.outbound.dto.response.OutboundConfirmResponse;
+import com.pororoz.istock.domain.outbound.dto.response.OutboundUpdateResponse;
 import com.pororoz.istock.domain.outbound.dto.response.OutboundResponse;
-import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceRequest;
-import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceResponse;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundUpdateServiceRequest;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundUpdateServiceResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceRequest;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.outbound.service.OutboundService;
@@ -134,19 +134,19 @@ class OutboundControllerTest extends ControllerTest {
       @DisplayName("제품 출고 확정을 요청하면 productIO와 출고된 productId, quantity를 반환한다.")
       void outboundConfirm() throws Exception {
         // given
-        OutboundConfirmServiceResponse serviceResponse = OutboundConfirmServiceResponse.builder()
+        OutboundUpdateServiceResponse serviceResponse = OutboundUpdateServiceResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)
             .build();
 
         // when
-        when(outboundService.outboundConfirm(any(OutboundConfirmServiceRequest.class)))
+        when(outboundService.outboundConfirm(any(OutboundUpdateServiceRequest.class)))
             .thenReturn(serviceResponse);
         ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
 
         // then
-        OutboundConfirmResponse response = OutboundConfirmResponse.builder()
+        OutboundUpdateResponse response = OutboundUpdateResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)
@@ -192,19 +192,19 @@ class OutboundControllerTest extends ControllerTest {
       @DisplayName("제품 출고 취소를 하면 200 OK값과 해당 productIo와 product에 대한 정보를 제공한다.")
       void cancelOutbound() throws Exception {
         // given
-        OutboundConfirmServiceResponse serviceResponse = OutboundConfirmServiceResponse.builder()
+        OutboundUpdateServiceResponse serviceResponse = OutboundUpdateServiceResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)
             .build();
 
         // when
-        when(outboundService.outboundCancel(any(OutboundConfirmServiceRequest.class)))
+        when(outboundService.outboundCancel(any(OutboundUpdateServiceRequest.class)))
             .thenReturn(serviceResponse);
         ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
 
         // then
-        OutboundConfirmResponse response = OutboundConfirmResponse.builder()
+        OutboundUpdateResponse response = OutboundUpdateResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)

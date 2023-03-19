@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class OutboundConfirmServiceRequest {
+public class OutboundUpdateServiceRequest {
   private Long productIoId;
 }

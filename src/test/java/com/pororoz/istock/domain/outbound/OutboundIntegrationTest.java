@@ -14,7 +14,7 @@ import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.outbound.dto.request.OutboundRequest;
-import com.pororoz.istock.domain.outbound.dto.response.OutboundConfirmResponse;
+import com.pororoz.istock.domain.outbound.dto.response.OutboundUpdateResponse;
 import com.pororoz.istock.domain.outbound.dto.response.OutboundResponse;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
@@ -227,7 +227,7 @@ public class OutboundIntegrationTest extends IntegrationTest {
         ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
 
         // then
-        OutboundConfirmResponse response = OutboundConfirmResponse.builder()
+        OutboundUpdateResponse response = OutboundUpdateResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(productIoQuantity)
@@ -361,7 +361,7 @@ public class OutboundIntegrationTest extends IntegrationTest {
         ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
 
         // then
-        OutboundConfirmResponse response = OutboundConfirmResponse.builder()
+        OutboundUpdateResponse response = OutboundUpdateResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(productIoQuantity)
