@@ -148,7 +148,7 @@ class OutboundServiceTest {
 
       @Test
       @DisplayName("productIo가 존재하지 않으면 에러가 발생한다.")
-      void notFoundProduct() {
+      void notFoundProductIo() {
         // given
         // when
         when(productIoRepository.findById(anyLong())).thenReturn(Optional.empty());
@@ -179,6 +179,113 @@ class OutboundServiceTest {
         // then
         assertThrows(ChangeOutboundStatusException.class,
             () -> outboundService.outboundConfirm(request));
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("제품 출고 취소")
+  class CancelOutbound {
+
+    OutboundConfirmServiceRequest request = OutboundConfirmServiceRequest.builder()
+        .productIoId(productIoId)
+        .build();
+
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
+
+      @Test
+      @DisplayName("제품 출고 취소 로직을 처리한다.")
+      void cancelOutbound() {
+        // given
+        Product product = Product.builder()
+            .id(productId)
+            .stock(50)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .status(ProductStatus.출고대기)
+            .quantity(quantity)
+            .product(product)
+            .build();
+        OutboundConfirmServiceResponse response = OutboundConfirmServiceResponse.builder()
+            .productIoId(productIoId)
+            .productId(productId)
+            .quantity(quantity)
+            .build();
+
+        // when
+        when(productIoRepository.findById(anyLong())).thenReturn(Optional.of(productIo));
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+        OutboundConfirmServiceResponse result = outboundService.outboundCancel(request);
+
+        // then
+        assertThat(result).usingRecursiveComparison().isEqualTo(response);
+      }
+    }
+
+    @Nested
+    @DisplayName("실패 케이스")
+    class FailCase {
+      @Test
+      @DisplayName("productIo가 존재하지 않으면 에러가 발생한다.")
+      void notFoundProductIo() {
+        // given
+        // when
+        when(productIoRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ProductIoNotFoundException.class,
+            () -> outboundService.outboundCancel(request));
+      }
+
+      @Test
+      @DisplayName("product가 존재하지 않으면 에러가 발생한다.")
+      void notFoundProduct() {
+        // given
+        Product product = Product.builder()
+            .id(productId)
+            .stock(50)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .status(ProductStatus.출고대기)
+            .quantity(quantity)
+            .product(product)
+            .build();
+
+        // when
+        when(productIoRepository.findById(anyLong())).thenReturn(Optional.of(productIo));
+        when(productRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(ProductNotFoundException.class,
+            () -> outboundService.outboundCancel(request));
+      }
+
+      @Test
+      @DisplayName("ProductIo의 status의 값이 출고대기가 아니라면 Exception이 발생한다.")
+      void productIoStatusError() {
+        // given
+        Product product = Product.builder()
+            .id(productId)
+            .stock(50)
+            .build();
+        ProductIo productIo = ProductIo.builder()
+            .id(productIoId)
+            .status(ProductStatus.출고완료)
+            .quantity(quantity)
+            .product(product)
+            .build();
+
+        // when
+        when(productIoRepository.findById(productIoId)).thenReturn(Optional.of(productIo));
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
+
+        // then
+        assertThrows(ChangeOutboundStatusException.class,
+            () -> outboundService.outboundCancel(request));
       }
     }
   }

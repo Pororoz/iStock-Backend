@@ -46,4 +46,14 @@ public class OutboundService {
     productIo.confirmOutbound();
     return OutboundConfirmServiceResponse.of(productIo);
   }
+
+  public OutboundConfirmServiceResponse outboundCancel(OutboundConfirmServiceRequest request) {
+    ProductIo productIo = productIoRepository.findById(request.getProductIoId())
+        .orElseThrow(ProductIoNotFoundException::new);
+    Product product = productRepository.findById(productIo.getProduct().getId())
+            .orElseThrow(ProductNotFoundException::new);
+    product.addStock(productIo.getQuantity());
+    productIo.cancelOutbound();
+    return OutboundConfirmServiceResponse.of(productIo);
+  }
 }
