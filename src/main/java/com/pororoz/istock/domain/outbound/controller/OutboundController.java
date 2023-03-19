@@ -6,10 +6,10 @@ import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.common.utils.message.ResponseMessage;
 import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.outbound.dto.request.OutboundRequest;
-import com.pororoz.istock.domain.outbound.dto.response.OutboundConfirmResponse;
+import com.pororoz.istock.domain.outbound.dto.response.OutboundUpdateResponse;
 import com.pororoz.istock.domain.outbound.dto.response.OutboundResponse;
-import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceRequest;
-import com.pororoz.istock.domain.outbound.dto.service.OutboundConfirmServiceResponse;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundUpdateServiceRequest;
+import com.pororoz.istock.domain.outbound.dto.service.OutboundUpdateServiceResponse;
 import com.pororoz.istock.domain.outbound.dto.service.OutboundServiceResponse;
 import com.pororoz.istock.domain.outbound.service.OutboundService;
 import com.pororoz.istock.domain.outbound.swagger.exception.ProductIdNotPositiveExceptionSwagger;
@@ -80,12 +80,12 @@ public class OutboundController {
           @Content(schema = @Schema(implementation = ProductIoNotFoundExceptionSwagger.class))}),
   })
   @PostMapping("/product-io/{productIoId}/confirm")
-  public ResponseEntity<ResultDTO<OutboundConfirmResponse>> outboundConfirm(
+  public ResponseEntity<ResultDTO<OutboundUpdateResponse>> outboundConfirm(
       @PathVariable("productIoId") @NotNull @Positive long productIoId
   ) {
-    OutboundConfirmServiceResponse serviceDto = outboundService.outboundConfirm(
-        OutboundConfirmServiceRequest.builder().productIoId(productIoId).build());
-    OutboundConfirmResponse response = serviceDto.toResponse();
+    OutboundUpdateServiceResponse serviceDto = outboundService.outboundConfirm(
+        OutboundUpdateServiceRequest.builder().productIoId(productIoId).build());
+    OutboundUpdateResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.OUTBOUND_CONFIRM, response));
   }
@@ -102,12 +102,12 @@ public class OutboundController {
           @Content(schema = @Schema(implementation = ProductIoNotFoundExceptionSwagger.class))}),
   })
   @PostMapping("/product-io/{productIoId}/cancel")
-  public ResponseEntity<ResultDTO<OutboundConfirmResponse>> outboundCancel(
+  public ResponseEntity<ResultDTO<OutboundUpdateResponse>> outboundCancel(
       @PathVariable("productIoId") @NotNull @Positive long productIoId
   ) {
-    OutboundConfirmServiceResponse serviceDto = outboundService.outboundCancel(
-        OutboundConfirmServiceRequest.builder().productIoId(productIoId).build());
-    OutboundConfirmResponse response = serviceDto.toResponse();
+    OutboundUpdateServiceResponse serviceDto = outboundService.outboundCancel(
+        OutboundUpdateServiceRequest.builder().productIoId(productIoId).build());
+    OutboundUpdateResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.OUTBOUND_CANCEL, response));
   }

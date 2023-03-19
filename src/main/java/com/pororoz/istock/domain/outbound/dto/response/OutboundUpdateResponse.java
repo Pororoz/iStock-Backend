@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class OutboundConfirmResponse {
+public class OutboundUpdateResponse {
 
   @Schema(description = "제품 I/O 아이디", example = "10")
   private Long productIoId;
