@@ -2,11 +2,13 @@ package com.pororoz.istock.domain.part.dto.service;
 
 
 import com.pororoz.istock.domain.part.entity.Part;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class SavePartServiceRequest {
 
   private String partName;

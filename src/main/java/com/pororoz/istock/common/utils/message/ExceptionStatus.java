@@ -34,6 +34,7 @@ public class ExceptionStatus {
   public static final String INVALID_SUB_ASSY_TYPE = "INVALID_SUB_ASSY_TYPE";
   public static final String CHANGE_OUTBOUND_STATUS = "CHANGE_OUTBOUND_STATUS";
 
+  public static final String INVALID_FILE = "INVALID_FILE";
   // Uncontrolled Range
   public static final String RUNTIME_ERROR = "RUNTIME_ERROR";
   public static final String INTERNAL_SERVER_ERROR = "INTERNAL_SERVER_ERROR";

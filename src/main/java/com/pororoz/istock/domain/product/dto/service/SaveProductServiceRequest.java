@@ -2,11 +2,13 @@ package com.pororoz.istock.domain.product.dto.service;
 
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.product.entity.Product;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class SaveProductServiceRequest {
 
   private String productName;

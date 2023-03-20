@@ -17,6 +17,8 @@ import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.Objects;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,18 +37,18 @@ public class ProductService {
   public ProductServiceResponse saveProduct(SaveProductServiceRequest request) {
     checkProductNumberDuplicated(null, request.getProductNumber());
     Category category = categoryRepository.findById(request.getCategoryId())
-        .orElseThrow(CategoryNotFoundException::new);
+            .orElseThrow(CategoryNotFoundException::new);
     Product product = productRepository.save(request.toProduct(category));
     return ProductServiceResponse.of(product);
   }
 
   public ProductServiceResponse updateProduct(UpdateProductServiceRequest request) {
     Product product = productRepository.findById(request.getProductId())
-        .orElseThrow(ProductNotFoundException::new);
+            .orElseThrow(ProductNotFoundException::new);
     validateRequest(product, request.getProductNumber(), request.getCodeNumber());
     checkProductNumberDuplicated(product.getProductNumber(), request.getProductNumber());
     Category category = categoryRepository.findById(request.getCategoryId())
-        .orElseThrow(CategoryNotFoundException::new);
+            .orElseThrow(CategoryNotFoundException::new);
     product.update(request, category);
     return ProductServiceResponse.of(product);
   }
@@ -54,7 +56,7 @@ public class ProductService {
   // 관련 BOM을 삭제하는 기능도 필요한가?
   public ProductServiceResponse deleteProduct(Long productId) {
     Product product = productRepository.findById(productId)
-        .orElseThrow(ProductNotFoundException::new);
+            .orElseThrow(ProductNotFoundException::new);
     if (bomRepository.existsByProductId(product.getId())) {
       throw new RegisteredAsSubAssyException();
     }
@@ -64,24 +66,24 @@ public class ProductService {
 
   @Transactional(readOnly = true)
   public Page<FindProductWithSubAssyServiceResponse> findProductsWithSubAssies(Long categoryId,
-      Pageable pageable) {
+                                                                               Pageable pageable) {
     categoryRepository.findById(categoryId)
-        .orElseThrow(CategoryNotFoundException::new);
+            .orElseThrow(CategoryNotFoundException::new);
     Page<Product> products = productRepository.findByCategoryIdWithSubAssies(pageable, categoryId);
     return products.map(FindProductWithSubAssyServiceResponse::of);
   }
 
   @Transactional(readOnly = true)
   public Page<ProductServiceResponse> findProductsByPart(FindProductByPartServiceRequest request,
-      Pageable pageable) {
+                                                         Pageable pageable) {
     Page<Product> products = productRepository.findByPartIdAndPartNameIgnoreNull(
-        request.getPartId(), request.getPartName(), pageable);
+            request.getPartId(), request.getPartName(), pageable);
     return products.map(ProductServiceResponse::of);
   }
 
 
   private void validateRequest(Product existProduct, String newProductNumber,
-      String newCodeNumber) {
+                               String newCodeNumber) {
     if (Objects.equals(existProduct.getProductNumber(), newProductNumber)) {
       return;
     }
@@ -97,7 +99,7 @@ public class ProductService {
     // subassy->product
     // bom에 있으면 안된다
     else if (Bom.SUB_ASSY_CODE_NUMBER.equals(existProduct.getCodeNumber())
-        && bomRepository.existsByProductId(existProduct.getId())) {
+            && bomRepository.existsByProductId(existProduct.getId())) {
       throw new RegisteredAsSubAssyException();
     }
   }
@@ -109,5 +111,9 @@ public class ProductService {
     productRepository.findByProductNumber(newNumber).ifPresent(p -> {
       throw new ProductNumberDuplicatedException();
     });
+  }
+
+  public Optional<Product> findProductById(Long productId) {
+    return productRepository.findById(productId);
   }
 }
