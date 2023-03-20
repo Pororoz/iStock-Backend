@@ -161,7 +161,7 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoId)
             .quantity(quantity)
-            .status(ProductStatus.외주구매대기)
+            .status(ProductStatus.외주생산대기)
             .superIo(productIo)
             .product(subAssy)
             .build();
@@ -440,7 +440,7 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoIdAsSubAssy)
             .quantity(quantity)
-            .status(ProductStatus.외주구매대기)
+            .status(ProductStatus.외주생산대기)
             .superIo(productIo)
             .product(subAssy)
             .build();
@@ -458,7 +458,7 @@ public class PurchaseServiceTest {
 
         // then
         assertThat(subAssy.getStock()).isEqualTo(stock + quantity);
-        assertThat(subAssyIo.getStatus()).isEqualTo(productStatus.외주구매확정);
+        assertThat(subAssyIo.getStatus()).isEqualTo(productStatus.외주생산완료);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
@@ -517,7 +517,7 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoIdAsSubAssy)
             .quantity(quantity)
-            .status(ProductStatus.외주구매확정)
+            .status(ProductStatus.외주생산완료)
             .product(product)
             .superIo(productIo)
             .product(subAssy)
@@ -559,7 +559,7 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoIdAsSubAssy)
             .quantity(quantity)
-            .status(ProductStatus.외주구매대기)
+            .status(ProductStatus.외주생산대기)
             .superIo(productIo)
             .product(subAssy)
             .build();
@@ -576,7 +576,7 @@ public class PurchaseServiceTest {
             productIoIdAsSubAssy);
 
         // then
-        assertThat(subAssyIo.getStatus()).isEqualTo(productStatus.외주구매취소);
+        assertThat(subAssyIo.getStatus()).isEqualTo(productStatus.외주생산취소);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
@@ -635,7 +635,7 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoIdAsSubAssy)
             .quantity(quantity)
-            .status(ProductStatus.외주구매확정)
+            .status(ProductStatus.외주생산완료)
             .product(product)
             .superIo(productIo)
             .product(subAssy)

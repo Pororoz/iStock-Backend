@@ -117,7 +117,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
     ProductIo productIo2 = ProductIo.builder()
         .quantity(10)
-        .status(ProductStatus.외주구매대기)
+        .status(ProductStatus.외주생산대기)
         .product(products.get(9))
         .superIo(productIo)
         .build();
@@ -125,7 +125,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
     ProductIo productIo3 = ProductIo.builder()
         .quantity(10)
-        .status(ProductStatus.외주구매확정)
+        .status(ProductStatus.외주생산완료)
         .product(products.get(9))
         .superIo(productIo)
         .build();

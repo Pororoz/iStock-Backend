@@ -111,7 +111,7 @@ public class PurchaseService {
     for (Bom bom : boms) {
       if (Bom.SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
         ProductIo subAssyIo = ProductIo.createSubAssyIo(bom, productIo, quantity,
-            ProductStatus.외주구매대기);
+            ProductStatus.외주생산대기);
         subAssyIoList.add(subAssyIo);
       } else {
         PartIo partIo = PartIo.createPartIo(bom, productIo, quantity, PartStatus.구매대기);
