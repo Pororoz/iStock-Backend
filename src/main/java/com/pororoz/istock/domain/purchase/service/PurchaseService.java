@@ -127,17 +127,16 @@ public class PurchaseService {
   }
 
   private void checkAllPartAndSubAssy(ProductIo productIo) {
-    for (PartIo partIo : partIoRepository.findByProductIoWithPart(productIo)) {
-      if (partIo.getStatus() != PartStatus.구매확정) {
-        return;
-      }
+    boolean allPartsConfirmed = partIoRepository.findByProductIoWithPart(productIo)
+        .stream()
+        .allMatch(partIo -> partIo.getStatus() == PartStatus.구매확정);
+    boolean allSubAssyConfirmed = productIoRepository.findBySuperIoWithProduct(productIo)
+        .stream()
+        .allMatch(subAssyIo -> subAssyIo.getStatus() == ProductStatus.외주생산확정);
+
+    if (allPartsConfirmed && allSubAssyConfirmed) {
+      productIo.completeProductPurchase();
     }
-    for (ProductIo subAssyIo : productIoRepository.findBySuperIoWithProduct(productIo)) {
-      if (subAssyIo.getStatus() != ProductStatus.외주생산확정) {
-        return;
-      }
-    }
-    productIo.completeProductPurchase();
   }
 
   private void checkWhetherSubAssy(ProductIo productIo) {
