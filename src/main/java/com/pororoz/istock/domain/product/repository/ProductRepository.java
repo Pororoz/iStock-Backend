@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
   Optional<Product> findByProductNumber(String productNumber);
+  Optional<Product> findProductByProductNumberAndProductName(String productNumber, String productName);
 
   @Query(value = "select distinct p from Product p "
       + "left join fetch p.boms b "

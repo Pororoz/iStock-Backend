@@ -34,7 +34,13 @@ public class ResponseMessage {
   public static final String OUTBOUND_WAIT = "제품 출고 대기";
   public static final String CONFIRM_SUB_ASSY_OUTSOURCING = "Sub Assy 외주 생산 확정";
   public static final String CANCEL_SUB_ASSY_OUTSOURCING = "Sub Assy 외주 생산 취소";
+  public static final String CONFIRM_SUB_ASSY_PURCHASE = "Sub Assy 구매 확정";
+  public static final String CANCEL_SUB_ASSY_PURCHASE = "Sub Assy 구매 취소";
+  public static final String OUTBOUND_CONFIRM = "제품 출고 확정";
+  public static final String OUTBOUND_CANCEL = "제품 출고 취소";
+  public static final String FIND_PRODUCT_IO = "제품 IO 조회";
 
+  public static final String UPLOAD_CSV = "CSV 업로드";
   private ResponseMessage() {
   }
 }

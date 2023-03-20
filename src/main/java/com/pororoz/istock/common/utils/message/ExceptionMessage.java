@@ -45,7 +45,9 @@ public class ExceptionMessage {
   public static final String CHANGE_IO_STATUS = "잘못된 io 상태 수정입니다.";
   public static final String PART_IO_NOT_FOUND = "해당 part IO를 찾을 수 없습니다.";
   public static final String INVALID_SUB_ASSY_TYPE = "해당 product는 sub assy가 아닙니다.";
+  public static final String CHANGE_OUTBOUND_STATUS = "잘못된 outbound 수정 접근입니다.";
 
+  public static final String INVALID_FILE = "유효하지 않은 파일입니다. 파일을 다시 확인하세요.";
   private ExceptionMessage() {
   }
 }

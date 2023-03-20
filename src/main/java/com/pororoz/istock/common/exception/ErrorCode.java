@@ -50,6 +50,7 @@ public enum ErrorCode {
       ExceptionMessage.SELF_DELETE_ACCOUNT),
   INVALID_PAGE_REQUEST(HttpStatus.BAD_REQUEST, ExceptionStatus.BAD_REQUEST,
       ExceptionMessage.INVALID_PAGE_REQUEST),
+  INVALID_FILE(HttpStatus.BAD_REQUEST, ExceptionStatus.BAD_REQUEST, ExceptionMessage.INVALID_FILE),
   PRODUCT_STOCK_MINUS(HttpStatus.BAD_REQUEST, ExceptionStatus.PRODUCT_STOCK_MINUS,
       ExceptionMessage.PRODUCT_STOCK_MINUS),
   PART_STOCK_MINUS(HttpStatus.BAD_REQUEST, ExceptionStatus.PART_STOCK_MINUS,
@@ -70,8 +71,11 @@ public enum ErrorCode {
   CHANGE_IO_STATUS(HttpStatus.BAD_REQUEST, ExceptionStatus.CHANGE_IO_STATUS,
       ExceptionMessage.CHANGE_IO_STATUS),
   INVALID_SUB_ASSY_TYPE(HttpStatus.BAD_REQUEST, ExceptionStatus.INVALID_SUB_ASSY_TYPE,
-      ExceptionMessage.INVALID_SUB_ASSY_TYPE)
+      ExceptionMessage.INVALID_SUB_ASSY_TYPE),
+  CHANGE_OUTBOUND_STATUS(HttpStatus.BAD_REQUEST, ExceptionStatus.CHANGE_OUTBOUND_STATUS,
+      ExceptionMessage.CHANGE_OUTBOUND_STATUS)
   ;
+
   private final HttpStatus statusCode;
 
   private final String status;
