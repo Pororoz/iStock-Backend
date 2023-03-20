@@ -71,6 +71,7 @@ public class PurchaseServiceTest {
   long quantity = 3L;
   String memo = "";
   ProductStatus productStatus = ProductStatus.구매대기;
+  ProductStatus subAssyStatus = ProductStatus.외주생산대기;
   PartStatus partStatus = PartStatus.구매대기;
   String SUB_ASSY_CODE_NUMBER = "11";
 
@@ -271,15 +272,23 @@ public class PurchaseServiceTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("구매 대기 상태의 자재를 구매 확정 상태로 변경한다.")
+      @DisplayName("구매 대기 상태의 자재를 구매 확정 상태로 변경한다. 다른 모든 자재(SubAssy 포함)의 상태가 구매 확정 상태라면, 해당 제품의 상태가 구매 완료 상태로 변경된다")
       void confirmPurchasePart() {
         // given
+        ProductIo productIo = ProductIo.builder().id(productId).status(productStatus).build();
         Part part = Part.builder().id(partId).stock(stock).build();
         PartIo partIo = PartIo.builder()
             .id(partIoId)
             .quantity(quantity)
             .status(partStatus)
             .part(part)
+            .productIo(productIo)
+            .build();
+        // 제품 구매 확정 확인을 위한 PartIo
+        PartIo partIo1 = PartIo.builder()
+            .status(PartStatus.구매확정)
+            .part(part)
+            .productIo(productIo)
             .build();
 
         UpdatePurchaseServiceResponse response = UpdatePurchaseServiceResponse.builder()
@@ -290,11 +299,14 @@ public class PurchaseServiceTest {
 
         // when
         when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
+        when(partIoRepository.findByProductIoWithPart(any(ProductIo.class)))
+            .thenReturn(List.of(partIo, partIo1));
         UpdatePurchaseServiceResponse result = purchaseService.confirmPurchasePart(partIoId);
 
         // then
         assertThat(part.getStock()).isEqualTo(stock + quantity);
         assertThat(partIo.getStatus()).isEqualTo(partStatus.구매확정);
+        assertThat(productIo.getStatus()).isEqualTo(productStatus.구매완료);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
@@ -423,7 +435,7 @@ public class PurchaseServiceTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("구매 대기 상태의 SubAssy를 구매 확정 상태로 변경한다.")
+      @DisplayName("구매 대기 상태의 SubAssy를 구매 확정 상태로 변경한다. 다른 모든 SubAssy(자재 포함)의 상태가 구매 확정 상태라면, 해당 제품의 상태가 구매 완료 상태로 변경된다")
       void confirmPurchaseSubAssy() {
         // given
         Product product = Product.builder().id(productId).build();
@@ -440,7 +452,13 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoIdAsSubAssy)
             .quantity(quantity)
-            .status(ProductStatus.외주생산대기)
+            .status(subAssyStatus)
+            .superIo(productIo)
+            .product(subAssy)
+            .build();
+        // 제품 구매 확정 확인을 위한 subAssyIo
+        ProductIo subAssyIo1 = ProductIo.builder()
+            .status(ProductStatus.외주생산완료)
             .superIo(productIo)
             .product(subAssy)
             .build();
@@ -453,12 +471,15 @@ public class PurchaseServiceTest {
 
         // when
         when(productIoRepository.findById(productIoIdAsSubAssy)).thenReturn(Optional.of(subAssyIo));
+        when(productIoRepository.findBySuperIoWithProduct(any(ProductIo.class)))
+            .thenReturn(List.of(subAssyIo, subAssyIo1));
         UpdateSubAssyPurchaseServiceResponse result = purchaseService.confirmSubAssyPurchase(
             productIoIdAsSubAssy);
 
         // then
         assertThat(subAssy.getStock()).isEqualTo(stock + quantity);
         assertThat(subAssyIo.getStatus()).isEqualTo(productStatus.외주생산완료);
+        assertThat(productIo.getStatus()).isEqualTo(productStatus.구매완료);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }

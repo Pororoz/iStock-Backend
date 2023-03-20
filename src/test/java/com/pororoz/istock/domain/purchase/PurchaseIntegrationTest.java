@@ -136,6 +136,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
         .quantity(10)
         .status(PartStatus.구매대기)
         .part(parts.get(0))
+        .productIo(productIo)
         .build();
     partIoRepository.save(partIo);
 
@@ -143,6 +144,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
         .quantity(10)
         .status(PartStatus.구매확정)
         .part(parts.get(0))
+        .productIo(productIo)
         .build();
     partIoRepository.save(partIo2);
   }

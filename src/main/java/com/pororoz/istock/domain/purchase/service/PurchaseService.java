@@ -69,6 +69,8 @@ public class PurchaseService {
     partIo.confirmPurchase();
     partIo.getPart().addStock(partIo.getQuantity());
 
+    checkAllPartAndSubAssy(partIo.getProductIo());
+
     return UpdatePurchaseServiceResponse.of(partIo);
   }
 
@@ -90,6 +92,8 @@ public class PurchaseService {
     productIo.confirmSubAssyPurchase();
     productIo.getProduct().addStock(productIo.getQuantity());
 
+    checkAllPartAndSubAssy(productIo.getSuperIo());
+
     return UpdateSubAssyPurchaseServiceResponse.of(productIo);
   }
 
@@ -104,7 +108,7 @@ public class PurchaseService {
     return UpdateSubAssyPurchaseServiceResponse.of(productIo);
   }
 
-  void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
+  private void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
     List<PartIo> partIoList = new ArrayList<>();
     List<ProductIo> subAssyIoList = new ArrayList<>();
 
@@ -120,6 +124,20 @@ public class PurchaseService {
     }
     partIoRepository.saveAll(partIoList);
     productIoRepository.saveAll(subAssyIoList);
+  }
+
+  private void checkAllPartAndSubAssy(ProductIo productIo) {
+    for (PartIo partIo : partIoRepository.findByProductIoWithPart(productIo)) {
+      if (partIo.getStatus() != PartStatus.구매확정) {
+        return;
+      }
+    }
+    for (ProductIo subAssyIo : productIoRepository.findBySuperIoWithProduct(productIo)) {
+      if (subAssyIo.getStatus() != ProductStatus.외주생산완료) {
+        return;
+      }
+    }
+    productIo.confirmProductPurchase();
   }
 
   private void checkWhetherSubAssy(ProductIo productIo) {

@@ -86,6 +86,15 @@ public class ProductIo extends TimeEntity {
         .superIo(superIo).build();
   }
 
+  public void confirmProductPurchase() {
+    if (this.status != ProductStatus.구매대기) {
+      throw new ChangeProductionStatusException(ProductStatus.구매대기.name(),
+          ProductStatus.구매완료.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = ProductStatus.구매완료;
+  }
+
   public void confirmProduction() {
     if (this.status != ProductStatus.생산대기) {
       throw new ChangeProductionStatusException(ProductStatus.생산대기.name(),
