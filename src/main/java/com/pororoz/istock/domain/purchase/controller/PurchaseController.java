@@ -13,13 +13,13 @@ import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
-import com.pororoz.istock.domain.purchase.dto.response.UpdateSubAssyPurchaseResponse;
+import com.pororoz.istock.domain.purchase.dto.response.UpdateSubAssyOutsourcingResponse;
 import com.pororoz.istock.domain.purchase.dto.response.UpdatePurchaseResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
-import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyPurchaseServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyOutsourcingServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import com.pororoz.istock.domain.purchase.swagger.exception.ChangePurchaseStatusExceptionSwagger;
@@ -142,9 +142,9 @@ public class PurchaseController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CANCEL_PURCHASE_PART, response));
   }
 
-  @Operation(summary = "confirm subAssy purchase", description = "subAssy 구매 확정 API")
+  @Operation(summary = "confirm subAssy purchase", description = "subAssy 외주 생산 확정 API")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = ResponseMessage.CONFIRM_SUB_ASSY_PURCHASE, content = {
+      @ApiResponse(responseCode = "200", description = ResponseMessage.CONFIRM_SUB_ASSY_OUTSOURCING, content = {
           @Content(schema = @Schema(implementation = ConfirmSubAssyPurchaseResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.CHANGE_IO_STATUS, content = {
           @Content(schema = @Schema(implementation = ChangePurchaseStatusExceptionSwagger.class))}),
@@ -154,18 +154,18 @@ public class PurchaseController {
           @Content(schema = @Schema(implementation = ProductIoNotFoundException.class))})
   })
   @PostMapping("/subassy-io/{productIoId}/confirm")
-  public ResponseEntity<ResultDTO<UpdateSubAssyPurchaseResponse>> confirmSubAssyPurchase(
+  public ResponseEntity<ResultDTO<UpdateSubAssyOutsourcingResponse>> confirmSubAssyOutsourcing(
       @PathVariable("productIoId") @NotNull(message = ExceptionMessage.INVALID_PATH)
       @Positive(message = ExceptionMessage.INVALID_PATH) Long productIoId) {
-    UpdateSubAssyPurchaseServiceResponse serviceDto = purchaseService.confirmSubAssyPurchase(productIoId);
-    UpdateSubAssyPurchaseResponse response = serviceDto.toResponse();
+    UpdateSubAssyOutsourcingServiceResponse serviceDto = purchaseService.confirmSubAssyOutsourcing(productIoId);
+    UpdateSubAssyOutsourcingResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
-        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CONFIRM_SUB_ASSY_PURCHASE, response));
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CONFIRM_SUB_ASSY_OUTSOURCING, response));
   }
 
-  @Operation(summary = "cancel subAssy purchase", description = "subAssy 구매 취소 API")
+  @Operation(summary = "cancel subAssy purchase", description = "subAssy 외주 생산 취소 API")
   @ApiResponses({
-      @ApiResponse(responseCode = "200", description = ResponseMessage.CANCEL_SUB_ASSY_PURCHASE, content = {
+      @ApiResponse(responseCode = "200", description = ResponseMessage.CANCEL_SUB_ASSY_OUTSOURCING, content = {
           @Content(schema = @Schema(implementation = CancelSubAssyPurchaseResponseSwagger.class))}),
       @ApiResponse(responseCode = "400", description = ExceptionMessage.CHANGE_IO_STATUS, content = {
           @Content(schema = @Schema(implementation = ChangePurchaseStatusExceptionSwagger.class))}),
@@ -175,12 +175,12 @@ public class PurchaseController {
           @Content(schema = @Schema(implementation = ProductIoNotFoundException.class))})
   })
   @PostMapping("/subassy-io/{productIoId}/cancel")
-  public ResponseEntity<ResultDTO<UpdateSubAssyPurchaseResponse>> cancelSubAssyPurchase(
+  public ResponseEntity<ResultDTO<UpdateSubAssyOutsourcingResponse>> cancelSubAssyOutsourcing(
       @PathVariable("productIoId") @NotNull(message = ExceptionMessage.INVALID_PATH)
       @Positive(message = ExceptionMessage.INVALID_PATH) Long productIoId) {
-    UpdateSubAssyPurchaseServiceResponse serviceDto = purchaseService.cancelSubAssyPurchase(productIoId);
-    UpdateSubAssyPurchaseResponse response = serviceDto.toResponse();
+    UpdateSubAssyOutsourcingServiceResponse serviceDto = purchaseService.cancelSubAssyOutsourcing(productIoId);
+    UpdateSubAssyOutsourcingResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
-        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CANCEL_SUB_ASSY_PURCHASE, response));
+        new ResultDTO<>(ResponseStatus.OK, ResponseMessage.CANCEL_SUB_ASSY_OUTSOURCING, response));
   }
 }

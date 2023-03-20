@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class UpdateSubAssyPurchaseResponse {
+public class UpdateSubAssyOutsourcingResponse {
 
   @Schema(description = "제품IO 아이디", example = "1")
   private Long productIoId;
