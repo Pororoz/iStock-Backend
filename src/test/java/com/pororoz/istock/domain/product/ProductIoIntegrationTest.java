@@ -58,68 +58,80 @@ public class ProductIoIntegrationTest extends IntegrationTest {
         .build());
   }
 
-  String getUri(int page, int size, String status) {
-    return "/v1/product-io?page=" + page + "&size=" + size + "&status=" + status;
-  }
-
   @Nested
   @DisplayName("GET /v1/product-io - 제품 IO 조회")
   class FindProductIo {
 
-    @Test
-    @WithMockUser
-    @DisplayName("상태에 '완료'가 들어간 제품의 2페이지를 조회한다.")
-    void findProductIoConfirm() throws Exception {
-      //given
-      int page = 1, size = 1;
-      String uri = getUri(page, size, "완료");
-      ProductIo productIo = productIoRepository.save(ProductIo.builder()
-          .status(ProductStatus.생산완료)
-          .quantity(1)
-          .product(product).build());
-      ProductIo subAssyIo = productIoRepository.save(ProductIo.builder()
-          .status(ProductStatus.사내출고완료)
-          .quantity(2)
-          .product(subAssy)
-          .superIo(productIo).build());
-
-      //when
-      ResultActions actions = getResultActions(uri, HttpMethod.GET);
-
-      //then
-      FindProductIoResponse findProductIoResponse = FindProductIoResponse.builder()
-          .productIoId(subAssyIo.getId())
-          .quantity(subAssyIo.getQuantity())
-          .status(ProductStatus.사내출고완료)
-          .createdAt(TimeEntity.formatTime(subAssyIo.getCreatedAt()))
-          .updatedAt(TimeEntity.formatTime(subAssyIo.getUpdatedAt()))
-          .superIoId(productIo.getId())
-          .productId(subAssy.getId())
-          .productName(subAssy.getProductName())
-          .productNumber(subAssy.getProductNumber()).build();
-
-      PageResponse<FindProductIoResponse> response = new PageResponse<>(
-          new PageImpl<>(List.of(findProductIoResponse), PageRequest.of(page, size), 2)
-      );
-
-      actions.andExpect(status().isOk())
-          .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-          .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT_IO))
-          .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
-          .andDo(print());
+    String getUri(int page, int size, String status) {
+      return "/v1/product-io?page=" + page + "&size=" + size + "&status=" + status;
     }
 
-    @Test
-    @WithAnonymousUser
-    @DisplayName("로그인하지 않은 유저는 접근할 수 없다.")
-    void cannotAccessAnonymous() throws Exception {
-      //given
-      //when
-      ResultActions actions = getResultActions(getUri(0, 0, ""), HttpMethod.GET);
+    @Nested
+    @DisplayName("성공 케이스")
+    class SuccessCase {
 
-      //then
-      actions.andExpect(status().isForbidden());
+      @Test
+      @WithMockUser
+      @DisplayName("상태에 '완료'가 들어간 제품의 2페이지를 조회한다.")
+      void findProductIoConfirm() throws Exception {
+        //given
+        int page = 1, size = 1;
+        String uri = getUri(page, size, "완료");
+        ProductIo productIo = productIoRepository.save(ProductIo.builder()
+            .status(ProductStatus.생산완료)
+            .quantity(1)
+            .product(product).build());
+        ProductIo subAssyIo = productIoRepository.save(ProductIo.builder()
+            .status(ProductStatus.사내출고완료)
+            .quantity(2)
+            .product(subAssy)
+            .superIo(productIo).build());
+
+        //when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET);
+
+        //then
+        FindProductIoResponse findProductIoResponse = FindProductIoResponse.builder()
+            .productIoId(subAssyIo.getId())
+            .quantity(subAssyIo.getQuantity())
+            .status(ProductStatus.사내출고완료)
+            .createdAt(TimeEntity.formatTime(subAssyIo.getCreatedAt()))
+            .updatedAt(TimeEntity.formatTime(subAssyIo.getUpdatedAt()))
+            .superIoId(productIo.getId())
+            .productId(subAssy.getId())
+            .productName(subAssy.getProductName())
+            .productNumber(subAssy.getProductNumber()).build();
+
+        PageResponse<FindProductIoResponse> response = new PageResponse<>(
+            new PageImpl<>(List.of(findProductIoResponse), PageRequest.of(page, size), 2)
+        );
+
+        actions.andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.FIND_PRODUCT_IO))
+            .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
+            .andDo(print());
+      }
+
+      @Nested
+      @DisplayName("실패 케이스")
+      class FailCase {
+
+        @Test
+        @WithAnonymousUser
+        @DisplayName("로그인하지 않은 유저는 접근할 수 없다.")
+        void cannotAccessAnonymous() throws Exception {
+          //given
+          int page = 0, size = 0;
+          String uri = getUri(page, size, "완료");
+
+          //when
+          ResultActions actions = getResultActions(uri, HttpMethod.GET);
+
+          //then
+          actions.andExpect(status().isForbidden());
+        }
+      }
     }
   }
-
 }
