@@ -58,7 +58,7 @@ public class PartIoServiceTest {
       Page<FindPartIoServiceResponse> partIoPage = partIoService.findPartIo("구매대기",
           pageRequest);
 
-      //then
+      // then
       FindPartIoServiceResponse serviceResponse = FindPartIoServiceResponse.builder()
           .partIoId(partIo.getId())
           .quantity(partIo.getQuantity())
