@@ -37,6 +37,7 @@ public class ResponseMessage {
   public static final String OUTBOUND_CONFIRM = "제품 출고 확정";
   public static final String OUTBOUND_CANCEL = "제품 출고 취소";
   public static final String FIND_PRODUCT_IO = "제품 IO 조회";
+    public static final String FIND_PART_IO = "부품 IO 조회";
 
   public static final String UPLOAD_CSV = "CSV 업로드";
   private ResponseMessage() {
