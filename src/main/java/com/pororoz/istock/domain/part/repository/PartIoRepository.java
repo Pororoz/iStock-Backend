@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface PartIoRepository extends JpaRepository<PartIo, Long> {
 
+  List<PartIo> findByProductIo(ProductIo productIo);
+
   @Query("select pi from PartIo pi "
       + "left join fetch pi.part "
       + "where pi.productIo = :productIo")

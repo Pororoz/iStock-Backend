@@ -299,7 +299,7 @@ public class PurchaseServiceTest {
 
         // when
         when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
-        when(partIoRepository.findByProductIoWithPart(any(ProductIo.class)))
+        when(partIoRepository.findByProductIo(any(ProductIo.class)))
             .thenReturn(List.of(partIo, partIo1));
         UpdatePurchaseServiceResponse result = purchaseService.confirmPurchasePart(partIoId);
 
@@ -471,7 +471,7 @@ public class PurchaseServiceTest {
 
         // when
         when(productIoRepository.findById(productIoIdAsSubAssy)).thenReturn(Optional.of(subAssyIo));
-        when(productIoRepository.findBySuperIoWithProduct(any(ProductIo.class)))
+        when(productIoRepository.findBySuperIo(any(ProductIo.class)))
             .thenReturn(List.of(subAssyIo, subAssyIo1));
         UpdateSubAssyOutsourcingServiceResponse result = purchaseService.confirmSubAssyOutsourcing(
             productIoIdAsSubAssy);

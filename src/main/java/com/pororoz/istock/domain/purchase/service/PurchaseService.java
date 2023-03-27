@@ -127,10 +127,10 @@ public class PurchaseService {
   }
 
   private void checkAllPartAndSubAssy(ProductIo productIo) {
-    boolean allPartsConfirmed = partIoRepository.findByProductIoWithPart(productIo)
+    boolean allPartsConfirmed = partIoRepository.findByProductIo(productIo)
         .stream()
         .allMatch(partIo -> partIo.getStatus() == PartStatus.구매확정);
-    boolean allSubAssyConfirmed = productIoRepository.findBySuperIoWithProduct(productIo)
+    boolean allSubAssyConfirmed = productIoRepository.findBySuperIo(productIo)
         .stream()
         .allMatch(subAssyIo -> subAssyIo.getStatus() == ProductStatus.외주생산확정);
 
