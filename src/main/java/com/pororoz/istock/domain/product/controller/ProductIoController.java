@@ -49,8 +49,8 @@ public class ProductIoController {
       @Parameter(hidden = true) Pageable pageable,
       @Schema(description = "제품 상태", example = "대기")
       @RequestParam("status") String status) {
-    Page<FindProductIoResponse> productIoPage = productIoService.findProductIo(status,
-        pageable).map(FindProductIoServiceResponse::toResponse);
+    Page<FindProductIoResponse> productIoPage = productIoService.findProductIo(status, pageable)
+        .map(FindProductIoServiceResponse::toResponse);
     PageResponse<FindProductIoResponse> response = new PageResponse<>(productIoPage);
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.FIND_PRODUCT_IO, response));
