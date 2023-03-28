@@ -87,6 +87,15 @@ public class ProductIo extends TimeEntity {
         .superIo(superIo).build();
   }
 
+  public void completeProductPurchase() {
+    if (this.status != ProductStatus.구매대기) {
+      throw new ChangeProductionStatusException(ProductStatus.구매대기.name(),
+          ProductStatus.구매완료.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = ProductStatus.구매완료;
+  }
+
   public void confirmProduction() {
     if (this.status != ProductStatus.생산대기) {
       throw new ChangeProductionStatusException(ProductStatus.생산대기.name(),
@@ -130,6 +139,14 @@ public class ProductIo extends TimeEntity {
     this.status = ProductStatus.사내출고취소;
   }
 
+  public void confirmSubAssyOutsourcing() {
+    if (this.status != ProductStatus.외주생산대기) {
+      throw new ChangePurchaseStatusException(ProductStatus.외주생산대기.name(), ProductStatus.외주생산확정.name(),
+          "id: " + this.id + ", 상태: " + this.status);
+    }
+    this.status = ProductStatus.외주생산확정;
+  }
+
   public void cancelOutbound() {
     if (this.status != ProductStatus.출고대기) {
       throw new ChangeOutboundStatusException();
@@ -137,19 +154,11 @@ public class ProductIo extends TimeEntity {
     this.status = ProductStatus.출고취소;
   }
 
-  public void confirmSubAssyPurchase() {
-    if (this.status != ProductStatus.외주구매대기) {
-      throw new ChangePurchaseStatusException(ProductStatus.외주구매대기.name(), ProductStatus.외주구매확정.name(),
+  public void cancelSubAssyOutsourcing() {
+    if (this.status != ProductStatus.외주생산대기) {
+      throw new ChangePurchaseStatusException(ProductStatus.외주생산대기.name(), ProductStatus.외주생산취소.name(),
           "id: " + this.id + ", 상태: " + this.status);
     }
-    this.status = ProductStatus.외주구매확정;
-  }
-
-  public void cancelSubAssyPurchase() {
-    if (this.status != ProductStatus.외주구매대기) {
-      throw new ChangePurchaseStatusException(ProductStatus.외주구매대기.name(), ProductStatus.외주구매취소.name(),
-          "id: " + this.id + ", 상태: " + this.status);
-    }
-    this.status = ProductStatus.외주구매취소;
+    this.status = ProductStatus.외주생산취소;
   }
 }

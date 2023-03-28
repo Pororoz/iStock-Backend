@@ -14,13 +14,13 @@ import com.pororoz.istock.domain.purchase.dto.request.PurchasePartRequest;
 import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
-import com.pororoz.istock.domain.purchase.dto.response.UpdateSubAssyPurchaseResponse;
+import com.pororoz.istock.domain.purchase.dto.response.UpdateSubAssyOutsourcingResponse;
 import com.pororoz.istock.domain.purchase.dto.response.UpdatePurchaseResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
-import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyPurchaseServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyOutsourcingServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import com.pororoz.istock.domain.purchase.service.PurchaseService;
 import org.junit.jupiter.api.DisplayName;
@@ -218,7 +218,7 @@ public class PurchaseControllerTest extends ControllerTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("구매를 확정하면 partIo의 상태가 대기에서 확정으로 변경된다.")
+      @DisplayName("구매를 확정하면 partIo의 상태가 구매대기에서 구매확정으로 변경된다.")
       void confirmPurchasePart() throws Exception {
         // given
         UpdatePurchaseServiceResponse serviceDto = UpdatePurchaseServiceResponse.builder()
@@ -278,7 +278,7 @@ public class PurchaseControllerTest extends ControllerTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("구매를 취소하면 partIo의 상태가 대기에서 취소로 변경된다.")
+      @DisplayName("구매를 취소하면 partIo의 상태가 구매대기에서 구매취소로 변경된다.")
       void cancelPurchasePart() throws Exception {
         // given
         UpdatePurchaseServiceResponse serviceDto = UpdatePurchaseServiceResponse.builder()
@@ -326,8 +326,8 @@ public class PurchaseControllerTest extends ControllerTest {
   }
 
   @Nested
-  @DisplayName("Sub Assy 구매 확정")
-  class ConfirmSubAssyPurchase {
+  @DisplayName("Sub Assy 생산 확정")
+  class ConfirmSubAssyOutsourcing {
 
     private String url(Long productIoId) {
       return String.format("http://localhost:8080/v1/purchase/subassy-io/%s/confirm", productIoId);
@@ -338,29 +338,29 @@ public class PurchaseControllerTest extends ControllerTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("subAssy인 productIo의 상태가 구매대기에서 구매확정으로 변경된다.")
-      void confirmSubAssyPurchase() throws Exception {
+      @DisplayName("subAssy인 productIo의 상태가 외주생산대기에서 외주생산완료로 변경된다.")
+      void confirmSubAssyOutsourcing() throws Exception {
         // given
-        UpdateSubAssyPurchaseServiceResponse serviceDto = UpdateSubAssyPurchaseServiceResponse.builder()
+        UpdateSubAssyOutsourcingServiceResponse serviceDto = UpdateSubAssyOutsourcingServiceResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)
             .build();
-        UpdateSubAssyPurchaseResponse response = UpdateSubAssyPurchaseResponse.builder()
+        UpdateSubAssyOutsourcingResponse response = UpdateSubAssyOutsourcingResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)
             .build();
 
         // when
-        when(purchaseService.confirmSubAssyPurchase(any())).thenReturn(
+        when(purchaseService.confirmSubAssyOutsourcing(any())).thenReturn(
             serviceDto);
         ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
 
         //then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-            .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_SUB_ASSY_PURCHASE))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_SUB_ASSY_OUTSOURCING))
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
@@ -383,12 +383,11 @@ public class PurchaseControllerTest extends ControllerTest {
             .andDo(print());
       }
     }
-
   }
 
   @Nested
-  @DisplayName("Sub Assy 구매 취소")
-  class CancelSubAssyPurchase {
+  @DisplayName("Sub Assy 생산 취소")
+  class CancelSubAssyOutsourcing {
 
     private String url(Long productIoId) {
       return String.format("http://localhost:8080/v1/purchase/subassy-io/%s/cancel", productIoId);
@@ -399,29 +398,29 @@ public class PurchaseControllerTest extends ControllerTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("subAssy인 productIo의 상태가 구매대기에서 구매취소으로 변경된다.")
-      void cancelSubAssyPurchase() throws Exception {
+      @DisplayName("subAssy인 productIo의 상태가 외주생산대기에서 외주생산취소으로 변경된다.")
+      void cancelSubAssyOutsourcing() throws Exception {
         // given
-        UpdateSubAssyPurchaseServiceResponse serviceDto = UpdateSubAssyPurchaseServiceResponse.builder()
+        UpdateSubAssyOutsourcingServiceResponse serviceDto = UpdateSubAssyOutsourcingServiceResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)
             .build();
-        UpdateSubAssyPurchaseResponse response = UpdateSubAssyPurchaseResponse.builder()
+        UpdateSubAssyOutsourcingResponse response = UpdateSubAssyOutsourcingResponse.builder()
             .productIoId(productIoId)
             .productId(productId)
             .quantity(quantity)
             .build();
 
         // when
-        when(purchaseService.cancelSubAssyPurchase(any())).thenReturn(
+        when(purchaseService.cancelSubAssyOutsourcing(any())).thenReturn(
             serviceDto);
         ResultActions actions = getResultActions(url(productIoId), HttpMethod.POST);
 
         //then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-            .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_SUB_ASSY_PURCHASE))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_SUB_ASSY_OUTSOURCING))
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }

@@ -29,7 +29,7 @@ import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRespons
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
-import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyPurchaseServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyOutsourcingServiceResponse;
 import com.pororoz.istock.domain.purchase.exception.ChangePurchaseStatusException;
 import java.util.List;
 import java.util.Optional;
@@ -71,6 +71,7 @@ public class PurchaseServiceTest {
   long quantity = 3L;
   String memo = "";
   ProductStatus productStatus = ProductStatus.구매대기;
+  ProductStatus subAssyStatus = ProductStatus.외주생산대기;
   PartStatus partStatus = PartStatus.구매대기;
   String SUB_ASSY_CODE_NUMBER = "11";
 
@@ -88,7 +89,7 @@ public class PurchaseServiceTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("입력받은 Product에 포함된 Part에 대한 구매 대기 상태가 ProductI/O와 PartI/O에 추가된다.")
+      @DisplayName("입력받은 Product에 포함된 Part의 구매대기 상태가 PartI/O에 추가되고, 제품의 구매대기 상태가 ProductI/O에 추가된다.")
       void purchaseProduct() {
         // given
         Part part = Part.builder().id(partId).build();
@@ -136,7 +137,7 @@ public class PurchaseServiceTest {
 
 
       @Test
-      @DisplayName("입력받은 Product에 포함된 Part가 SubAssy이면 구매 대기 상태가 ProductI/O에만 추가된다.")
+      @DisplayName("입력받은 Product에 포함된 Part가 SubAssy이면 외주생산대기 상태가 ProductI/O에 추가된다.")
       void purchaseProductIncludeSubAssy() {
         // given
         Product product = Product.builder().id(productId).build();
@@ -161,7 +162,7 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoId)
             .quantity(quantity)
-            .status(ProductStatus.외주구매대기)
+            .status(ProductStatus.외주생산대기)
             .superIo(productIo)
             .product(subAssy)
             .build();
@@ -271,15 +272,23 @@ public class PurchaseServiceTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("구매 대기 상태의 자재를 구매 확정 상태로 변경한다.")
+      @DisplayName("구매 대기상태의 자재를 구매확정 상태로 변경한다. 다른 모든 자재(SubAssy 포함)의 상태가 구매확정 상태라면, 해당 제품의 상태가 구매완료 상태로 변경된다")
       void confirmPurchasePart() {
         // given
+        ProductIo productIo = ProductIo.builder().id(productId).status(productStatus).build();
         Part part = Part.builder().id(partId).stock(stock).build();
         PartIo partIo = PartIo.builder()
             .id(partIoId)
             .quantity(quantity)
             .status(partStatus)
             .part(part)
+            .productIo(productIo)
+            .build();
+        // 제품 구매완료 확인을 위한 PartIo
+        PartIo partIo1 = PartIo.builder()
+            .status(PartStatus.구매확정)
+            .part(part)
+            .productIo(productIo)
             .build();
 
         UpdatePurchaseServiceResponse response = UpdatePurchaseServiceResponse.builder()
@@ -290,11 +299,14 @@ public class PurchaseServiceTest {
 
         // when
         when(partIoRepository.findById(partIoId)).thenReturn(Optional.of(partIo));
+        when(partIoRepository.findByProductIo(any(ProductIo.class)))
+            .thenReturn(List.of(partIo, partIo1));
         UpdatePurchaseServiceResponse result = purchaseService.confirmPurchasePart(partIoId);
 
         // then
         assertThat(part.getStock()).isEqualTo(stock + quantity);
         assertThat(partIo.getStatus()).isEqualTo(partStatus.구매확정);
+        assertThat(productIo.getStatus()).isEqualTo(productStatus.구매완료);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
@@ -347,7 +359,7 @@ public class PurchaseServiceTest {
     class SuccessCase {
 
       @Test
-      @DisplayName("구매 대기 상태의 자재를 구매 취소 상태로 변경한다.")
+      @DisplayName("구매대기 상태의 자재를 구매취소 상태로 변경한다.")
       void cancelPurchasePart() {
         // given
         Part part = Part.builder().id(partId).stock(stock).build();
@@ -392,7 +404,7 @@ public class PurchaseServiceTest {
       }
 
       @Test
-      @DisplayName("구매대기 상태가 아닌 경우, 구매취소으로 상태를 바꿀 수 없다.")
+      @DisplayName("구매대기 상태가 아닌 경우, 구매취소로 상태를 바꿀 수 없다.")
       void notPurchaseWaiting() {
         // given
         Part part = Part.builder().id(partId).stock(stock).build();
@@ -415,16 +427,16 @@ public class PurchaseServiceTest {
   }
 
   @Nested
-  @DisplayName("SubAssy 구매 확정")
-  class ConfirmPurchaseSubAssy {
+  @DisplayName("SubAssy 외주 생산 확정")
+  class ConfirmSubAssyOutsourcing {
 
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
 
       @Test
-      @DisplayName("구매 대기 상태의 SubAssy를 구매 확정 상태로 변경한다.")
-      void confirmPurchaseSubAssy() {
+      @DisplayName("외주생산대기 상태의 SubAssy를 외주생산확정 상태로 변경한다. 다른 모든 SubAssy(자재 포함)의 상태가 외주생산확정 상태라면, 해당 제품의 상태가 구매완료 상태로 변경된다")
+      void confirmSubAssyOutsourcing() {
         // given
         Product product = Product.builder().id(productId).build();
         Product subAssy = Product.builder()
@@ -440,12 +452,18 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoIdAsSubAssy)
             .quantity(quantity)
-            .status(ProductStatus.외주구매대기)
+            .status(subAssyStatus)
+            .superIo(productIo)
+            .product(subAssy)
+            .build();
+        // 제품 구매완료 확인을 위한 subAssyIo
+        ProductIo subAssyIo1 = ProductIo.builder()
+            .status(ProductStatus.외주생산확정)
             .superIo(productIo)
             .product(subAssy)
             .build();
 
-        UpdateSubAssyPurchaseServiceResponse response = UpdateSubAssyPurchaseServiceResponse.builder()
+        UpdateSubAssyOutsourcingServiceResponse response = UpdateSubAssyOutsourcingServiceResponse.builder()
             .productIoId(productIoIdAsSubAssy)
             .productId(productIdAsSubAssy)
             .quantity(quantity)
@@ -453,12 +471,15 @@ public class PurchaseServiceTest {
 
         // when
         when(productIoRepository.findById(productIoIdAsSubAssy)).thenReturn(Optional.of(subAssyIo));
-        UpdateSubAssyPurchaseServiceResponse result = purchaseService.confirmSubAssyPurchase(
+        when(productIoRepository.findBySuperIo(any(ProductIo.class)))
+            .thenReturn(List.of(subAssyIo, subAssyIo1));
+        UpdateSubAssyOutsourcingServiceResponse result = purchaseService.confirmSubAssyOutsourcing(
             productIoIdAsSubAssy);
 
         // then
         assertThat(subAssy.getStock()).isEqualTo(stock + quantity);
-        assertThat(subAssyIo.getStatus()).isEqualTo(productStatus.외주구매확정);
+        assertThat(subAssyIo.getStatus()).isEqualTo(productStatus.외주생산확정);
+        assertThat(productIo.getStatus()).isEqualTo(productStatus.구매완료);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
@@ -476,7 +497,7 @@ public class PurchaseServiceTest {
 
         // then
         assertThrows(ProductIoNotFoundException.class,
-            () -> purchaseService.confirmSubAssyPurchase(productIoIdAsSubAssy));
+            () -> purchaseService.confirmSubAssyOutsourcing(productIoIdAsSubAssy));
       }
 
       @Test
@@ -496,12 +517,12 @@ public class PurchaseServiceTest {
 
         // then
         assertThrows(InvalidSubAssyTypeException.class,
-            () -> purchaseService.confirmSubAssyPurchase(productIoIdAsSubAssy));
+            () -> purchaseService.confirmSubAssyOutsourcing(productIoIdAsSubAssy));
       }
 
       @Test
-      @DisplayName("구매대기 상태가 아닌 경우, 구매확정 상태로 변경할 수 없다.")
-      void invalidProductStatus() {
+      @DisplayName("외주생산대기 상태가 아닌 경우, 외주생산확정 상태로 변경할 수 없다.")
+      void invalidSubAssyStatus() {
         // given
         Product product = Product.builder().id(productId).build();
         Product subAssy = Product.builder()
@@ -517,7 +538,7 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoIdAsSubAssy)
             .quantity(quantity)
-            .status(ProductStatus.외주구매확정)
+            .status(ProductStatus.외주생산확정)
             .product(product)
             .superIo(productIo)
             .product(subAssy)
@@ -528,22 +549,22 @@ public class PurchaseServiceTest {
 
         // then
         assertThrows(ChangePurchaseStatusException.class,
-            () -> purchaseService.confirmSubAssyPurchase(productIoIdAsSubAssy));
+            () -> purchaseService.confirmSubAssyOutsourcing(productIoIdAsSubAssy));
       }
     }
   }
 
   @Nested
   @DisplayName("SubAssy 구매 취소")
-  class CancelPurchaseSubAssy {
+  class CancelSubAssyOutsourcing {
 
     @Nested
     @DisplayName("성공 케이스")
     class SuccessCase {
 
       @Test
-      @DisplayName("구매 대기 상태의 SubAssy를 구매 취소 상태로 변경한다.")
-      void cancelPurchaseSubAssy() {
+      @DisplayName("외주생산대기 상태의 SubAssy를 외주생산취소 상태로 변경한다.")
+      void cancelSubAssyOutsourcing() {
         // given
         Product product = Product.builder().id(productId).build();
         Product subAssy = Product.builder()
@@ -559,12 +580,12 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoIdAsSubAssy)
             .quantity(quantity)
-            .status(ProductStatus.외주구매대기)
+            .status(ProductStatus.외주생산대기)
             .superIo(productIo)
             .product(subAssy)
             .build();
 
-        UpdateSubAssyPurchaseServiceResponse response = UpdateSubAssyPurchaseServiceResponse.builder()
+        UpdateSubAssyOutsourcingServiceResponse response = UpdateSubAssyOutsourcingServiceResponse.builder()
             .productIoId(productIoIdAsSubAssy)
             .productId(productIdAsSubAssy)
             .quantity(quantity)
@@ -572,11 +593,11 @@ public class PurchaseServiceTest {
 
         // when
         when(productIoRepository.findById(productIoIdAsSubAssy)).thenReturn(Optional.of(subAssyIo));
-        UpdateSubAssyPurchaseServiceResponse result = purchaseService.cancelSubAssyPurchase(
+        UpdateSubAssyOutsourcingServiceResponse result = purchaseService.cancelSubAssyOutsourcing(
             productIoIdAsSubAssy);
 
         // then
-        assertThat(subAssyIo.getStatus()).isEqualTo(productStatus.외주구매취소);
+        assertThat(subAssyIo.getStatus()).isEqualTo(productStatus.외주생산취소);
         assertThat(result).usingRecursiveComparison().isEqualTo(response);
       }
     }
@@ -594,7 +615,7 @@ public class PurchaseServiceTest {
 
         // then
         assertThrows(ProductIoNotFoundException.class,
-            () -> purchaseService.cancelSubAssyPurchase(productIoIdAsSubAssy));
+            () -> purchaseService.cancelSubAssyOutsourcing(productIoIdAsSubAssy));
       }
 
       @Test
@@ -614,12 +635,12 @@ public class PurchaseServiceTest {
 
         // then
         assertThrows(InvalidSubAssyTypeException.class,
-            () -> purchaseService.cancelSubAssyPurchase(productIoIdAsSubAssy));
+            () -> purchaseService.cancelSubAssyOutsourcing(productIoIdAsSubAssy));
       }
 
       @Test
-      @DisplayName("구매대기 상태가 아닌 경우, 구매취소 상태로 변경할 수 없다.")
-      void invalidProductStatus() {
+      @DisplayName("외주생산대기 상태가 아닌 경우, 외주생산취소 상태로 변경할 수 없다.")
+      void invalidSubAssyStatus() {
         // given
         Product product = Product.builder().id(productId).build();
         Product subAssy = Product.builder()
@@ -635,7 +656,7 @@ public class PurchaseServiceTest {
         ProductIo subAssyIo = ProductIo.builder()
             .id(productIoIdAsSubAssy)
             .quantity(quantity)
-            .status(ProductStatus.외주구매확정)
+            .status(ProductStatus.외주생산확정)
             .product(product)
             .superIo(productIo)
             .product(subAssy)
@@ -646,7 +667,7 @@ public class PurchaseServiceTest {
 
         // then
         assertThrows(ChangePurchaseStatusException.class,
-            () -> purchaseService.cancelSubAssyPurchase(productIoIdAsSubAssy));
+            () -> purchaseService.cancelSubAssyOutsourcing(productIoIdAsSubAssy));
       }
     }
   }

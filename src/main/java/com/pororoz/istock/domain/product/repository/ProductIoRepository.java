@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface ProductIoRepository extends JpaRepository<ProductIo, Long> {
 
+  List<ProductIo> findBySuperIo(ProductIo productIo);
+
   @Query("select p from ProductIo p "
       + "left join fetch p.product "
       + "where p.superIo = :superIo")
