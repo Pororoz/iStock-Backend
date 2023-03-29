@@ -19,7 +19,6 @@ import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
 import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -121,9 +120,5 @@ public class ProductService {
           ExceptionMessage.CANNOT_DELETE + "제품과 연관된 제품 IO가 존재합니다.");
 
     }
-  }
-
-  public Optional<Product> findProductById(Long productId) {
-    return productRepository.findById(productId);
   }
 }
