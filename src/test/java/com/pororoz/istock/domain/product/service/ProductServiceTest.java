@@ -27,6 +27,7 @@ import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.exception.ProductNumberDuplicatedException;
 import com.pororoz.istock.domain.product.exception.RegisteredAsSubAssyException;
 import com.pororoz.istock.domain.product.exception.SubAssyBomExistException;
+import com.pororoz.istock.domain.product.repository.ProductIoRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -57,6 +59,9 @@ class ProductServiceTest {
 
   @Mock
   CategoryRepository categoryRepository;
+
+  @Mock
+  ProductIoRepository productIoRepository;
 
 
   final Long id = 1L;
@@ -400,6 +405,7 @@ class ProductServiceTest {
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
         when(bomRepository.existsByProduct(product)).thenReturn(false);
+        when(productIoRepository.existsByProduct(product)).thenReturn(false);
         doNothing().when(productRepository).delete(product);
 
         //then
@@ -430,7 +436,7 @@ class ProductServiceTest {
 
       @Test
       @DisplayName("삭제하려는 sub assy가 다른 제품의 bom으로 등록되어 있다면 삭제할 수 없다.")
-      void deleteSubAssy() {
+      void cannotDeleteAsSubAssy() {
         //given
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
@@ -438,6 +444,19 @@ class ProductServiceTest {
 
         //then
         assertThrows(RegisteredAsSubAssyException.class, () -> productService.deleteProduct(id));
+      }
+
+      @Test
+      @DisplayName("productIo가 존재하면 product를 삭제할 수 없다.")
+      void cannotDeleteProductIo() {
+        //given
+        //when
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+        when(bomRepository.existsByProduct(product)).thenReturn(false);
+        when(productIoRepository.existsByProduct(product)).thenReturn(true);
+
+        //then
+        assertThrows(DataIntegrityViolationException.class, () -> productService.deleteProduct(id));
       }
     }
   }
