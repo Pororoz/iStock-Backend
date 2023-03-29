@@ -236,7 +236,7 @@ class ProductServiceTest {
 
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(subAssy));
-        when(bomRepository.existsByProductId(id)).thenReturn(false);
+        when(bomRepository.existsByProduct(subAssy)).thenReturn(false);
         when(categoryRepository.findById(newCategory.getId())).thenReturn(Optional.of(newCategory));
         when(productRepository.findByProductNumber(anyString())).thenReturn(Optional.empty());
 
@@ -376,7 +376,7 @@ class ProductServiceTest {
 
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(subAssy));
-        when(bomRepository.existsByProductId(id)).thenReturn(true);
+        when(bomRepository.existsByProduct(subAssy)).thenReturn(true);
 
         //then
         assertThrows(RegisteredAsSubAssyException.class,
@@ -399,7 +399,7 @@ class ProductServiceTest {
         //given
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        when(bomRepository.existsByProductId(id)).thenReturn(false);
+        when(bomRepository.existsByProduct(product)).thenReturn(false);
         doNothing().when(productRepository).delete(product);
 
         //then
@@ -434,7 +434,7 @@ class ProductServiceTest {
         //given
         //when
         when(productRepository.findById(id)).thenReturn(Optional.of(product));
-        when(bomRepository.existsByProductId(id)).thenReturn(true);
+        when(bomRepository.existsByProduct(product)).thenReturn(true);
 
         //then
         assertThrows(RegisteredAsSubAssyException.class, () -> productService.deleteProduct(id));
