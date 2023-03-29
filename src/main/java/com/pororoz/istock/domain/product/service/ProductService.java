@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.product.service;
 
+import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
@@ -20,6 +21,7 @@ import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -57,11 +59,8 @@ public class ProductService {
   public ProductServiceResponse deleteProduct(Long productId) {
     Product product = productRepository.findById(productId)
         .orElseThrow(ProductNotFoundException::new);
-    if (bomRepository.existsByProduct(product)) {
-      throw new RegisteredAsSubAssyException();
-    }
+    checkRelatedEntityAndThrow(product);
     productRepository.delete(product);
-
     return ProductServiceResponse.of(product);
   }
 
@@ -81,7 +80,6 @@ public class ProductService {
         request.getPartId(), request.getPartName(), pageable);
     return products.map(ProductServiceResponse::of);
   }
-
 
   private void validateRequest(Product existProduct, String newProductNumber,
       String newCodeNumber) {
@@ -112,6 +110,17 @@ public class ProductService {
     productRepository.findByProductNumber(newNumber).ifPresent(p -> {
       throw new ProductNumberDuplicatedException();
     });
+  }
+
+  void checkRelatedEntityAndThrow(Product product) {
+    if (bomRepository.existsByProduct(product)) {
+      throw new RegisteredAsSubAssyException();
+    }
+    if (productIoRepository.existsByProduct(product)) {
+      throw new DataIntegrityViolationException(
+          ExceptionMessage.CANNOT_DELETE + "제품과 연관된 제품 IO가 존재합니다.");
+
+    }
   }
 
   public Optional<Product> findProductById(Long productId) {
