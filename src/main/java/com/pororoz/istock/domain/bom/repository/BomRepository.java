@@ -31,5 +31,5 @@ public interface BomRepository extends JpaRepository<Bom, Long> {
 
   boolean existsByProduct(Product product);
 
-  boolean existByPart(Part part);
+  boolean existsByPart(Part part);
 }

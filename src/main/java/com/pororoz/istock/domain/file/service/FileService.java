@@ -106,7 +106,7 @@ public class FileService {
 
       if (SUB_ASSAY_CODE_NUMBER.equals(codeNumber)) {
         // sub Assay
-        Optional<Long> optSubAssayId = productRepository.findProductByProductNumberAndProductName(
+        Optional<Long> optSubAssayId = productRepository.findByProductNumberAndProductName(
             bomData.get(3), bomData.get(4)).map(Product::getId); // subAssay인 경우에는 4, 5번째에 있는 항목이 다름
         Long subAssayId = optSubAssayId.orElseGet(() -> productService.saveProduct(
                 new SaveProductServiceRequest(partName, spec, codeNumber, 0, "", subAssayCategoryId))

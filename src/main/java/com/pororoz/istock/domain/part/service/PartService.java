@@ -65,7 +65,7 @@ public class PartService {
   }
 
   void checkRelatedEntityAndThrow(Part part) {
-    if (bomRepository.existByPart(part)) {
+    if (bomRepository.existsByPart(part)) {
       throw new DataIntegrityViolationException(
           ExceptionMessage.CANNOT_DELETE + "부품과 연관된 BOM이 존재합니다.");
     }

@@ -135,7 +135,7 @@ public class PartServiceTest {
 
         //when
         when(partRepository.findById(partId)).thenReturn(Optional.of(part));
-        when(bomRepository.existByPart(part)).thenReturn(false);
+        when(bomRepository.existsByPart(part)).thenReturn(false);
         when(partIoRepository.existsByPart(part)).thenReturn(false);
 
         //then
@@ -167,7 +167,7 @@ public class PartServiceTest {
         //given
         //when
         when(partRepository.findById(partId)).thenReturn(Optional.of(part));
-        when(bomRepository.existByPart(part)).thenReturn(true);
+        when(bomRepository.existsByPart(part)).thenReturn(true);
 
         //then
         assertThrows(DataIntegrityViolationException.class,
@@ -180,7 +180,7 @@ public class PartServiceTest {
         //given
         //when
         when(partRepository.findById(partId)).thenReturn(Optional.of(part));
-        when(bomRepository.existByPart(part)).thenReturn(false);
+        when(bomRepository.existsByPart(part)).thenReturn(false);
         when(partIoRepository.existsByPart(part)).thenReturn(true);
 
         //then
