@@ -2,7 +2,6 @@ package com.pororoz.istock.domain.category.service;
 
 
 import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
-import com.pororoz.istock.domain.category.dto.service.DeleteCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceResponse;
 import com.pororoz.istock.domain.category.dto.service.SaveCategoryServiceRequest;
@@ -10,6 +9,7 @@ import com.pororoz.istock.domain.category.dto.service.UpdateCategoryServiceReque
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
+import com.pororoz.istock.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryService {
 
   private final CategoryRepository categoryRepository;
+  private final ProductRepository productRepository;
 
   @Transactional(readOnly = true)
   public Page<FindCategoryServiceResponse> findCategories(FindCategoryServiceRequest request,
@@ -48,11 +49,10 @@ public class CategoryService {
     return CategoryServiceResponse.of(category);
   }
 
-  public CategoryServiceResponse deleteCategory(
-      DeleteCategoryServiceRequest deleteCategoryServiceRequest) {
-    Category category = categoryRepository.findById(deleteCategoryServiceRequest.getCategoryId())
+  public CategoryServiceResponse deleteCategory(Long categoryId) {
+    Category category = categoryRepository.findById(categoryId)
         .orElseThrow(CategoryNotFoundException::new);
-    categoryRepository.deleteById(deleteCategoryServiceRequest.getCategoryId());
+    categoryRepository.delete(category);
     return CategoryServiceResponse.of(category);
   }
 }

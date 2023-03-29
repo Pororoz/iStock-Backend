@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
-import com.pororoz.istock.domain.category.dto.service.DeleteCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceResponse;
 import com.pororoz.istock.domain.category.dto.service.SaveCategoryServiceRequest;
@@ -206,22 +205,20 @@ class CategoryServiceTest {
     @DisplayName("카테고리 삭제 API")
     class DeleteCategory {
 
+      Long categoryId = 1L;
 
       @Test
       @DisplayName("카테고리를 삭제한다.")
       void deleteCategory() {
         //given
         String name = "착화기";
-        DeleteCategoryServiceRequest deleteCategoryServiceRequest = DeleteCategoryServiceRequest.builder()
-            .categoryId(1L).build();
         Category category = Category.builder().id(1L).categoryName(name).build();
         CategoryServiceResponse response = CategoryServiceResponse.builder().categoryId(1L)
             .categoryName(name).build();
 
         //when
         when(categoryRepository.findById(1L)).thenReturn(Optional.ofNullable(category));
-        CategoryServiceResponse result = categoryService.deleteCategory(
-            deleteCategoryServiceRequest);
+        CategoryServiceResponse result = categoryService.deleteCategory(categoryId);
 
         //then
         assertThat(result.getCategoryId()).isEqualTo(response.getCategoryId());
@@ -232,14 +229,12 @@ class CategoryServiceTest {
       @DisplayName("존재하지 않는 category를 요청했을 경우, CategoryNotFoundException을 반환한다.")
       void categoryNotFound() {
         //given
-        DeleteCategoryServiceRequest deleteCategoryServiceRequest = DeleteCategoryServiceRequest.builder()
-            .categoryId(1L).build();
 
         //when
 
         //then
         assertThrows(CategoryNotFoundException.class,
-            () -> categoryService.deleteCategory(deleteCategoryServiceRequest));
+            () -> categoryService.deleteCategory(categoryId));
       }
     }
   }

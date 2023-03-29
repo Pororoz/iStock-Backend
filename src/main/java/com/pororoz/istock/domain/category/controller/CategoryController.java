@@ -13,7 +13,6 @@ import com.pororoz.istock.domain.category.dto.request.UpdateCategoryRequest;
 import com.pororoz.istock.domain.category.dto.response.CategoryResponse;
 import com.pororoz.istock.domain.category.dto.response.FindCategoryResponse;
 import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
-import com.pororoz.istock.domain.category.dto.service.DeleteCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceResponse;
 import com.pororoz.istock.domain.category.service.CategoryService;
 import com.pororoz.istock.domain.category.swagger.exception.CategoryNotFoundExceptionSwagger;
@@ -123,8 +122,7 @@ public class CategoryController {
   @DeleteMapping("/{categoryId}")
   public ResponseEntity<ResultDTO<CategoryResponse>> deleteCategory(
       @PathVariable("categoryId") @Positive Long categoryId) {
-    CategoryServiceResponse serviceDto = categoryService.deleteCategory(
-        DeleteCategoryServiceRequest.builder().categoryId(categoryId).build());
+    CategoryServiceResponse serviceDto = categoryService.deleteCategory(categoryId);
     CategoryResponse response = serviceDto.toResponse();
     return ResponseEntity.ok(
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.DELETE_CATEGORY, response));
