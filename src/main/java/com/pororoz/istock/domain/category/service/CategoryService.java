@@ -54,11 +54,15 @@ public class CategoryService {
   public CategoryServiceResponse deleteCategory(Long categoryId) {
     Category category = categoryRepository.findById(categoryId)
         .orElseThrow(CategoryNotFoundException::new);
+    checkRelatedEntityAndThrow(category);
+    categoryRepository.delete(category);
+    return CategoryServiceResponse.of(category);
+  }
+
+  void checkRelatedEntityAndThrow(Category category) {
     if (productRepository.existsByCategory(category)) {
       throw new DataIntegrityViolationException(
           ExceptionMessage.CANNOT_DELETE + " 카테고리와 연관된 제품이 존재합니다.");
     }
-    categoryRepository.delete(category);
-    return CategoryServiceResponse.of(category);
   }
 }
