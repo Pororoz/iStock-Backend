@@ -47,7 +47,7 @@ public class ExceptionMessage {
   public static final String INVALID_SUB_ASSY_TYPE = "해당 product는 sub assy가 아닙니다.";
   public static final String CHANGE_OUTBOUND_STATUS = "잘못된 outbound 수정 접근입니다.";
   public static final String INVALID_FILE = "유효하지 않은 파일입니다. 파일을 다시 확인하세요.";
-  public static final String CANNOT_DELETE = "해당 요소를 삭제할 수 없습니다.";
+  public static final String CANNOT_DELETE = "해당 요소를 삭제할 수 없습니다. ";
 
   private ExceptionMessage() {
   }

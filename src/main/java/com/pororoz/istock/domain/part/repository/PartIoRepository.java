@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.part.repository;
 
+import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import java.util.List;
@@ -24,4 +25,7 @@ public interface PartIoRepository extends JpaRepository<PartIo, Long> {
       , countQuery = "select p from PartIo p "
       + "where cast(p.status as string) like %:status%")
   Page<PartIo> findByStatusContainingWithPart(@Param("status") String status,
-      Pageable pageable);}
+      Pageable pageable);
+
+  boolean existsByPart(Part part);
+}

@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.bom.repository;
 
 import com.pororoz.istock.domain.bom.entity.Bom;
+import com.pororoz.istock.domain.part.entity.Part;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,9 @@ public interface BomRepository extends JpaRepository<Bom, Long> {
 
   List<Bom> findByProductId(Long productId);
 
-  Boolean existsByProductId(Long subAssyId);
-
   Optional<Bom> findByProductIdAndSubAssyId(Long productId, Long subAssyId);
+
+  boolean existsByProductId(Long subAssyId);
+
+  boolean existByPart(Part part);
 }
