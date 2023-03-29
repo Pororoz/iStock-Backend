@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.product.repository;
 
+import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.product.entity.Product;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -40,4 +41,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
           + "(:partName is null or pa.partName = :partName)) ")
   Page<Product> findByPartIdAndPartNameIgnoreNull(@Param("partId") Long partId,
       @Param("partName") String partName, Pageable pageable);
+
+  boolean existsByCategory(Category category);
 }

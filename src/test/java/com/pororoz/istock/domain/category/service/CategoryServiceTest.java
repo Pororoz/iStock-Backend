@@ -13,6 +13,7 @@ import com.pororoz.istock.domain.category.dto.service.UpdateCategoryServiceReque
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
+import com.pororoz.istock.domain.product.repository.ProductRepository;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -34,6 +36,9 @@ class CategoryServiceTest {
 
   @InjectMocks
   CategoryService categoryService;
+
+  @Mock
+  ProductRepository productRepository;
 
   @Mock
   CategoryRepository categoryRepository;
@@ -205,19 +210,21 @@ class CategoryServiceTest {
     @DisplayName("카테고리 삭제 API")
     class DeleteCategory {
 
-      Long categoryId = 1L;
+      final Long categoryId = 1L;
+      final String name = "착화기";
+      final Category category = Category.builder().id(categoryId).categoryName(name).build();
+
 
       @Test
       @DisplayName("카테고리를 삭제한다.")
       void deleteCategory() {
         //given
-        String name = "착화기";
-        Category category = Category.builder().id(1L).categoryName(name).build();
         CategoryServiceResponse response = CategoryServiceResponse.builder().categoryId(1L)
             .categoryName(name).build();
 
         //when
-        when(categoryRepository.findById(1L)).thenReturn(Optional.ofNullable(category));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(productRepository.existsByCategory(category)).thenReturn(false);
         CategoryServiceResponse result = categoryService.deleteCategory(categoryId);
 
         //then
@@ -226,14 +233,25 @@ class CategoryServiceTest {
       }
 
       @Test
-      @DisplayName("존재하지 않는 category를 요청했을 경우, CategoryNotFoundException을 반환한다.")
+      @DisplayName("존재하지 않는 category를 요청했을 경우 예외가 발생한다.")
       void categoryNotFound() {
         //given
-
         //when
-
         //then
         assertThrows(CategoryNotFoundException.class,
+            () -> categoryService.deleteCategory(categoryId));
+      }
+
+      @Test
+      @DisplayName("category와 연관된 product가 존재하면 예외가 발생한다.")
+      void categoryCannotDelete() {
+        //given
+        //when
+        when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+        when(productRepository.existsByCategory(category)).thenReturn(true);
+
+        //then
+        assertThrows(DataIntegrityViolationException.class,
             () -> categoryService.deleteCategory(categoryId));
       }
     }

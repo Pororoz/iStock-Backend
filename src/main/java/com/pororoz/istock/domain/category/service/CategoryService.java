@@ -1,6 +1,7 @@
 package com.pororoz.istock.domain.category.service;
 
 
+import com.pororoz.istock.common.utils.message.ExceptionMessage;
 import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceResponse;
@@ -11,6 +12,7 @@ import com.pororoz.istock.domain.category.exception.CategoryNotFoundException;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,8 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CategoryService {
 
-  private final CategoryRepository categoryRepository;
   private final ProductRepository productRepository;
+  private final CategoryRepository categoryRepository;
 
   @Transactional(readOnly = true)
   public Page<FindCategoryServiceResponse> findCategories(FindCategoryServiceRequest request,
@@ -52,6 +54,10 @@ public class CategoryService {
   public CategoryServiceResponse deleteCategory(Long categoryId) {
     Category category = categoryRepository.findById(categoryId)
         .orElseThrow(CategoryNotFoundException::new);
+    if (productRepository.existsByCategory(category)) {
+      throw new DataIntegrityViolationException(
+          ExceptionMessage.CANNOT_DELETE + " 카테고리와 연관된 제품이 존재합니다.");
+    }
     categoryRepository.delete(category);
     return CategoryServiceResponse.of(category);
   }
