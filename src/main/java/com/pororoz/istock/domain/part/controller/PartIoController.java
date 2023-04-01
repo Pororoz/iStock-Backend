@@ -49,7 +49,7 @@ public class PartIoController {
       @Parameter(hidden = true) Pageable pageable,
       @Schema(description = "부품 상태", example = "대기")
       @RequestParam("status") String status) {
-    Page<FindPartIoResponse> partIoPage = partIoService.findPartIo(status, pageable)
+    Page<FindPartIoResponse> partIoPage = partIoService.findPartIo(status, null, pageable)
         .map(FindPartIoServiceResponse::toResponse);
     PageResponse<FindPartIoResponse> response = new PageResponse<>(partIoPage);
     return ResponseEntity.ok(

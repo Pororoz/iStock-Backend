@@ -70,7 +70,7 @@ class PartIoControllerTest extends ControllerTest {
           List.of(serviceResponse), PageRequest.of(page, size), 4);
 
       // when
-      when(partIoService.findPartIo(eq(status), any(Pageable.class)))
+      when(partIoService.findPartIo(eq(status), eq(null), any(Pageable.class)))
           .thenReturn(partIoPage);
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
