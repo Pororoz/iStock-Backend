@@ -18,8 +18,8 @@ public class PartIoService {
 
   @Transactional(readOnly = true)
   public Page<FindPartIoServiceResponse> findPartIo(String status, Pageable pageable) {
-    Page<PartIo> partIoPage = partIoRepository.findByStatusContainingWithPart(
-        status, pageable);
+    Page<PartIo> partIoPage = partIoRepository.findByStatusContainingAndPartIdWithPart(
+        status, null, pageable);
     return partIoPage.map(FindPartIoServiceResponse::of);
   }
 }

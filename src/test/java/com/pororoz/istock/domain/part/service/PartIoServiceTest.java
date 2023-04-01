@@ -53,7 +53,9 @@ public class PartIoServiceTest {
           .build();
 
       // when
-      when(partIoRepository.findByStatusContainingWithPart(eq("구매대기"), any(Pageable.class)))
+      when(
+          partIoRepository.findByStatusContainingAndPartIdWithPart(eq("구매대기"), eq(null),
+              any(Pageable.class)))
           .thenReturn(new PageImpl<>(List.of(partIo), pageRequest, 1L));
       Page<FindPartIoServiceResponse> partIoPage = partIoService.findPartIo("구매대기",
           pageRequest);
