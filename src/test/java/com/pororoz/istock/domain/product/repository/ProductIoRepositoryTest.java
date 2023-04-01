@@ -70,19 +70,16 @@ class ProductIoRepositoryTest extends RepositoryTest {
       em.clear();
 
       //when
-      Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingWithProduct("대기",
-          Pageable.unpaged());
+      Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingAndProductIdWithProduct(
+          "대기",
+          null, Pageable.unpaged());
 
       //then
       assertThat(productIoPage.getTotalPages()).isEqualTo(1);
       assertThat(productIoPage.getTotalElements()).isEqualTo(2);
 
-      List<ProductIo> content = productIoPage.getContent();
       List<ProductIo> expected = List.of(productIo, subAssyIo2);
-      assertThat(content).usingRecursiveComparison()
-          .ignoringFields("superIo", "subAssyIoList", "partIoList",
-              "product.category", "product.boms")
-          .isEqualTo(expected);
+      assertProductIoPageContent(productIoPage.getContent(), expected);
     }
 
     @Test
@@ -107,19 +104,16 @@ class ProductIoRepositoryTest extends RepositoryTest {
       em.clear();
 
       //when
-      Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingWithProduct(null,
-          Pageable.unpaged());
+      Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingAndProductIdWithProduct(
+          null,
+          null, Pageable.unpaged());
 
       //then
       assertThat(productIoPage.getTotalPages()).isEqualTo(1);
       assertThat(productIoPage.getTotalElements()).isEqualTo(3);
 
-      List<ProductIo> content = productIoPage.getContent();
       List<ProductIo> expected = List.of(productIo, subAssyIo1, subAssyIo2);
-      assertThat(content).usingRecursiveComparison()
-          .ignoringFields("superIo", "subAssyIoList", "partIoList",
-              "product.category", "product.boms")
-          .isEqualTo(expected);
+      assertProductIoPageContent(productIoPage.getContent(), expected);
     }
 
     @Test
@@ -144,19 +138,51 @@ class ProductIoRepositoryTest extends RepositoryTest {
       em.clear();
 
       //when
-      Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingWithProduct("",
-          Pageable.unpaged());
+      Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingAndProductIdWithProduct(
+          "",
+          null, Pageable.unpaged());
 
       //then
       assertThat(productIoPage.getTotalPages()).isEqualTo(1);
       assertThat(productIoPage.getTotalElements()).isEqualTo(3);
-
-      List<ProductIo> content = productIoPage.getContent();
       List<ProductIo> expected = List.of(productIo, subAssyIo1, subAssyIo2);
+      assertProductIoPageContent(productIoPage.getContent(), expected);
+    }
+
+    @Test
+    @DisplayName("productId로 필터링한다.")
+    void findByProductId() {
+      //given
+      ProductIo productIo = em.persist(ProductIo.builder()
+          .quantity(1)
+          .product(product)
+          .status(ProductStatus.생산대기).build());
+      ProductIo subAssyIo1 = em.persist(ProductIo.builder()
+          .quantity(2)
+          .product(subAssy1)
+          .superIo(productIo)
+          .status(ProductStatus.사내출고완료).build());
+      em.flush();
+      em.clear();
+
+      //when
+      Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingAndProductIdWithProduct(
+          "", subAssyIo1.getId(), Pageable.unpaged());
+
+      //then
+      assertThat(productIoPage.getTotalPages()).isEqualTo(1);
+      assertThat(productIoPage.getTotalElements()).isEqualTo(1);
+      List<ProductIo> expected = List.of(subAssyIo1);
+      assertProductIoPageContent(productIoPage.getContent(), expected);
+    }
+
+    void assertProductIoPageContent(List<ProductIo> content, List<ProductIo> expected) {
       assertThat(content).usingRecursiveComparison()
           .ignoringFields("superIo", "subAssyIoList", "partIoList",
               "product.category", "product.boms")
           .isEqualTo(expected);
     }
   }
+
+
 }
