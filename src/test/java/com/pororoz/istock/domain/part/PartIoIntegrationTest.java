@@ -36,21 +36,25 @@ public class PartIoIntegrationTest extends IntegrationTest {
   @Autowired
   PartIoRepository partIoRepository;
 
-  Part part;
+  Part part1, part2;
 
   @BeforeEach
   void setUp() {
-    part = partRepository.save(Part.builder()
-        .partName("name").spec("spec")
+    part1 = partRepository.save(Part.builder()
+        .partName("name1").spec("spec1")
+        .build());
+    part2 = partRepository.save(Part.builder()
+        .partName("name2").spec("spec2")
         .build());
   }
 
   @Nested
-  @DisplayName("GET /api/v1/part-io?page={}&size={}&status={} - 부품 IO 조회")
+  @DisplayName("GET /api/v1/part-io - 부품 IO 조회")
   class FindPartIo {
 
-    String getUri(int page, int size, String status) {
-      return "/v1/part-io?page=" + page + "&size=" + size + "&status=" + status;
+    String getUri(int page, int size, String status, Long partId) {
+      return "/v1/part-io?page=" + page + "&size=" + size + "&status=" + status + "&part-id="
+          + partId;
     }
 
     @Nested
@@ -63,17 +67,22 @@ public class PartIoIntegrationTest extends IntegrationTest {
       void findPartIoConfirm() throws Exception {
         // given
         int page = 1, size = 1;
-        String uri = getUri(page, size, "완료");
+        String uri = getUri(page, size, "완료", part1.getId());
 
         PartIo partIo1 = partIoRepository.save(PartIo.builder()
             .status(PartStatus.생산완료)
             .quantity(10)
-            .part(part)
+            .part(part1)
             .build());
         PartIo partIo2 = partIoRepository.save(PartIo.builder()
             .status(PartStatus.입고완료)
             .quantity(10)
-            .part(part)
+            .part(part1)
+            .build());
+        PartIo partIo3 = partIoRepository.save(PartIo.builder()
+            .status(PartStatus.입고완료)
+            .quantity(10)
+            .part(part2)
             .build());
 
         FindPartIoResponse findPartIoResponse = FindPartIoResponse.builder()
@@ -101,24 +110,24 @@ public class PartIoIntegrationTest extends IntegrationTest {
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
+    }
 
-      @Nested
-      @DisplayName("실패 케이스")
-      class FailCase {
+    @Nested
+    @DisplayName("실패 케이스")
+    class failCase {
 
-        @Test
-        @DisplayName("로그인하지 않은 유저는 접근할 수 없다.")
-        void cannotAccessAnonymous() throws Exception {
-          //given
-          int page = 1, size = 1;
-          String uri = getUri(page, size, "완료");
+      @Test
+      @DisplayName("로그인하지 않은 유저는 접근할 수 없다.")
+      void cannotAccessAnonymous() throws Exception {
+        //given
+        int page = 1, size = 1;
+        String uri = getUri(page, size, "완료", part1.getId());
 
-          //when
-          ResultActions actions = getResultActions(uri, HttpMethod.GET);
+        //when
+        ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
-          //then
-          actions.andExpect(status().isForbidden());
-        }
+        //then
+        actions.andExpect(status().isForbidden());
       }
     }
   }
