@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.part.repository;
 
+import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import java.util.List;
@@ -27,4 +28,6 @@ public interface PartIoRepository extends JpaRepository<PartIo, Long> {
       + "(:partId is null or p.part.id = :partId)")
   Page<PartIo> findByStatusContainingAndPartIdWithPart(@Param("status") String status,
       @Param("partId") Long partId, Pageable pageable);
+
+  boolean existsByPart(Part part);
 }

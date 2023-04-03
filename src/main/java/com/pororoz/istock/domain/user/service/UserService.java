@@ -61,7 +61,7 @@ public class UserService {
     if (myPrincipal.equals(user.getUsername())) {
       throw new SelfDeleteAccountException();
     }
-    userRepository.deleteById(deleteUserServiceRequest.getUserId());
+    userRepository.delete(user);
 
     return UserServiceResponse.of(user);
   }
