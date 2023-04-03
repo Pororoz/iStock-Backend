@@ -15,9 +15,11 @@ function switch_proxy(){
 
   for RETRY_COUNT in $(seq 1 5)
   do
-    ACTIVE_CONTAINER=$(find_idle_profile)
-    if [ "$IDLE_CONTAINER" != "$ACTIVE_CONTAINER" ]
+    INACTIVE_CONTAINER=$(find_idle_profile)
+    if [ "$IDLE_CONTAINER" != "$INACTIVE_CONTAINER" ]
     then
+      echo "> Nginx에 연결되지 않은 container 삭제"
+      docker-compose -f "$DOCKER_COMPOSE_FILE" rm -s -v -f "$INACTIVE_CONTAINER"
       break
     fi
     echo "Switch delayed"
