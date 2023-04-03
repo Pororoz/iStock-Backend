@@ -89,7 +89,7 @@ public class PartControllerTest extends ControllerTest {
 
     @Nested
     @DisplayName("실패 케이스")
-    class failCase {
+    class FailCase {
 
       @Test
       @DisplayName("partName을 적지 않으면 예외가 발생한다.")

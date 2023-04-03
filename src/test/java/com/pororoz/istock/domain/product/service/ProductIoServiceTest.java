@@ -52,10 +52,11 @@ class ProductIoServiceTest {
           .build();
 
       //when
-      when(productIoRepository.findByStatusContainingWithProduct(eq("생산대기"), any(Pageable.class)))
+      when(productIoRepository.findByStatusContainingAndProductIdWithProduct(eq("생산대기"),
+          eq(product.getId()), any(Pageable.class)))
           .thenReturn(new PageImpl<>(List.of(productIo), pageRequest, 1L));
       Page<FindProductIoServiceResponse> productIoPage = productIoService.findProductIo("생산대기",
-          pageRequest);
+          product.getId(), pageRequest);
 
       //then
       FindProductIoServiceResponse serviceResponse = FindProductIoServiceResponse.builder()
@@ -85,10 +86,11 @@ class ProductIoServiceTest {
           .build();
 
       //when
-      when(productIoRepository.findByStatusContainingWithProduct(eq("사내출고대기"), any(Pageable.class)))
+      when(productIoRepository.findByStatusContainingAndProductIdWithProduct(eq("사내출고대기"),
+          eq(product.getId()), any(Pageable.class)))
           .thenReturn(new PageImpl<>(List.of(subAssyIo), pageRequest, 1L));
       Page<FindProductIoServiceResponse> productIoPage = productIoService.findProductIo("사내출고대기",
-          pageRequest);
+          product.getId(), pageRequest);
 
       //then
       FindProductIoServiceResponse serviceResponse = FindProductIoServiceResponse.builder()

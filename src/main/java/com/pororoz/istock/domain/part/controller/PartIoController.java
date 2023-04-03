@@ -48,8 +48,10 @@ public class PartIoController {
   public ResponseEntity<ResultDTO<PageResponse<FindPartIoResponse>>> findPartIO(
       @Parameter(hidden = true) Pageable pageable,
       @Schema(description = "부품 상태", example = "대기")
-      @RequestParam("status") String status) {
-    Page<FindPartIoResponse> partIoPage = partIoService.findPartIo(status, pageable)
+      @RequestParam(value = "status", required = false) String status,
+      @Schema(description = "부품 id", example = "1")
+      @RequestParam(value = "part-id", required = false) Long partId) {
+    Page<FindPartIoResponse> partIoPage = partIoService.findPartIo(status, partId, pageable)
         .map(FindPartIoServiceResponse::toResponse);
     PageResponse<FindPartIoResponse> response = new PageResponse<>(partIoPage);
     return ResponseEntity.ok(

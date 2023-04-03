@@ -21,11 +21,13 @@ public interface PartIoRepository extends JpaRepository<PartIo, Long> {
 
   @Query(value = "select p from PartIo p "
       + "left join fetch p.part "
-      + "where cast(p.status as string) like %:status%"
+      + "where (:status is null or (cast(p.status as string) like %:status%)) and"
+      + "(:partId is null or p.part.id = :partId)"
       , countQuery = "select p from PartIo p "
-      + "where cast(p.status as string) like %:status%")
-  Page<PartIo> findByStatusContainingWithPart(@Param("status") String status,
-      Pageable pageable);
+      + "where (:status is null or (cast(p.status as string) like %:status%)) and"
+      + "(:partId is null or p.part.id = :partId)")
+  Page<PartIo> findByStatusContainingAndPartIdWithPart(@Param("status") String status,
+      @Param("partId") Long partId, Pageable pageable);
 
   boolean existsByPart(Part part);
 }

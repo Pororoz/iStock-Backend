@@ -17,9 +17,10 @@ public class ProductIoService {
   private final ProductIoRepository productIoRepository;
 
   @Transactional(readOnly = true)
-  public Page<FindProductIoServiceResponse> findProductIo(String status, Pageable pageable) {
-    Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingWithProduct(
-        status, pageable);
+  public Page<FindProductIoServiceResponse> findProductIo(String status, Long productId,
+      Pageable pageable) {
+    Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingAndProductIdWithProduct(
+        status, productId, pageable);
     return productIoPage.map(FindProductIoServiceResponse::of);
   }
 }

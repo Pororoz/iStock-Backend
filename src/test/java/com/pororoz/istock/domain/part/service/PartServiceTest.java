@@ -92,7 +92,7 @@ public class PartServiceTest {
 
     @Nested
     @DisplayName("실패 케이스")
-    class failCase {
+    class FailCase {
 
       @Test
       @DisplayName("존재하는 파트를 추가하려고 하면 오류가 발생한다.")

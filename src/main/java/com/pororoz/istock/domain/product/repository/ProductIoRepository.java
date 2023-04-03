@@ -20,11 +20,13 @@ public interface ProductIoRepository extends JpaRepository<ProductIo, Long> {
 
   @Query(value = "select p from ProductIo p "
       + "left join fetch p.product "
-      + "where cast(p.status as string) like %:status%"
+      + "where (:status is null or (cast(p.status as string) like %:status%)) and"
+      + "(:productId is null or p.product.id = :productId)"
       , countQuery = "select p from ProductIo p "
-      + "where cast(p.status as string) like %:status%")
-  Page<ProductIo> findByStatusContainingWithProduct(@Param("status") String status,
-      Pageable pageable);
+      + "where (:status is null or (cast(p.status as string) like %:status%)) and"
+      + "(:productId is null or p.product.id = :productId)")
+  Page<ProductIo> findByStatusContainingAndProductIdWithProduct(@Param("status") String status,
+      @Param("productId") Long productId, Pageable pageable);
 
   boolean existsByProduct(Product product);
 }

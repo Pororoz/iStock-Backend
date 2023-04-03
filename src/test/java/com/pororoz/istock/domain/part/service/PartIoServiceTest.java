@@ -43,9 +43,11 @@ public class PartIoServiceTest {
     ProductIo productIo = ProductIo.builder().id(1L).build();
 
     @Test
-    @DisplayName("'구매대기'의 partIo를 페이지네이션하여 조회한다.")
+    @DisplayName("'구매대기'의 status와 partId가 1인 partIo를 페이지네이션하여 조회한다.")
     void findPartIo() {
       // given
+      String status = "구매대기";
+      Long partId = part.getId();
       PageRequest pageRequest = PageRequest.of(0, 5);
       PartIo partIo = PartIo.builder()
           .id(1L).quantity(1)
@@ -53,10 +55,11 @@ public class PartIoServiceTest {
           .build();
 
       // when
-      when(partIoRepository.findByStatusContainingWithPart(eq("구매대기"), any(Pageable.class)))
+      when(partIoRepository.findByStatusContainingAndPartIdWithPart(eq(status),
+          eq(partId), any(Pageable.class)))
           .thenReturn(new PageImpl<>(List.of(partIo), pageRequest, 1L));
-      Page<FindPartIoServiceResponse> partIoPage = partIoService.findPartIo("구매대기",
-          pageRequest);
+      Page<FindPartIoServiceResponse> partIoPage = partIoService.findPartIo(status,
+          partId, pageRequest);
 
       // then
       FindPartIoServiceResponse serviceResponse = FindPartIoServiceResponse.builder()

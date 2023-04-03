@@ -40,8 +40,9 @@ class PartIoControllerTest extends ControllerTest {
   @MockBean
   PartIoService partIoService;
 
-  String getUri(int page, int size, String status) {
-    return "/v1/part-io?page=" + page + "&size=" + size + "&status=" + status;
+  String getUri(int page, int size, String status, Long partId) {
+    return "/v1/part-io?page=" + page + "&size=" + size + "&status=" + status + "&part-id="
+        + partId;
   }
 
   LocalDateTime now = LocalDateTime.now();
@@ -51,26 +52,27 @@ class PartIoControllerTest extends ControllerTest {
   class FindPartIo {
 
     @Test
-    @DisplayName("'대기'를 입력받아 partIo를 페이지네이션하여 조회한다.")
+    @DisplayName("'대기', 부품 id를 입력받아 partIo를 페이지네이션하여 조회한다.")
     void findPartIo() throws Exception {
       // given
       int page = 1;
       int size = 3;
       String status = "대기";
-      String uri = getUri(page, size, status);
+      Long partId = 2L;
+      String uri = getUri(page, size, status, partId);
       FindPartIoServiceResponse serviceResponse = FindPartIoServiceResponse.builder()
           .partIoId(1L).quantity(10)
           .status(PartStatus.구매대기)
           .createdAt(now).updatedAt(now)
           .partServiceResponse(PartServiceResponse.builder()
-              .partName("name").spec("spec")
+              .partId(partId).partName("name").spec("spec")
               .build())
           .build();
       PageImpl<FindPartIoServiceResponse> partIoPage = new PageImpl<>(
           List.of(serviceResponse), PageRequest.of(page, size), 4);
 
       // when
-      when(partIoService.findPartIo(eq(status), any(Pageable.class)))
+      when(partIoService.findPartIo(eq(status), eq(partId), any(Pageable.class)))
           .thenReturn(partIoPage);
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
@@ -80,6 +82,7 @@ class PartIoControllerTest extends ControllerTest {
           .status(PartStatus.구매대기)
           .createdAt(TimeEntity.formatTime(now))
           .updatedAt(TimeEntity.formatTime(now))
+          .partId(partId)
           .partName("name")
           .spec("spec").build();
       PageResponse<FindPartIoResponse> response = new PageResponse<>(

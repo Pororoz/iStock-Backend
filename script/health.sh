@@ -28,11 +28,6 @@ do
     then
       exit 1
     fi
-
-    echo "> Nginx에 연결되지 않은 container 삭제"
-    IDLE_CONTAINER=$(find_idle_profile)
-    docker-compose -f "$DOCKER_COMPOSE_FILE" rm -s -v -f "$IDLE_CONTAINER"
-
     break
   else
     echo "> 응답 실패"
