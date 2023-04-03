@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.product.repository;
 
+import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -24,4 +25,6 @@ public interface ProductIoRepository extends JpaRepository<ProductIo, Long> {
       + "where cast(p.status as string) like %:status%")
   Page<ProductIo> findByStatusContainingWithProduct(@Param("status") String status,
       Pageable pageable);
+
+  boolean existsByProduct(Product product);
 }

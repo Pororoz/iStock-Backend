@@ -37,7 +37,7 @@ public class BomService {
   @Transactional(readOnly = true)
   public Page<FindBomServiceResponse> findBomList(Long productId,
       Pageable pageable) {
-    productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
+    findProductById(productId);
     return bomRepository.findByProductIdWithPartAndSubAssy(pageable, productId)
         .map(FindBomServiceResponse::of);
   }
@@ -45,8 +45,7 @@ public class BomService {
   public BomServiceResponse saveBom(SaveBomServiceRequest request) {
     Part part = findPartById(request.getPartId());
     Product subAssy = findSubAssyById(request.getSubAssyId());
-    Product product = productRepository.findById(request.getProductId())
-        .orElseThrow(ProductNotFoundException::new);
+    Product product = findProductById(request.getProductId());
     checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getSubAssyId(),
         request.getPartId(), null);
     if (Bom.SUB_ASSY_CODE_NUMBER.equals(request.getCodeNumber())) {
@@ -70,8 +69,7 @@ public class BomService {
         .orElseThrow(BomNotFoundException::new);
     Part part = findPartById(request.getPartId());
     Product subAssy = findSubAssyById(request.getSubAssyId());
-    Product product = productRepository.findById(request.getProductId())
-        .orElseThrow(ProductNotFoundException::new);
+    Product product = findProductById(request.getProductId());
     checkDuplicateBom(request.getLocationNumber(), request.getProductId(), request.getSubAssyId(),
         request.getPartId(), existBom.getId());
     if (Bom.SUB_ASSY_CODE_NUMBER.equals(request.getCodeNumber())) {
@@ -90,6 +88,10 @@ public class BomService {
   private Part findPartById(Long partId) {
     return partId == null ? null
         : partRepository.findById(partId).orElseThrow(PartNotFoundException::new);
+  }
+
+  private Product findProductById(Long productId) {
+    return productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
   }
 
   private Product findSubAssyById(Long subAssyId) {
