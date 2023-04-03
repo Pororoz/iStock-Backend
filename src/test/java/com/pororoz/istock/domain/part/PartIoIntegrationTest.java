@@ -114,7 +114,7 @@ public class PartIoIntegrationTest extends IntegrationTest {
 
     @Nested
     @DisplayName("실패 케이스")
-    class failCase {
+    class FailCase {
 
       @Test
       @DisplayName("로그인하지 않은 유저는 접근할 수 없다.")
