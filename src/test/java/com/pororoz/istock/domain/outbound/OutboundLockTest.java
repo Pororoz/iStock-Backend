@@ -129,12 +129,15 @@ public class OutboundLockTest {
           OutboundUpdateServiceRequest.builder().productIoId(1L).build()));
       Future<?> future2 = executorService.submit(() -> outboundService.outboundCancel(
           OutboundUpdateServiceRequest.builder().productIoId(1L).build()));
+      Future<?> future3 = executorService.submit(() -> outboundService.outboundConfirm(
+          OutboundUpdateServiceRequest.builder().productIoId(2L).build()));
       Exception result = new Exception();
 
       // when
       try {
         future1.get();
         future2.get();
+        future3.get();
       } catch (ExecutionException e) {
         result = (Exception) e.getCause();
       }

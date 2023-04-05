@@ -180,8 +180,8 @@ public class PurchaseLockTest {
       ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
 
       Future<?> future1 = executorService.submit(() -> purchaseService.confirmPurchasePart(1L));
-      Future<?> future2 = executorService.submit(() -> purchaseService.confirmPurchasePart(1L));
-      Future<?> future3 = executorService.submit(() -> purchaseService.confirmPurchasePart(1L));
+      Future<?> future2 = executorService.submit(() -> purchaseService.confirmPurchasePart(2L));
+      Future<?> future3 = executorService.submit(() -> purchaseService.confirmPurchasePart(2L));
       Exception result = new Exception();
 
       // when
