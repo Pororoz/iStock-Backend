@@ -269,7 +269,7 @@ public class ProductionIntegrationTest extends IntegrationTest {
     ProductIo subAssyIo2 = createProductIo(quantity3 * quantity1, subAssyStatus);
     assertThat(productIoRepository.findAll()).usingRecursiveComparison()
         .ignoringFields("createdAt", "updatedAt", "id", "product", "superIo", "partIoList",
-            "subAssyIoList")
+            "subAssyIoList", "version")
         .isEqualTo(List.of(productIo, subAssyIo1, subAssyIo2));
   }
 
@@ -278,7 +278,7 @@ public class ProductionIntegrationTest extends IntegrationTest {
     PartIo partIo2 = createPartIo(quantity3 * quantity1, status);
 
     assertThat(partIoRepository.findAll()).usingRecursiveComparison()
-        .ignoringFields("createdAt", "updatedAt", "id", "part", "productIo")
+        .ignoringFields("createdAt", "updatedAt", "id", "part", "productIo", "version")
         .isEqualTo(List.of(partIo1, partIo2));
   }
 
