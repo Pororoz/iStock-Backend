@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -54,6 +55,9 @@ public class Part extends TimeEntity {
   @Builder.Default
   @Column(columnDefinition = "INT(11) UNSIGNED default 0")
   private long stock = 0;
+
+  @Version
+  private Long version;
 
   public void update(UpdatePartServiceRequest request) {
     this.partName = request.getPartName();
