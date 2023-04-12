@@ -84,7 +84,7 @@ public class PartIntegrationTest extends IntegrationTest {
 
     @Nested
     @DisplayName("실패 케이스")
-    class failCase {
+    class FailCase {
 
       @Test
       @WithMockUser(roles = "ADMIN")

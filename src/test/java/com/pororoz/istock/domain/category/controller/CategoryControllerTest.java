@@ -15,7 +15,6 @@ import com.pororoz.istock.common.utils.message.ResponseStatus;
 import com.pororoz.istock.domain.category.dto.request.SaveCategoryRequest;
 import com.pororoz.istock.domain.category.dto.request.UpdateCategoryRequest;
 import com.pororoz.istock.domain.category.dto.service.CategoryServiceResponse;
-import com.pororoz.istock.domain.category.dto.service.DeleteCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceRequest;
 import com.pororoz.istock.domain.category.dto.service.FindCategoryServiceResponse;
 import com.pororoz.istock.domain.category.dto.service.SaveCategoryServiceRequest;
@@ -255,23 +254,21 @@ class CategoryControllerTest extends ControllerTest {
       return "http://localhost:8080/v1/categories" + "/" + id;
     }
 
-    private Long categoryId;
+    final Long categoryId = 1L;
 
-    private String categoryName;
+    final String categoryName = "착화기";
 
     @Test
     @DisplayName("존재하는 카테고리를 삭제하면 Category 값을 반환한다.")
     void deleteCategory() throws Exception {
       // given
-      categoryId = 1L;
-      categoryName = "착화기";
       CategoryServiceResponse categoryServiceResponse = CategoryServiceResponse.builder()
           .categoryId(categoryId)
           .categoryName(categoryName)
           .build();
 
       // when
-      when(categoryService.deleteCategory(any(DeleteCategoryServiceRequest.class))).thenReturn(
+      when(categoryService.deleteCategory(categoryId)).thenReturn(
           categoryServiceResponse);
 
       ResultActions actions = getResultActions(url(categoryId), HttpMethod.DELETE);
@@ -288,12 +285,13 @@ class CategoryControllerTest extends ControllerTest {
     @DisplayName("존재하지 않는 카테고리를 삭제하면 오류가 발생한다.")
     void error() throws Exception {
       //given
-      categoryId = 2L;
-
-      when(categoryService.deleteCategory(any(DeleteCategoryServiceRequest.class))).thenThrow(
+      when(categoryService.deleteCategory(categoryId)).thenThrow(
           new CategoryNotFoundException());
+
+      //when
       ResultActions actions = getResultActions(url(categoryId), HttpMethod.DELETE);
 
+      //then
       actions.andExpect(status().isNotFound())
           .andExpect(jsonPath("$.status").value(ExceptionStatus.CATEGORY_NOT_FOUND))
           .andExpect(jsonPath("$.message").value(ExceptionMessage.CATEGORY_NOT_FOUND))

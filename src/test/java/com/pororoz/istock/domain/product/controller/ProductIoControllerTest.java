@@ -39,8 +39,9 @@ class ProductIoControllerTest extends ControllerTest {
   @MockBean
   ProductIoService productIoService;
 
-  String getUri(int page, int size, String status) {
-    return "/v1/product-io?page=" + page + "&size=" + size + "&status=" + status;
+  String getUri(int page, int size, String status, Long productId) {
+    return "/v1/product-io?page=" + page + "&size=" + size + "&status=" + status + "&product-id="
+        + productId;
   }
 
   LocalDateTime now = LocalDateTime.now();
@@ -50,27 +51,28 @@ class ProductIoControllerTest extends ControllerTest {
   class FindProductIo {
 
     @Test
-    @DisplayName("'대기'를 입력받아 productIo를 페이지네이션하여 조회한다.")
+    @DisplayName("'대기'와 제품 id를 입력받아 productIo를 페이지네이션하여 조회한다.")
     void findProductIo() throws Exception {
       //given
       int page = 1;
       int size = 3;
+      Long productId = 1L;
       String status = "대기";
-      String uri = getUri(page, size, status);
+      String uri = getUri(page, size, status, 1L);
       FindProductIoServiceResponse serviceResponse = FindProductIoServiceResponse.builder()
           .productIoId(1L).quantity(10)
           .status(ProductStatus.생산대기)
           .createdAt(now).updatedAt(now)
           .productServiceResponse(ProductServiceResponse.builder()
-              .productName("name").productNumber("number")
+              .productId(1L).productName("name").productNumber("number")
               .build())
           .build();
       PageImpl<FindProductIoServiceResponse> productIoPage = new PageImpl<>(
           List.of(serviceResponse), PageRequest.of(page, size), 4);
 
       //when
-      when(productIoService.findProductIo(eq(status), any(Pageable.class))).thenReturn(
-          productIoPage);
+      when(productIoService.findProductIo(eq(status), eq(productId),
+          any(Pageable.class))).thenReturn(productIoPage);
       ResultActions actions = getResultActions(uri, HttpMethod.GET);
 
       //then
@@ -79,6 +81,7 @@ class ProductIoControllerTest extends ControllerTest {
           .status(ProductStatus.생산대기)
           .createdAt(TimeEntity.formatTime(now))
           .updatedAt(TimeEntity.formatTime(now))
+          .productId(productId)
           .productName("name")
           .productNumber("number").build();
       PageResponse<FindProductIoResponse> response = new PageResponse<>(

@@ -21,7 +21,7 @@ import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
-import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyPurchaseServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyOutsourcingServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,6 +69,8 @@ public class PurchaseService {
     partIo.confirmPurchase();
     partIo.getPart().addStock(partIo.getQuantity());
 
+    checkAllPartAndSubAssy(partIo.getProductIo());
+
     return UpdatePurchaseServiceResponse.of(partIo);
   }
 
@@ -81,37 +83,39 @@ public class PurchaseService {
     return UpdatePurchaseServiceResponse.of(partIo);
   }
 
-  public UpdateSubAssyPurchaseServiceResponse confirmSubAssyPurchase(Long productIoId) {
+  public UpdateSubAssyOutsourcingServiceResponse confirmSubAssyOutsourcing(Long productIoId) {
     ProductIo productIo = productIoRepository.findById(productIoId)
         .orElseThrow(ProductIoNotFoundException::new);
 
     checkWhetherSubAssy(productIo);
 
-    productIo.confirmSubAssyPurchase();
+    productIo.confirmSubAssyOutsourcing();
     productIo.getProduct().addStock(productIo.getQuantity());
 
-    return UpdateSubAssyPurchaseServiceResponse.of(productIo);
+    checkAllPartAndSubAssy(productIo.getSuperIo());
+
+    return UpdateSubAssyOutsourcingServiceResponse.of(productIo);
   }
 
-  public UpdateSubAssyPurchaseServiceResponse cancelSubAssyPurchase(Long productIoId) {
+  public UpdateSubAssyOutsourcingServiceResponse cancelSubAssyOutsourcing(Long productIoId) {
     ProductIo productIo = productIoRepository.findById(productIoId)
         .orElseThrow(ProductIoNotFoundException::new);
 
     checkWhetherSubAssy(productIo);
 
-    productIo.cancelSubAssyPurchase();
+    productIo.cancelSubAssyOutsourcing();
 
-    return UpdateSubAssyPurchaseServiceResponse.of(productIo);
+    return UpdateSubAssyOutsourcingServiceResponse.of(productIo);
   }
 
-  void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
+  private void savePartIoAndSubAssyIoAll(Long quantity, ProductIo productIo, List<Bom> boms) {
     List<PartIo> partIoList = new ArrayList<>();
     List<ProductIo> subAssyIoList = new ArrayList<>();
 
     for (Bom bom : boms) {
       if (Bom.SUB_ASSY_CODE_NUMBER.equals(bom.getCodeNumber())) {
         ProductIo subAssyIo = ProductIo.createSubAssyIo(bom, productIo, quantity,
-            ProductStatus.외주구매대기);
+            ProductStatus.외주생산대기);
         subAssyIoList.add(subAssyIo);
       } else {
         PartIo partIo = PartIo.createPartIo(bom, productIo, quantity, PartStatus.구매대기);
@@ -120,6 +124,19 @@ public class PurchaseService {
     }
     partIoRepository.saveAll(partIoList);
     productIoRepository.saveAll(subAssyIoList);
+  }
+
+  private void checkAllPartAndSubAssy(ProductIo productIo) {
+    boolean allPartsConfirmed = partIoRepository.findByProductIo(productIo)
+        .stream()
+        .allMatch(partIo -> partIo.getStatus() == PartStatus.구매확정);
+    boolean allSubAssyConfirmed = productIoRepository.findBySuperIo(productIo)
+        .stream()
+        .allMatch(subAssyIo -> subAssyIo.getStatus() == ProductStatus.외주생산확정);
+
+    if (allPartsConfirmed && allSubAssyConfirmed) {
+      productIo.completeProductPurchase();
+    }
   }
 
   private void checkWhetherSubAssy(ProductIo productIo) {

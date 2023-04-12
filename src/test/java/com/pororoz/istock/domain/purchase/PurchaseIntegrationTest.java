@@ -27,7 +27,7 @@ import com.pororoz.istock.domain.purchase.dto.request.PurchaseProductRequest;
 import com.pororoz.istock.domain.purchase.dto.response.PurchasePartResponse;
 import com.pororoz.istock.domain.purchase.dto.response.PurchaseProductResponse;
 import com.pororoz.istock.domain.purchase.dto.response.UpdatePurchaseResponse;
-import com.pororoz.istock.domain.purchase.dto.response.UpdateSubAssyPurchaseResponse;
+import com.pororoz.istock.domain.purchase.dto.response.UpdateSubAssyOutsourcingResponse;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -117,7 +117,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
     ProductIo productIo2 = ProductIo.builder()
         .quantity(10)
-        .status(ProductStatus.외주구매대기)
+        .status(ProductStatus.외주생산대기)
         .product(products.get(9))
         .superIo(productIo)
         .build();
@@ -125,7 +125,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
     ProductIo productIo3 = ProductIo.builder()
         .quantity(10)
-        .status(ProductStatus.외주구매확정)
+        .status(ProductStatus.외주생산확정)
         .product(products.get(9))
         .superIo(productIo)
         .build();
@@ -136,6 +136,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
         .quantity(10)
         .status(PartStatus.구매대기)
         .part(parts.get(0))
+        .productIo(productIo)
         .build();
     partIoRepository.save(partIo);
 
@@ -143,6 +144,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
         .quantity(10)
         .status(PartStatus.구매확정)
         .part(parts.get(0))
+        .productIo(productIo)
         .build();
     partIoRepository.save(partIo2);
   }
@@ -464,7 +466,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
   }
 
   @Nested
-  @DisplayName("POST /v1/purchase/subassy-io/{productIoId}/confirm - subassy 구매 확정")
+  @DisplayName("POST /v1/purchase/subassy-io/{productIoId}/confirm - subassy 생산 확정")
   class ConfirmSubAssyPurchase {
     private String url(Long productIoId) {
       return String.format("http://localhost:8080/v1/purchase/subassy-io/%s/confirm", productIoId);
@@ -476,10 +478,10 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser
-      @DisplayName("subassy 구매 확정 요청에 성공한다.")
-      void confirmSubAssyPurchase() throws Exception {
+      @DisplayName("subassy 생산 확정 요청에 성공한다.")
+      void confirmSubAssyOutsourcing() throws Exception {
         // given
-        UpdateSubAssyPurchaseResponse response = UpdateSubAssyPurchaseResponse.builder()
+        UpdateSubAssyOutsourcingResponse response = UpdateSubAssyOutsourcingResponse.builder()
             .productIoId(2L)
             .productId(10L)
             .quantity(10L)
@@ -491,7 +493,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
         // then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-            .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_SUB_ASSY_PURCHASE))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CONFIRM_SUB_ASSY_OUTSOURCING))
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
@@ -503,8 +505,8 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser
-      @DisplayName("구매대기 상태가 아닌 경우, 구매확정 상태로 변경할 수 없다.")
-      void notPurchaseWaiting() throws Exception {
+      @DisplayName("외주생산대기 상태가 아닌 경우, 외주생산확정 상태로 변경할 수 없다.")
+      void notOutsourcingWaiting() throws Exception {
         // given
 
         // when
@@ -517,7 +519,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser
-      @DisplayName("존재하지 않는 제품IO를 요청하면 구매 요청에 실패한다.")
+      @DisplayName("존재하지 않는 제품IO를 요청하면 요청에 실패한다.")
       void partIoNotFound() throws Exception {
         // given
 
@@ -545,7 +547,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
   }
 
   @Nested
-  @DisplayName("POST /v1/purchase/subassy-io/{productIoId}/cancel - subassy 구매 취소")
+  @DisplayName("POST /v1/purchase/subassy-io/{productIoId}/cancel - subassy 생산 취소")
   class CancelSubAssyPurchase {
     private String url(Long productIoId) {
       return String.format("http://localhost:8080/v1/purchase/subassy-io/%s/cancel", productIoId);
@@ -557,10 +559,10 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser
-      @DisplayName("subassy 구매 취소 요청에 성공한다.")
-      void cancelSubAssyPurchase() throws Exception {
+      @DisplayName("subassy 생산 취소 요청에 성공한다.")
+      void cancelSubAssyOutsourcing() throws Exception {
         // given
-        UpdateSubAssyPurchaseResponse response = UpdateSubAssyPurchaseResponse.builder()
+        UpdateSubAssyOutsourcingResponse response = UpdateSubAssyOutsourcingResponse.builder()
             .productIoId(2L)
             .productId(10L)
             .quantity(10L)
@@ -572,7 +574,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
         // then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.status").value(ResponseStatus.OK))
-            .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_SUB_ASSY_PURCHASE))
+            .andExpect(jsonPath("$.message").value(ResponseMessage.CANCEL_SUB_ASSY_OUTSOURCING))
             .andExpect(jsonPath("$.data", equalTo(asParsedJson(response))))
             .andDo(print());
       }
@@ -584,8 +586,8 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser
-      @DisplayName("구매대기 상태가 아닌 경우, 구매취소 상태로 변경할 수 없다.")
-      void notPurchaseWaiting() throws Exception {
+      @DisplayName("외주생산대기 상태가 아닌 경우, 외주생산취소 상태로 변경할 수 없다.")
+      void notSubAssyWaiting() throws Exception {
         // given
 
         // when
@@ -598,7 +600,7 @@ public class PurchaseIntegrationTest extends IntegrationTest {
 
       @Test
       @WithMockUser
-      @DisplayName("존재하지 않는 제품IO를 요청하면 구매 요청에 실패한다.")
+      @DisplayName("존재하지 않는 제품IO를 요청하면 요청에 실패한다.")
       void partIoNotFound() throws Exception {
         // given
 

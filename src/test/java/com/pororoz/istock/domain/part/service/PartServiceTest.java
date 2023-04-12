@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.part.dto.service.FindPartServiceRequest;
 import com.pororoz.istock.domain.part.dto.service.PartServiceResponse;
 import com.pororoz.istock.domain.part.dto.service.SavePartServiceRequest;
@@ -14,6 +15,7 @@ import com.pororoz.istock.domain.part.dto.service.UpdatePartServiceRequest;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.exception.PartDuplicatedException;
 import com.pororoz.istock.domain.part.exception.PartNotFoundException;
+import com.pororoz.istock.domain.part.repository.PartIoRepository;
 import com.pororoz.istock.domain.part.repository.PartRepository;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -36,13 +39,19 @@ public class PartServiceTest {
   PartService partService;
 
   @Mock
+  BomRepository bomRepository;
+
+  @Mock
   PartRepository partRepository;
 
-  Long partId = 1L;
-  String partName = "BEAD";
-  String spec = "BID|E2";
-  long price = 100000;
-  long stock = 5;
+  @Mock
+  PartIoRepository partIoRepository;
+
+  final Long partId = 1L;
+  final String partName = "BEAD";
+  final String spec = "BID|E2";
+  final long price = 100000;
+  final long stock = 5;
 
   Part part = Part.builder()
       .id(partId)
@@ -83,7 +92,7 @@ public class PartServiceTest {
 
     @Nested
     @DisplayName("실패 케이스")
-    class failCase {
+    class FailCase {
 
       @Test
       @DisplayName("존재하는 파트를 추가하려고 하면 오류가 발생한다.")
@@ -126,6 +135,8 @@ public class PartServiceTest {
 
         //when
         when(partRepository.findById(partId)).thenReturn(Optional.of(part));
+        when(bomRepository.existsByPart(part)).thenReturn(false);
+        when(partIoRepository.existsByPart(part)).thenReturn(false);
 
         //then
         PartServiceResponse result = partService.deletePart(1L);
@@ -142,13 +153,39 @@ public class PartServiceTest {
       @DisplayName("존재하지 않는 파트를 삭제하려고 하면 오류가 발생한다.")
       void partNotFound() {
         //given
-
         //when
-        when(partRepository.findById(2L)).thenReturn(Optional.empty());
+        when(partRepository.findById(partId)).thenReturn(Optional.empty());
 
         //then
         assertThrows(PartNotFoundException.class,
-            () -> partService.deletePart(2L));
+            () -> partService.deletePart(partId));
+      }
+
+      @Test
+      @DisplayName("part과 연관된 BOM이 존재하면 예외가 발생한다.")
+      void cannotDeleteAsBom() {
+        //given
+        //when
+        when(partRepository.findById(partId)).thenReturn(Optional.of(part));
+        when(bomRepository.existsByPart(part)).thenReturn(true);
+
+        //then
+        assertThrows(DataIntegrityViolationException.class,
+            () -> partService.deletePart(partId));
+      }
+
+      @Test
+      @DisplayName("part과 연관된 partIo가 존재하면 예외가 발생한다.")
+      void cannotDeleteAsPartIo() {
+        //given
+        //when
+        when(partRepository.findById(partId)).thenReturn(Optional.of(part));
+        when(bomRepository.existsByPart(part)).thenReturn(false);
+        when(partIoRepository.existsByPart(part)).thenReturn(true);
+
+        //then
+        assertThrows(DataIntegrityViolationException.class,
+            () -> partService.deletePart(partId));
       }
     }
   }

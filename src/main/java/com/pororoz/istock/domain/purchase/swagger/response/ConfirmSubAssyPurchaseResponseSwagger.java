@@ -12,7 +12,7 @@ public class ConfirmSubAssyPurchaseResponseSwagger {
   @Schema(description = "Result Code", example = ResponseStatus.OK)
   private String status;
 
-  @Schema(description = "Message", example = ResponseMessage.CONFIRM_SUB_ASSY_PURCHASE)
+  @Schema(description = "Message", example = ResponseMessage.CONFIRM_SUB_ASSY_OUTSOURCING)
   private String message;
 
   private ProductResponse data;
