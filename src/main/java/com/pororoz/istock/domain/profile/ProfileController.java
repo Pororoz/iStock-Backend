@@ -1,12 +1,11 @@
 package com.pororoz.istock.domain.profile;
 
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Arrays;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,5 +19,12 @@ public class ProfileController {
     List<String> springProfiles = Arrays.asList("spring1", "spring2");
     return Arrays.stream(activeProfiles).filter(springProfiles::contains).findAny()
         .orElse("spring1");
+  }
+
+  @GetMapping("wait")
+  String waiting() throws InterruptedException {
+    final int TEN_SEC = 1000 * 10;
+    Thread.sleep(TEN_SEC);
+    return "success";
   }
 }
