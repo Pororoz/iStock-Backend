@@ -1,7 +1,7 @@
 package com.pororoz.istock.domain.product.repository;
 
 import com.pororoz.istock.domain.category.entity.Category;
-import com.pororoz.istock.domain.product.dto.jpa.ProductWaitingCount;
+import com.pororoz.istock.domain.product.dto.repository.ProductWaitingCount;
 import com.pororoz.istock.domain.product.entity.Product;
 import java.util.List;
 import java.util.Optional;

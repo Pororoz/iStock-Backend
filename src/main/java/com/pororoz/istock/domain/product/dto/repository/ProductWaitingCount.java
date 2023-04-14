@@ -1,4 +1,4 @@
-package com.pororoz.istock.domain.product.dto.jpa;
+package com.pororoz.istock.domain.product.dto.repository;
 
 public interface ProductWaitingCount {
 

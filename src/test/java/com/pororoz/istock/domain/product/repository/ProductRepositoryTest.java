@@ -7,7 +7,7 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
-import com.pororoz.istock.domain.product.dto.jpa.ProductWaitingCount;
+import com.pororoz.istock.domain.product.dto.repository.ProductWaitingCount;
 import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.entity.ProductIo;
 import com.pororoz.istock.domain.product.entity.ProductStatus;
