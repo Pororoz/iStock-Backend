@@ -33,7 +33,7 @@ public class ProductionService {
     Product product = productRepository.findByIdWithPartsAndSubAssies(request.getProductId())
         .orElseThrow(ProductOrBomNotFoundException::new);
     ProductIo productIo = saveProductIo(request.getQuantity(), product);
-    savePartIoAndSubAssyAll(request.getQuantity(), product.getBoms(), productIo);
+    savePartIoAndSubAssyIoAll(request.getQuantity(), product.getBoms(), productIo);
 
     return SaveProductionServiceResponse.builder()
         .productId(productIo.getProduct().getId())
@@ -76,7 +76,7 @@ public class ProductionService {
     return productIoRepository.save(productIo);
   }
 
-  private void savePartIoAndSubAssyAll(Long quantity, List<Bom> boms, ProductIo productIo) {
+  private void savePartIoAndSubAssyIoAll(Long quantity, List<Bom> boms, ProductIo productIo) {
     List<PartIo> partIoList = new ArrayList<>();
     List<ProductIo> subAssyIoList = new ArrayList<>();
 
