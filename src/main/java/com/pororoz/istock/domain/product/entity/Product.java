@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Getter
@@ -50,7 +51,7 @@ public class Product extends TimeEntity {
   @NotNull
   @PositiveOrZero
   @Builder.Default
-  @Column(columnDefinition = "INT(11) UNSIGNED default 0")
+  @ColumnDefault("0")
   private long stock = 0;
 
   @Size(max = 50)
@@ -82,8 +83,12 @@ public class Product extends TimeEntity {
   }
 
   public void subtractStock(long quantity) {
+    if (quantity < 0) {
+      throw new IllegalArgumentException("0 이상만 stock에 뺄 수 있습니다.");
+    }
     long subtract = this.stock - quantity;
-    if (subtract < 0) {
+    // 완제품의 재고는 음수가 될 수 없다.
+    if (!Bom.SUB_ASSY_CODE_NUMBER.equals(this.codeNumber) && subtract < 0) {
       throw new ProductStockMinusException(
           "id: " + id + ", 품번: " + productNumber + ", 재고: " + stock + ", 요청 수량: " + quantity);
     }
