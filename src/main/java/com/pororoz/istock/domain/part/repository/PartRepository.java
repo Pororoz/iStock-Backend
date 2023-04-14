@@ -1,5 +1,6 @@
 package com.pororoz.istock.domain.part.repository;
 
+import com.pororoz.istock.domain.part.dto.repository.PartPurchaseCount;
 import com.pororoz.istock.domain.part.entity.Part;
 import java.util.List;
 import java.util.Optional;
@@ -30,4 +31,13 @@ public interface PartRepository extends JpaRepository<Part, Long> {
       + "join b.part part "
       + "where prod.id in (:idList)")
   List<Part> findByProductIdList(@Param("idList") List<Long> productIdList);
+
+  @Query("select distinct p.id as id, p.partName as partName, "
+      + "p.spec as spec, p.stock as stock, "
+      + "sum(case when (cast(pi.status as string) = '구매대기') then pi.quantity else 0 end) as purchaseWaitingCount "
+      + "from Part p left join PartIo pi on p = pi.part "
+      + "where p.id in (:idList) "
+      + "group by p.id "
+      + "order by p.id")
+  List<PartPurchaseCount> findPurchaseCountByPartIdList(@Param("idList") List<Long> partIdList);
 }

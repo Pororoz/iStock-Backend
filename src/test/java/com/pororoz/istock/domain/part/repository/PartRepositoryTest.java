@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.pororoz.istock.RepositoryTest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.category.entity.Category;
+import com.pororoz.istock.domain.part.dto.repository.PartPurchaseCount;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.entity.PartIo;
 import com.pororoz.istock.domain.part.entity.PartStatus;
@@ -75,26 +76,39 @@ class PartRepositoryTest extends RepositoryTest {
     //given
     Category category = em.persist(Category.builder().categoryName("c").build());
     List<Product> products = setUpProduct(category);
-    Part part1 = em.persist(Part.builder()
-        .partName("name1").spec("spec1")
-        .build());
-    Part part2 = em.persist(Part.builder()
-        .partName("name2").spec("spec2")
-        .build());
-    setUpBom(products.get(0), products.get(1), part1, part2);
+    List<Part> parts = setUpPart();
+    setUpBom(products, parts);
     em.flush();
     em.clear();
 
     //when
-    List<Part> parts = partRepository.findByProductIdList(
+    List<Part> findParts = partRepository.findByProductIdList(
         products.stream().map(Product::getId).toList());
 
     //then
-    List<Part> expected = List.of(part1, part2);
-    assertThat(parts).hasSize(2);
-    assertThat(parts).usingRecursiveComparison()
+    assertThat(findParts).hasSize(2);
+    assertThat(findParts).usingRecursiveComparison()
         .ignoringFields("createdAt", "updatedAt")
-        .isEqualTo(expected);
+        .isEqualTo(parts);
+  }
+
+  @Test
+  @DisplayName("part id list로 part와 partIo를 조회하여 '구매대기' 부품의 정보를 조회한다.")
+  void findPurchaseCountByPartIdList() {
+    //given
+    List<Part> parts = setUpPart();
+    setUpPartIo(parts);
+
+    //when
+    List<PartPurchaseCount> partPurchaseCounts = partRepository.findPurchaseCountByPartIdList(
+        parts.stream().map(Part::getId).toList());
+
+    //then
+    assertThat(partPurchaseCounts).hasSize(2);
+    assertThat(partPurchaseCounts.get(0).getId()).isEqualTo(parts.get(0).getId());
+    assertThat(partPurchaseCounts.get(0).getPurchaseWaitingCount()).isEqualTo(3);
+    assertThat(partPurchaseCounts.get(1).getId()).isEqualTo(parts.get(1).getId());
+    assertThat(partPurchaseCounts.get(1).getPurchaseWaitingCount()).isEqualTo(20);
   }
 
   List<Product> setUpProduct(Category category) {
@@ -110,36 +124,46 @@ class PartRepositoryTest extends RepositoryTest {
     return List.of(product1, product2, product3);
   }
 
-  void setUpBom(Product product1, Product product2, Part part1, Part part2) {
+  List<Part> setUpPart() {
+    Part part1 = em.persist(Part.builder()
+        .partName("name1").spec("spec1")
+        .build());
+    Part part2 = em.persist(Part.builder()
+        .partName("name2").spec("spec2")
+        .build());
+    return List.of(part1, part2);
+  }
+
+  void setUpBom(List<Product> products, List<Part> parts) {
     em.persist(Bom.builder()
-        .locationNumber("loc1").product(product1).part(part1)
+        .locationNumber("loc1").product(products.get(0)).part(parts.get(0))
         .build());
     em.persist(Bom.builder()
-        .locationNumber("loc1").product(product1).part(part2)
+        .locationNumber("loc1").product(products.get(0)).part(parts.get(1))
         .build());
     em.persist(Bom.builder()
-        .locationNumber("loc1").product(product2).part(part1)
+        .locationNumber("loc1").product(products.get(1)).part(parts.get(0))
         .build());
     em.persist(Bom.builder()
-        .locationNumber("loc1").product(product2).part(part2)
+        .locationNumber("loc1").product(products.get(1)).part(parts.get(1))
         .build());
   }
 
   // part1 구매대기 3개, part2 구매대기 20개
-  void setUpPartIo(Part part1, Part part2) {
+  void setUpPartIo(List<Part> parts) {
     em.persist(PartIo.builder()
-        .quantity(3).status(PartStatus.구매대기).part(part1)
+        .quantity(3).status(PartStatus.구매대기).part(parts.get(0))
         .build());
     for (int i = 0; i < 2; i++) {
       em.persist(PartIo.builder()
-          .quantity(10).status(PartStatus.구매대기).part(part2)
+          .quantity(10).status(PartStatus.구매대기).part(parts.get(1))
           .build());
     }
     em.persist(PartIo.builder()
-        .quantity(1).status(PartStatus.생산대기).part(part2)
+        .quantity(1).status(PartStatus.생산대기).part(parts.get(1))
         .build());
     em.persist(PartIo.builder()
-        .quantity(1).status(PartStatus.구매확정).part(part2)
+        .quantity(1).status(PartStatus.구매확정).part(parts.get(1))
         .build());
   }
 }
