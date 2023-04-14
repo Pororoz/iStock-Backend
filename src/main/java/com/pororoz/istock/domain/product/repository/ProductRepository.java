@@ -47,8 +47,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
   // return 값으로 projection 사용
   @Query("select p.id as id, p.productName as productName, "
-      + "sum(case when (cast(pi.status as string) = '생산대기') then 1 else 0 end) as productionWaitingCount, "
-      + "sum(case when (cast(pi.status as string) = '구매대기') then 1 else 0 end) as purchaseWaitingCount "
+      + "sum(case when (cast(pi.status as string) = '생산대기') then pi.quantity else 0 end) as productionWaitingCount, "
+      + "sum(case when (cast(pi.status as string) = '구매대기') then pi.quantity else 0 end) as purchaseWaitingCount "
       + "from Product p left join ProductIo pi on pi.product = p "
       + "where p.id in (:idList) "
       + "group by p.id "

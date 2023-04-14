@@ -299,7 +299,7 @@ class ProductRepositoryTest extends RepositoryTest {
   class FindWaitingCountByIdList {
 
     @Test
-    @DisplayName("productId list를 사용해 생산대기와 구매대기의 개수를 조회한다.")
+    @DisplayName("productId list를 사용해 product와 productIo를 join하여 생산대기와 구매대기의 개수를 조회한다.")
     void findWaitingCountByIdList() {
       //given
       Product p1 = em.persist(Product.builder().
@@ -308,13 +308,13 @@ class ProductRepositoryTest extends RepositoryTest {
       Product p2 = em.persist(Product.builder().
           productName("p2").productNumber("2").category(category1)
           .build());
-      // p1에 각각 2개의 구매, 생산 대기 생성
+      // p1에 총 2개의 구매 대기, 총 4개 생산 대기 생성
       for (int i = 0; i < 2; i++) {
         em.persist(ProductIo.builder()
             .quantity(1).status(ProductStatus.구매대기).product(p1)
             .build());
         em.persist(ProductIo.builder()
-            .quantity(1).status(ProductStatus.생산대기).product(p1)
+            .quantity(2).status(ProductStatus.생산대기).product(p1)
             .build());
       }
       List<Long> productIdList = List.of(p1.getId(), p2.getId());
@@ -324,13 +324,13 @@ class ProductRepositoryTest extends RepositoryTest {
           productIdList);
 
       //then
-      List<Long> expectedCounts = List.of(2L, 0L);
+      List<Long> expectedCounts = List.of(2L, 4L, 0L, 0L);
       assertThat(waitingCounts).hasSize(2);
       for (int i = 0; i < waitingCounts.size(); i++) {
         ProductWaitingCount waitingCount = waitingCounts.get(i);
-        Long expectedCount = expectedCounts.get(i);
-        assertThat(waitingCount.getProductionWaitingCount()).isEqualTo(expectedCount);
-        assertThat(waitingCount.getPurchaseWaitingCount()).isEqualTo(expectedCount);
+        assertThat(waitingCount.getPurchaseWaitingCount()).isEqualTo(expectedCounts.get(i * 2));
+        assertThat(waitingCount.getProductionWaitingCount()).isEqualTo(
+            expectedCounts.get(i * 2 + 1));
       }
     }
   }
