@@ -8,7 +8,7 @@ public interface PartPurchaseCount {
 
   String getSpec();
 
-  Long getStock();
+  long getStock();
 
-  Long getPurchaseWaitingCount();
+  long getPurchaseWaitingCount();
 }

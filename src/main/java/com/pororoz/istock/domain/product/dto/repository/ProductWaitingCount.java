@@ -6,7 +6,7 @@ public interface ProductWaitingCount {
 
   String getProductName();
 
-  Long getProductionWaitingCount();
+  long getProductionWaitingCount();
 
-  Long getPurchaseWaitingCount();
+  long getPurchaseWaitingCount();
 }
