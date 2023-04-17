@@ -32,7 +32,7 @@ public interface PartRepository extends JpaRepository<Part, Long> {
       + "where prod.id in (:idList)")
   List<Part> findByProductIdList(@Param("idList") List<Long> productIdList);
 
-  @Query("select distinct p.id as id, p.partName as partName, "
+  @Query("select p.id as id, p.partName as partName, "
       + "p.spec as spec, p.stock as stock, "
       + "sum(case when (cast(pi.status as string) = '구매대기') then pi.quantity else 0 end) as purchaseWaitingCount "
       + "from Part p left join PartIo pi on p = pi.part "
