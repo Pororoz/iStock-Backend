@@ -1,6 +1,9 @@
 package com.pororoz.istock.domain.file.service;
 
+import com.opencsv.CSVWriter;
+import com.pororoz.istock.common.entity.TimeEntity;
 import com.pororoz.istock.domain.bom.dto.service.SaveBomServiceRequest;
+import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.service.BomService;
 import com.pororoz.istock.domain.category.dto.service.SaveCategoryServiceRequest;
 import com.pororoz.istock.domain.category.entity.Category;
@@ -17,9 +20,14 @@ import com.pororoz.istock.domain.product.entity.Product;
 import com.pororoz.istock.domain.product.exception.ProductNotFoundException;
 import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.product.service.ProductService;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +52,6 @@ public class FileService {
   private final CategoryRepository categoryRepository;
 
   private final String SUB_ASSAY_ID = "SUB_ASS'Y";
-  private final String SUB_ASSAY_CODE_NUMBER = "11";
 
   public FileServiceResponse uploadFile(MultipartFile csvFile, Long productId) {
     productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
@@ -75,7 +82,7 @@ public class FileService {
           "".equals(bomData.get(8)) ? Long.parseLong("0") : Long.parseLong(bomData.get(8)); // 구매수량
       String codeNumber = bomData.get(9);
 
-      if (SUB_ASSAY_CODE_NUMBER.equals(codeNumber)) {
+      if (Bom.SUB_ASSY_CODE_NUMBER.equals(codeNumber)) {
         // sub Assay
         Optional<Long> optSubAssayId = productRepository.findByProductNumberAndProductName(
             partName, spec).map(Product::getId); // subAssay인 경우에는 4, 5번째에 있는 항목이 다름
@@ -130,4 +137,49 @@ public class FileService {
     return bomLines;
   }
 
+  @Transactional(readOnly = true)
+  public void exportFile(HttpServletResponse response, List<Long> productIdList)
+      throws IOException {
+    if (productIdList == null || productIdList.isEmpty()) {
+      throw new IllegalArgumentException("product-id-list is empty");
+    }
+    String now = TimeEntity.formatTime(LocalDateTime.now());
+    response.setContentType("text/csv; charset=UTF-8");
+    response.setCharacterEncoding("UTF-8");
+    response.setHeader("Content-Disposition", "attachment; filename=\"bom_" + now + ".csv\"");
+    response.getOutputStream().write(new byte[]{(byte) 0xEF, (byte) 0xBB, (byte) 0xBF}); // BOM 삽입
+
+    try (ServletOutputStream outputStream = response.getOutputStream();
+        CSVWriter writer = new CSVWriter(
+            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
+      List<String[]> records = new ArrayList<>();
+      recordProductCountInfo(records, productIdList);
+      records.add(new String[]{""});
+      recordPartCountInfo(records, productIdList);
+      writer.writeAll(records);
+    }
+  }
+
+  private void recordProductCountInfo(List<String[]> records, List<Long> productIdList) {
+    records.add(new String[]{"No.", "상품", "생산 대기 수량", "구매 대기 수량"});
+    productRepository.findWaitingCountByIdList(productIdList).forEach(count -> {
+      records.add(
+          new String[]{String.valueOf(count.getId()), String.valueOf(count.getProductName()),
+              String.valueOf(count.getProductionWaitingCount()),
+              String.valueOf(count.getPurchaseWaitingCount())});
+    });
+  }
+
+  private void recordPartCountInfo(List<String[]> records, List<Long> productIdList) {
+    records.add(new String[]{"No.", "partName", "spec", "stock", "구매 수량", "구매 필요 수량"});
+    List<Long> partIdList = partRepository.findByProductIdList(productIdList).stream()
+        .map(Part::getId).toList();
+    partRepository.findPurchaseCountByPartIdList(partIdList).forEach(count -> {
+      long requireCount = Math.max(-count.getStock() - count.getPurchaseWaitingCount(), 0);
+      records.add(
+          new String[]{String.valueOf(count.getId()), String.valueOf(count.getPartName()),
+              String.valueOf(count.getSpec()), String.valueOf(count.getStock()),
+              String.valueOf(count.getPurchaseWaitingCount()), String.valueOf(requireCount)});
+    });
+  }
 }
