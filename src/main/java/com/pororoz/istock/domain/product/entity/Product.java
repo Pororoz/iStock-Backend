@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -64,6 +65,9 @@ public class Product extends TimeEntity {
   @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
   @Builder.Default
   private List<Bom> boms = new ArrayList<>();
+
+  @Version
+  private Long version;
 
   public void update(UpdateProductServiceRequest request, Category category) {
     this.productName = request.getProductName();

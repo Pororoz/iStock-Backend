@@ -15,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
@@ -47,6 +48,9 @@ public class PartIo extends TimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_io_id")
   private ProductIo productIo;
+
+  @Version
+  private Long version;
 
   @Builder
   public PartIo(Long id, long quantity, PartStatus status, Part part, ProductIo productIo) {
