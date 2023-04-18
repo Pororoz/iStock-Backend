@@ -27,7 +27,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
       @Param("categoryId") Long categoryId);
 
   @Query("select distinct pr from Product pr "
-      + "join fetch pr.boms b left join fetch b.part left join fetch b.subAssy")
+      + "join fetch pr.boms b left join fetch b.part left join fetch b.subAssy "
+      + "where pr.id = :id")
   Optional<Product> findByIdWithPartsAndSubAssies(@Param("id") Long id);
 
   @Query(value = "select distinct pr from Product pr "
