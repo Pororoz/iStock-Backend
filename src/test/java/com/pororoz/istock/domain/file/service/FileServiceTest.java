@@ -102,6 +102,23 @@ class FileServiceTest {
         verify(partRepository, never()).findByProductIdList(any());
         verify(partRepository, never()).findPurchaseCountByPartIdList(any());
       }
+
+      @Test
+      @DisplayName("id 배열이 null이면 예외가 발생한다.")
+      void nullList() {
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        // when
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> fileService.exportFile(response, null));
+
+        // then
+        assertThat("product-id-list is empty").isEqualTo(exception.getMessage());
+
+        verify(productRepository, never()).findWaitingCountByIdList(any());
+        verify(partRepository, never()).findByProductIdList(any());
+        verify(partRepository, never()).findPurchaseCountByPartIdList(any());
+      }
     }
   }
 }
