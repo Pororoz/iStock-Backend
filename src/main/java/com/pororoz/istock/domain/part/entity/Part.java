@@ -50,7 +50,6 @@ public class Part extends TimeEntity {
   private long price = 0;
 
   @NotNull
-  @PositiveOrZero
   @Builder.Default
   @ColumnDefault("0")
   private long stock = 0;

@@ -14,7 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,6 @@ public class Product extends TimeEntity {
   private String codeNumber;
 
   @NotNull
-  @PositiveOrZero
   @Builder.Default
   @ColumnDefault("0")
   private long stock = 0;
