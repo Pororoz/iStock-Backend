@@ -66,8 +66,15 @@ public class FileController {
         new ResultDTO<>(ResponseStatus.OK, ResponseMessage.UPLOAD_CSV, response));
   }
 
+  @Operation(summary = "export file", description = "파일 내보내기 API")
+  @ApiResponses({
+      @ApiResponse(responseCode = "403", description = ExceptionMessage.FORBIDDEN, content = {
+          @Content(schema = @Schema(implementation = AccessForbiddenSwagger.class))})
+  })
   @GetMapping
-  public void exportFile(@RequestParam("product-id-list") String productIdList,
+  public void exportFile(
+      @Schema(description = "제품 아이디", example = "1,2,3")
+      @RequestParam("product-id-list") String productIdList,
       HttpServletResponse response) {
     // 공백 없애고 ','로 구분
     List<Long> list = Arrays.stream(StringUtils.strip(productIdList, "\"").split("\\s*,\\s*"))
