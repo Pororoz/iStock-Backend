@@ -21,8 +21,8 @@ import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceRequest
 import com.pororoz.istock.domain.purchase.dto.service.PurchasePartServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceRequest;
 import com.pororoz.istock.domain.purchase.dto.service.PurchaseProductServiceResponse;
-import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyOutsourcingServiceResponse;
 import com.pororoz.istock.domain.purchase.dto.service.UpdatePurchaseServiceResponse;
+import com.pororoz.istock.domain.purchase.dto.service.UpdateSubAssyOutsourcingServiceResponse;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +69,10 @@ public class PurchaseService {
     partIo.confirmPurchase();
     partIo.getPart().addStock(partIo.getQuantity());
 
-    checkAllPartAndSubAssy(partIo.getProductIo());
+    // 개별 구매한 부품이 아니라면 완제품 io를 구매 확정으로 변경
+    if (partIo.getProductIo() != null) {
+      checkAllPartAndSubAssy(partIo.getProductIo());
+    }
 
     return UpdatePurchaseServiceResponse.of(partIo);
   }

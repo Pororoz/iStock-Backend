@@ -33,6 +33,7 @@ dependencies {
     implementation 'com.google.guava:guava:31.1-jre'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation group: 'com.opencsv', name: 'opencsv', version: '4.4'
 
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
