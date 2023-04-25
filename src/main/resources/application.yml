@@ -43,42 +43,6 @@ springdoc:
   default-consumes-media-type: application/json
   default-produces-media-type: application/json
 ---
-# local config
-spring:
-  config:
-    activate:
-      on-profile: "local"
-  datasource:
-    url: "jdbc:mysql://mysql:3306/istock?serverTimezone=Asia/Seoul&useSSL=false"
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    open-in-view: true
-    defer-datasource-initialization: true
-  sql:
-    init:
-      mode: always
-  data:
-    redis:
-      host: redis
-      port: 6379
-  mvc:
-    throw-exception-if-no-handler-found: true
-  web:
-    resources:
-      add-mappings: false
-springdoc:
-  swagger-ui:
-    path: /swagger-ui
-  api-docs:
-    path: /api-docs
-  default-consumes-media-type: application/json
-  default-produces-media-type: application/json
----
 # dev config
 spring:
   config:
