@@ -23,6 +23,7 @@ public class ProfileController {
 
   @GetMapping("wait")
   String waiting() throws InterruptedException {
+    System.out.println("waiting");
     final int TEN_SEC = 1000 * 10;
     Thread.sleep(TEN_SEC);
     return "success";
