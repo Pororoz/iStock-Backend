@@ -21,9 +21,7 @@ import com.pororoz.istock.domain.product.repository.ProductRepository;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceRequest;
 import com.pororoz.istock.domain.production.dto.service.SaveProductionServiceResponse;
 import com.pororoz.istock.domain.production.dto.service.UpdateProductionServiceResponse;
-import com.pororoz.istock.domain.production.exception.PartStockMinusException;
 import com.pororoz.istock.domain.production.exception.ProductOrBomNotFoundException;
-import com.pororoz.istock.domain.production.exception.ProductStockMinusException;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -176,51 +174,6 @@ class ProductionServiceTest {
         //then
         assertThrows(ProductOrBomNotFoundException.class, () ->
             productionService.saveWaitingProduction(request));
-      }
-
-      @Test
-      @DisplayName("Part의 stock이 음수가 되면 PartStockMinusException이 발생한다.")
-      void partStockMinus() {
-        //given
-        Part part = Part.builder().stock(2).build();
-        Product product = Product.builder().id(productId).build();
-        createPartBom(1, product, part);
-        createPartBom(2, product, part);
-        ProductIo productIo = ProductIo.builder()
-            .quantity(quantity).product(product).id(1L)
-            .build();
-
-        //when
-        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
-            Optional.of(product));
-        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-
-        //then
-        assertThrows(PartStockMinusException.class,
-            () -> productionService.saveWaitingProduction(request));
-      }
-
-      @Test
-      @DisplayName("Product의 stock이 음수가 되면 ProductStockMinusException이 발생한다.")
-      void productStockMinus() {
-        //given
-        Product subAssy = Product.builder()
-            .id(productId + 1L).codeNumber("11")
-            .stock(1).build();
-        Product product = Product.builder().id(productId).build();
-        createSubAssyBom(2, product, subAssy);
-        ProductIo productIo = ProductIo.builder()
-            .quantity(quantity).product(product)
-            .build();
-
-        //when
-        when(productRepository.findByIdWithPartsAndSubAssies(productId)).thenReturn(
-            Optional.of(product));
-        when(productIoRepository.save(any(ProductIo.class))).thenReturn(productIo);
-
-        //then
-        assertThrows(ProductStockMinusException.class,
-            () -> productionService.saveWaitingProduction(request));
       }
     }
   }

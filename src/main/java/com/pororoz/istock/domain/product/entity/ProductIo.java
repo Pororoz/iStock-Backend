@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.ArrayList;
@@ -57,6 +58,9 @@ public class ProductIo extends TimeEntity {
 
   @OneToMany(mappedBy = "superIo", fetch = FetchType.LAZY)
   private List<ProductIo> subAssyIoList;
+
+  @Version
+  private Long version;
 
   @Builder
   public ProductIo(Long id, long quantity, ProductStatus status, Product product, ProductIo superIo,

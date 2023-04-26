@@ -7,7 +7,10 @@ import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.part.entity.Part;
 import com.pororoz.istock.domain.part.repository.PartRepository;
+import com.pororoz.istock.domain.product.dto.repository.ProductWaitingCount;
 import com.pororoz.istock.domain.product.entity.Product;
+import com.pororoz.istock.domain.product.entity.ProductIo;
+import com.pororoz.istock.domain.product.entity.ProductStatus;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -289,6 +292,46 @@ class ProductRepositoryTest extends RepositoryTest {
 
       //then
       assertThat(productWithParts).isNull();
+    }
+  }
+
+  @Nested
+  class FindWaitingCountByIdList {
+
+    @Test
+    @DisplayName("productId list를 사용해 product와 productIo를 join하여 생산대기와 구매대기의 개수를 조회한다.")
+    void findWaitingCountByIdList() {
+      //given
+      Product p1 = em.persist(Product.builder().
+          productName("p1").productNumber("1").category(category1)
+          .build());
+      Product p2 = em.persist(Product.builder().
+          productName("p2").productNumber("2").category(category1)
+          .build());
+      // p1에 총 2개의 구매 대기, 총 4개 생산 대기 생성
+      for (int i = 0; i < 2; i++) {
+        em.persist(ProductIo.builder()
+            .quantity(1).status(ProductStatus.구매대기).product(p1)
+            .build());
+        em.persist(ProductIo.builder()
+            .quantity(2).status(ProductStatus.생산대기).product(p1)
+            .build());
+      }
+      List<Long> productIdList = List.of(p1.getId(), p2.getId());
+
+      //when
+      List<ProductWaitingCount> waitingCounts = productRepository.findWaitingCountByIdList(
+          productIdList);
+
+      //then
+      List<Long> expectedCounts = List.of(2L, 4L, 0L, 0L);
+      assertThat(waitingCounts).hasSize(2);
+      for (int i = 0; i < waitingCounts.size(); i++) {
+        ProductWaitingCount waitingCount = waitingCounts.get(i);
+        assertThat(waitingCount.getPurchaseWaitingCount()).isEqualTo(expectedCounts.get(i * 2));
+        assertThat(waitingCount.getProductionWaitingCount()).isEqualTo(
+            expectedCounts.get(i * 2 + 1));
+      }
     }
   }
 }

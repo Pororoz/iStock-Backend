@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -68,6 +69,9 @@ public class Bom extends TimeEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "sub_assy_id")
   private Product subAssy;
+
+  @Version
+  private long version;
 
   @Builder
   public Bom(Long id, String locationNumber, String codeNumber, long quantity, String memo,
