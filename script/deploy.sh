@@ -16,7 +16,7 @@ docker-compose -f "$DOCKER_COMPOSE_FILE" up mysql redis nginx -d --build
 if [ "$(docker ps -aqf name="^$IDLE_CONTAINER$")" ];
 then
   echo "> $IDLE_CONTAINER container 제거"
-  docker-compose -f "$DOCKER_COMPOSE_FILE" rm -s -v -f "$IDLE_CONTAINER"
+  docker stop "$IDLE_CONTAINER" && docker rm "$IDLE_CONTAINER"
 else
   echo "> 구동 중인 유휴 spring container가 없으므로 종료하지 않습니다."
 fi
