@@ -58,8 +58,8 @@ class FileServiceTest {
         );
 
         List<Part> partList = List.of(
-            new Part(3L, "Part1", "Spec1", 1000L, 30L),
-            new Part(4L, "Part2", "Spec2", 2000L, -15L));
+            new Part(3L, "Part1", "Spec1", 1000L, 30L, null),
+            new Part(4L, "Part2", "Spec2", 2000L, -15L, null));
         List<PartPurchaseCount> purchaseCountList = List.of(
             new PartPurchaseCountImpl(3L, "Part1", "Spec1", 30L, 29L),
             new PartPurchaseCountImpl(4L, "Part2", "Spec2", -15L, 12L));
