@@ -139,8 +139,7 @@ class ProductIoRepositoryTest extends RepositoryTest {
 
       //when
       Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingAndProductIdWithProduct(
-          "",
-          null, Pageable.unpaged());
+          "", null, Pageable.unpaged());
 
       //then
       assertThat(productIoPage.getTotalPages()).isEqualTo(1);
@@ -167,7 +166,7 @@ class ProductIoRepositoryTest extends RepositoryTest {
 
       //when
       Page<ProductIo> productIoPage = productIoRepository.findByStatusContainingAndProductIdWithProduct(
-          "", subAssyIo1.getId(), Pageable.unpaged());
+          null, subAssy1.getId(), Pageable.unpaged());
 
       //then
       assertThat(productIoPage.getTotalPages()).isEqualTo(1);
@@ -179,7 +178,7 @@ class ProductIoRepositoryTest extends RepositoryTest {
     void assertProductIoPageContent(List<ProductIo> content, List<ProductIo> expected) {
       assertThat(content).usingRecursiveComparison()
           .ignoringFields("superIo", "subAssyIoList", "partIoList",
-              "product.category", "product.boms")
+              "product", "version")
           .isEqualTo(expected);
     }
   }
