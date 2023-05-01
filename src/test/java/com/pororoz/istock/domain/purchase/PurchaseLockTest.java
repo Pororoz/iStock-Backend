@@ -2,7 +2,7 @@ package com.pororoz.istock.domain.purchase;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pororoz.istock.common.service.DatabaseCleanup;
+import com.pororoz.istock.IntegrationTest;
 import com.pororoz.istock.domain.bom.entity.Bom;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
@@ -24,17 +24,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.OptimisticLockingFailureException;
 
-@SpringBootTest
-public class PurchaseLockTest {
+public class PurchaseLockTest extends IntegrationTest {
 
   @Autowired
   PurchaseService purchaseService;
@@ -56,9 +53,6 @@ public class PurchaseLockTest {
 
   @Autowired
   ProductIoRepository productIoRepository;
-
-  @Autowired
-  DatabaseCleanup databaseCleanup;
 
   @BeforeEach
   void setUp() {
@@ -160,11 +154,6 @@ public class PurchaseLockTest {
         .productIo(productIo)
         .build();
     partIoRepository.save(partIo3);
-  }
-
-  @AfterEach
-  void afterEach() {
-    databaseCleanup.execute();
   }
 
   @Nested

@@ -40,7 +40,7 @@ do
     echo "> Nginx에 연결하지 않고 배포를 종료합니다."
     echo "> 배포에 실패한 container 삭제"
     IDLE_CONTAINER=$(find_idle_profile)
-    docker-compose -f "$DOCKER_COMPOSE_FILE" rm -s -v -f "$IDLE_CONTAINER"
+    docker stop "$IDLE_CONTAINER" && docker rm "$IDLE_CONTAINER"
     echo "> 실패한 docker latest image 삭제"
     docker rmi ghcr.io/"$ORGANIZATION"/"$REPOSITORY":latest
     exit 1

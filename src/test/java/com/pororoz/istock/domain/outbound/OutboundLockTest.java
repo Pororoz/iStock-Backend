@@ -2,7 +2,7 @@ package com.pororoz.istock.domain.outbound;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.pororoz.istock.common.service.DatabaseCleanup;
+import com.pororoz.istock.IntegrationTest;
 import com.pororoz.istock.domain.bom.repository.BomRepository;
 import com.pororoz.istock.domain.category.entity.Category;
 import com.pororoz.istock.domain.category.repository.CategoryRepository;
@@ -21,17 +21,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.OptimisticLockingFailureException;
 
-@SpringBootTest
-public class OutboundLockTest {
+public class OutboundLockTest extends IntegrationTest {
 
   @Autowired
   OutboundService outboundService;
@@ -53,9 +50,6 @@ public class OutboundLockTest {
 
   @Autowired
   ProductIoRepository productIoRepository;
-
-  @Autowired
-  DatabaseCleanup databaseCleanup;
 
   @BeforeEach
   void setUp() {
@@ -109,17 +103,13 @@ public class OutboundLockTest {
     productIoRepository.save(productIo3);
   }
 
-  @AfterEach
-  void afterEach() {
-    databaseCleanup.execute();
-  }
-
   @Nested
   @DisplayName("낙관적 락 테스트")
   class LockingTest {
+
     @Test
     @DisplayName("출고 확정 및 취소가 겹칠 때 낙관적 락 테스트")
-    void purchaseConfilct() throws InterruptedException {
+    void purchaseConflict() throws InterruptedException {
       // given
       // 스레드 개수 2개
       int numberOfThreads = 2;

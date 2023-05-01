@@ -19,7 +19,7 @@ function switch_proxy(){
     if [ "$IDLE_CONTAINER" != "$INACTIVE_CONTAINER" ]
     then
       echo "> Nginx에 연결되지 않은 container 삭제"
-      docker-compose -f "$DOCKER_COMPOSE_FILE" rm -s -v -f "$INACTIVE_CONTAINER"
+      docker stop "$INACTIVE_CONTAINER" && docker rm "$INACTIVE_CONTAINER"
       break
     fi
     echo "Switch delayed"
